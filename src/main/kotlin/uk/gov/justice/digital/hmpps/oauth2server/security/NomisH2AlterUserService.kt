@@ -23,16 +23,12 @@ class NomisH2AlterUserService(
 
   private val jdbcTemplate: JdbcTemplate = JdbcTemplate(dataSource)
 
-  companion object {
-    private const val UPDATE_STATUS = "UPDATE dba_users SET account_status = ? WHERE username = ?"
-  }
-
   @Transactional
   override fun changePassword(username: String?, password: String?) {
-    jdbcTemplate.update(String.format("ALTER USER %s SET PASSWORD ?", username), password)
-    val hashedPassword = passwordEncoder.encode(password)
-    jdbcTemplate.update(UPDATE_STATUS, "OPEN", username)
+    jdbcTemplate.update("call change_password(?, ?)", username, password)
+
     // also update h2 password table so that we have access to the hash.
+    val hashedPassword = passwordEncoder.encode(password)
     jdbcTemplate.update("UPDATE sys.user$ SET spare4 = ? WHERE name = ?", hashedPassword, username)
   }
 
@@ -41,6 +37,6 @@ class NomisH2AlterUserService(
   }
 
   override fun lockAccount(username: String?) {
-    jdbcTemplate.update(UPDATE_STATUS, "LOCKED", username)
+    jdbcTemplate.update("call lock_user(?)", username)
   }
 }
