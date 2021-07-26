@@ -18,7 +18,7 @@ usage() {
   exit 1
 }
 
-while getopts ":cke:u:n" arg; do
+while getopts ":cdke:u:n" arg; do
   case "${arg}" in
   e) # Environment to run against
     ENV="${OPTARG}"
@@ -28,6 +28,9 @@ while getopts ":cke:u:n" arg; do
     ;;
   c) # Specify whether to create the kubernetes secret
     create_secret=true
+    ;;
+  d) # Specify whether to ignore a missing deployment - useful when creating in blank namespace
+    ignore_missing_deployment=true
     ;;
   k) # Specify whether to create the keys in the kubernetes secret
     create_keys_in_secret=true
@@ -99,7 +102,8 @@ secretKey=$(echo "${clientInfo_json}" | jq -r .clientDeployment.secretKey)
 # Check if $deployment exists and is readable
 if ! kubectl -n "${namespace}" get deployment "${deployment}" &>/dev/null; then
   echo "Unable to find deployment \"${deployment}\" in namespace \"${namespace}\""
-  exit 1
+  [[ -z "${ignore_missing_deployment}" ]] && echo "If this is not expected to exist then use the -d argument to ignore" && exit 1
+  echo "Ignoring missing deployment."
 fi
 
 # Check if $secretName exists and is readable
@@ -138,7 +142,7 @@ echo "New clientID created '${new_clientID_name}'"
 currentClientID=$(kubectl -n "${namespace}" get secrets "${secretName}" -o json | jq -r ".data[\"${clientIdKey}\"] | @base64d")
 
 # Update k8s secret with new clientID and secret
-echo "Updating k8s secret \"${secretName}\" with new clientID and secret."
+echo "Updating k8s secret \"${secretName}\" in namespace \"${namespace}\" with new clientID and secret."
 kubectl -n "${namespace}" get secrets "${secretName}" -o json |
   jq ".data[\"${clientIdKey}\"]=\"$(echo -n "$new_clientID_b64name")\"" |
   jq ".data[\"${secretKey}\"]=\"$(echo -n "$new_clientID_b64secret")\"" |
