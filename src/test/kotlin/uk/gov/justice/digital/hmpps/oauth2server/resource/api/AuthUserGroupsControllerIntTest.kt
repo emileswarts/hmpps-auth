@@ -28,6 +28,24 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Auth User Groups add group by userId endpoint adds a group to a user`() {
+
+    callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .doesNotExist()
+
+    webTestClient
+      .put().uri("/api/authuser/id/7CA04ED7-8275-45B2-AFB4-4FF51432D1EC/groups/site_1_group_2")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isNoContent
+
+    callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
+  }
+
+  @Test
   fun `Auth User Groups remove group endpoint removes a group from a user`() {
     callGetGroups()
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
@@ -40,6 +58,23 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroups()
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .doesNotExist()
+  }
+
+  @Test
+  fun `Auth User Groups remove group by userId endpoint removes a group from a user`() {
+    callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
+
+    webTestClient
+      .delete().uri("/api/authuser/id/7CA04ED7-8275-45B2-AFB4-4FF51432D1EC/groups/site_1_group_1")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isNoContent
+
+    callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
   }
@@ -63,6 +98,24 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Auth User Groups add group by userId endpoint adds a group to a user - group manager`() {
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .doesNotExist()
+
+    webTestClient
+      .put().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA030/groups/SITE_1_GROUP_2")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isNoContent
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
+  }
+
+  @Test
   fun `Auth User Groups remove group endpoint removes a group from a user - group manager`() {
     callGetGroups(user = "AUTH_RO_USER_TEST3")
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
@@ -75,6 +128,23 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroups(user = "AUTH_RO_USER_TEST3")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .doesNotExist()
+  }
+
+  @Test
+  fun `Auth User Groups remove group by userId endpoint removes a group from a user - group manager`() {
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02F")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
+
+    webTestClient
+      .delete().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA02F/groups/SITE_1_GROUP_1")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isNoContent
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02F")
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
   }
@@ -93,6 +163,24 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isBadRequest
 
     callGetGroups(user = "AUTH_RO_USER_TEST3")
+      .jsonPath(".[?(@.groupCode == 'PECS_DRB8')]")
+      .doesNotExist()
+  }
+
+  @Test
+  fun `Auth User Groups add group by userId endpoint does not add group if group Manager not member of group`() {
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
+      .jsonPath(".[?(@.groupCode == 'PECS_DRB8')]")
+      .doesNotExist()
+
+    webTestClient
+      .put().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA02C/groups/PECS_DRB8")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isBadRequest
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
       .jsonPath(".[?(@.groupCode == 'PECS_DRB8')]")
       .doesNotExist()
   }
@@ -122,6 +210,30 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Auth User Groups add group by userId endpoint does not add group if user not in group managers groups`() {
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .doesNotExist()
+
+    webTestClient
+      .put().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA44A/groups/SITE_1_GROUP_1")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isForbidden
+      .expectBody()
+      .json(
+        """
+      {"error":"User not with your groups","error_description":"Unable to maintain user: Ryan-Auth Orton4 with reason: User not with your groups","field":"username"}
+        """.trimIndent()
+      )
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .doesNotExist()
+  }
+
+  @Test
   fun `Auth User Groups remove group endpoint does not remove group if group Manager not member of group`() {
     callGetGroups(user = "AUTH_RO_USER_TEST3")
       .jsonPath(".[?(@.groupCode == 'GC_DEL_4')]")
@@ -139,6 +251,23 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Auth User Groups remove group by userId endpoint does not remove group if group Manager not member of group`() {
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
+      .jsonPath(".[?(@.groupCode == 'GC_DEL_4')]")
+      .isEqualTo(mapOf("groupCode" to "GC_DEL_4", "groupName" to "Group 4 for deleting"))
+
+    webTestClient
+      .delete().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA02C/groups/GC_DEL_4")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isBadRequest
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
+      .jsonPath(".[?(@.groupCode == 'GC_DEL_4')]")
+      .isEqualTo(mapOf("groupCode" to "GC_DEL_4", "groupName" to "Group 4 for deleting"))
+  }
+
+  @Test
   fun `Auth User Groups remove group endpoint does not remove group if group Manager and users last group`() {
     callGetGroups(user = "AUTH_RO_USER_TEST5")
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
@@ -151,6 +280,23 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isForbidden
 
     callGetGroups(user = "AUTH_RO_USER_TEST5")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
+  }
+
+  @Test
+  fun `Auth User Groups remove group By userId endpoint does not remove group if group Manager and users last group`() {
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44B")
+      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
+
+    webTestClient
+      .delete().uri("/api/authuser/id/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+      .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+      .exchange()
+      .expectStatus().isForbidden
+
+    callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44B")
       .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
   }
@@ -337,7 +483,10 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
     .expectStatus().isOk
     .expectBody()
 
-  private fun callGetGroupsByUserId(userId: String = "AUTH_RO_USER", children: Boolean = false): BodyContentSpec = webTestClient
+  private fun callGetGroupsByUserId(
+    userId: String = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EA",
+    children: Boolean = false
+  ): BodyContentSpec = webTestClient
     .get().uri("/api/authuser/id/$userId/groups?children=$children")
     .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
     .exchange()

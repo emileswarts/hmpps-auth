@@ -10,6 +10,9 @@ import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupException
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupManagerException
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserLastGroupException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.ChildGroupExistsException
@@ -86,6 +89,7 @@ class AuthExceptionHandler {
       .status(HttpStatus.CONFLICT)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
   }
+
   @ExceptionHandler(GroupExistsException::class)
   fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorDetail> {
     log.debug("Group exists exception caught: {}", e.message)
@@ -117,6 +121,30 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(ErrorDetail(HttpStatus.BAD_REQUEST.reasonPhrase, e.message ?: "Error message not set", field))
+  }
+
+  @ExceptionHandler(AuthUserGroupException::class)
+  fun handleAuthUserGroupException(e: AuthUserGroupException): ResponseEntity<ErrorDetail> {
+    log.debug("Auth user group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
+  }
+
+  @ExceptionHandler(AuthUserGroupManagerException::class)
+  fun handleAuthUserGroupManagerException(e: AuthUserGroupManagerException): ResponseEntity<ErrorDetail> {
+    log.debug("Auth user group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
+  }
+
+  @ExceptionHandler(AuthUserLastGroupException::class)
+  fun handleAuthUserLastGroupException(e: AuthUserLastGroupException): ResponseEntity<ErrorDetail> {
+    log.debug("Auth user group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.FORBIDDEN)
+      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
   }
 
   companion object {

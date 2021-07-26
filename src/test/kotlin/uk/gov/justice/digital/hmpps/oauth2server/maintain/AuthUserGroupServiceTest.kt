@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.A
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import java.util.Optional
+import java.util.UUID
 
 class AuthUserGroupServiceTest {
   private val userRepository: UserRepository = mock()
@@ -36,6 +37,20 @@ class AuthUserGroupServiceTest {
     assertThatThrownBy {
       service.addGroup(
         "user",
+        "        ",
+        "admin",
+        listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+      )
+    }.isInstanceOf(AuthUserGroupException::class.java)
+      .hasMessage("Add group failed for field group with reason: notfound")
+  }
+
+  @Test
+  fun addGroupByUserId_blank() {
+    whenever(userRepository.findById(any())).thenReturn(Optional.of(createSampleUser(username = "user")))
+    assertThatThrownBy {
+      service.addGroupByUserId(
+        "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
         "        ",
         "admin",
         listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
@@ -62,6 +77,23 @@ class AuthUserGroupServiceTest {
   }
 
   @Test
+  fun addGroupByUserId_groupAlreadyOnUser() {
+    val group = Group("GROUP_LICENCE_VARY", "desc")
+    val user = createSampleUser(username = "user", groups = setOf(group))
+    whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+    assertThatThrownBy {
+      service.addGroupByUserId(
+        "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
+        "LICENCE_VARY",
+        "admin",
+        listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+      )
+    }.isInstanceOf(AuthUserGroupException::class.java)
+      .hasMessage("Add group failed for field group with reason: exists")
+  }
+
+  @Test
   fun addGroup_success() {
     val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
     whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
@@ -76,6 +108,25 @@ class AuthUserGroupServiceTest {
     )
     whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
     service.addGroup("user", "GROUP_LICENCE_VARY", "admin", SUPER_USER)
+    assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
+    assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+  }
+
+  @Test
+  fun addGroupByUserId_success() {
+    val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+    whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+    val group = Group("GROUP_LICENCE_VARY", "desc")
+    val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+    val roleJoe = Authority("JOE", "Role Joe")
+    group.assignableRoles.addAll(
+      setOf(
+        GroupAssignableRole(roleLicence, group, true),
+        GroupAssignableRole(roleJoe, group, false)
+      )
+    )
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+    service.addGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "GROUP_LICENCE_VARY", "admin", SUPER_USER)
     assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
     assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
   }
@@ -105,6 +156,30 @@ class AuthUserGroupServiceTest {
   }
 
   @Test
+  fun addGroupByUserId_success_groupManager() {
+    val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+    whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+    val manager = createSampleUser(
+      username = "user",
+      groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+    )
+    whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
+    val group = Group("GROUP_LICENCE_VARY", "desc")
+    val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+    val roleJoe = Authority("JOE", "Role Joe")
+    group.assignableRoles.addAll(
+      setOf(
+        GroupAssignableRole(roleLicence, group, true),
+        GroupAssignableRole(roleJoe, group, false)
+      )
+    )
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+    service.addGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "GROUP_LICENCE_VARY", "manager", GROUP_MANAGER_ROLE)
+    assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
+    assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+  }
+
+  @Test
   fun addGroup_failure_groupManagerNotMemberOfGroup() {
     val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
     whenever(userRepository.findByUsernameAndMasterIsTrue("user")).thenReturn(Optional.of(user))
@@ -122,6 +197,28 @@ class AuthUserGroupServiceTest {
     whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
     assertThatThrownBy {
       service.addGroup("user", "GROUP_LICENCE_VARY", "manager", GROUP_MANAGER_ROLE)
+    }.isInstanceOf(AuthUserGroupManagerException::class.java)
+      .hasMessage("Add group failed for field group with reason: managerNotMember")
+  }
+
+  @Test
+  fun addGroupByUserId_failure_groupManagerNotMemberOfGroup() {
+    val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+    whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+    val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+    whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
+    val group = Group("GROUP_LICENCE_VARY", "desc")
+    val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+    val roleJoe = Authority("JOE", "Role Joe")
+    group.assignableRoles.addAll(
+      setOf(
+        GroupAssignableRole(roleLicence, group, true),
+        GroupAssignableRole(roleJoe, group, false)
+      )
+    )
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+    assertThatThrownBy {
+      service.addGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "GROUP_LICENCE_VARY", "manager", GROUP_MANAGER_ROLE)
     }.isInstanceOf(AuthUserGroupManagerException::class.java)
       .hasMessage("Add group failed for field group with reason: managerNotMember")
   }
@@ -156,12 +253,56 @@ class AuthUserGroupServiceTest {
   }
 
   @Test
+  fun addGroupByUserId_failure_GroupManagerNotAllowedToMaintainUser() {
+    val user = createSampleUser(username = "user")
+    whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+    val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_LICENCE_VARY", "desc")))
+    whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
+    val group = Group("GROUP_LICENCE_VARY", "desc")
+    val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+    val roleJoe = Authority("JOE", "Role Joe")
+    group.assignableRoles.addAll(
+      setOf(
+        GroupAssignableRole(roleLicence, group, true),
+        GroupAssignableRole(roleJoe, group, false)
+      )
+    )
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+    doThrow(AuthUserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
+      .ensureUserLoggedInUserRelationship(
+        anyString(),
+        any(),
+        any()
+      )
+
+    assertThatThrownBy {
+      service.addGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "GROUP_LICENCE_VARY", "manager", GROUP_MANAGER_ROLE)
+    }.isInstanceOf(AuthUserGroupRelationshipException::class.java)
+      .hasMessage("Unable to maintain user: user with reason: User not with your groups")
+  }
+
+  @Test
   fun removeGroup_groupNotOnUser() {
     val user = createSampleUser(username = "user")
     whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
     assertThatThrownBy {
       service.removeGroup(
         "user",
+        "BOB",
+        "admin",
+        listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+      )
+    }.isInstanceOf(AuthUserGroupException::class.java)
+      .hasMessage("Add group failed for field group with reason: missing")
+  }
+
+  @Test
+  fun removeGroupByUserId_groupNotOnUser() {
+    val user = createSampleUser(username = "user")
+    whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+    assertThatThrownBy {
+      service.removeGroupByUserId(
+        "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
         "BOB",
         "admin",
         listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
@@ -180,6 +321,15 @@ class AuthUserGroupServiceTest {
   }
 
   @Test
+  fun removeGroupByUserId_success() {
+    val user = createSampleUser(username = "user")
+    user.groups.addAll(setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+    whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+    service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  licence_vary   ", "admin", SUPER_USER)
+    assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+  }
+
+  @Test
   fun removeGroup_success_groupManager() {
     val user = createSampleUser(username = "user")
     user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
@@ -194,6 +344,20 @@ class AuthUserGroupServiceTest {
   }
 
   @Test
+  fun removeGroupByUserId_success_groupManager() {
+    val user = createSampleUser(username = "user")
+    user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
+    whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+    val manager = createSampleUser(
+      username = "user",
+      groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+    )
+    whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
+    service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
+    assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+  }
+
+  @Test
   fun removeGroup_failure_groupManager() {
     val user = createSampleUser(username = "user")
     user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
@@ -204,6 +368,20 @@ class AuthUserGroupServiceTest {
     )
     whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
     service.removeGroup("user", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
+    assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+  }
+
+  @Test
+  fun removeGroupByUserId_failure_groupManager() {
+    val user = createSampleUser(username = "user")
+    user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
+    whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+    val manager = createSampleUser(
+      username = "user",
+      groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+    )
+    whenever(userRepository.findByUsernameAndMasterIsTrue("MANAGER")).thenReturn(Optional.of(manager))
+    service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
     assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
   }
 

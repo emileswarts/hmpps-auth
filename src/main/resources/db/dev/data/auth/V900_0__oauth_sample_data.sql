@@ -165,6 +165,7 @@ INSERT INTO users (user_id, username, password, password_expiry, email, first_na
         ('90F930E1-2195-4AFD-92CE-0EB5672DA44A', 'AUTH_RO_USER_TEST4', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test4@digital.justice.gov.uk', 'Ryan-Auth', 'Orton4', 1, 1, 0, 'auth'),
         ('90F930E1-2195-4AFD-92CE-0EB5672DA44B', 'AUTH_RO_USER_TEST5', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test5@digital.justice.gov.uk', 'Ryan-Auth', 'Orton5', 1, 1, 0, 'auth'),
         ('90F930E1-2195-4AFD-92CE-0EB5672DA02F', 'AUTH_RO_USER_TEST6', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test6@digital.justice.gov.uk', 'Ryan-Auth', 'Orton6', 1, 1, 0, 'auth'),
+        ('90F930E1-2195-4AFD-92CE-0EB5672DA030', 'AUTH_RO_USER_TEST7', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test7@digital.justice.gov.uk', 'Ryan-Auth', 'Orton6', 1, 1, 0, 'auth'),
         ('90F930E1-2195-4AFD-92CE-0EB5672DA02D', 'AUTH_ADD_ROLE_TEST', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_add_role@digital.justice.gov.uk', 'Add', 'RoleTest', 1, 1, 0, 'auth'),
         ('90F930E1-2195-4AFD-92CE-0EB5672DA02E', 'AUTH_ADD_ROLE_TEST2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_add_role2@digital.justice.gov.uk', 'Add', 'RoleTest2', 1, 1, 0, 'auth'),
         ('D9873CB3-24BD-4CFF-9CFE-1E64CE6BBCC4', 'AUTH_LOCKED2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_locked2@digital.justice.gov.uk', 'Auth', 'Locked2', 1, 1, 1, 'auth'),
@@ -449,6 +450,8 @@ INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups,
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST5' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST6' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST6' and group_code = 'SITE_2_GROUP_1';
+INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST7' and group_code = 'SITE_1_GROUP_1';
+INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST7' and group_code = 'GC_DEL_4';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER' and group_code = 'SITE_1_GROUP_2';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_DELETEALL' and group_code = 'SITE_3_GROUP_1';

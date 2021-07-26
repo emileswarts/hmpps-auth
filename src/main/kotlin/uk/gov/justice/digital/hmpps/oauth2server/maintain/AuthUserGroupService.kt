@@ -64,6 +64,40 @@ class AuthUserGroupService(
   }
 
   @Transactional(transactionManager = "authTransactionManager")
+  @Throws(
+    AuthUserGroupException::class,
+    AuthUserGroupManagerException::class,
+    AuthUserGroupRelationshipException::class
+  )
+  fun addGroupByUserId(userId: String, groupCode: String, modifier: String, authorities: Collection<GrantedAuthority>) {
+    // already checked that user exists
+    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
+      val groupFormatted = formatGroup(groupCode)
+      // check that group exists
+      val group =
+        groupRepository.findByGroupCode(groupFormatted) ?: throw AuthUserGroupException("group", "notfound")
+      if (user.groups.contains(group)) {
+        throw AuthUserGroupExistsException()
+      }
+      // check that modifier is able to add user to group
+      if (!checkGroupModifier(groupCode, authorities, modifier)) {
+        throw AuthUserGroupManagerException("Add", "group", "managerNotMember")
+      }
+      // check that modifier is able to maintain the user
+      maintainUserCheck.ensureUserLoggedInUserRelationship(modifier, authorities, user)
+
+      log.info("Adding group {} to userId {}", groupFormatted, userId)
+      user.groups.add(group)
+      user.authorities.addAll(group.assignableRoles.filter { it.automatic }.map { it.role })
+      telemetryClient.trackEvent(
+        "AuthUserGroupAddSuccess",
+        mapOf("userId" to userId, "group" to groupFormatted, "admin" to modifier),
+        null
+      )
+    }
+  }
+
+  @Transactional(transactionManager = "authTransactionManager")
   @Throws(AuthUserGroupException::class, AuthUserGroupManagerException::class, AuthUserLastGroupException::class)
   fun removeGroup(username: String, groupCode: String, modifier: String, authorities: Collection<GrantedAuthority>) {
     val groupFormatted = formatGroup(groupCode)
@@ -88,6 +122,38 @@ class AuthUserGroupService(
       mapOf("username" to username, "group" to groupCode, "admin" to modifier),
       null
     )
+  }
+
+  @Transactional(transactionManager = "authTransactionManager")
+  @Throws(AuthUserGroupException::class, AuthUserGroupManagerException::class, AuthUserLastGroupException::class)
+  fun removeGroupByUserId(
+    userId: String,
+    groupCode: String,
+    modifier: String,
+    authorities: Collection<GrantedAuthority>
+  ) {
+    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
+      val groupFormatted = formatGroup(groupCode)
+      if (user.groups.map { it.groupCode }.none { it == groupFormatted }
+      ) {
+        throw AuthUserGroupException("group", "missing")
+      }
+      if (!checkGroupModifier(groupFormatted, authorities, modifier)) {
+        throw AuthUserGroupManagerException("delete", "group", "managerNotMember")
+      }
+
+      if (user.groups.count() == 1 && !canMaintainAuthUsers(authorities)) {
+        throw AuthUserLastGroupException("group", "last")
+      }
+
+      log.info("Removing group {} from userId {}", groupFormatted, userId)
+      user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
+      telemetryClient.trackEvent(
+        "AuthUserGroupRemoveSuccess",
+        mapOf("userId" to userId, "group" to groupCode, "admin" to modifier),
+        null
+      )
+    }
   }
 
   private fun checkGroupModifier(
