@@ -103,6 +103,9 @@ env:
   - name: DELIUS_ROLES_MAPPINGS_SOCBT001
     value: "ROLE_SOC_COMMUNITY"
 
+  - name: DELIUS_ROLES_MAPPINGS_MAWBT001
+    value: "ROLE_WORKLOAD_MEASUREMENT"
+
   - name: JWT_COOKIE_EXPIRY_TIME
     value: {{ .Values.env.JWT_COOKIE_EXPIRY_TIME | quote }}
   - name: JWT_JWK_KEY_ID

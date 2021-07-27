@@ -73,7 +73,8 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('create-and-vary-a-licence-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('create-and-vary-a-licence-admin','3600','{}','ROLE_CVL_ADMIN,ROLE_GLOBAL_SEARCH,ROLE_SYSTEM_USER,ROLE_COMMUNITY','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null),
        ('calculate-release-dates-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
-       ('calculate-release-dates-admin','3600','{}','ROLE_CRD_ADMIN,ROLE_GLOBAL_SEARCH,ROLE_SYSTEM_USER','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null);
+       ('calculate-release-dates-admin','3600','{}','ROLE_CRD_ADMIN,ROLE_GLOBAL_SEARCH,ROLE_SYSTEM_USER','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null),
+       ('workload-measurement-ui','3600','{}',null,'authorization_code,refresh_token','read,write','$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000');
 
 INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri, last_accessed, created, secret_updated)
 VALUES ('rotation-test-client-1','3600','{"mfa":"all"}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:8081/login', '2013-01-28 13:23:19.0000000', '2013-01-26 13:23:19.1234567', '2013-01-27 13:23:19.7654321'),
@@ -235,7 +236,11 @@ INSERT INTO users (user_id, username, password, password_expiry, email, first_na
         ('9f6f8681-c273-48e5-bf6c-29a2d4fe159d', 'NOMIS_ENABLED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'nomis_auth_user@digital.justice.gov.uk', 'nomis_enabled', 'Auth Disabled', 1, 0, 0, 'auth'),
         ('8351b5de-2c38-4c0a-bcad-8ee78de6b5af', 'NOMIS_LOCKED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'nomis_auth_user@digital.justice.gov.uk', 'nomis locked', 'Auth Disabled', 1, 0, 0, 'auth'),
         ('f83c7a90-50c2-4b1b-b5ab-59206f731202', 'DELIUS_ENABLED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'delius_auth_user@digital.justice.gov.uk', 'nomis_disabled', 'Auth Disabled', 1, 0, 0, 'auth'),
-        ('f83c7a90-50c2-4b1b-b5ab-59206f731203', 'DELIUS_ENABLED_AUTH_DISABLED_LOCKED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'delius_auth_user@digital.justice.gov.uk', 'delius enabled', 'Auth Disabled Locked', 1, 0, 1, 'auth');
+        ('f83c7a90-50c2-4b1b-b5ab-59206f731203', 'DELIUS_ENABLED_AUTH_DISABLED_LOCKED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'delius_auth_user@digital.justice.gov.uk', 'delius enabled', 'Auth Disabled Locked', 1, 0, 1, 'auth'),
+        ('9274ec5b-19fd-49ce-ae3c-a6f5d77a3388', 'WMT_MANAGER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_manager@digital.justice.gov.uk', 'Wmt', 'Manager', 1, 1, 0, 'delius'),
+        ('edec977d-b743-4744-a8a8-1da84ee40c6b', 'WMT_DATA_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_data_admin@digital.justice.gov.uk', 'Wmt Data', 'Admin', 1, 1, 0, 'delius'),
+        ('f47742d4-18ba-4332-9519-86b2c94ab99c', 'WMT_STAFF', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_staff@digital.justice.gov.uk', 'Wmt', 'Staff', 1, 1, 0, 'delius'),
+        ('7fa0d669-6875-4d6b-86a5-3cf42c1c0015', 'WMT_SYSTEM_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_system_admin@digital.justice.gov.uk', 'Wmt System', 'Admin', 1, 1, 0, 'delius');
 
 INSERT INTO users (user_id, username, password, last_logged_in, first_name, last_name, verified, enabled, locked, source)
  VALUES ('7B59A818-BC14-43F3-A1C3-93004E173B2A', 'AUTH_DELETE', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '2018-01-02 13:23:19.0000000', 'Auth', 'Delete', 1, 0, 0, 'auth'),
@@ -309,6 +314,7 @@ insert into group_assignable_role (role_id, group_id, automatic) values ((select
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'TEST_PF_POLICE_1' and role_code = 'PF_POLICE';
 
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'TEST_PF_POLICE_1' and group_code = 'PF_LONDON';
+
 
 -- Local police accounts for manage-soc-cases
 INSERT INTO users (user_id, username, password, email, first_name, last_name, verified, locked, enabled, master, password_expiry, source, mfa_preference)
