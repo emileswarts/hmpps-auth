@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.repository
 
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
@@ -18,4 +19,16 @@ interface StaffUserAccountRepository : CrudRepository<NomisUserPersonDetails, St
     firstName: String,
     lastName: String,
   ): List<NomisUserPersonDetails>
+
+  @Modifying
+  @Query(value = "call change_user_password(:username, :password)", nativeQuery = true)
+  fun changePassword(username: String?, password: String?)
+
+  @Modifying
+  @Query(value = "call unlock_user(:username)", nativeQuery = true)
+  fun unlockUser(username: String?)
+
+  @Modifying
+  @Query(value = "call lock_user(:username)", nativeQuery = true)
+  fun lockUser(username: String?)
 }

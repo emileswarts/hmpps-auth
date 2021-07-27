@@ -16,7 +16,7 @@ import javax.sql.DataSource
 class NomisH2AlterUserService(
   @Qualifier("dataSource") dataSource: DataSource,
   private val passwordEncoder: PasswordEncoder,
-  staffUserAccountRepository: StaffUserAccountRepository,
+  private val staffUserAccountRepository: StaffUserAccountRepository,
   verifyEmailService: VerifyEmailService,
   userRepository: UserRepository
 ) : NomisUserService(staffUserAccountRepository, userRepository, verifyEmailService) {
@@ -25,18 +25,21 @@ class NomisH2AlterUserService(
 
   @Transactional
   override fun changePassword(username: String?, password: String?) {
-    jdbcTemplate.update("call change_password(?, ?)", username, password)
+    staffUserAccountRepository.changePassword(username, password)
 
     // also update h2 password table so that we have access to the hash.
     val hashedPassword = passwordEncoder.encode(password)
     jdbcTemplate.update("UPDATE sys.user$ SET spare4 = ? WHERE name = ?", hashedPassword, username)
   }
 
+  @Transactional
   override fun changePasswordWithUnlock(username: String?, password: String?) {
     changePassword(username, password)
+    staffUserAccountRepository.unlockUser(username)
   }
 
+  @Transactional
   override fun lockAccount(username: String?) {
-    jdbcTemplate.update("call lock_user(?)", username)
+    staffUserAccountRepository.lockUser(username)
   }
 }

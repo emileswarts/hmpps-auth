@@ -16,11 +16,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 @CODE
 void unlockUser(Connection conn, String username) throws SQLException {
-    // no action required as h2 does not have concept of locking / unlocking users
+    final var lockSql = "UPDATE dba_users SET account_status = ? WHERE username = ?";
+    final var lockStatement = conn.prepareStatement(lockSql);
+    lockStatement.setString(1, "OPEN");
+    lockStatement.setString(2, username);
+    lockStatement.executeUpdate();
 }
 $$;
 
-CREATE ALIAS change_password AS $$
+CREATE ALIAS change_user_password AS $$
 import java.sql.Connection;
 import java.sql.SQLException;
 @CODE
@@ -30,11 +34,20 @@ void changePassword(Connection conn, String username, String password) throws SQ
     statement.setString(1, username);
     statement.executeUpdate();
 
-    // also need to set the account to OPEN here replicating the oracle setting password removing the expiry
-    final var lockSql = "UPDATE dba_users SET account_status = ? WHERE username = ?";
-    final var lockStatement = conn.prepareStatement(lockSql);
-    lockStatement.setString(1, "OPEN");
-    lockStatement.setString(2, username);
-    lockStatement.executeUpdate();
+    final var statusSql = "SELECT account_status from dba_users WHERE username = ?";
+    final var statusStatement = conn.prepareStatement(statusSql);
+    statusStatement.setString(1, username);
+    final var resultSet = statusStatement.executeQuery();
+    if (resultSet.next()) {
+        final var accountStatus = resultSet.getString(1);
+        if (accountStatus.equals("EXPIRED")) {
+            final var lockSql = "UPDATE dba_users SET account_status = ? WHERE username = ?";
+            final var lockStatement = conn.prepareStatement(lockSql);
+            lockStatement.setString(1, "OPEN");
+            lockStatement.setString(2, username);
+            lockStatement.executeUpdate();
+        }
+    }
+    resultSet.close();
 }
 $$;
