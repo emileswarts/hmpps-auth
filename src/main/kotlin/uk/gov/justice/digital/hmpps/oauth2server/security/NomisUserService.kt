@@ -57,7 +57,16 @@ abstract class NomisUserService(
     )
   }
 
+  @Transactional
+  fun changePasswordWithUnlock(username: String?, password: String?) {
+    changePassword(username, password)
+    staffUserAccountRepository.unlockUser(username)
+  }
+
+  @Transactional
+  fun lockAccount(username: String?) {
+    staffUserAccountRepository.lockUser(username)
+  }
+
   abstract fun changePassword(username: String?, password: String?)
-  abstract fun changePasswordWithUnlock(username: String?, password: String?)
-  abstract fun lockAccount(username: String?)
 }

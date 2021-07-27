@@ -21,14 +21,14 @@ interface StaffUserAccountRepository : CrudRepository<NomisUserPersonDetails, St
   ): List<NomisUserPersonDetails>
 
   @Modifying
-  @Query(value = "call change_user_password(:username, :password)", nativeQuery = true)
+  @Query(value = "call oms_utils.change_user_password(:username, :password)", nativeQuery = true)
   fun changePassword(username: String?, password: String?)
 
   @Modifying
-  @Query(value = "call unlock_user(:username)", nativeQuery = true)
+  @Query(value = "call oms_utils.unlock_user(:username)", nativeQuery = true)
   fun unlockUser(username: String?)
 
   @Modifying
-  @Query(value = "call lock_user(:username)", nativeQuery = true)
+  @Query(value = "call oms_utils.lock_user(:username)", nativeQuery = true)
   fun lockUser(username: String?)
 }

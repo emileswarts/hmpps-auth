@@ -1,4 +1,5 @@
-CREATE ALIAS lock_user AS $$
+CREATE SCHEMA IF NOT EXISTS oms_utils;
+CREATE ALIAS oms_utils.lock_user AS $$
 import java.sql.Connection;
 import java.sql.SQLException;
 @CODE
@@ -11,7 +12,7 @@ void lockUser(Connection conn, String username) throws SQLException {
 }
 $$;
 
-CREATE ALIAS unlock_user AS $$
+CREATE ALIAS oms_utils.unlock_user AS $$
 import java.sql.Connection;
 import java.sql.SQLException;
 @CODE
@@ -24,7 +25,7 @@ void unlockUser(Connection conn, String username) throws SQLException {
 }
 $$;
 
-CREATE ALIAS change_user_password AS $$
+CREATE ALIAS oms_utils.change_user_password AS $$
 import java.sql.Connection;
 import java.sql.SQLException;
 @CODE

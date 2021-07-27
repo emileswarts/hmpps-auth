@@ -31,15 +31,4 @@ class NomisH2AlterUserService(
     val hashedPassword = passwordEncoder.encode(password)
     jdbcTemplate.update("UPDATE sys.user$ SET spare4 = ? WHERE name = ?", hashedPassword, username)
   }
-
-  @Transactional
-  override fun changePasswordWithUnlock(username: String?, password: String?) {
-    changePassword(username, password)
-    staffUserAccountRepository.unlockUser(username)
-  }
-
-  @Transactional
-  override fun lockAccount(username: String?) {
-    staffUserAccountRepository.lockUser(username)
-  }
 }
