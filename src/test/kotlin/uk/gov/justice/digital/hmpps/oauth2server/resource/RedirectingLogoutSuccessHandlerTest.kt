@@ -21,14 +21,14 @@ class RedirectingLogoutSuccessHandlerTest {
   @Test
   fun onLogoutSuccess_NoClientId() {
     redirectingLogoutSuccessHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout")
+    verify(response).sendRedirect("/path/sign-in?signout")
   }
 
   @Test
   fun onLogoutSuccess_ClientIdNotMatched() {
     whenever(request.getParameter("client_id")).thenReturn("joe")
     redirectingLogoutSuccessHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout")
+    verify(response).sendRedirect("/path/sign-in?signout")
   }
 
   @Test
@@ -37,14 +37,14 @@ class RedirectingLogoutSuccessHandlerTest {
     whenever(request.getParameter("redirect_uri")).thenReturn("http://some.where")
     whenever(clientDetailsService.loadClientByClientId("joe")).thenReturn(createClientDetails("http://tim.buk.tu"))
     redirectingLogoutSuccessHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout")
+    verify(response).sendRedirect("/path/sign-in?signout")
   }
 
   @Test
   fun onLogoutSuccess_NoRedirectUrisConfigured() {
     whenever(request.getParameter("client_id")).thenReturn("joe")
     redirectingLogoutSuccessHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout")
+    verify(response).sendRedirect("/path/sign-in?signout")
   }
 
   @Test
@@ -73,7 +73,7 @@ class RedirectingLogoutSuccessHandlerTest {
       )
     )
     subdomainHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout")
+    verify(response).sendRedirect("/path/sign-in?signout")
   }
 
   @Test
@@ -82,7 +82,7 @@ class RedirectingLogoutSuccessHandlerTest {
     whenever(request.getParameter("client_id")).thenReturn("joe")
     whenever(request.getParameter("error")).thenReturn("somevalue")
     subdomainHandler.onLogoutSuccess(request, response, null)
-    verify(response).sendRedirect("/path/login?logout&error=somevalue")
+    verify(response).sendRedirect("/path/sign-in?signout&error=somevalue")
   }
 
   @Test

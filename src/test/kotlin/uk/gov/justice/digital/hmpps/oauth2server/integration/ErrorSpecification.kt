@@ -15,7 +15,7 @@ class ErrorSpecification : AbstractAuthSpecification() {
   @Test
   fun `Error page shown when error occurs`() {
     goTo(loginPage)
-    goTo("login;someerror")
+    goTo("sign-in;someerror")
     errorPage
       .isAt()
   }

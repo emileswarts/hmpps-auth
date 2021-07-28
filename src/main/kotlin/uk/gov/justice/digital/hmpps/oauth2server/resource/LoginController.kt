@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.digital.hmpps.oauth2server.config.CookieRequestCache
 import java.util.Collections
@@ -41,6 +42,9 @@ class LoginController(
   }
 
   @GetMapping("/login")
+  fun oldLoginPage() = RedirectView("sign-in").apply { setPropagateQueryParams(true) }
+
+  @GetMapping("/sign-in")
   fun loginPage(
     @RequestParam(required = false) error: String?,
     request: HttpServletRequest,
@@ -74,13 +78,16 @@ class LoginController(
     return modelAndView
   }
 
-  @GetMapping(value = ["/logout"])
+  @GetMapping("/logout")
+  fun oldLogoutPage() = RedirectView("sign-out").apply { setPropagateQueryParams(true) }
+
+  @GetMapping(value = ["/sign-out"])
   fun logoutPage(request: HttpServletRequest, response: HttpServletResponse): String {
     val auth = SecurityContextHolder.getContext().authentication
     if (auth != null) {
       SecurityContextLogoutHandler().logout(request, response, auth)
     }
-    return "redirect:/login?logout"
+    return "redirect:/sign-in?signout"
   }
 
   @GetMapping("/access-denied")

@@ -50,7 +50,7 @@ SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
 ```
 
 The service should start up using the dev profile, perform the flyway migrations on its local HSQLDB and then seed local development data.
-Can then be accessed in a browser on http://localhost:8080/auth/login
+Can then be accessed in a browser on http://localhost:8080/auth/sign-in
 
 ### Run locally with token verification and delius enabled (for integration tests) on the command line
 ```bash

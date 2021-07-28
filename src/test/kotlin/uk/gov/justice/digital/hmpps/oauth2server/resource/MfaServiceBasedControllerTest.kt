@@ -228,7 +228,7 @@ class MfaServiceBasedControllerTest {
         response,
         authentication,
       )
-      assertThat(modelAndView!!.viewName).isEqualTo("redirect:/logout")
+      assertThat(modelAndView!!.viewName).isEqualTo("redirect:/sign-out")
       assertThat(modelAndView.model).containsOnly(entry("error", "locked"))
     }
 
@@ -255,7 +255,7 @@ class MfaServiceBasedControllerTest {
         response,
         authentication,
       )
-      assertThat(modelAndView!!.viewName).isEqualTo("redirect:/logout")
+      assertThat(modelAndView!!.viewName).isEqualTo("redirect:/sign-out")
       assertThat(modelAndView.model).containsOnly(entry("error", "locked"))
     }
 

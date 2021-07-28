@@ -73,17 +73,17 @@ class AuthenticationManagerConfiguration(
       .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Can't have CSRF protection as requires session
       .and().csrf().disable()
       .authorizeRequests()
-      .antMatchers(HttpMethod.GET, "/login").permitAll()
-      .antMatchers(HttpMethod.POST, "/login").permitAll()
+      .antMatchers(HttpMethod.GET, "/sign-in").permitAll()
+      .antMatchers(HttpMethod.POST, "/sign-in").permitAll()
       .antMatchers("/ui/**").access("isAuthenticated() and @authIpSecurity.check(request)")
       .anyRequest().authenticated()
       .and()
       .exceptionHandling()
       .accessDeniedHandler(accessDeniedHandler)
-      .authenticationEntryPoint(RedirectingLoginUrlAuthenticationEntryPoint("/login"))
+      .authenticationEntryPoint(RedirectingLoginUrlAuthenticationEntryPoint("/sign-in"))
       .and()
       .formLogin()
-      .loginPage("/login")
+      .loginPage("/sign-in")
       .successHandler(jwtAuthenticationSuccessHandler)
       .failureHandler(userStateAuthenticationFailureHandler)
       .permitAll()
@@ -92,7 +92,7 @@ class AuthenticationManagerConfiguration(
       .invalidateHttpSession(true)
       .clearAuthentication(true)
       .deleteCookies(jwtCookieName)
-      .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
+      .logoutRequestMatcher(AntPathRequestMatcher("/sign-out"))
       .addLogoutHandler(clearAllSessionsLogoutHandler)
       .logoutSuccessHandler(logoutSuccessHandler)
       .permitAll()
@@ -103,7 +103,7 @@ class AuthenticationManagerConfiguration(
     if (clientRegistrationRepository.isPresent) {
       http.oauth2Login()
         .userInfoEndpoint { it.oidcUserService(oidcUserService()) }
-        .loginPage("/login")
+        .loginPage("/sign-in")
         .successHandler(oidcJwtAuthenticationSuccessHandler)
         .failureHandler(userStateAuthenticationFailureHandler)
         .permitAll()
@@ -146,7 +146,7 @@ class AuthenticationManagerConfiguration(
         "/mfa-resend", "/h2-console/**", "/v2/api-docs", "/jwt-public-key",
         "/swagger-ui.html", "/swagger-resources", "/swagger-resources/configuration/ui",
         "/swagger-resources/configuration/security", "/.well-known/jwks.json", "/issuer/.well-known/**",
-        "/api/services"
+        "/api/services", "/login", "/logout"
       )
   }
 

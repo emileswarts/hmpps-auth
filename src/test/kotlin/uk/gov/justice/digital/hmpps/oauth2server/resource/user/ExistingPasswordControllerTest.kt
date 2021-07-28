@@ -153,7 +153,7 @@ class ExistingPasswordControllerTest {
       whenever(authenticationManager.authenticate(any())).thenThrow(LockedException("some locked message"))
       whenever(tokenService.createToken(any(), anyString())).thenReturn("sometoken")
       val mandv = controller.existingPassword("somepass", "password", token)
-      assertThat(mandv.viewName).isEqualTo("redirect:/logout")
+      assertThat(mandv.viewName).isEqualTo("redirect:/sign-out")
       assertThat(mandv.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "locked"))
     }
 
@@ -162,7 +162,7 @@ class ExistingPasswordControllerTest {
       whenever(authenticationManager.authenticate(any())).thenThrow(CredentialsExpiredException("some expired message"))
       whenever(tokenService.createToken(any(), anyString())).thenReturn("sometoken")
       val mandv = controller.existingPassword("somepass", "password", token)
-      assertThat(mandv.viewName).isEqualTo("redirect:/logout")
+      assertThat(mandv.viewName).isEqualTo("redirect:/sign-out")
       assertThat(mandv.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "invalid"))
     }
   }

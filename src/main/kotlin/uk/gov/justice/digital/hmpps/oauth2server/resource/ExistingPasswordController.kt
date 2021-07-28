@@ -66,8 +66,8 @@ class ExistingPasswordController(
         BadCredentialsException::class ->
           createModelAndViewWithUsername(authentication).addObject("error", "invalid")
             .addObject("type", type)
-        LockedException::class -> ModelAndView("redirect:/logout", "error", "locked")
-        else -> ModelAndView("redirect:/logout", "error", "invalid")
+        LockedException::class -> ModelAndView("redirect:/sign-out", "error", "locked")
+        else -> ModelAndView("redirect:/sign-out", "error", "invalid")
       }
     }
   }

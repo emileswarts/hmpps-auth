@@ -126,7 +126,7 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   @Test
   fun `Sign in from another client adds redirect url to login page`() {
     clientAccess {
-      assertThat(loginPage.isAtPage().url()).isEqualTo("login?redirect_uri=$clientBaseUrl")
+      assertThat(loginPage.isAtPage().url()).isEqualTo("sign-in?redirect_uri=$clientBaseUrl")
       loginPage.submitLogin(username = "AUTH_USER")
     }
       .jsonPath(".user_name").isEqualTo("AUTH_USER")
@@ -255,6 +255,18 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   @Test
   fun `I can logout as a client from another system`() {
     clientSignIn("AUTH_USER")
+    goTo("/sign-out?redirect_uri=$clientBaseUrl&client_id=elite2apiclient")
+    assertThat(driver.currentUrl).isEqualTo(clientBaseUrl)
+
+    // check that they are now logged out
+    val state = RandomStringUtils.random(6, true, true)
+    goTo("/oauth/authorize?client_id=elite2apiclient&redirect_uri=$clientBaseUrl&response_type=code&state=$state")
+    loginPage.isAt()
+  }
+
+  @Test
+  fun `I can logout as a client from another system using the old logout URL`() {
+    clientSignIn("AUTH_USER")
     goTo("/logout?redirect_uri=$clientBaseUrl&client_id=elite2apiclient")
     assertThat(driver.currentUrl).isEqualTo(clientBaseUrl)
 
@@ -268,7 +280,7 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   fun `I can logout as a client from another system and send token to verification service (requires token-verification spring profile)`() {
     val authJwtId = goTo(loginPage).loginAs("AUTH_USER").parseJwt().jwtid
 
-    goTo("/logout?redirect_uri=$clientBaseUrl&client_id=elite2apiclient")
+    goTo("/sign-out?redirect_uri=$clientBaseUrl&client_id=elite2apiclient")
 
     tokenVerificationApi.verify(
       deleteRequestedFor(urlPathEqualTo("/token"))

@@ -17,7 +17,7 @@ class PageNotFoundSpecification : AbstractAuthSpecification() {
 
   @Test
   fun `Page not found page shown when page does not exist`() {
-    goTo("/logout")
+    goTo("/sign-out")
     goTo("/pagethatdoesntexist")
     loginPage
       .loginPageNotFound("ITAG_USER", "password")

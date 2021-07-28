@@ -27,7 +27,7 @@ class UserStateAuthenticationFailureHandler(
   private val telemetryClient: TelemetryClient,
 ) : SimpleUrlAuthenticationFailureHandler(FAILURE_URL) {
   companion object {
-    private const val FAILURE_URL = "/login"
+    private const val FAILURE_URL = "/sign-in"
   }
 
   init {

@@ -26,6 +26,13 @@ class LoginSpecification : AbstractDeliusAuthSpecification() {
   }
 
   @Test
+  fun `Log in from old login URL redirects ok`() {
+    goTo("/login")
+    loginPage.loginAs("AUTH_USER")
+    homePage.assertNameDisplayedCorrectly("A. Only")
+  }
+
+  @Test
   fun `Log in with valid auth credentials sets jwt cookie`() {
     val homePage = goTo(loginPage).loginAs("AUTH_USER")
     val jwt = homePage.parseJwt()
@@ -86,21 +93,29 @@ class LoginSpecification : AbstractDeliusAuthSpecification() {
   @Test
   fun `Visiting protected resources will add redirect_uri to page url so can be bookmarked`() {
     goTo("/joe?redirect_uri=http://localhost/joe")
-    assertThat(loginPage.isAtPage().url()).isEqualTo("login?redirect_uri=http://localhost/joe")
+    assertThat(loginPage.isAtPage().url()).isEqualTo("sign-in?redirect_uri=http://localhost/joe")
   }
 
   @Test
   fun `Honour redirect url after login`() {
+    goTo("/sign-in?redirect_uri=$clientBaseUrl")
+    assertThat(loginPage.isAtPage().url()).isEqualTo("sign-in?redirect_uri=$clientBaseUrl")
+    loginPage.submitLogin("AUTH_ADM")
+    assertThat(driver.currentUrl).startsWith(clientBaseUrl)
+  }
+
+  @Test
+  fun `Honour redirect url after login from old login URL`() {
     goTo("/login?redirect_uri=$clientBaseUrl")
-    assertThat(loginPage.isAtPage().url()).isEqualTo("login?redirect_uri=$clientBaseUrl")
+    assertThat(loginPage.isAtPage().url()).isEqualTo("sign-in?redirect_uri=$clientBaseUrl")
     loginPage.submitLogin("AUTH_ADM")
     assertThat(driver.currentUrl).startsWith(clientBaseUrl)
   }
 
   @Test
   fun `Don't honour redirect url that aren't matched to a client after login`() {
-    goTo("/login?redirect_uri=https://malicious_user/url")
-    assertThat(loginPage.isAtPage().url()).isEqualTo("login?redirect_uri=https://malicious_user/url")
+    goTo("/sign-in?redirect_uri=https://malicious_user/url")
+    assertThat(loginPage.isAtPage().url()).isEqualTo("sign-in?redirect_uri=https://malicious_user/url")
     loginPage.submitLogin("AUTH_ADM")
     homePage.isAt()
   }
@@ -108,6 +123,16 @@ class LoginSpecification : AbstractDeliusAuthSpecification() {
   @Test
   fun `I can logout once logged in`() {
     val homePage = goTo(loginPage).loginAs("itag_user", "password")
+
+    homePage.logOut()
+
+    loginPage.isAtPage().checkLoggedOutMessage()
+  }
+
+  @Test
+  fun `After logging in to the old login URL and then logging out I am redirected to the new login URL`() {
+    goTo("/login")
+    val homePage = loginPage.loginAs("itag_user", "password")
 
     homePage.logOut()
 
@@ -255,7 +280,7 @@ class LoginSpecification : AbstractDeliusAuthSpecification() {
   }
 }
 
-@PageUrl("/login")
+@PageUrl("/sign-in")
 class LoginPage : AuthPage<LoginPage>("HMPPS Digital Services - Sign in", "Sign in") {
   @FindBy(css = "input[type='submit']")
   private lateinit var signInButton: FluentWebElement

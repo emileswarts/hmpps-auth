@@ -59,7 +59,7 @@ class RedirectingLogoutSuccessHandler(
         }
       }
     }
-    val urlBuilder = UriComponentsBuilder.fromPath("$servletContextPath/login").queryParam("logout")
+    val urlBuilder = UriComponentsBuilder.fromPath("$servletContextPath/sign-in").queryParam("signout")
     if (!error.isNullOrBlank()) urlBuilder.queryParam("error", error)
     response.sendRedirect(urlBuilder.build().toString())
   }

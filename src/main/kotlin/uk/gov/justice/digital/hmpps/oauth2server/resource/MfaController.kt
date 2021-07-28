@@ -37,7 +37,7 @@ class MfaController(
   mfaService,
   smokeTestEnabled,
   "",
-  "/login",
+  "/sign-in",
   "/mfa-challenge"
 ) {
   @GetMapping("/mfa-challenge")
@@ -46,11 +46,11 @@ class MfaController(
     @RequestParam mfaPreference: MfaPreferenceType,
   ): ModelAndView {
 
-    if (token.isNullOrBlank()) return ModelAndView("redirect:/login?error=mfainvalid")
+    if (token.isNullOrBlank()) return ModelAndView("redirect:/sign-in?error=mfainvalid")
 
     val optionalError = tokenService.checkToken(TokenType.MFA, token)
 
-    return optionalError.map { ModelAndView("redirect:/login?error=mfa$it") }
+    return optionalError.map { ModelAndView("redirect:/sign-in?error=mfa$it") }
       .orElseGet {
         val codeDestination = mfaService.getCodeDestination(token, mfaPreference)
         ModelAndView("mfaChallenge", "token", token)

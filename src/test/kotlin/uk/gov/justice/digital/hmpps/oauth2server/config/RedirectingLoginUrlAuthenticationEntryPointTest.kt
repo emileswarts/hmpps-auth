@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 internal class RedirectingLoginUrlAuthenticationEntryPointTest {
-  private val entryPoint = RedirectingLoginUrlAuthenticationEntryPoint("/login")
+  private val entryPoint = RedirectingLoginUrlAuthenticationEntryPoint("/sign-in")
 
   private val request: HttpServletRequest = mock()
   private val response: HttpServletResponse = mock()
@@ -21,7 +21,7 @@ internal class RedirectingLoginUrlAuthenticationEntryPointTest {
     whenever(request.serverPort).thenReturn(12345)
     whenever(response.encodeRedirectURL(anyString())).thenReturn("encoded")
     entryPoint.commence(request, response, null)
-    verify(response).encodeRedirectURL("https://localhost:12345/login")
+    verify(response).encodeRedirectURL("https://localhost:12345/sign-in")
     verify(response).sendRedirect("encoded")
   }
 
@@ -33,7 +33,7 @@ internal class RedirectingLoginUrlAuthenticationEntryPointTest {
     whenever(request.serverPort).thenReturn(12345)
     whenever(response.encodeRedirectURL(anyString())).thenReturn("encoded")
     entryPoint.commence(request, response, null)
-    verify(response).encodeRedirectURL("https://localhost:12345/login?redirect_uri=some?parameter%26value")
+    verify(response).encodeRedirectURL("https://localhost:12345/sign-in?redirect_uri=some?parameter%26value")
     verify(response).sendRedirect("encoded")
   }
 }

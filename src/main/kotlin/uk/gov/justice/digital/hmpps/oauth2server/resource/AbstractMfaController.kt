@@ -80,7 +80,7 @@ abstract class AbstractMfaController(
         .addObject("mfaPreference", mfaPreference)
         .addObject("codeDestination", codeDestination)
     } catch (e: LoginFlowException) {
-      return ModelAndView("redirect:/logout", "error", e.error)
+      return ModelAndView("redirect:/sign-out", "error", e.error)
     }
 
     // success, so forward on

@@ -35,7 +35,7 @@ class ChangePasswordController(
     tokenService,
     userService,
     telemetryClient,
-    "redirect:/login?error=%s",
+    "redirect:/sign-in?error=%s",
     "changePassword",
     passwordDenylist
   ) {
