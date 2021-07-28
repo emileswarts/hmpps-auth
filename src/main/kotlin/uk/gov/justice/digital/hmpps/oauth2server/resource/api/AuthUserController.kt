@@ -570,6 +570,55 @@ class AuthUserController(
     }
   }
 
+  @PostMapping("/api/authuser/id/{userId}/email")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @ApiOperation(
+    value = "Amend a user email address.",
+    notes = "Amend a user email address.",
+    nickname = "alterUserEmail",
+    consumes = "application/json",
+    produces = "application/json"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 204, message = "OK"), ApiResponse(
+        code = 400,
+        message = "Bad request e.g. if validation failed or if the email changes are disallowed",
+        response = ErrorDetail::class
+      ), ApiResponse(
+        code = 401,
+        message = "Unauthorized.",
+        response = ErrorDetail::class
+      ), ApiResponse(
+        code = 403,
+        message = "Unable to amend user, the user is not within one of your groups",
+        response = ErrorDetail::class
+      ), ApiResponse(
+        code = 404,
+        message = "User not found.",
+        response = ErrorDetail::class
+      )
+    ]
+  )
+  @Throws(NotificationClientException::class)
+  fun alterUserEmail(
+    @ApiParam(value = "The ID of the user.", required = true) @PathVariable userId: String,
+    @RequestBody amendUser: AmendUser,
+    @ApiIgnore request: HttpServletRequest,
+    @ApiIgnore authentication: Authentication,
+  ): String? {
+    val setPasswordUrl = createInitialPasswordUrl(request)
+    val resetLink = authUserService.amendUserEmailByUserId(
+      userId,
+      amendUser.email,
+      setPasswordUrl,
+      authentication.name,
+      authentication.authorities,
+      EmailType.PRIMARY
+    )
+    return if (smokeTestEnabled) resetLink else null
+  }
+
   data class CreateUser(
     @ApiModelProperty(
       required = true,

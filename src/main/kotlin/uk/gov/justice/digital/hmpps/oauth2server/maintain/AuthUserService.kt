@@ -83,7 +83,7 @@ class AuthUserService(
       authorities = roles,
       groups = groups,
     )
-    val (resetLink, userId) = saveAndSendInitialEmail(url, user, creator, "AuthUserCreate", groups)
+    val (_, userId) = saveAndSendInitialEmail(url, user, creator, "AuthUserCreate", groups)
     return userId
   }
 
@@ -189,6 +189,48 @@ class AuthUserService(
   }
 
   @Transactional(transactionManager = "authTransactionManager")
+  @Throws(ValidEmailException::class, NotificationClientException::class, AuthUserGroupRelationshipException::class, UsernameNotFoundException::class)
+  fun amendUserEmailByUserId(
+    userId: String,
+    emailAddressInput: String?,
+    url: String,
+    admin: String,
+    authorities: Collection<GrantedAuthority>,
+    emailType: EmailType,
+  ): String {
+    val user = userRepository.findByIdOrNull(UUID.fromString(userId)) ?: throw UsernameNotFoundException("User $userId not found")
+    val username = user.username
+    maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, user)
+    if (user.password != null) {
+      return verifyEmailService.changeEmailAndRequestVerification(
+        username,
+        emailAddressInput,
+        user.firstName,
+        user.name,
+        url.replace("initial-password", "verify-email-confirm"),
+        emailType
+      ).link
+    }
+    val email = EmailHelper.format(emailAddressInput)
+    verifyEmailService.validateEmailAddress(email, emailType)
+    if (user.email == username.lowercase()) {
+      userRepository.findByUsername(email!!.uppercase()).ifPresent {
+        throw ValidEmailException("duplicate")
+      }
+      user.username = email
+      telemetryClient.trackEvent(
+        "AuthUserChangeUsername",
+        mapOf("username" to user.username, "previous" to username),
+        null
+      )
+    }
+    user.email = email
+    user.verified = false
+    val (resetLink, _) = saveAndSendInitialEmail(url, user, admin, "AuthUserAmend", user.groups)
+    return resetLink
+  }
+
+  @Transactional(transactionManager = "authTransactionManager")
   @Throws(ValidEmailException::class, NotificationClientException::class, AuthUserGroupRelationshipException::class)
   fun amendUserEmail(
     usernameInput: String,
@@ -227,7 +269,7 @@ class AuthUserService(
     }
     user.email = email
     user.verified = false
-    val (resetLink, userId) = saveAndSendInitialEmail(url, user, admin, "AuthUserAmend", user.groups)
+    val (resetLink, _) = saveAndSendInitialEmail(url, user, admin, "AuthUserAmend", user.groups)
     return resetLink
   }
 

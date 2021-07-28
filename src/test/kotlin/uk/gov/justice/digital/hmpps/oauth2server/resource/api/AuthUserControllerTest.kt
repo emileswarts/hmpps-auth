@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.nhaarman.mockitokotlin2.any
@@ -8,6 +10,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
@@ -422,85 +425,105 @@ class AuthUserControllerTest {
     assertThat(responseEntity.statusCodeValue).isEqualTo(404)
   }
 
-  @Test
-  fun amendUser_checkService() {
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-    verify(authUserService).amendUserEmail(
-      "user",
-      "a@b.com",
-      "http://some.url/auth/initial-password?token=",
-      "bob",
-      authentication.authorities,
-      EmailType.PRIMARY
-    )
+  @Nested
+  inner class amendUserEmail {
+    @Test
+    fun amendUser_checkService() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      verify(authUserService).amendUserEmail(
+        "user",
+        "a@b.com",
+        "http://some.url/auth/initial-password?token=",
+        "bob",
+        authentication.authorities,
+        EmailType.PRIMARY
+      )
+    }
+
+    @Test
+    fun amendUser_statusCode() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(204)
+      assertThat(responseEntity.body).isNull()
+    }
+
+    @Test
+    fun amendUser_notFound() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      whenever(
+        authUserService.amendUserEmail(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+          eq(EmailType.PRIMARY)
+        )
+      ).thenThrow(EntityNotFoundException("not found"))
+      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(404)
+    }
+
+    @Test
+    fun amendUser_verifyException() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      whenever(
+        authUserService.amendUserEmail(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+          eq(EmailType.PRIMARY)
+        )
+      ).thenThrow(ValidEmailException("reason"))
+      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(400)
+      assertThat(responseEntity.body).isEqualTo(ErrorDetail("email.reason", "Email address failed validation", "email"))
+    }
+
+    @Test
+    fun amendUser_groupException() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      whenever(
+        authUserService.amendUserEmail(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+          eq(EmailType.PRIMARY)
+        )
+      ).thenThrow(AuthUserGroupRelationshipException("user", "reason"))
+      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      assertThat(responseEntity.statusCodeValue).isEqualTo(403)
+      assertThat(responseEntity.body).isEqualTo(
+        ErrorDetail(
+          "unable to maintain user",
+          "Unable to amend user, the user is not within one of your groups",
+          "groups"
+        )
+      )
+    }
   }
 
-  @Test
-  fun amendUser_statusCode() {
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    assertThat(responseEntity.body).isNull()
-  }
-
-  @Test
-  fun amendUser_notFound() {
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    whenever(
-      authUserService.amendUserEmail(
-        anyString(),
-        anyString(),
-        anyString(),
-        anyString(),
-        any(),
-        eq(EmailType.PRIMARY)
+  @Nested
+  inner class alterUserEmailByUserId {
+    @Test
+    fun `check service`() {
+      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
+      authUserController.alterUserEmail("user", AmendUser("a@b.com"), request, authentication)
+      verify(authUserService).amendUserEmailByUserId(
+        "user",
+        "a@b.com",
+        "http://some.url/auth/initial-password?token=",
+        "bob",
+        authentication.authorities,
+        EmailType.PRIMARY
       )
-    ).thenThrow(EntityNotFoundException("not found"))
-    val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-  }
-
-  @Test
-  fun amendUser_verifyException() {
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    whenever(
-      authUserService.amendUserEmail(
-        anyString(),
-        anyString(),
-        anyString(),
-        anyString(),
-        any(),
-        eq(EmailType.PRIMARY)
-      )
-    ).thenThrow(ValidEmailException("reason"))
-    val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-    assertThat(responseEntity.body).isEqualTo(ErrorDetail("email.reason", "Email address failed validation", "email"))
-  }
-
-  @Test
-  fun amendUser_groupException() {
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    whenever(
-      authUserService.amendUserEmail(
-        anyString(),
-        anyString(),
-        anyString(),
-        anyString(),
-        any(),
-        eq(EmailType.PRIMARY)
-      )
-    ).thenThrow(AuthUserGroupRelationshipException("user", "reason"))
-    val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(403)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "unable to maintain user",
-        "Unable to amend user, the user is not within one of your groups",
-        "groups"
-      )
-    )
+    }
   }
 
   @Test

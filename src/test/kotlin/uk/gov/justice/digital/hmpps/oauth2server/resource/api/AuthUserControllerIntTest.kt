@@ -428,16 +428,16 @@ class AuthUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Amend User endpoint succeeds to alter user email`() {
+  fun `Amend User Email endpoint succeeds to alter user email`() {
     webTestClient
-      .post().uri("/api/authuser/AUTH_NEW_USER")
+      .post().uri("/api/authuser/id/67A789DE-7D29-4863-B9C2-F2CE715DC4BC/email")
       .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
 
     webTestClient
-      .get().uri("/api/authuser/AUTH_NEW_USER")
+      .get().uri("/api/authuser/id/67A789DE-7D29-4863-B9C2-F2CE715DC4BC")
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
@@ -459,9 +459,9 @@ class AuthUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Amend User endpoint fails to alter user email for user whose username is email address and email already taken`() {
+  fun `Amend User Email endpoint fails to alter user email for user whose username is email address and email already taken`() {
     webTestClient
-      .post().uri("/api/authuser/auth_user_email@justice.gov.uk")
+      .post().uri("/api/authuser/id/2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F/email")
       .body(BodyInserters.fromValue(mapOf("email" to "auth_user_email_test@justice.gov.uk")))
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
@@ -479,16 +479,16 @@ class AuthUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Amend User endpoint amends username as well as email address`() {
+  fun `Amend User Email endpoint amends username as well as email address`() {
     webTestClient
-      .post().uri("/api/authuser/auth_user_email2_test@justice.gov.uk")
+      .post().uri("/api/authuser/id/2E285CCD-DCFD-4497-9E26-D6E8E10A2D3F/email")
       .body(BodyInserters.fromValue(mapOf("email" to "auth_user_email_test3@digital.justice.gov.uk")))
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
 
     webTestClient
-      .get().uri("/api/authuser/auth_user_email_test3@digital.justice.gov.uk")
+      .get().uri("/api/authuser/id/2E285CCD-DCFD-4497-9E26-D6E8E10A2D3F")
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
@@ -510,9 +510,9 @@ class AuthUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Amend User endpoint fails if no privilege`() {
+  fun `Amend User Email endpoint fails if no privilege`() {
     webTestClient
-      .post().uri("/api/authuser/AUTH_NEW_USER")
+      .post().uri("/api/authuser/id/2E285CCD-DCFD-4497-9E26-D6E8E10A2D3F/email")
       .body(BodyInserters.fromValue(mapOf("email" to "bobby.b@digital.justice.gov.uk")))
       .headers(setAuthorisation("ITAG_USER_ADM"))
       .exchange()

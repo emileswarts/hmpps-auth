@@ -167,6 +167,261 @@ class AuthUserServiceTest {
       assertThat(userToken.token).isEqualTo(link.substring("url?token=".length))
       assertThat(userToken.tokenExpiry).isBetween(LocalDateTime.now().plusDays(6), LocalDateTime.now().plusDays(8))
     }
+    @Test
+    fun saveEmailRepository() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(createOptionalSampleUser())
+      authUserService.amendUserEmail("userMe", "eMail", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
+      verify(userRepository).save<User>(
+        check {
+          assertThat(it.email).isEqualTo("email")
+        }
+      )
+    }
+
+    @Test
+    fun formatEmailInput() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(createOptionalSampleUser())
+      authUserService.amendUserEmail(
+        "userMe",
+        "    SARAH.o’connor@gov.uk",
+        "url?token=",
+        "bob",
+        PRINCIPAL.authorities,
+        EmailType.PRIMARY
+      )
+      verify(userRepository).save<User>(
+        check {
+          assertThat(it.email).isEqualTo("sarah.o'connor@gov.uk")
+        }
+      )
+    }
+
+    @Test
+    fun pecsUserGroupSupportLink() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups("PECS_GROUP")))
+      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      authUserService.amendUserEmail(
+        "ANY_USER_NAME",
+        "ANY_USER-EMAIL",
+        "ANY_URL",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(notificationClient).sendEmail(
+        anyString(),
+        anyString(),
+        check {
+          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+        },
+        isNull()
+      )
+    }
+
+    @Test
+    fun nonPecsUserGroupSupportLink() {
+      val user = createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      whenever(userRepository.save(any())).thenReturn(user)
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups("NON_PECS_GROUP")))
+      authUserService.amendUserEmail(
+        "ANY_USER_NAME",
+        "ANY_USER-EMAIL",
+        "ANY_URL",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(notificationClient).sendEmail(
+        anyString(),
+        anyString(),
+        check {
+          assertThat(it["supportLink"]).isEqualTo("nomis_support_link")
+        },
+        isNull()
+      )
+    }
+
+    @Test
+    fun onePecsGroupOfManySupportLink() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(
+        Optional.of(
+          userOfGroups(
+            "NON_PECS_GROUP",
+            "PECS_GROUP"
+          )
+        )
+      )
+      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      authUserService.amendUserEmail(
+        "ANY_USER_NAME",
+        "ANY_USER-EMAIL",
+        "ANY_URL",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(notificationClient).sendEmail(
+        anyString(),
+        anyString(),
+        check {
+          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+        },
+        isNull()
+      )
+    }
+
+    @Test
+    fun noGroupSupportLink() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups()))
+      authUserService.amendUserEmail(
+        "ANY_USER_NAME",
+        "ANY_USER-EMAIL",
+        "ANY_URL",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(notificationClient).sendEmail(
+        anyString(),
+        anyString(),
+        check {
+          assertThat(it["supportLink"]).isEqualTo("nomis_support_link")
+        },
+        isNull()
+      )
+    }
+
+    @Test
+    fun `never logged in sends initial email`() {
+      val userUnverifiedEmail =
+        createSampleUser(username = "SOME_USER_NAME", id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      whenever(userRepository.save(any())).thenReturn(userUnverifiedEmail)
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userUnverifiedEmail))
+      authUserService.amendUserEmail(
+        "SOME_USER_NAME",
+        "some_user_email@gov.uk",
+        "ANY_HOST/initial-password?token=SOME_TOKEN",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(notificationClient).sendEmail(anyString(), anyString(), any(), isNull())
+      verify(verifyEmailService, never()).changeEmailAndRequestVerification(
+        anyString(),
+        anyString(),
+        anyString(),
+        anyString(),
+        anyString(),
+        eq(EmailType.PRIMARY)
+      )
+    }
+
+    @Test
+    fun `has logged in requests verification`() {
+      val userVerifiedEmail =
+        createSampleUser(
+          username = "SOME_USER_NAME",
+          firstName = "first",
+          lastName = "last",
+          verified = true,
+          password = "isset"
+        )
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      whenever(
+        verifyEmailService.changeEmailAndRequestVerification(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+        )
+      ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_USER_NAME"))
+      authUserService.amendUserEmail(
+        "SOME_user_NAME",
+        "some_user_email@gov.uk",
+        "SOME_HOST/initial-password?token=SOME_TOKEN",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      verify(verifyEmailService).changeEmailAndRequestVerification(
+        "SOME_USER_NAME",
+        "some_user_email@gov.uk",
+        "first",
+        "first last",
+        "SOME_HOST/verify-email-confirm?token=SOME_TOKEN",
+        EmailType.PRIMARY
+      )
+      verifyZeroInteractions(notificationClient)
+    }
+
+    @Test
+    fun `never logged in changes email address if same as username`() {
+      val user = createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
+      whenever(userRepository.save(any())).thenReturn(user)
+      whenever(
+        verifyEmailService.changeEmailAndRequestVerification(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+        )
+      ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_EXISTING_EMAIL@GOV.UK"))
+      val userVerifiedEmail =
+        createSampleUser(username = "SOME_EXISTING_EMAIL@GOV.UK", verified = true, email = "some_existing_email@gov.uk")
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      authUserService.amendUserEmail(
+        "SOME_EXISTING_email@gov.uk",
+        "some_user_email@gov.uk",
+        "ANY_HOST/initial-password?token=SOME_TOKEN",
+        "ANY_ADMIN",
+        GRANTED_AUTHORITY_SUPER_USER,
+        EmailType.PRIMARY
+      )
+      assertThat(userVerifiedEmail.username).isEqualTo("SOME_USER_EMAIL@GOV.UK")
+      assertThat(userVerifiedEmail.email).isEqualTo("some_user_email@gov.uk")
+      assertThat(userVerifiedEmail.verified).isFalse
+    }
+
+    @Test
+    fun `never logged in can't change email to same as existing user`() {
+      whenever(
+        verifyEmailService.changeEmailAndRequestVerification(
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          anyString(),
+          any(),
+        )
+      ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_EXISTING_EMAIL@GOV.UK"))
+      val userVerifiedEmail =
+        createSampleUser(username = "SOME_EXISTING_EMAIL@GOV.UK", verified = true, email = "some_existing_email@gov.uk")
+      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      assertThatThrownBy {
+        authUserService.amendUserEmail(
+          "SOME_EXISTING_email@gov.uk",
+          "some_user_email@gov.uk",
+          "ANY_HOST/initial-password?token=SOME_TOKEN",
+          "ANY_ADMIN",
+          GRANTED_AUTHORITY_SUPER_USER,
+          EmailType.PRIMARY
+        )
+      }.hasMessage("Validate email failed with reason: duplicate")
+    }
+  }
+
+  @Nested
+  inner class createUserByEmail {
 
     @Test
     fun `createUserByEmail first name does not meet minimum length`() {
@@ -575,12 +830,85 @@ class AuthUserServiceTest {
         isNull()
       )
     }
+  }
+
+  @Nested
+  inner class amendUserEmailByUserId {
+    @Test
+    fun emailValidation() {
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      doThrow(ValidEmailException("reason")).whenever(verifyEmailService)
+        .validateEmailAddress(anyString(), eq(EmailType.PRIMARY))
+      assertThatThrownBy {
+        authUserService.amendUserEmailByUserId(
+          SAMPLE_UUID.toString(),
+          "email",
+          "url?token=",
+          "bob",
+          PRINCIPAL.authorities,
+          EmailType.PRIMARY
+        )
+      }.isInstanceOf(ValidEmailException::class.java).hasMessage("Validate email failed with reason: reason")
+      verify(verifyEmailService).validateEmailAddress("email", EmailType.PRIMARY)
+    }
+
+    @Test
+    fun `manager not allowed to maintain user`() {
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      doThrow(AuthUserGroupRelationshipException("user", "reason")).whenever(maintainUserCheck)
+        .ensureUserLoggedInUserRelationship(anyString(), any(), any())
+      assertThatThrownBy {
+        authUserService.amendUserEmailByUserId(
+          SAMPLE_UUID.toString(),
+          "email",
+          "url?token=",
+          "bob",
+          PRINCIPAL.authorities,
+          EmailType.PRIMARY
+        )
+      }.isInstanceOf(AuthUserGroupRelationshipException::class.java)
+        .hasMessage("Unable to maintain user: user with reason: reason")
+    }
+
+    @Test
+    fun successLinkReturned() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      val link =
+        authUserService.amendUserEmailByUserId(SAMPLE_UUID.toString(), "email", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
+      assertThat(link).startsWith("url?token=").hasSize("url?token=".length + 36)
+    }
+
+    @Test
+    fun trackSuccess() {
+      whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      authUserService.amendUserEmailByUserId(SAMPLE_UUID.toString(), "email", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
+      verify(telemetryClient).trackEvent(
+        "AuthUserAmendSuccess",
+        mapOf("username" to "someuser", "admin" to "bob"),
+        null
+      )
+    }
+
+    @Test
+    fun saveTokenRepository() {
+      val user = createOptionalSampleUser()
+      whenever(userRepository.save(any())).thenReturn(user.get())
+      whenever(userRepository.findById(any())).thenReturn(user)
+      val link =
+        authUserService.amendUserEmailByUserId(SAMPLE_UUID.toString(), "email", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
+      val userToken = user.orElseThrow().tokens.stream().findFirst().orElseThrow()
+      assertThat(userToken.tokenType).isEqualTo(RESET)
+      assertThat(userToken.token).isEqualTo(link.substring("url?token=".length))
+      assertThat(userToken.tokenExpiry).isBetween(LocalDateTime.now().plusDays(6), LocalDateTime.now().plusDays(8))
+    }
 
     @Test
     fun saveEmailRepository() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(createOptionalSampleUser())
-      authUserService.amendUserEmail("userMe", "eMail", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      authUserService.amendUserEmailByUserId(SAMPLE_UUID.toString(), "eMail", "url?token=", "bob", PRINCIPAL.authorities, EmailType.PRIMARY)
       verify(userRepository).save<User>(
         check {
           assertThat(it.email).isEqualTo("email")
@@ -591,9 +919,9 @@ class AuthUserServiceTest {
     @Test
     fun formatEmailInput() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(createOptionalSampleUser())
-      authUserService.amendUserEmail(
-        "userMe",
+      whenever(userRepository.findById(any())).thenReturn(createOptionalSampleUser())
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "    SARAH.o’connor@gov.uk",
         "url?token=",
         "bob",
@@ -610,10 +938,10 @@ class AuthUserServiceTest {
     @Test
     fun pecsUserGroupSupportLink() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups("PECS_GROUP")))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userOfGroups("PECS_GROUP")))
       mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
-      authUserService.amendUserEmail(
-        "ANY_USER_NAME",
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
         "ANY_URL",
         "ANY_ADMIN",
@@ -634,9 +962,9 @@ class AuthUserServiceTest {
     fun nonPecsUserGroupSupportLink() {
       val user = createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       whenever(userRepository.save(any())).thenReturn(user)
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups("NON_PECS_GROUP")))
-      authUserService.amendUserEmail(
-        "ANY_USER_NAME",
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userOfGroups("NON_PECS_GROUP")))
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
         "ANY_URL",
         "ANY_ADMIN",
@@ -656,7 +984,7 @@ class AuthUserServiceTest {
     @Test
     fun onePecsGroupOfManySupportLink() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(
+      whenever(userRepository.findById(any())).thenReturn(
         Optional.of(
           userOfGroups(
             "NON_PECS_GROUP",
@@ -665,8 +993,8 @@ class AuthUserServiceTest {
         )
       )
       mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
-      authUserService.amendUserEmail(
-        "ANY_USER_NAME",
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
         "ANY_URL",
         "ANY_ADMIN",
@@ -686,9 +1014,9 @@ class AuthUserServiceTest {
     @Test
     fun noGroupSupportLink() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups()))
-      authUserService.amendUserEmail(
-        "ANY_USER_NAME",
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userOfGroups()))
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
         "ANY_URL",
         "ANY_ADMIN",
@@ -710,9 +1038,9 @@ class AuthUserServiceTest {
       val userUnverifiedEmail =
         createSampleUser(username = "SOME_USER_NAME", id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       whenever(userRepository.save(any())).thenReturn(userUnverifiedEmail)
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userUnverifiedEmail))
-      authUserService.amendUserEmail(
-        "SOME_USER_NAME",
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userUnverifiedEmail))
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "some_user_email@gov.uk",
         "ANY_HOST/initial-password?token=SOME_TOKEN",
         "ANY_ADMIN",
@@ -740,7 +1068,7 @@ class AuthUserServiceTest {
           verified = true,
           password = "isset"
         )
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userVerifiedEmail))
       whenever(
         verifyEmailService.changeEmailAndRequestVerification(
           anyString(),
@@ -751,8 +1079,8 @@ class AuthUserServiceTest {
           any(),
         )
       ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_USER_NAME"))
-      authUserService.amendUserEmail(
-        "SOME_user_NAME",
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "some_user_email@gov.uk",
         "SOME_HOST/initial-password?token=SOME_TOKEN",
         "ANY_ADMIN",
@@ -786,9 +1114,9 @@ class AuthUserServiceTest {
       ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_EXISTING_EMAIL@GOV.UK"))
       val userVerifiedEmail =
         createSampleUser(username = "SOME_EXISTING_EMAIL@GOV.UK", verified = true, email = "some_existing_email@gov.uk")
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
-      authUserService.amendUserEmail(
-        "SOME_EXISTING_email@gov.uk",
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userVerifiedEmail))
+      authUserService.amendUserEmailByUserId(
+        SAMPLE_UUID.toString(),
         "some_user_email@gov.uk",
         "ANY_HOST/initial-password?token=SOME_TOKEN",
         "ANY_ADMIN",
@@ -814,11 +1142,11 @@ class AuthUserServiceTest {
       ).thenReturn(LinkEmailAndUsername("SOME_VERIFY_LINK", "newemail@justice.gov.uk", "SOME_EXISTING_EMAIL@GOV.UK"))
       val userVerifiedEmail =
         createSampleUser(username = "SOME_EXISTING_EMAIL@GOV.UK", verified = true, email = "some_existing_email@gov.uk")
-      whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userVerifiedEmail))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(userVerifiedEmail))
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(userVerifiedEmail))
       assertThatThrownBy {
-        authUserService.amendUserEmail(
-          "SOME_EXISTING_email@gov.uk",
+        authUserService.amendUserEmailByUserId(
+          SAMPLE_UUID.toString(),
           "some_user_email@gov.uk",
           "ANY_HOST/initial-password?token=SOME_TOKEN",
           "ANY_ADMIN",
@@ -1691,5 +2019,6 @@ class AuthUserServiceTest {
       setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+    private val SAMPLE_UUID = UUID.fromString("00000000-1234-0000-5567-0a0a0a0a0a0a")
   }
 }

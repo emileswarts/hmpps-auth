@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 
 @RestControllerAdvice
 class AuthExceptionHandler {
@@ -145,6 +146,13 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
+  }
+
+  @ExceptionHandler(ValidEmailException::class)
+  fun handleAuthUserLastGroupException(e: ValidEmailException): ResponseEntity<ErrorDetail> {
+    log.info("Amend user email exception caught: {}", e.message)
+    return ResponseEntity.badRequest()
+      .body(ErrorDetail("email.${e.reason}", "Email address failed validation", "email"))
   }
 
   companion object {

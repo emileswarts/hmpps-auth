@@ -172,7 +172,7 @@ class VerifyEmailService(
 
   @Throws(ValidEmailException::class)
   fun validateEmailAddressExcludingGsi(email: String, emailType: EmailType) {
-    val atIndex = StringUtils.indexOf(email, '@'.toInt())
+    val atIndex = email.indexOf('@')
     if (atIndex == -1 || !email.matches(Regex(".*@.*\\..*"))) {
       throw ValidEmailException("format")
     }
@@ -280,7 +280,7 @@ class VerifyEmailService(
     return Optional.of("expired")
   }
 
-  class ValidEmailException(val reason: String?) : Exception("Validate email failed with reason: $reason")
+  class ValidEmailException(val reason: String) : Exception("Validate email failed with reason: $reason")
 
   data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
 
