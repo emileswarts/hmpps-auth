@@ -45,7 +45,7 @@ addGroup() {
   local user=$1
   local group=$2
   if [[ "$group" != "" && ! "$group" =~ ^[,]*$ ]]; then
-    if [[ $(curl -sS -X PUT "$HOST/auth/api/authuser/$user/groups/$group" -H "Content-Length: 0" -H "$AUTH_TOKEN_HEADER") -ne 0 ]]; then
+    if [[ $(curl -sS -X PUT "$HOST/auth/api/authuser/id/$user/groups/$group" -H "Content-Length: 0" -H "$AUTH_TOKEN_HEADER") -ne 0 ]]; then
         echo "Failed to add $user to group $group"
     fi
   fi
@@ -73,15 +73,15 @@ while IFS=, read -r -a row; do
     echo "Failure to create user ${user}"
   else
     if [[ $output =~ "error_description" ]]; then
-      #Check if the username was returned. If so, try to add the groups.
-      username=$(echo "$output" | jq  -r '.username')
+      #Check if the userId was returned. If so, try to add the groups.
+      userId=$(echo "$output" | jq  -r '.userId')
 
-      if [[ "$username" == "null" ]]; then
+      if [[ "$userId" == "null" ]]; then
         echo "Failure to create user ${user} due to $output"
       else
         echo "existing user: ${user} found. Adding groups to this user."
         for group in "${row[@]:3}"; do
-          addGroup "$username" "$group"
+          addGroup "$userId" "$group"
         done
       fi
 

@@ -87,18 +87,18 @@ class AuthUserControllerIntTest : IntegrationTest() {
   }
 
   @Nested
-  inner class EnableUser {
+  inner class EnableUserByUserId {
 
     @Test
     fun `Auth User Enable endpoint enables user`() {
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/enable")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75255/enable")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
 
       webTestClient
-        .get().uri("/api/authuser/AUTH_STATUS")
+        .get().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75255")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
@@ -122,13 +122,13 @@ class AuthUserControllerIntTest : IntegrationTest() {
     @Test
     fun `Group manager Enable endpoint enables user`() {
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS2/groups/site_1_group_2")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/site_1_group_2")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
 
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS2/enable")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isNoContent
@@ -158,14 +158,14 @@ class AuthUserControllerIntTest : IntegrationTest() {
     @Test
     fun `Group manager Enable endpoint fails user not in group manager group forbidden`() {
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/enable")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isForbidden
         .expectBody()
         .json(
           """
-      {"error":"unable to maintain user","error_description":"Unable to enable user, the user is not within one of your groups","field":"groups"}
+      {"error":"User not with your groups","error_description":"Unable to maintain user: Auth Status2 with reason: User not with your groups","field":"username"}
           """.trimIndent()
         )
     }
@@ -173,7 +173,7 @@ class AuthUserControllerIntTest : IntegrationTest() {
     @Test
     fun `Auth User Enable endpoint fails is not an admin user`() {
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/enable")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -190,119 +190,6 @@ class AuthUserControllerIntTest : IntegrationTest() {
       webTestClient
         .put().uri("/api/authuser/id/FC494152-F9AD-48A0-A87C-9ADC8BD75255/enable")
         .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isForbidden
-        .expectBody()
-        .json(
-          """
-            { "error":"access_denied", "error_description":"Access is denied" }
-          """.trimIndent()
-        )
-    }
-  }
-
-  @Nested
-  inner class DisableUser {
-    @Test
-    fun `Auth User Disable endpoint disables user`() {
-      val reason = DeactivateReason("left department")
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/disable")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .bodyValue(reason)
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient
-        .get().uri("/api/authuser/AUTH_STATUS")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsAllEntriesOf(
-            mapOf(
-              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75255",
-              "username" to "AUTH_STATUS",
-              "email" to null,
-              "firstName" to "Auth",
-              "lastName" to "Status",
-              "locked" to false,
-              "enabled" to false,
-              "verified" to true,
-            )
-          )
-        }
-    }
-
-    @Test
-    fun `Group manager Disable endpoint enables user`() {
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/groups/site_1_group_2")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/enable")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .exchange()
-        .expectStatus().isNoContent
-
-      val reason = DeactivateReason("left department")
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/disable")
-        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
-        .bodyValue(reason)
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient
-        .get().uri("/api/authuser/AUTH_STATUS")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsAllEntriesOf(
-            mapOf(
-              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75255",
-              "username" to "AUTH_STATUS",
-              "email" to null,
-              "firstName" to "Auth",
-              "lastName" to "Status",
-              "locked" to false,
-              "enabled" to false,
-              "verified" to true,
-            )
-          )
-        }
-    }
-
-    @Test
-    fun `Group manager Disable endpoint fails user not in group manager group forbidden`() {
-      val reason = DeactivateReason("left department")
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/disable")
-        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
-        .bodyValue(reason)
-        .exchange()
-        .expectStatus().isForbidden
-        .expectBody()
-        .json(
-          """
-      {"error":"unable to maintain user","error_description":"Unable to disable user, the user is not within one of your groups","field":"groups"}
-          """.trimIndent()
-        )
-    }
-
-    @Test
-    fun `Auth User Disable endpoint fails is not an admin user`() {
-      val reason = DeactivateReason("left department")
-      webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS/disable")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .bodyValue(reason)
         .exchange()
         .expectStatus().isForbidden
         .expectBody()
@@ -351,7 +238,7 @@ class AuthUserControllerIntTest : IntegrationTest() {
     @Test
     fun `Group manager Disable by userId endpoint enables user`() {
       webTestClient
-        .put().uri("/api/authuser/AUTH_STATUS4/groups/site_1_group_2")
+        .put().uri("/api/authuser/id/fc494152-f9ad-48a0-a87c-9adc8bd75288/groups/site_1_group_2")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent

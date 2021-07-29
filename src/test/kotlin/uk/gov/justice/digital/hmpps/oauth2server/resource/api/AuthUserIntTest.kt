@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.returnResult
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 
@@ -51,15 +52,18 @@ class AuthUserIntTest : IntegrationTest() {
   fun `Create User by email endpoint succeeds to create user data with group and roles`() {
     val user = NewUser("bob1@bobdigital.justice.gov.uk", "Bob", "Smith", "SITE_1_GROUP_1")
 
-    webTestClient
+    val result = webTestClient
       .post().uri("/api/authuser/create").bodyValue(user)
       .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
       .exchange()
       .expectStatus().isOk
+      .returnResult<String>()
+
+    val userId = result.responseBody.blockFirst()?.filterNot { it == '"' }
 
     webTestClient
-      .get().uri("/api/authuser/${user.email}/groups")
-      .headers(setAuthorisation("ITAG_USER_ADM"))
+      .get().uri("/api/authuser/id/$userId/groups")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -71,8 +75,8 @@ class AuthUserIntTest : IntegrationTest() {
       }
 
     webTestClient
-      .get().uri("/api/authuser/${user.email}/roles")
-      .headers(setAuthorisation("ITAG_USER_ADM"))
+      .get().uri("/api/authuser/id/$userId/roles")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
       .expectBody()

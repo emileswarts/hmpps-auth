@@ -39,14 +39,12 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService.Create
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserRole
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
-import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailHelper
 import uk.gov.justice.digital.hmpps.oauth2server.utils.removeAllCrLf
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 import uk.gov.service.notify.NotificationClientException
 import java.time.LocalDateTime
-import javax.persistence.EntityNotFoundException
 import javax.servlet.http.HttpServletRequest
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -262,14 +260,14 @@ class AuthUserController(
 
     if (user != null) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorDetailUsername("username.exists", "User $email already exists", "username", user.username))
+        .body(ErrorDetailUsername("username.exists", "User $email already exists", "userId", user.userId))
     }
 
     val userByEmail = authUserService.findAuthUsersByEmail(email)
     if (userByEmail.isNotEmpty()) {
-      val username = if (userByEmail.size == 1) userByEmail[0].username else null
+      val userId = if (userByEmail.size == 1) userByEmail[0].userId else null
       return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorDetailUsername("email.exists", "User $email already exists", "email", username))
+        .body(ErrorDetailUsername("email.exists", "User $email already exists", "email", userId))
     }
 
     val mergedGroups = mutableSetOf<String>()
@@ -314,58 +312,6 @@ class AuthUserController(
     return requestURL.toString().replaceFirst("/api/authuser/.*".toRegex(), "/initial-password?token=")
   }
 
-  @PutMapping("/api/authuser/{username}/enable")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Enable a user.",
-    notes = "Enable a user.",
-    nickname = "enableUser",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 204, message = "OK"),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(
-        code = 403,
-        message = "Unable to enable user, the user is not within one of your groups",
-        response = ErrorDetail::class
-      ),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
-    ]
-  )
-  fun enableUser(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String?,
-    @ApiIgnore authentication: Authentication,
-    @ApiIgnore request: HttpServletRequest,
-  ): ResponseEntity<Any> {
-    val userOptional = authUserService.getAuthUserByUsername(username)
-    return userOptional.map { u: User ->
-      val usernameInDb = u.username
-      try {
-        authUserService.enableUser(
-          usernameInDb,
-          authentication.name,
-          request.requestURL.toString(),
-          authentication.authorities
-        )
-        return@map ResponseEntity.noContent().build<Any>()
-      } catch (e: AuthUserGroupRelationshipException) {
-        log.info("enable user failed  with reason {}", e.errorCode)
-        return@map ResponseEntity.status(HttpStatus.FORBIDDEN).body<Any>(
-          ErrorDetail(
-            "unable to maintain user",
-            "Unable to enable user, the user is not within one of your groups",
-            "groups"
-          )
-        )
-      } catch (e: EntityNotFoundException) {
-        return@map ResponseEntity.notFound().build<Any>()
-      }
-    }.orElseThrow { EntityNotFoundException("User not found with username $username") }
-  }
-
   @PutMapping("/api/authuser/id/{userId}/enable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -398,66 +344,6 @@ class AuthUserController(
     request.requestURL.toString(),
     authentication.authorities
   )
-
-  @PutMapping("/api/authuser/{username}/disable")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Disable a user.",
-    notes = "Disable a user.",
-    nickname = "disableUser",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 204, message = "OK"), ApiResponse(
-        code = 401,
-        message = "Unauthorized.",
-        response = ErrorDetail::class
-      ), ApiResponse(
-        code = 403,
-        message = "Unable to disable user, the user is not within one of your groups",
-        response = ErrorDetail::class
-      ), ApiResponse(
-        code = 404,
-        message = "User not found.",
-        response = ErrorDetail::class
-      )
-    ]
-  )
-  fun disableUser(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String?,
-    @ApiParam(
-      value = "The reason user made inactive.",
-      required = true
-    ) @RequestBody deactivateReason: DeactivateReason,
-    @ApiIgnore authentication: Authentication,
-  ): ResponseEntity<Any> {
-    val userOptional = authUserService.getAuthUserByUsername(username)
-    return userOptional.map { u: User ->
-      val usernameInDb = u.username
-      try {
-        authUserService.disableUser(
-          usernameInDb,
-          authentication.name,
-          deactivateReason.reason,
-          authentication.authorities
-        )
-        return@map ResponseEntity.noContent().build<Any>()
-      } catch (e: AuthUserGroupRelationshipException) {
-        log.info("Disable user failed  with reason {}", e.errorCode)
-        return@map ResponseEntity.status(HttpStatus.FORBIDDEN).body<Any>(
-          ErrorDetail(
-            "unable to maintain user",
-            "Unable to disable user, the user is not within one of your groups",
-            "groups"
-          )
-        )
-      } catch (e: EntityNotFoundException) {
-        return@map ResponseEntity.notFound().build<Any>()
-      }
-    }.orElseThrow { EntityNotFoundException("User not found with username $username") }
-  }
 
   @PutMapping("/api/authuser/id/{userId}/disable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -500,76 +386,6 @@ class AuthUserController(
     authentication.authorities
   )
 
-  @PostMapping("/api/authuser/{username}")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Amend a user.",
-    notes = "Amend a user.",
-    nickname = "amendUser",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 204, message = "OK"), ApiResponse(
-        code = 400,
-        message = "Bad request e.g. if validation failed or if the amendments are disallowed",
-        response = ErrorDetail::class
-      ), ApiResponse(
-        code = 401,
-        message = "Unauthorized.",
-        response = ErrorDetail::class
-      ), ApiResponse(
-        code = 403,
-        message = "Unable to amend user, the user is not within one of your groups",
-        response = ErrorDetail::class
-      ), ApiResponse(
-        code = 404,
-        message = "User not found.",
-        response = ErrorDetail::class
-      )
-    ]
-  )
-  @Throws(NotificationClientException::class)
-  fun amendUserEmail(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @RequestBody amendUser: AmendUser,
-    @ApiIgnore request: HttpServletRequest,
-    @ApiIgnore authentication: Authentication,
-  ): ResponseEntity<Any> {
-    return try {
-      val setPasswordUrl = createInitialPasswordUrl(request)
-      val resetLink = authUserService.amendUserEmail(
-        username,
-        amendUser.email,
-        setPasswordUrl,
-        authentication.name,
-        authentication.authorities,
-        EmailType.PRIMARY
-      )
-      log.info("Amend user succeeded for user $username".removeAllCrLf())
-      if (smokeTestEnabled) {
-        ResponseEntity.ok(resetLink)
-      } else ResponseEntity.noContent().build()
-    } catch (e: EntityNotFoundException) {
-      ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorDetail("username.notfound", "User not found", "username"))
-    } catch (e: ValidEmailException) {
-      log.info("Amend user failed for user $username for field email with reason ${e.reason}".removeAllCrLf())
-      ResponseEntity.badRequest()
-        .body(ErrorDetail("email.${e.reason}", "Email address failed validation", "email"))
-    } catch (e: AuthUserGroupRelationshipException) {
-      log.info("enable user failed  with reason {}", e.errorCode)
-      ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-        ErrorDetail(
-          "unable to maintain user",
-          "Unable to amend user, the user is not within one of your groups",
-          "groups"
-        )
-      )
-    }
-  }
-
   @PostMapping("/api/authuser/id/{userId}/email")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ApiOperation(
@@ -591,7 +407,7 @@ class AuthUserController(
         response = ErrorDetail::class
       ), ApiResponse(
         code = 403,
-        message = "Unable to amend user, the user is not within one of your groups",
+        message = "Unable to amend user, the user is not within one of your groups or you don't have ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER roles",
         response = ErrorDetail::class
       ), ApiResponse(
         code = 404,
@@ -652,11 +468,11 @@ class AuthUserController(
     @ApiModelProperty(required = true, value = "Error description", example = "User not found.", position = 2)
     val error_description: String,
 
-    @ApiModelProperty(required = false, value = "Field in error", example = "username", position = 3)
+    @ApiModelProperty(required = false, value = "Field in error", example = "userId", position = 3)
     val field: String? = null,
 
-    @ApiModelProperty(required = false, value = "username", example = "username", position = 4)
-    val username: String? = null
+    @ApiModelProperty(required = false, value = "userId", example = "userId", position = 4)
+    val userId: String? = null
   )
 
   data class AmendUser(

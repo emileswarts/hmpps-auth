@@ -9,7 +9,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.doThrow
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -20,17 +19,11 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Group
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupExistsException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupManagerException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
-import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
-import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import java.security.Principal
-import java.util.Optional
 
 class AuthUserGroupsControllerTest {
   private val principal: Principal = UsernamePasswordAuthenticationToken("bob", "pass")
@@ -164,111 +157,6 @@ class AuthUserGroupsControllerTest {
   }
 
   @Test
-  fun addGroup_userNotFound() {
-    val responseEntity = authUserGroupsController.addGroup("bob", "group", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "Not Found",
-        "Account for username bob not found",
-        "username"
-      )
-    )
-  }
-
-  @Test
-  fun addGroup_userNotFound_groupManager() {
-    val responseEntity = authUserGroupsController.addGroup("bob", "group", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "Not Found",
-        "Account for username bob not found",
-        "username"
-      )
-    )
-  }
-
-  @Test
-  fun addGroup_success() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    val responseEntity = authUserGroupsController.addGroup("someuser", "group", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserGroupService).addGroup("USER", "group", "bob", authenticationSuperUser.authorities)
-  }
-
-  @Test
-  fun addGroup_success_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    val responseEntity = authUserGroupsController.addGroup("someuser", "group", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserGroupService).addGroup("USER", "group", "JOHN", authenticationGroupManager.authorities)
-  }
-
-  @Test
-  fun addGroup_conflict() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupExistsException()).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "joe", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(409)
-  }
-
-  @Test
-  fun addGroup_conflict_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupExistsException()).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "joe", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(409)
-  }
-
-  @Test
-  fun addGroup_validation() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupException("group", "error")).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "harry", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-    assertThat(responseEntity.body).isEqualTo(ErrorDetail("group.error", "group failed validation", "group"))
-  }
-
-  @Test
-  fun addGroup_validation_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupException("group", "error")).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "harry", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-    assertThat(responseEntity.body).isEqualTo(ErrorDetail("group.error", "group failed validation", "group"))
-  }
-
-  @Test
-  fun addGroup_notInGroup_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupManagerException("Add", "group", "managerNotMember")).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "John", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "group.managerNotMember",
-        "Group Manager is not a member of group",
-        "group"
-      )
-    )
-  }
-
-  @Test
-  fun addGroup_groupManagerNotAllowedToMaintainUser() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupRelationshipException("someuser", "User not with your groups")).whenever(authUserGroupService)
-      .addGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.addGroup("someuser", "joe", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(403)
-  }
-
-  @Test
   fun addGroupByUserId_success() {
     authUserGroupsController.addGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "group", authenticationSuperUser)
     verify(authUserGroupService).addGroupByUserId(
@@ -291,82 +179,6 @@ class AuthUserGroupsControllerTest {
       "group",
       "JOHN",
       authenticationGroupManager.authorities
-    )
-  }
-
-  @Test
-  fun removeGroup_userNotFound() {
-    val responseEntity = authUserGroupsController.removeGroup("bob", "group", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "Not Found",
-        "Account for username bob not found",
-        "username"
-      )
-    )
-  }
-
-  @Test
-  fun removeGroup_userNotFound_groupManager() {
-    val responseEntity = authUserGroupsController.removeGroup("bob", "group", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "Not Found",
-        "Account for username bob not found",
-        "username"
-      )
-    )
-  }
-
-  @Test
-  fun removeGroup_success() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    val responseEntity = authUserGroupsController.removeGroup("someuser", "joe", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserGroupService).removeGroup("USER", "joe", "bob", authenticationSuperUser.authorities)
-  }
-
-  @Test
-  fun removeGroup_success_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    val responseEntity = authUserGroupsController.removeGroup("someuser", "joe", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserGroupService).removeGroup("USER", "joe", "JOHN", authenticationGroupManager.authorities)
-  }
-
-  @Test
-  fun removeGroup_groupMissing() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupException("group", "error")).whenever(authUserGroupService)
-      .removeGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.removeGroup("someuser", "harry", authenticationSuperUser)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-  }
-
-  @Test
-  fun removeGroup_groupMissing_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupException("group", "error")).whenever(authUserGroupService)
-      .removeGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.removeGroup("someuser", "harry", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-  }
-
-  @Test
-  fun removeGroup_notInGroup_groupManager() {
-    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(authUser))
-    doThrow(AuthUserGroupManagerException("delete", "group", "managerNotMember")).whenever(authUserGroupService)
-      .removeGroup(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserGroupsController.removeGroup("someuser", "FRED", authenticationGroupManager)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-    assertThat(responseEntity.body).isEqualTo(
-      ErrorDetail(
-        "group.managerNotMember",
-        "Group Manager is not a member of group: FRED",
-        "group"
-      )
     )
   }
 

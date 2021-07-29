@@ -4,7 +4,6 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.doThrow
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -36,14 +34,12 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController.AuthUser
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController.CreateUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
-import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
-import javax.persistence.EntityNotFoundException
 import javax.servlet.http.HttpServletRequest
 
 class AuthUserControllerTest {
@@ -155,14 +151,14 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUsername("username.exists", "User email@justice.gov.uk already exists", "username", "name")
+      AuthUserController.ErrorDetailUsername("username.exists", "User email@justice.gov.uk already exists", "userId", "userid")
     )
   }
 
   @Test
   fun `createUserByEmail email already exists`() {
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.empty())
-    whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(createSampleUser("joe")))
+    whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(createSampleUser("joe", id = UUID.fromString(USER_ID))))
     val responseEntity =
       authUserController.createUserByEmail(
         CreateUser("email@justice.gov.uk", "first", "last", null, null),
@@ -171,7 +167,7 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUsername("email.exists", "User email@justice.gov.uk already exists", "email", "joe")
+      AuthUserController.ErrorDetailUsername("email.exists", "User email@justice.gov.uk already exists", "email", USER_ID)
     )
   }
 
@@ -370,16 +366,6 @@ class AuthUserControllerTest {
   }
 
   @Test
-  fun enableUser() {
-    val user = createSampleUser(username = "USER", email = "email", verified = true)
-    whenever(authUserService.getAuthUserByUsername("user")).thenReturn(Optional.of(user))
-    whenever(request.requestURL).thenReturn(StringBuffer("some/auth/url"))
-    val responseEntity = authUserController.enableUser("user", authentication, request)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserService).enableUser("USER", "bob", "some/auth/url", authentication.authorities)
-  }
-
-  @Test
   fun enableUserByUserId() {
     whenever(request.requestURL).thenReturn(StringBuffer("some/auth/url"))
     authUserController.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", authentication, request)
@@ -387,126 +373,9 @@ class AuthUserControllerTest {
   }
 
   @Test
-  fun enableUser_notFound() {
-    val user = createSampleUser(username = "USER", email = "email", verified = true)
-    whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-    whenever(authUserService.getAuthUserByUsername("user")).thenReturn(Optional.of(user))
-    doThrow(EntityNotFoundException("message")).whenever(authUserService).enableUser(
-      anyString(),
-      anyString(),
-      anyString(),
-      any()
-    )
-    val responseEntity = authUserController.enableUser("user", authentication, request)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-  }
-
-  @Test
-  fun disableUser() {
-    val user = createSampleUser(username = "USER", email = "email", verified = true)
-    whenever(authUserService.getAuthUserByUsername("user")).thenReturn(Optional.of(user))
-    val responseEntity = authUserController.disableUser("user", DeactivateReason("A Reason"), authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-    verify(authUserService).disableUser("USER", "bob", "A Reason", authentication.authorities)
-  }
-
-  @Test
   fun disableUserByUserId() {
     authUserController.disableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", DeactivateReason("A Reason"), authentication)
     verify(authUserService).disableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "bob", "A Reason", authentication.authorities)
-  }
-
-  @Test
-  fun disableUser_notFound() {
-    val user = createSampleUser(username = "USER", email = "email", verified = true)
-    whenever(authUserService.getAuthUserByUsername("user")).thenReturn(Optional.of(user))
-    doThrow(EntityNotFoundException("message")).whenever(authUserService).disableUser(anyString(), anyString(), anyString(), any())
-    val responseEntity = authUserController.disableUser("user", DeactivateReason("A Reason"), authentication)
-    assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-  }
-
-  @Nested
-  inner class amendUserEmail {
-    @Test
-    fun amendUser_checkService() {
-      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-      authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-      verify(authUserService).amendUserEmail(
-        "user",
-        "a@b.com",
-        "http://some.url/auth/initial-password?token=",
-        "bob",
-        authentication.authorities,
-        EmailType.PRIMARY
-      )
-    }
-
-    @Test
-    fun amendUser_statusCode() {
-      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(204)
-      assertThat(responseEntity.body).isNull()
-    }
-
-    @Test
-    fun amendUser_notFound() {
-      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-      whenever(
-        authUserService.amendUserEmail(
-          anyString(),
-          anyString(),
-          anyString(),
-          anyString(),
-          any(),
-          eq(EmailType.PRIMARY)
-        )
-      ).thenThrow(EntityNotFoundException("not found"))
-      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(404)
-    }
-
-    @Test
-    fun amendUser_verifyException() {
-      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-      whenever(
-        authUserService.amendUserEmail(
-          anyString(),
-          anyString(),
-          anyString(),
-          anyString(),
-          any(),
-          eq(EmailType.PRIMARY)
-        )
-      ).thenThrow(ValidEmailException("reason"))
-      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(400)
-      assertThat(responseEntity.body).isEqualTo(ErrorDetail("email.reason", "Email address failed validation", "email"))
-    }
-
-    @Test
-    fun amendUser_groupException() {
-      whenever(request.requestURL).thenReturn(StringBuffer("http://some.url/auth/api/authuser/newusername"))
-      whenever(
-        authUserService.amendUserEmail(
-          anyString(),
-          anyString(),
-          anyString(),
-          anyString(),
-          any(),
-          eq(EmailType.PRIMARY)
-        )
-      ).thenThrow(AuthUserGroupRelationshipException("user", "reason"))
-      val responseEntity = authUserController.amendUserEmail("user", AmendUser("a@b.com"), request, authentication)
-      assertThat(responseEntity.statusCodeValue).isEqualTo(403)
-      assertThat(responseEntity.body).isEqualTo(
-        ErrorDetail(
-          "unable to maintain user",
-          "Unable to amend user, the user is not within one of your groups",
-          "groups"
-        )
-      )
-    }
   }
 
   @Nested

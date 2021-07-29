@@ -33,31 +33,6 @@ class AuthUserRolesController(
   private val authUserRoleService: AuthUserRoleService,
 ) {
 
-  @GetMapping("/api/authuser/{username}/roles")
-  @ApiOperation(
-    value = "Get roles for user.",
-    notes = "Get roles for user.",
-    nickname = "roles",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
-    ]
-  )
-  fun roles(
-    @ApiParam(
-      value = "The username of the user.",
-      required = true
-    ) @PathVariable username: String,
-  ): Set<AuthUserRole> {
-    val user = authUserService.getAuthUserByUsername(username)
-      .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
-    return user.authorities.map { AuthUserRole(it) }.toSet()
-  }
-
   @GetMapping("/api/authuser/id/{userId}/roles")
   @ApiOperation(
     value = "Get roles for user.",
@@ -84,28 +59,6 @@ class AuthUserRolesController(
       ?.let { u: User -> u.authorities.map { AuthUserRole(it) }.toSet() }
       ?: throw UsernameNotFoundException("User $userId not found")
 
-  @GetMapping("/api/authuser/{username}/assignable-roles")
-  @ApiOperation(
-    value = "Get list of assignable roles.",
-    notes = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role",
-    nickname = "assignableRoles",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
-    ]
-  )
-  fun assignableRoles(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiIgnore authentication: Authentication,
-  ): List<AuthUserRole> {
-    val roles = authUserRoleService.getAssignableRoles(username, authentication.authorities)
-    return roles.map { AuthUserRole(it) }
-  }
-
   @GetMapping("/api/authuser/id/{userId}/assignable-roles")
   @ApiOperation(
     value = "Get list of assignable roles.",
@@ -126,37 +79,6 @@ class AuthUserRolesController(
   ): List<AuthUserRole> {
     val roles = authUserRoleService.getAssignableRolesByUserId(userId, authentication.authorities)
     return roles.map { AuthUserRole(it) }
-  }
-
-  @PutMapping("/api/authuser/{username}/roles/{role}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Add role to user.",
-    notes = "Add role to user.",
-    nickname = "addRole",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
-      ApiResponse(code = 409, message = "Role for user already exists.", response = ErrorDetail::class),
-      ApiResponse(code = 500, message = "Server exception e.g. failed to insert row.", response = ErrorDetail::class)
-    ]
-  )
-  fun addRole(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiParam(value = "The role to be added to the user.", required = true) @PathVariable role: String,
-    @ApiIgnore authentication: Authentication,
-  ) {
-    val user = authUserService.getAuthUserByUsername(username)
-      .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
-    val usernameInDb = user.username
-    authUserRoleService.addRoles(usernameInDb, listOf(role), authentication.name, authentication.authorities)
-    log.info("Add role succeeded for user {} and role {}", usernameInDb, role)
   }
 
   @PutMapping("/api/authuser/id/{userId}/roles/{role}")
@@ -187,37 +109,6 @@ class AuthUserRolesController(
     log.info("Add role succeeded for userId {} and role {}", userId, role)
   }
 
-  @DeleteMapping("/api/authuser/{username}/roles/{role}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Remove role from user.",
-    notes = "Remove role from user.",
-    nickname = "removeRole",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 204, message = "Removed"),
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
-      ApiResponse(code = 500, message = "Server exception e.g. failed to insert row.", response = ErrorDetail::class)
-    ]
-  )
-  fun removeRole(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiParam(value = "The role to be delete from the user.", required = true) @PathVariable role: String,
-    @ApiIgnore authentication: Authentication,
-  ) {
-    val user = authUserService.getAuthUserByUsername(username)
-      .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
-    val usernameInDb = user.username
-    authUserRoleService.removeRole(usernameInDb, role, authentication.name, authentication.authorities)
-    log.info("Remove role succeeded for user {} and role {}", usernameInDb, role)
-  }
-
   @DeleteMapping("/api/authuser/id/{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -244,37 +135,6 @@ class AuthUserRolesController(
   ) {
     authUserRoleService.removeRoleByUserId(userId, role, authentication.name, authentication.authorities)
     log.info("Remove role succeeded for userId {} and role {}", userId, role)
-  }
-
-  @PostMapping("/api/authuser/{username}/roles")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Add roles to user.",
-    notes = "Add role to user, post version taking multiple roles",
-    nickname = "addRole",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
-      ApiResponse(code = 409, message = "Role(s) for user already exists.", response = ErrorDetail::class),
-      ApiResponse(code = 500, message = "Server exception e.g. failed to insert row.", response = ErrorDetail::class)
-    ]
-  )
-  fun addRole(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiParam(value = "List of roles to be assigned.", required = true) @RequestBody @NotEmpty roles: List<String>,
-    @ApiIgnore authentication: Authentication,
-  ) {
-    val user = authUserService.getAuthUserByUsername(username)
-      .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
-    val usernameInDb = user.username
-    authUserRoleService.addRoles(usernameInDb, roles, authentication.name, authentication.authorities)
-    log.info("Add role succeeded for user {} and roles {}", usernameInDb, roles.toString())
   }
 
   @PostMapping("/api/authuser/id/{userId}/roles")
