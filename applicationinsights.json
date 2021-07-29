@@ -19,6 +19,26 @@
         {
           "attributes": [
             {
+              "key": "db.system",
+              "value": "oracle",
+              "matchType": "strict"
+            }
+          ],
+          "percentage": 10
+        },
+        {
+          "attributes": [
+            {
+              "key": "db.system",
+              "value": "mssql",
+              "matchType": "strict"
+            }
+          ],
+          "percentage": 10
+        },
+        {
+          "attributes": [
+            {
               "key": "http.url",
               "value": "https?://[^/]+/auth/health.*",
               "matchType": "regexp"
