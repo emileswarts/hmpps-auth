@@ -260,14 +260,14 @@ class AuthUserController(
 
     if (user != null) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorDetailUsername("username.exists", "User $email already exists", "userId", user.userId))
+        .body(ErrorDetailUserId("username.exists", "User $email already exists", "userId", user.userId))
     }
 
     val userByEmail = authUserService.findAuthUsersByEmail(email)
     if (userByEmail.isNotEmpty()) {
       val userId = if (userByEmail.size == 1) userByEmail[0].userId else null
       return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorDetailUsername("email.exists", "User $email already exists", "email", userId))
+        .body(ErrorDetailUserId("email.exists", "User $email already exists", "email", userId))
     }
 
     val mergedGroups = mutableSetOf<String>()
@@ -461,7 +461,7 @@ class AuthUserController(
     val groupCodes: Set<String>?,
   )
 
-  data class ErrorDetailUsername(
+  data class ErrorDetailUserId(
     @ApiModelProperty(required = true, value = "Error", example = "Not Found", position = 1)
     val error: String,
 

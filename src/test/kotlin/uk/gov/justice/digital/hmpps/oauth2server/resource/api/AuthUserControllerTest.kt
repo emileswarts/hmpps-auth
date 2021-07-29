@@ -151,7 +151,7 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUsername("username.exists", "User email@justice.gov.uk already exists", "userId", "userid")
+      AuthUserController.ErrorDetailUserId("username.exists", "User email@justice.gov.uk already exists", "userId", "userid")
     )
   }
 
@@ -167,7 +167,7 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUsername("email.exists", "User email@justice.gov.uk already exists", "email", USER_ID)
+      AuthUserController.ErrorDetailUserId("email.exists", "User email@justice.gov.uk already exists", "email", USER_ID)
     )
   }
 
@@ -183,7 +183,7 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUsername("email.exists", "User email@justice.gov.uk already exists", "email", null)
+      AuthUserController.ErrorDetailUserId("email.exists", "User email@justice.gov.uk already exists", "email", null)
     )
   }
 
