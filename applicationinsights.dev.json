@@ -14,6 +14,7 @@
     "destination": "console"
   },
   "preview": {
+    "metricIntervalSeconds": 300,
     "sampling": {
       "overrides": [
         {
@@ -48,5 +49,18 @@
         }
       ]
     }
-  }
+  },
+  "processors": [
+    {
+      "type": "metric-filter",
+      "exclude": {
+        "matchType": "strict",
+        "metricNames": [
+          "http_client_requests",
+          "http_server_requests",
+          "spring_data_repository_invocations"
+        ]
+      }
+    }
+  ]
 }
