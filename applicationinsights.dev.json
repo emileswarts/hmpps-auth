@@ -48,19 +48,19 @@
           "percentage": 100
         }
       ]
-    }
-  },
-  "processors": [
-    {
-      "type": "metric-filter",
-      "exclude": {
-        "matchType": "strict",
-        "metricNames": [
-          "http_client_requests",
-          "http_server_requests",
-          "spring_data_repository_invocations"
-        ]
+    },
+    "processors": [
+      {
+        "type": "metric-filter",
+        "exclude": {
+          "matchType": "strict",
+          "metricNames": [
+            "http_client_requests",
+            "http_server_requests",
+            "spring_data_repository_invocations"
+          ]
+        }
       }
-    }
-  ]
+    ]
+  }
 }
