@@ -72,7 +72,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 HOST=$(calculateHostname "${ENV}")
 AUTH_TOKEN_HEADER=$(authenticate "${CLIENT}" "${USER}")
 
-HTTPIE_SESSION="./.httpie_session_auth.json"
+HTTPIE_SESSION="./.httpie_session_auth_$RANDOM.json"
 HTTPIE_OPTS=("--body" "--check-status" "--timeout=4.5" "--session-read-only=${HTTPIE_SESSION}")
 
 # Setup httpie session, enable preview API features
@@ -148,7 +148,11 @@ kubectl -n "${namespace}" get secrets "${secretName}" -o json |
   jq ".data[\"${secretKey}\"]=\"$(echo -n "$new_clientID_b64secret")\"" |
   kubectl -n "${namespace}" apply -f -
 
-[[ ! -z "${stop_after_creation}" ]] && echo "Stopping after update" && exit 0
+if [[ ! -z "${stop_after_creation}" ]]; then
+  # remove session file
+  rm $HTTPIE_SESSION
+  echo "Stopping after update" && exit 0
+fi
 
 # Restart the app deployment
 echo "Restarting deployment \"${deployment}\""
@@ -160,3 +164,6 @@ kubectl -n "${namespace}" rollout status deployment "${deployment}"
 ### Delete the old secret no longer used
 echo "Deleting old clientID ${currentClientID}"
 hmpps_auth DELETE "${HOST}/auth/api/client/${currentClientID}"
+
+# remove session file
+rm $HTTPIE_SESSION
