@@ -256,7 +256,7 @@ class AuthUserController(
 
     val email = EmailHelper.format(createUser.email)
 
-    val user = email?.let { userService.findMasterUserPersonDetails(email).orElse(null) }
+    val user = email?.let { authUserService.getAuthUserByUsername(email).orElse(null) }
 
     if (user != null) {
       return ResponseEntity.status(HttpStatus.CONFLICT)

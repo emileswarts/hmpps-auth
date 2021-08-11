@@ -34,7 +34,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController.AuthUser
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.AuthUserController.CreateUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
-import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 import java.time.LocalDateTime
@@ -140,9 +139,7 @@ class AuthUserControllerTest {
 
   @Test
   fun `createUserByEmail username already exists`() {
-    whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(
-      Optional.of(UserDetailsImpl("name", "bob", setOf(), "none", "userid", "jwtId"))
-    )
+    whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.of(createSampleUser(id = UUID.fromString("d4bbc232-45e6-4086-bb0f-f96192438f03"))))
     val responseEntity =
       authUserController.createUserByEmail(
         CreateUser("email@justice.gov.uk", "first", "last", null, null),
@@ -151,13 +148,12 @@ class AuthUserControllerTest {
       )
     assertThat(responseEntity.statusCodeValue).isEqualTo(409)
     assertThat(responseEntity.body).isEqualTo(
-      AuthUserController.ErrorDetailUserId("username.exists", "User email@justice.gov.uk already exists", "userId", "userid")
+      AuthUserController.ErrorDetailUserId("username.exists", "User email@justice.gov.uk already exists", "userId", "d4bbc232-45e6-4086-bb0f-f96192438f03")
     )
   }
 
   @Test
   fun `createUserByEmail email already exists`() {
-    whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.empty())
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(createSampleUser("joe", id = UUID.fromString(USER_ID))))
     val responseEntity =
       authUserController.createUserByEmail(
@@ -173,7 +169,6 @@ class AuthUserControllerTest {
 
   @Test
   fun `createUserByEmail email already exists can't determine username`() {
-    whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.empty())
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(createSampleUser("joe"), createSampleUser("bob")))
     val responseEntity =
       authUserController.createUserByEmail(
@@ -209,7 +204,7 @@ class AuthUserControllerTest {
       request,
       authentication
     )
-    verify(userService).findMasterUserPersonDetails("email@justice.gov.uk")
+    verify(authUserService).getAuthUserByUsername("email@justice.gov.uk")
     verify(authUserService).createUserByEmail(
       "email@justice.gov.uk",
       "first",
