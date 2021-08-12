@@ -308,7 +308,7 @@ class MfaServiceBasedControllerTest {
         response,
         authentication,
       )
-      verify(telemetryClient).trackEvent("MFAAuthenticateSuccess", mapOf("username" to "someuser"), null)
+      verify(telemetryClient).trackEvent("MFAAuthenticateSuccess", mapOf("username" to "someuser", "authSource" to "auth"), null)
     }
   }
 

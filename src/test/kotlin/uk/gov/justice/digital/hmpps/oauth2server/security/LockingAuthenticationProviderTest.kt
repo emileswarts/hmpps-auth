@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -27,6 +28,12 @@ class LockingAuthenticationProviderTest {
   fun `authenticate nomisUser`() { // test that oracle passwords are authenticated okay
     setupLoadUser("S:39BA463D55E5C8936A6798CC37B1347BA8BEC37B6407397EB769BC356F0C")
     lockingAuthenticationProvider.authenticate(UsernamePasswordAuthenticationToken("user", "somepass1"))
+  }
+  @Test
+  fun `authenticate verify telemetry event`() { // test that oracle passwords are authenticated okay
+    setupLoadUser("S:39BA463D55E5C8936A6798CC37B1347BA8BEC37B6407397EB769BC356F0C")
+    lockingAuthenticationProvider.authenticate(UsernamePasswordAuthenticationToken("user", "somepass1"))
+    verify(telemetryClient).trackEvent("AuthenticateSuccess", mapOf("username" to "user", "authSource" to "none"), null)
   }
 
   @Test

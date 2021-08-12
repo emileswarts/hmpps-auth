@@ -90,8 +90,8 @@ abstract class LockingAuthenticationProvider(
         throw MfaUnavailableException("MFA required, but no email set")
       }
       val username = userDetails.username
-      log.info("Successful login for user {}", username)
-      telemetryClient.trackEvent("AuthenticateSuccess", mapOf("username" to username), null)
+      log.info("Successful login for user {} and source {}", username, userDetails.authSource)
+      telemetryClient.trackEvent("AuthenticateSuccess", mapOf("username" to username, "authSource" to userDetails.authSource), null)
       fullAuthentication
     } catch (e: AuthenticationException) {
       val reason = e.javaClass.simpleName

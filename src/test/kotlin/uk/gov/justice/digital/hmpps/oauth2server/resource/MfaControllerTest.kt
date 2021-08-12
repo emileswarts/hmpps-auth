@@ -303,7 +303,7 @@ class MfaControllerTest {
       )
       whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
       controller.mfaChallenge("some token", MfaPreferenceType.EMAIL, "some code", request, response)
-      verify(telemetryClient).trackEvent("MFAAuthenticateSuccess", mapOf("username" to "someuser"), null)
+      verify(telemetryClient).trackEvent("MFAAuthenticateSuccess", mapOf("username" to "someuser", "authSource" to "auth"), null)
     }
 
     @Test

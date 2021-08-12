@@ -52,7 +52,7 @@ class OidcJwtAuthenticationSuccessHandler(
       val azureDetails = constructAzureUserPersonDetails(oidcUser)
       userRetriesService.resetRetriesAndRecordLogin(azureDetails)
       log.info("Successful login for user {}", azureDetails.email)
-      telemetryClient.trackEvent("AuthenticateSuccess", mapOf("username" to azureDetails.email), null)
+      telemetryClient.trackEvent("AuthenticateSuccess", mapOf("username" to azureDetails.email, "authSource" to AuthSource.azuread.source), null)
       super.onAuthenticationSuccess(request, response, authentication)
     } else {
       throw RuntimeException("Expected a DefaultOidcUser - is the Azure OIDC configuration correct?")

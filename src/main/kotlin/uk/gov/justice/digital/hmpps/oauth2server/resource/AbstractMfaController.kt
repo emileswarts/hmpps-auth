@@ -67,7 +67,7 @@ abstract class AbstractMfaController(
       return ModelAndView("redirect:$initiatorUrl", "error", "mfa${optionalErrorForToken.get()}")
     }
     // can just grab token here as validated above
-    val username = tokenService.getToken(MFA, token).map { it.user.username }.orElseThrow()
+    val (username, authSource) = tokenService.getToken(MFA, token).map { it.user.username to it.user.source }.orElseThrow()
 
     try {
       mfaService.validateAndRemoveMfaCode(token, code)
@@ -84,7 +84,7 @@ abstract class AbstractMfaController(
     }
 
     // success, so forward on
-    telemetryClient.trackEvent("MFAAuthenticateSuccess", mapOf("username" to username), null)
+    telemetryClient.trackEvent("MFAAuthenticateSuccess", mapOf("username" to username, "authSource" to authSource.source), null)
 
     return successFunction(username)
   }

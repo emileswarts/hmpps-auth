@@ -140,7 +140,7 @@ internal class OidcJwtAuthenticationSuccessHandlerTest {
 
     verify(telemetryClient).trackEvent(
       "AuthenticateSuccess",
-      mapOf("username" to "joe.bloggs@justice.gov.uk"),
+      mapOf("username" to "joe.bloggs@justice.gov.uk", "authSource" to "azuread"),
       null
     )
   }
