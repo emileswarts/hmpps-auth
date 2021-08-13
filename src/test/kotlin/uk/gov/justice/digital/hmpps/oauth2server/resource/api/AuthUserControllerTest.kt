@@ -478,6 +478,21 @@ class AuthUserControllerTest {
     )
   }
 
+  @Test
+  fun `get verified emails for a list of users`() {
+    whenever(authUserService.findAuthUsersByUsernames(anyList())).thenReturn(
+      listOf(
+        createSampleUser(verified = true, source = AuthSource.nomis, username = "U1", email = "u1@b.com"),
+        createSampleUser(verified = true, source = AuthSource.nomis, username = "U2", email = "u2@b.com"),
+        createSampleUser(verified = false, source = AuthSource.nomis, username = "U3", email = "u3@b.com"),
+      )
+    )
+
+    val emails = authUserController.getAuthUserEmails(listOf("U1", "U1", "U3"))
+
+    assertThat(emails).extracting("email").containsExactlyInAnyOrder("u1@b.com", "u2@b.com")
+  }
+
   companion object {
     private const val USER_ID = "07395ef9-53ec-4d6c-8bb1-0dc96cd4bd2f"
   }

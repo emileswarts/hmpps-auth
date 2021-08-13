@@ -178,6 +178,7 @@ class UserController(private val userService: UserService) {
     }
     .orElseGet { notFoundResponse(username) }
 
+  @Deprecated("Please user /api/authuser/email instead")
   @PostMapping("/api/user/email")
   @ApiOperation(
     value = "Email address for users",

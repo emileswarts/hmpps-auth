@@ -504,4 +504,52 @@ class AuthUserControllerIntTest : IntegrationTest() {
         }
     }
   }
+
+  @Nested
+  inner class GetAuthUserEmails {
+    @Test
+    fun `User emails endpoint returns user data forbidden`() {
+      webTestClient
+        .post().uri("/api/authuser/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation("ITAG_USER"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `User emails endpoint returns user data`() {
+      webTestClient
+        .post().uri("/api/authuser/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER")))
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(
+            listOf("auth_user@digital.justice.gov.uk")
+          )
+        }
+    }
+
+    @Test
+    fun `User emails endpoint does not return non-auth user's data`() {
+      webTestClient
+        .post().uri("/api/authuser/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(
+            listOf(
+              "auth_user@digital.justice.gov.uk",
+              "itag_user@digital.justice.gov.uk"
+            )
+          )
+        }
+    }
+  }
 }
