@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hmpps-auth
+  description: The HMPPS Authentication (HMPPS Auth) product for accessing HMPPS digital services which includes Digital Prison Services (DPS) and probation services.
+  tags:
+    - kotlin
+    - spring-boot
+  links:
+    - url: https://sign-in.hmpps.service.justice.gov.uk/auth/swagger-ui.html
+      title: API Docs
+      icon: Description
+    - url: https://sign-in.hmpps.service.justice.gov.uk/auth/health
+      title: Health endpoint
+      icon: LocalHospital
+    - url: https://github.com/ministryofjustice/nomis-api-terraform-azure/
+      title: Infra code
+      icon: Build
+spec:
+  type: service
+  lifecycle: live
+  owner: dps-tech-team
+
