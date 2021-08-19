@@ -33,6 +33,10 @@ spring:
     enabled: false
   session:
     store-type=jdbc
+  data:
+    web:
+      pageable:
+        max-page-size: 20000
 
   jpa:
     hibernate:
