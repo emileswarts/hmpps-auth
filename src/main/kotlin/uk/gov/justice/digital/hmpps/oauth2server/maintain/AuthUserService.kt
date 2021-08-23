@@ -281,6 +281,7 @@ class AuthUserService(
 
   fun getAuthUserByUserId(id: String, admin: String, authorities: Collection<GrantedAuthority>): User? =
     userRepository.findByIdOrNull(UUID.fromString(id))?.also {
+      it.authorities.size // initialises user roles
       maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, it)
     }
 

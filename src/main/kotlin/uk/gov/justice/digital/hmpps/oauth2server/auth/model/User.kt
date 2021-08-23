@@ -17,7 +17,6 @@ import javax.persistence.Embedded
 import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
@@ -69,7 +68,7 @@ class User(
   @Column(name = "password")
   private var password: String? = null
 
-  @OneToMany(fetch = FetchType.EAGER)
+  @OneToMany
   @JoinTable(
     name = "user_role",
     joinColumns = [JoinColumn(name = "user_id")],
