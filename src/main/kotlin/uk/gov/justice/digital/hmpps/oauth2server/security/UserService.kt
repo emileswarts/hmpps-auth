@@ -62,7 +62,7 @@ class UserService(
   ): Optional<UserPersonDetails> =
     getMasterUserPersonDetails(username, authSource).filter { emailMatchesUser(email, it) }
 
-  private fun getMasterUserPersonDetails(username: String, authSource: AuthSource): Optional<UserPersonDetails> =
+  fun getMasterUserPersonDetails(username: String, authSource: AuthSource): Optional<UserPersonDetails> =
     when (authSource) {
       auth -> authUserService.getAuthUserByUsername(username)
       nomis -> nomisUserService.getNomisUserByUsername(username)

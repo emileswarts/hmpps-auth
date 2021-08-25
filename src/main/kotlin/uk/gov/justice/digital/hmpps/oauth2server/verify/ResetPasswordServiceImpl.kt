@@ -77,9 +77,14 @@ class ResetPasswordServiceImpl(
     }
     val user = optionalUser.get()
     val templateAndParameters = getTemplateAndParameters(url, multipleMatchesAndCanBeReset, user)
-    sendEmail(user.username, templateAndParameters, user.email!!)
+    sendEmail(user.username, templateAndParameters, user.masterEmail())
     return Optional.ofNullable(templateAndParameters.resetLink)
   }
+
+  private fun User.masterEmail(): String =
+    if (source == AuthSource.delius)
+      userService.getMasterUserPersonDetails(username, AuthSource.delius).map { it.toUser().email!! }.orElse(email)
+    else email!!
 
   private fun saveDeliusUser(userPersonDetails: UserPersonDetails): Optional<User> {
     val user = userPersonDetails.toUser()

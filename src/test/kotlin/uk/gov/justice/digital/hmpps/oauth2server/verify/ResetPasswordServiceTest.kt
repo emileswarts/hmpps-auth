@@ -97,6 +97,7 @@ class ResetPasswordServiceTest {
       val user = createSampleUser(username = "USER", email = "email", verified = true, source = delius)
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.empty())
+      whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.empty())
       val optional = resetPasswordService.requestResetPassword("user", "url")
       verify(notificationClient).sendEmail(
         eq("resetUnavailableTemplate"),
@@ -113,6 +114,30 @@ class ResetPasswordServiceTest {
         isNull()
       )
       assertThat(optional).isEmpty
+    }
+
+    @Test
+    fun requestResetPassword_emailAddressDifferentInDelius() {
+      val user = createSampleUser(username = "USER", email = "email", person = Person("Bob", "Smith"), enabled = true, source = delius)
+      val userFromDelius = createSampleUser(username = "USER", email = "emailFromDelius", person = Person("Bob", "Smith"), enabled = true, source = delius)
+      whenever(userRepository.findByEmail(any())).thenReturn(listOf(user, user))
+      whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(user)
+      whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.of(userFromDelius))
+
+      val optionalLink = resetPasswordService.requestResetPassword("someuser@somewhere", "http://url")
+      verify(notificationClient).sendEmail(
+        eq("resetTemplate"),
+        eq("emailFromDelius"),
+        check {
+          assertThat(it).containsOnly(
+            entry("firstName", "Bob"),
+            entry("fullName", "Bob Smith"),
+            entry("resetLink", optionalLink.get())
+          )
+        },
+        isNull()
+      )
+      assertThat(optionalLink).isPresent
     }
 
     @Test
