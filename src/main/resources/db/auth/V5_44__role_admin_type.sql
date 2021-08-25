@@ -1,6 +1,7 @@
 create table admin_type
 (
-    admin_type_id         UNIQUEIDENTIFIER NOT NULL,
+    admin_type_id         UNIQUEIDENTIFIER NOT NULL
+    CONSTRAINT admin_type_pk PRIMARY KEY,
     admin_type_name       VARCHAR(100)     NOT NULL,
     create_datetime DATETIME2        NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
