@@ -46,11 +46,27 @@ class ResetPasswordServiceImpl(
     val multipleMatchesAndCanBeReset: Boolean
     if (StringUtils.contains(usernameOrEmailAddress, "@")) {
       val email = format(usernameOrEmailAddress)
-      val matches = userRepository.findByEmail(email)
+      var matches = userRepository.findByEmail(email)
       if (matches.isEmpty()) {
-        // no match, but got an email address so let them know
-        sendEmail(email, resetUnavailableEmailNotFoundTemplateId, emptyMap<String, String>(), email)
-        return Optional.empty()
+        // no match in auth, check in nomis and delius
+        val userDetailsList = setOf(AuthSource.nomis, AuthSource.delius)
+          .map { it -> userService.findUserPersonDetailsByEmail(email!!, it).filter { it.isEnabled } }
+          .filter { it.isNotEmpty() }
+          .flatten()
+
+        if (userDetailsList.size == 1) {
+          var userPersonDetails = userDetailsList.first()
+          when (AuthSource.fromNullableString(userPersonDetails.authSource)) {
+            AuthSource.nomis -> saveNomisUser(userPersonDetails)
+            AuthSource.delius -> saveDeliusUser(userPersonDetails)
+          }
+          // update the match list as we have now saved the user
+          matches = userRepository.findByEmail(email)
+        } else {
+          // no match or multiple matches, but got an email address so let them know
+          sendEmail(email, resetUnavailableEmailNotFoundTemplateId, emptyMap<String, String>(), email)
+          return Optional.empty()
+        }
       }
 
       val passwordCanBeReset = matches.firstOrNull { passwordAllowedToBeReset(it) }

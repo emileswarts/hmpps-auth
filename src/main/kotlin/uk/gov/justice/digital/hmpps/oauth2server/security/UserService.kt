@@ -62,6 +62,13 @@ class UserService(
   ): Optional<UserPersonDetails> =
     getMasterUserPersonDetails(username, authSource).filter { emailMatchesUser(email, it) }
 
+  fun findUserPersonDetailsByEmail(email: String, to: AuthSource): List<UserPersonDetails> = when (to) {
+    auth -> authUserService.findAuthUsersByEmail(email).filter { it.verified }
+    nomis -> nomisUserService.getNomisUsersByEmail(email)
+    delius -> deliusUserService.getDeliusUsersByEmail(email)
+    else -> emptyList()
+  }
+
   fun getMasterUserPersonDetails(username: String, authSource: AuthSource): Optional<UserPersonDetails> =
     when (authSource) {
       auth -> authUserService.getAuthUserByUsername(username)
