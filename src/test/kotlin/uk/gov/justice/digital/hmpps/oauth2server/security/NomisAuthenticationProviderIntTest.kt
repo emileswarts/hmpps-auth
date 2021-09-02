@@ -34,7 +34,8 @@ class NomisAuthenticationProviderIntTest {
         "ROLE_OAUTH_ADMIN",
         "ROLE_MAINTAIN_ACCESS_ROLES",
         "ROLE_KW_MIGRATION",
-        "ROLE_MAINTAIN_OAUTH_USERS"
+        "ROLE_MAINTAIN_OAUTH_USERS",
+        "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"
       )
   }
 
