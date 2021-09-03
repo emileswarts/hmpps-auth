@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
@@ -477,17 +478,14 @@ class ResetPasswordServiceTest {
 
     @Test
     fun `Nomis User who has not logged into DPS can reset password with email`() {
-      var userPersonDetails = buildStandardUser("user")
+      val userPersonDetails = buildStandardUser("user")
       val user = createSampleUser(username = "someuser", email = "a@b.com", person = Person("Bob", "Smith"), enabled = true, source = nomis, verified = true)
 
-      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty()) // no user in auth
+      whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(), listOf(user))
       whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(nomis))).thenReturn(listOf(userPersonDetails))
-      whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(), listOf(user)) // no user in auth
-
-      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(userPersonDetails))
-
-      whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(userPersonDetails)
       whenever(userService.getEmailAddressFromNomis(anyString())).thenReturn(Optional.of("Bob.smith@justice.gov.uk"))
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(userPersonDetails))
+      whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(userPersonDetails)
 
       val optionalLink = resetPasswordService.requestResetPassword("someuser@somewhere", "http://url")
 
@@ -516,6 +514,32 @@ class ResetPasswordServiceTest {
     }
 
     @Test
+    fun `User who has not logged into DPS that has accounts in both nomis and delius (with the same email) cannot reset password with email`() {
+      val nomisUserDetails = buildStandardUser("user")
+      val deliusUserDetails = createDeliusUser()
+
+      whenever(userRepository.findByEmail(anyString())).thenReturn(listOf()) // no user in auth
+      whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(nomis))).thenReturn(listOf(nomisUserDetails))
+      whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(delius))).thenReturn(listOf(deliusUserDetails))
+      whenever(userService.getEmailAddressFromNomis(anyString())).thenReturn(Optional.of("Bob.smith@justice.gov.uk"))
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(nomisUserDetails))
+      whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(nomisUserDetails)
+
+      val optionalLink = resetPasswordService.requestResetPassword("someuser@somewhere", "http://url")
+
+      verify(notificationClient).sendEmail(
+        eq("resetUnavailableEmailNotFoundTemplate"),
+        eq("someuser@somewhere"),
+        check {
+          assertThat(it).isEmpty()
+        },
+        isNull()
+      )
+      assertThat(optionalLink).isEmpty
+      verify(userRepository, never()).save(any())
+    }
+
+    @Test
     fun `Nomis User who has not logged reset password request no email`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(buildStandardUser("user")))
@@ -537,9 +561,7 @@ class ResetPasswordServiceTest {
     fun `Delius User who has not logged into DPS can reset password request with email`() {
       val deliusUserDetails = createDeliusUser()
       val user = createSampleUser(username = "someuser", email = "a@b.com", person = Person("Bob", "Smith"), enabled = true, source = delius, verified = true)
-      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty()) // no user in auth
       whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(), listOf(user)) // no user in auth
-
       whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(delius))).thenReturn(listOf(deliusUserDetails))
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(deliusUserDetails)
 
