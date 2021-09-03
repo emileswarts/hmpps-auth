@@ -12,7 +12,7 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "ROLES")
-class Authority(roleCode: String, roleName: String) : GrantedAuthority {
+class Authority(roleCode: String, roleName: String, roleDescription: String = "") : GrantedAuthority {
   @Id
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -23,8 +23,11 @@ class Authority(roleCode: String, roleName: String) : GrantedAuthority {
   val roleCode: String
 
   @Column(name = "role_name", nullable = false)
-  val roleName: String
+  var roleName: String
   override fun getAuthority(): String = "$ROLE_PREFIX$roleCode"
+
+  @Column(name = "role_description")
+  var roleDescription: String?
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -48,5 +51,6 @@ class Authority(roleCode: String, roleName: String) : GrantedAuthority {
   init {
     this.roleCode = removeRolePrefixIfNecessary(roleCode)
     this.roleName = roleName
+    this.roleDescription = roleDescription
   }
 }

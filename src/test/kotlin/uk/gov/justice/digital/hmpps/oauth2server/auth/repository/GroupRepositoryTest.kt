@@ -16,6 +16,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -51,8 +52,10 @@ class GroupRepositoryTest {
     val entity = repository.findByGroupCode("SITE_3_GROUP_1")
     assertThat(entity?.groupCode).isEqualTo("SITE_3_GROUP_1")
     assertThat(entity?.assignableRoles).isEmpty()
-    val role1 = roleRepository.findByRoleCode("GLOBAL_SEARCH").orElseThrow()
-    val role2 = roleRepository.findByRoleCode("LICENCE_RO").orElseThrow()
+    val role1 = roleRepository.findByRoleCode("GLOBAL_SEARCH") ?: throw
+    AuthUserRoleException("role", "role.notfound")
+    val role2 = roleRepository.findByRoleCode("LICENCE_RO") ?: throw
+    AuthUserRoleException("role", "role.notfound")
     val gar1 = GroupAssignableRole(role = role1, group = entity!!, automatic = false)
     entity.assignableRoles.add(gar1)
     val gar2 = GroupAssignableRole(role = role2, group = entity, automatic = true)

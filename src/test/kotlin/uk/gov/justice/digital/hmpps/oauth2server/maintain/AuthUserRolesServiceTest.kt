@@ -57,7 +57,7 @@ internal class AuthUserRolesServiceTest {
         )
       )
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(Authority("FRED", "Role Fred")))
       assertThatThrownBy { service.addRoles("user", listOf("BOB"), "admin", SUPER_USER) }.isInstanceOf(
         AuthUserRoleException::class.java
@@ -94,7 +94,7 @@ internal class AuthUserRolesServiceTest {
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(
         setOf(
           Authority(
@@ -114,7 +114,7 @@ internal class AuthUserRolesServiceTest {
         Optional.of(createSampleUser(username = "user"))
       )
       val role = Authority("ROLE_OAUTH_ADMIN", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       assertThatThrownBy { service.addRoles("user", listOf("BOB"), "admin", SUPER_USER) }.isInstanceOf(
         AuthUserRoleException::class.java
@@ -126,7 +126,7 @@ internal class AuthUserRolesServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
       val role = Authority("ROLE_OAUTH_ADMIN", "Role Auth Admin")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       service.addRoles(
         "user",
@@ -143,7 +143,7 @@ internal class AuthUserRolesServiceTest {
       val user =
         createSampleUser(username = "user", authorities = setOf(role))
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       assertThatThrownBy { service.addRoles("user", listOf("LICENCE_VARY"), "admin", SUPER_USER) }.isInstanceOf(
         AuthUserRoleException::class.java
       ).hasMessage("Modify role failed for field role with reason: role.exists")
@@ -157,7 +157,7 @@ internal class AuthUserRolesServiceTest {
       )
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       service.addRoles("user", listOf("ROLE_LICENCE_VARY"), "admin", SUPER_USER)
       assertThat(user.authorities).extracting<String> { it.authority }.containsOnly("ROLE_JOE", "ROLE_LICENCE_VARY")
@@ -173,8 +173,8 @@ internal class AuthUserRolesServiceTest {
       val role1 = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
       val role2 = Authority("ROLE_OTHER", "Role Other")
       whenever(roleRepository.findByRoleCode(anyString()))
-        .thenReturn(Optional.of(role1))
-        .thenReturn(Optional.of(role2))
+        .thenReturn(role1)
+        .thenReturn(role2)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role1, role2))
       service.addRoles("user", listOf("ROLE_LICENCE_VARY", "ROLE_OTHER"), "admin", SUPER_USER)
       assertThat(user.authorities).extracting<String> { it.authority }
@@ -207,7 +207,7 @@ internal class AuthUserRolesServiceTest {
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(setOf(role))
       service.addRoles("user", listOf("ROLE_LICENCE_VARY"), "admin", GROUP_MANAGER_ROLE)
       assertThat(user.authorities).extracting<String> { it.authority }.containsOnly("ROLE_JOE", "ROLE_LICENCE_VARY")
@@ -222,7 +222,7 @@ internal class AuthUserRolesServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
       val role2 = Authority("BOB", "Bloggs")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       assertThatThrownBy {
         service.removeRole(
           "user",
@@ -240,7 +240,7 @@ internal class AuthUserRolesServiceTest {
       val role2 = Authority("BOB", "Bloggs")
       val user = createSampleUser(username = "user", authorities = setOf(role, role2))
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(user))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       assertThatThrownBy {
         service.removeRole(
@@ -289,7 +289,7 @@ internal class AuthUserRolesServiceTest {
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString()))
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(setOf(role))
       assertThatThrownBy { service.removeRole("user", "BOB", "admin", GROUP_MANAGER_ROLE) }.isInstanceOf(
         AuthUserRoleException::class.java
@@ -325,7 +325,7 @@ internal class AuthUserRolesServiceTest {
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
       val role2 = Authority("JOE", "Bloggs")
       user.authorities.addAll(setOf(role, role2))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role, role2))
       service.removeRole("user", "  licence_vary   ", "admin", SUPER_USER)
       assertThat(user.authorities).extracting<String> { it.authority }.containsOnly("ROLE_JOE")
@@ -341,7 +341,7 @@ internal class AuthUserRolesServiceTest {
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString()))
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(setOf(role, role2))
       service.removeRole(
         "user",
@@ -447,7 +447,7 @@ internal class AuthUserRolesServiceTest {
         )
       )
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(Authority("FRED", "Role Fred")))
       assertThatThrownBy {
         service.addRolesByUserId(
@@ -498,7 +498,7 @@ internal class AuthUserRolesServiceTest {
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(
         setOf(
           Authority(
@@ -525,7 +525,7 @@ internal class AuthUserRolesServiceTest {
         Optional.of(createSampleUser(username = "user"))
       )
       val role = Authority("ROLE_OAUTH_ADMIN", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       assertThatThrownBy {
         service.addRolesByUserId(
@@ -544,7 +544,7 @@ internal class AuthUserRolesServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       val role = Authority("ROLE_OAUTH_ADMIN", "Role Auth Admin")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       service.addRolesByUserId(
         "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
@@ -561,7 +561,7 @@ internal class AuthUserRolesServiceTest {
       val user =
         createSampleUser(username = "user", authorities = setOf(role))
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       assertThatThrownBy {
         service.addRolesByUserId(
           "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
@@ -582,7 +582,7 @@ internal class AuthUserRolesServiceTest {
       )
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       service.addRolesByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", listOf("ROLE_LICENCE_VARY"), "admin", SUPER_USER)
       assertThat(user.authorities).extracting<String> { it.authority }.containsOnly("ROLE_JOE", "ROLE_LICENCE_VARY")
@@ -598,8 +598,8 @@ internal class AuthUserRolesServiceTest {
       val role1 = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
       val role2 = Authority("ROLE_OTHER", "Role Other")
       whenever(roleRepository.findByRoleCode(anyString()))
-        .thenReturn(Optional.of(role1))
-        .thenReturn(Optional.of(role2))
+        .thenReturn(role1)
+        .thenReturn(role2)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role1, role2))
       service.addRolesByUserId(
         "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
@@ -637,7 +637,7 @@ internal class AuthUserRolesServiceTest {
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(setOf(role))
       service.addRolesByUserId(
         "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
@@ -657,7 +657,7 @@ internal class AuthUserRolesServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       val role2 = Authority("BOB", "Bloggs")
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       assertThatThrownBy {
         service.removeRoleByUserId(
           "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
@@ -675,7 +675,7 @@ internal class AuthUserRolesServiceTest {
       val role2 = Authority("BOB", "Bloggs")
       val user = createSampleUser(username = "user", authorities = setOf(role, role2))
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role))
       assertThatThrownBy {
         service.removeRoleByUserId(
@@ -731,7 +731,7 @@ internal class AuthUserRolesServiceTest {
       whenever(userRepository.findById(any()))
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role2))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role2)
       whenever(roleRepository.findByGroupAssignableRolesForUsername(anyString())).thenReturn(setOf(role))
       assertThatThrownBy {
         service.removeRoleByUserId(
@@ -774,7 +774,7 @@ internal class AuthUserRolesServiceTest {
       val role = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
       val role2 = Authority("JOE", "Bloggs")
       user.authorities.addAll(setOf(role, role2))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findAllByOrderByRoleName()).thenReturn(listOf(role, role2))
       service.removeRoleByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  licence_vary   ", "admin", SUPER_USER)
       assertThat(user.authorities).extracting<String> { it.authority }.containsOnly("ROLE_JOE")
@@ -790,7 +790,7 @@ internal class AuthUserRolesServiceTest {
       whenever(userRepository.findById(any()))
         .thenReturn(Optional.of(user))
         .thenReturn(Optional.of(groupManager))
-      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(Optional.of(role))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(setOf(role, role2))
       service.removeRoleByUserId(
         "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",

@@ -54,7 +54,8 @@ class AuthUserRoleService(
     for (roleCode in formattedRoles) {
       // check that role exists
       val role =
-        roleRepository.findByRoleCode(roleCode).orElseThrow { AuthUserRoleException("role", "role.notfound") }
+        roleRepository.findByRoleCode(roleCode) ?: throw
+        AuthUserRoleException("role", "role.notfound")
       if (user.authorities.contains(role)) {
         throw AuthUserRoleExistsException()
       }
@@ -95,7 +96,8 @@ class AuthUserRoleService(
       for (roleCode in formattedRoles) {
         // check that role exists
         val role =
-          roleRepository.findByRoleCode(roleCode).orElseThrow { AuthUserRoleException("role", "role.notfound") }
+          roleRepository.findByRoleCode(roleCode) ?: throw
+          AuthUserRoleException("role", "role.notfound")
         if (user.authorities.contains(role)) {
           throw AuthUserRoleExistsException()
         }
@@ -131,7 +133,8 @@ class AuthUserRoleService(
     maintainUserCheck.ensureUserLoggedInUserRelationship(loggedInUser, authorities, user)
     val roleFormatted = formatRole(roleCode)
     val role =
-      roleRepository.findByRoleCode(roleFormatted).orElseThrow { AuthUserRoleException("role", "role.notfound") }
+      roleRepository.findByRoleCode(roleFormatted) ?: throw
+      AuthUserRoleException("role", "role.notfound")
     if (!user.authorities.contains(role)) {
       throw AuthUserRoleException("role", "role.missing")
     }
@@ -164,7 +167,8 @@ class AuthUserRoleService(
       maintainUserCheck.ensureUserLoggedInUserRelationship(loggedInUser, authorities, user)
       val roleFormatted = formatRole(roleCode)
       val role =
-        roleRepository.findByRoleCode(roleFormatted).orElseThrow { AuthUserRoleException("role", "role.notfound") }
+        roleRepository.findByRoleCode(roleFormatted) ?: throw
+        AuthUserRoleException("role", "role.notfound")
       if (!user.authorities.contains(role)) {
         throw AuthUserRoleException("role", "role.missing")
       }

@@ -1,0 +1,45 @@
+@file:Suppress("ClassName")
+
+package uk.gov.justice.digital.hmpps.oauth2server.resource.api
+
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
+
+class RolesControllerTest {
+  private val rolesService: RolesService = mock()
+
+  private val rolesController = RolesController(rolesService)
+
+  @Test
+  fun `get roles`() {
+    val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
+    val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
+    val roles = listOf(role1, role2)
+    whenever(rolesService.getAllRoles(any())).thenReturn(PageImpl(roles))
+
+    val allRoles = rolesController.getAllRoles(Pageable.unpaged())
+    verify(rolesService).getAllRoles(
+      Pageable.unpaged(),
+    )
+    assertThat(allRoles.size).isEqualTo(2)
+  }
+
+  @Test
+  fun `No Roles Found`() {
+    whenever(rolesService.getAllRoles(any())).thenReturn(PageImpl(listOf()))
+
+    val noRoles = rolesController.getAllRoles(Pageable.unpaged())
+    verify(rolesService).getAllRoles(
+      Pageable.unpaged(),
+    )
+    assertThat(noRoles.size).isEqualTo(0)
+  }
+}

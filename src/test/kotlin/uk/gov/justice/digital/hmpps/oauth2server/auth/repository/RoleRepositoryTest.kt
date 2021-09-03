@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 import java.util.UUID
 
 @DataJpaTest
@@ -32,9 +33,10 @@ class RoleRepositoryTest {
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()
     TestTransaction.end()
-    assertThat(persistedEntity.authority).isNotNull()
+    assertThat(persistedEntity.authority).isNotNull
     TestTransaction.start()
-    val retrievedEntity = repository.findByRoleCode(entity.roleCode).orElseThrow()
+    val retrievedEntity = repository.findByRoleCode(entity.roleCode) ?: throw
+    AuthUserRoleException("role", "role.notfound")
 
     // equals only compares the business key columns
     assertThat(retrievedEntity).isEqualTo(transientEntity)
@@ -44,7 +46,8 @@ class RoleRepositoryTest {
 
   @Test
   fun givenAnExistingRoleTheyCanBeRetrieved() {
-    val retrievedEntity = repository.findByRoleCode("PECS_POLICE").orElseThrow()
+    val retrievedEntity = repository.findByRoleCode("PECS_POLICE") ?: throw
+    AuthUserRoleException("role", "role.notfound")
     assertThat(retrievedEntity.authority).isEqualTo("ROLE_PECS_POLICE")
     assertThat(retrievedEntity.roleName).isEqualTo("PECS Police")
   }

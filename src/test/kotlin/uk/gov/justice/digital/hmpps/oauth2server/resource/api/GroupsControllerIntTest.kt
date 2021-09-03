@@ -59,7 +59,7 @@ class GroupsControllerIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `Group details endpoint returns forbidden when dose not have admin role `() {
+    fun `Group details endpoint returns forbidden when does not have admin role `() {
       webTestClient
         .get().uri("/api/groups/SITE_1_GROUP_2")
         .headers(setAuthorisation("bob"))

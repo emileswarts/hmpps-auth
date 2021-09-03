@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
@@ -90,8 +91,10 @@ class UserRepositoryTest {
   fun givenATransientAuthEntityItCanBePersisted() {
     val transientEntity =
       createSampleUser(username = "user", source = nomis, email = "a@b.com", firstName = "first", lastName = "last")
-    val roleLicenceVary = roleRepository.findByRoleCode("LICENCE_VARY").orElseThrow()
-    val roleGlobalSearch = roleRepository.findByRoleCode("GLOBAL_SEARCH").orElseThrow()
+    val roleLicenceVary = roleRepository.findByRoleCode("LICENCE_VARY") ?: throw
+    AuthUserRoleException("role", "role.notfound")
+    val roleGlobalSearch = roleRepository.findByRoleCode("GLOBAL_SEARCH") ?: throw
+    AuthUserRoleException("role", "role.notfound")
     transientEntity.authorities.addAll(setOf(roleLicenceVary, roleGlobalSearch))
     val persistedEntity = repository.save(transientEntity)
     TestTransaction.flagForCommit()
@@ -140,7 +143,7 @@ class UserRepositoryTest {
     assertThat(retrievedEntity.username).isEqualTo("AUTH_ADM")
     assertThat(retrievedEntity.person!!.firstName).isEqualTo("Auth")
     assertThat(retrievedEntity.authorities).extracting<String> { obj: Authority -> obj.authority }
-      .containsOnly("ROLE_OAUTH_ADMIN", "ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUDIT_VIEWER")
+      .containsOnly("ROLE_OAUTH_ADMIN", "ROLE_MAINTAIN_OAUTH_USERS", "ROLE_AUDIT_VIEWER", "ROLE_ROLES_ADMIN")
     assertThat(retrievedEntity.email).isEqualTo("auth_test2@digital.justice.gov.uk")
     assertThat(retrievedEntity.verified).isTrue()
     assertThat(retrievedEntity.mfaPreference).isEqualTo(EMAIL)
@@ -152,8 +155,10 @@ class UserRepositoryTest {
     assertThat(entity.username).isEqualTo("AUTH_TEST")
     assertThat(entity.name).isEqualTo("Auth Test")
     assertThat(entity.authorities).isEmpty()
-    val roleLicenceVary = roleRepository.findByRoleCode("LICENCE_VARY").orElseThrow()
-    val roleGlobalSearch = roleRepository.findByRoleCode("GLOBAL_SEARCH").orElseThrow()
+    val roleLicenceVary = roleRepository.findByRoleCode("LICENCE_VARY") ?: throw
+    AuthUserRoleException("role", "role.notfound")
+    val roleGlobalSearch = roleRepository.findByRoleCode("GLOBAL_SEARCH") ?: throw
+    AuthUserRoleException("role", "role.notfound")
     entity.authorities.add(roleLicenceVary)
     entity.authorities.add(roleGlobalSearch)
     repository.save(entity)

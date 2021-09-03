@@ -1,0 +1,69 @@
+{
+  "content": [
+    {
+      "roleCode": "ARTEMIS_USER",
+      "roleName": "Artemis user"
+    },
+    {
+      "roleCode": "AUDIT_VIEWER",
+      "roleName": "Audit viewer"
+    },
+    {
+      "roleCode": "OAUTH_ADMIN",
+      "roleName": "Auth Client Management (admin)"
+    },
+    {
+      "roleCode": "AUTH_GROUP_MANAGER",
+      "roleName": "Auth Group Manager"
+    },
+    {
+      "roleCode": "CRS_PROVIDER",
+      "roleName": "Commissioned rehabilitative services (CRS) provider"
+    },
+    {
+      "roleCode": "GLOBAL_APPOINTMENT",
+      "roleName": "Global Appointment"
+    },
+    {
+      "roleCode": "GLOBAL_SEARCH",
+      "roleName": "Global Search"
+    },
+    {
+      "roleCode": "HWPV_SSCL",
+      "roleName": "Help with Prison Visits SSCL User"
+    },
+    {
+      "roleCode": "HMPPS_REGISTERS_MAINTAINER",
+      "roleName": "HMPPS Registers Maintainer"
+    },
+    {
+      "roleCode": "NOMIS_BATCHLOAD",
+      "roleName": "Licence Batch Load (admin)"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 4,
+  "totalElements": 36,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "first": true,
+  "numberOfElements": 10,
+  "empty": false
+}
