@@ -14,6 +14,7 @@ class UserContextApprovalHandler(
   private val userContextService: UserContextService,
   clientDetailsService: ClientDetailsService,
   private val mfaClientService: MfaClientService,
+  private val linkAccounts: Boolean,
 ) : TokenStoreUserApprovalHandler() {
 
   init {

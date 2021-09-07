@@ -40,6 +40,7 @@ class UserService(
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     fun isHmppsEmail(email: String) = email.endsWith("justice.gov.uk")
+    fun isHmpsGsiEmail(email: String) = email.endsWith("hmps.gsi.gov.uk")
   }
 
   fun findMasterUserPersonDetails(username: String): Optional<UserPersonDetails> =
@@ -58,9 +59,9 @@ class UserService(
   fun getMasterUserPersonDetailsWithEmailCheck(
     username: String,
     authSource: AuthSource,
-    email: String,
+    loginUser: UserPersonDetails,
   ): Optional<UserPersonDetails> =
-    getMasterUserPersonDetails(username, authSource).filter { emailMatchesUser(email, it) }
+    getMasterUserPersonDetails(username, authSource).filter { emailMatchesUser(getEmail(loginUser), it) }
 
   fun findUserPersonDetailsByEmail(email: String, to: AuthSource): List<UserPersonDetails> = when (to) {
     auth -> authUserService.findAuthUsersByEmail(email).filter { it.verified }
@@ -78,19 +79,19 @@ class UserService(
       none -> Optional.empty()
     }.map { UserPersonDetails::class.java.cast(it) }
 
-  private fun emailMatchesUser(email: String, userPersonDetails: UserPersonDetails): Boolean {
-    val user = userPersonDetails.toUser()
-    return when (AuthSource.fromNullableString(user.authSource)) {
-      auth -> user.verified && email == user.email
-      delius -> email == user.email
-      azuread -> email == user.email
-      nomis -> {
-        val usersByEmail = nomisUserService.getNomisUsersByEmail(email)
-        usersByEmail.contains(userPersonDetails)
-      }
-      none -> false
-    }
+  fun getEmail(userPersonDetails: UserPersonDetails): String? {
+    // special case where the authentication is passed through - we won't have the email address in that case
+    val email = if (userPersonDetails is UserDetailsImpl || userPersonDetails.authSource == nomis.source) {
+      verifyEmailService.getEmail(userPersonDetails.username).filter { it.verified }.map { it.email }.orElse(null)
+    } else with(userPersonDetails.toUser()) { if (verified) email else null }
+
+    return if (userPersonDetails.authSource == nomis.source) {
+      email ?: getEmailAddressFromNomis(userPersonDetails.username).orElse(null)
+    } else email
   }
+
+  private fun emailMatchesUser(email: String?, userPersonDetails: UserPersonDetails): Boolean =
+    email == getEmail(userPersonDetails)
 
   fun findUser(username: String): Optional<User> = userRepository.findByUsername(StringUtils.upperCase(username))
 
@@ -122,10 +123,10 @@ class UserService(
 
   fun getEmailAddressFromNomis(username: String): Optional<String> {
     val emailAddresses = verifyEmailService.getExistingEmailAddressesForUsername(username)
-    val justiceEmail = emailAddresses
-      .filter(UserService::isHmppsEmail)
+    val notHmpsGsiEmails = emailAddresses
+      .filterNot { isHmpsGsiEmail(it) }
       .toList()
-    return if (justiceEmail.size == 1) Optional.of(justiceEmail[0]) else Optional.empty()
+    return if (notHmpsGsiEmails.size == 1) Optional.of(notHmpsGsiEmails[0]) else Optional.empty()
   }
 
   fun hasVerifiedMfaMethod(userDetails: UserPersonDetails): Boolean {

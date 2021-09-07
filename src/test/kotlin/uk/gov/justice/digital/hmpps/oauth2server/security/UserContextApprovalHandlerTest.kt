@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
 internal class UserContextApprovalHandlerTest {
   private val userContextService: UserContextService = mock()
   private val mfaClientService: MfaClientService = mock()
-  private val handler = UserContextApprovalHandler(userContextService, mock(), mfaClientService)
+  private val handler = UserContextApprovalHandler(userContextService, mock(), mfaClientService, false)
   private val authentication: Authentication = mock()
   private val authorizationRequest = AuthorizationRequest()
   private val requestFactory: OAuth2RequestFactory = mock()

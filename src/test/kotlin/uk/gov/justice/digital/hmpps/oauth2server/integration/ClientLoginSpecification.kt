@@ -151,16 +151,16 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   @Test
   fun `I can sign in from another client as azure ad user with a nomis account`() {
     // The email is mapped to RO_USER in the nomis database
-    azureClientSignIn("phillips@fredjustice.gov.uk")
-      .jsonPath(".user_name").isEqualTo("RO_USER")
-      .jsonPath(".user_id").isEqualTo("4")
-      .jsonPath(".sub").isEqualTo("RO_USER")
+    azureClientSignIn("ro_user@some.justice.gov.uk")
+      .jsonPath(".user_name").isEqualTo("RO_DEMO")
+      .jsonPath(".user_id").isEqualTo("10")
+      .jsonPath(".sub").isEqualTo("RO_DEMO")
       .jsonPath(".auth_source").isEqualTo("nomis")
       .jsonPath(".access_token").value<JSONArray> {
         val claims = JWTParser.parse(it[0].toString()).jwtClaimsSet
-        assertThat(claims.getClaim("user_name")).isEqualTo("RO_USER")
+        assertThat(claims.getClaim("user_name")).isEqualTo("RO_DEMO")
         assertThat(claims.getClaim("authorities") as List<*>)
-          .containsExactly("ROLE_GLOBAL_SEARCH", "ROLE_PRISON", "ROLE_INACTIVE_BOOKINGS", "ROLE_LICENCE_RO")
+          .containsExactly("ROLE_PRISON", "ROLE_LICENCE_RO")
       }
   }
 

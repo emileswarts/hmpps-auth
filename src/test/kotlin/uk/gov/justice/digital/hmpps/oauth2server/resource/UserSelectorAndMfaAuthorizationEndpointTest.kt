@@ -180,16 +180,16 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
     fun `test approveOrDeny user not found`() {
       whenever(authorizationEndpoint.approveOrDeny(any(), any(), any(), any())).thenReturn(view)
       val authorizationRequest = AuthorizationRequest("bob", setOf())
-      whenever(authentication.principal).thenReturn(
+      val loginDetails =
         UserDetailsImpl("user", "name", setOf(), AuthSource.azuread.name, "userid", "jwtId", passedMfa = true)
-      )
+      whenever(authentication.principal).thenReturn(loginDetails)
 
       val approvalParameters = mutableMapOf("user_oauth_approval" to "none/bloggs")
       val model = mutableMapOf<String, Any>("authorizationRequest" to authorizationRequest)
       val approveView = endpoint.approveOrDeny(approvalParameters, model, sessionStatus, authentication)
 
       assertThat(approveView).isSameAs(view)
-      verify(userService).getMasterUserPersonDetailsWithEmailCheck("bloggs", AuthSource.none, "userid")
+      verify(userService).getMasterUserPersonDetailsWithEmailCheck("bloggs", AuthSource.none, loginDetails)
       verify(authorizationEndpoint).approveOrDeny(approvalParameters, model, sessionStatus, authentication)
     }
 
@@ -197,9 +197,9 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
     fun `test approveOrDeny user mapped`() {
       whenever(authorizationEndpoint.approveOrDeny(any(), any(), any(), any())).thenReturn(view)
       val authorizationRequest = AuthorizationRequest("bob", setOf())
-      whenever(authentication.principal).thenReturn(
+      val loginDetails =
         UserDetailsImpl("user", "name", setOf(), AuthSource.azuread.name, "userid", "jwtId", passedMfa = true)
-      )
+      whenever(authentication.principal).thenReturn(loginDetails)
       val credentials = "some credentials"
       whenever(authentication.credentials).thenReturn(credentials)
       val authorities = setOf(Authority("ROLE_COMMUNITY", "Role Community"))
@@ -212,7 +212,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
           authorities = authorities,
           source = AuthSource.auth
         )
-      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), anyString())).thenReturn(
+      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), any())).thenReturn(
         Optional.of(user)
       )
 
@@ -221,7 +221,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
       val approveView = endpoint.approveOrDeny(approvalParameters, model, sessionStatus, authentication)
 
       assertThat(approveView).isSameAs(view)
-      verify(userService).getMasterUserPersonDetailsWithEmailCheck("bloggs", AuthSource.none, "userid")
+      verify(userService).getMasterUserPersonDetailsWithEmailCheck("bloggs", AuthSource.none, loginDetails)
       verify(authorizationEndpoint).approveOrDeny(
         eq(mutableMapOf("user_oauth_approval" to "true")),
         eq(model),
@@ -261,7 +261,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
         authorities = setOf(Authority("ROLE_COMMUNITY", "Role Community")),
         source = AuthSource.auth
       )
-      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), anyString())).thenReturn(
+      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), any())).thenReturn(
         Optional.of(user)
       )
 
@@ -274,7 +274,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
 
       verify(telemetryClient).trackEvent(
         "UserForAccessToken",
-        mapOf("azureuser" to "userid", "username" to "authuser", "auth_source" to "auth"),
+        mapOf("loginuserid" to "userid", "loginusername" to "name", "username" to "authuser", "auth_source" to "auth"),
         null
       )
     }
@@ -295,7 +295,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
         authorities = setOf(Authority("ROLE_COMMUNITY", "Role Community")),
         source = AuthSource.auth
       )
-      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), anyString())).thenReturn(
+      whenever(userService.getMasterUserPersonDetailsWithEmailCheck(anyString(), any(), any())).thenReturn(
         Optional.of(user)
       )
 

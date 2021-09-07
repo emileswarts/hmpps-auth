@@ -111,10 +111,10 @@ class UserSelectorAndMfaAuthorizationEndpoint(
   ): Authentication? {
     val source = account.substringBefore("/")
     val username = account.substringAfter("/")
-    val azureUser = authentication.principal as UserDetailsImpl
+    val loginUser = authentication.principal as UserDetailsImpl
 
     val user = userService.getMasterUserPersonDetailsWithEmailCheck(
-      username, AuthSource.fromNullableString(source), azureUser.userId
+      username, AuthSource.fromNullableString(source), loginUser
     )
     return user.map { upd ->
       // if we're successful with the replace then change the approval parameter to true
@@ -128,7 +128,7 @@ class UserSelectorAndMfaAuthorizationEndpoint(
           upd.authorities,
           source,
           upd.userId,
-          azureUser.jwtId
+          loginUser.jwtId
         ),
         authentication.credentials,
         upd.authorities
@@ -138,7 +138,12 @@ class UserSelectorAndMfaAuthorizationEndpoint(
 
       telemetryClient.trackEvent(
         "UserForAccessToken",
-        mapOf("azureuser" to azureUser.userId, "username" to upd.username, "auth_source" to upd.authSource),
+        mapOf(
+          "loginuserid" to loginUser.userId,
+          "loginusername" to loginUser.name,
+          "username" to upd.username,
+          "auth_source" to upd.authSource
+        ),
         null
       )
 

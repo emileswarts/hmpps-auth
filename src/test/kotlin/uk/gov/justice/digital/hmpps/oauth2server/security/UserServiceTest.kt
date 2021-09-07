@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import com.nhaarman.mockitokotlin2.any
@@ -139,14 +141,14 @@ class UserServiceTest {
     }
 
     @Test
-    fun `getEmailAddressFromNomis not a justice email`() {
-      whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("a@b.gov.uk"))
+    fun `getEmailAddressFromNomis hmps gsi email`() {
+      whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("a@hmps.gsi.gov.uk"))
       val optionalAddress = userService.getEmailAddressFromNomis("joe")
       assertThat(optionalAddress).isEmpty
     }
 
     @Test
-    fun `getEmailAddressFromNomis one justice email`() {
+    fun `getEmailAddressFromNomis ignore gsi email`() {
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(
         listOf(
           "Bob.smith@hmps.gsi.gov.uk",
@@ -632,12 +634,14 @@ class UserServiceTest {
 
   @Nested
   inner class GetMasterUserPersonDetailsWithEmailCheck {
+    private val loginDetails = createSampleUser("user", verified = true, email = "joe@fred.com")
+
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - auth user`() {
       val authUser =
         Optional.of(createSampleUser(username = "bob", verified = true, email = "joe@fred.com"))
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(authUser)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, loginDetails)
       assertThat(details).isEqualTo(authUser)
     }
 
@@ -646,7 +650,7 @@ class UserServiceTest {
       val authUser =
         Optional.of(createSampleUser(username = "bob", verified = false, email = "joe@fred.com"))
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(authUser)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, loginDetails)
       assertThat(details).isEmpty
     }
 
@@ -655,49 +659,76 @@ class UserServiceTest {
       val authUser =
         Optional.of(createSampleUser(username = "bob", verified = true, email = "harold@henry.com"))
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(authUser)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", auth, loginDetails)
       assertThat(details).isEmpty
+    }
+
+    @Test
+    fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user verified email in auth`() {
+      val nomisUserInAuth =
+        Optional.of(createSampleUser(username = "bob", verified = true, email = "joe@fred.com", source = nomis))
+      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(verifyEmailService.getEmail(anyString())).thenReturn(nomisUserInAuth)
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
+      assertThat(details).isEqualTo(staffUserAccountForBob)
+    }
+
+    @Test
+    fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user not verified email in auth`() {
+      val nomisUserInAuth =
+        Optional.of(createSampleUser(username = "bob", verified = false, email = "joe@fred.com", source = nomis))
+      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(verifyEmailService.getEmail(anyString())).thenReturn(nomisUserInAuth)
+      whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("joe@fred.com"))
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
+      assertThat(details).isEqualTo(staffUserAccountForBob)
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user`() {
       whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
-      whenever(nomisUserService.getNomisUsersByEmail(anyString())).thenReturn(listOf(staffUserAccountForBob.get()))
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, "joe@fred.com")
+      whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("joe@fred.com"))
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
       assertThat(details).isEqualTo(staffUserAccountForBob)
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user not matched`() {
       whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
       assertThat(details).isEmpty
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - delius user`() {
       whenever(deliusUserService.getDeliusUserByUsername(anyString())).thenReturn(deliusUserAccountForBob)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", delius, "a@b.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck(
+        "user", delius,
+        createSampleUser("user", verified = true, email = "a@b.com")
+      )
       assertThat(details).isEqualTo(deliusUserAccountForBob)
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - delius user not matched`() {
       whenever(deliusUserService.getDeliusUserByUsername(anyString())).thenReturn(deliusUserAccountForBob)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", delius, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", delius, loginDetails)
       assertThat(details).isEmpty
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - azuread user`() {
       whenever(azureUserService.getAzureUserByUsername(anyString())).thenReturn(azureUserAccount)
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", azuread, "joe.bloggs@justice.gov.uk")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck(
+        "user", azuread,
+        createSampleUser("user", verified = true, email = "joe.bloggs@justice.gov.uk")
+      )
       assertThat(details).isEqualTo(azureUserAccount)
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - none`() {
-      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", none, "joe@fred.com")
+      val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", none, loginDetails)
       assertThat(details).isEmpty
     }
   }
@@ -707,7 +738,18 @@ class UserServiceTest {
     @Test
     fun `test search user with multiple auth sources `() {
       val unpaged = Pageable.unpaged()
-      whenever(authUserService.findAuthUsers(anyString(), anyOrNull(), anyOrNull(), any(), anyString(), anyList(), any(), any()))
+      whenever(
+        authUserService.findAuthUsers(
+          anyString(),
+          anyOrNull(),
+          anyOrNull(),
+          any(),
+          anyString(),
+          anyList(),
+          any(),
+          any()
+        )
+      )
         .thenReturn(Page.empty())
 
       userService.searchUsersInMultipleSourceSystems(
@@ -715,14 +757,32 @@ class UserServiceTest {
       )
 
       verify(authUserService).findAuthUsers(
-        "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(nomis, auth)
+        "test",
+        emptyList(),
+        emptyList(),
+        unpaged,
+        "bob",
+        AUTHORITY_INTEL_ADMIN,
+        UserFilter.Status.ALL,
+        listOf(nomis, auth)
       )
     }
 
     @Test
     fun `test search user with default auth source when not provided`() {
       val unpaged = Pageable.unpaged()
-      whenever(authUserService.findAuthUsers(anyString(), anyOrNull(), anyOrNull(), any(), anyString(), anyList(), any(), any()))
+      whenever(
+        authUserService.findAuthUsers(
+          anyString(),
+          anyOrNull(),
+          anyOrNull(),
+          any(),
+          anyString(),
+          anyList(),
+          any(),
+          any()
+        )
+      )
         .thenReturn(Page.empty())
 
       userService.searchUsersInMultipleSourceSystems(
@@ -730,8 +790,65 @@ class UserServiceTest {
       )
 
       verify(authUserService).findAuthUsers(
-        "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(AuthSource.auth)
+        "test",
+        emptyList(),
+        emptyList(),
+        unpaged,
+        "bob",
+        AUTHORITY_INTEL_ADMIN,
+        UserFilter.Status.ALL,
+        listOf(AuthSource.auth)
       )
+    }
+  }
+
+  @Nested
+  inner class getEmail {
+    private val loginDetails = createSampleUser("user", verified = true, email = "joe@fred.com")
+
+    @Test
+    fun `auth user`() {
+      val authUser = createSampleUser(username = "bob", verified = true, email = "joe@fred.com")
+      assertThat(userService.getEmail(authUser)).isEqualTo("joe@fred.com")
+    }
+
+    @Test
+    fun `auth user email not verified`() {
+      val authUser = createSampleUser(username = "bob", verified = false, email = "joe@fred.com")
+      assertThat(userService.getEmail(authUser)).isNull()
+    }
+
+    @Test
+    fun `nomis user verified email in auth`() {
+      val nomisUserInAuth = createSampleUser(username = "bob", verified = true, email = "joe@fred.com", source = nomis)
+      whenever(verifyEmailService.getEmail(anyString())).thenReturn(Optional.of(nomisUserInAuth))
+      assertThat(userService.getEmail(staffUserAccountForBob.orElseThrow())).isEqualTo("joe@fred.com")
+    }
+
+    @Test
+    fun `nomis user not verified email in auth`() {
+      val nomisUserInAuth = createSampleUser(username = "bob", verified = false, email = "joe@fred.com", source = nomis)
+      whenever(verifyEmailService.getEmail(anyString())).thenReturn(Optional.of(nomisUserInAuth))
+      whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("joe@fred.com"))
+      assertThat(userService.getEmail(nomisUserInAuth)).isEqualTo("joe@fred.com")
+    }
+
+    @Test
+    fun `delius user`() {
+      assertThat(userService.getEmail(deliusUserAccountForBob.orElseThrow())).isEqualTo("a@b.com")
+    }
+
+    @Test
+    fun `azuread user`() {
+      assertThat(userService.getEmail(azureUserAccount.orElseThrow())).isEqualTo("joe.bloggs@justice.gov.uk")
+    }
+
+    @Test
+    fun `userdetailsimpl authentication`() {
+      val user = UserDetailsImpl("user", "name", setOf(), auth.name, "userid", "jwtId")
+      val nomisUserInAuth = createSampleUser(username = "bob", verified = true, email = "joe@fred.com", source = auth)
+      whenever(verifyEmailService.getEmail(anyString())).thenReturn(Optional.of(nomisUserInAuth))
+      assertThat(userService.getEmail(user)).isEqualTo("joe@fred.com")
     }
   }
 

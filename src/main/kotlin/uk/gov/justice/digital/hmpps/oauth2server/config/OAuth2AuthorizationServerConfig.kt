@@ -67,6 +67,7 @@ class OAuth2AuthorizationServerConfig(
   private val userContextService: UserContextService,
   private val mfaClientNetworkService: MfaClientNetworkService,
   private val clientRepository: ClientRepository,
+  @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) : AuthorizationServerConfigurerAdapter() {
 
   private val privateKeyPair: Resource = ByteArrayResource(Base64.decodeBase64(privateKeyPair))
@@ -140,7 +141,7 @@ class OAuth2AuthorizationServerConfig(
 
   private fun userApprovalHandler(): UserApprovalHandler {
     val approvalHandler =
-      UserContextApprovalHandler(userContextService, jdbcClientDetailsService(), mfaClientService())
+      UserContextApprovalHandler(userContextService, jdbcClientDetailsService(), mfaClientService(), linkAccounts)
     approvalHandler.setRequestFactory(requestFactory())
     approvalHandler.setTokenStore(tokenStore())
     return approvalHandler
