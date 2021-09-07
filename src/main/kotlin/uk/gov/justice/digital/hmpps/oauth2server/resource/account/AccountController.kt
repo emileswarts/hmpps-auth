@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
 import javax.servlet.http.Cookie
@@ -32,9 +33,12 @@ class AccountController(
     @CookieValue(value = "returnTo", defaultValue = "Lw==") returnToFromCookie: String
   ):
     ModelAndView {
-    val username = authentication.name
-    val user = userService.findMasterUserPersonDetails(username).orElseThrow()
-    val userInAuth = userService.getUserWithContacts(username)
+    val userDetails = authentication.principal as UserDetailsImpl
+    val user = userService.getMasterUserPersonDetails(
+      userDetails.username,
+      AuthSource.fromNullableString(userDetails.authSource)
+    ).orElseThrow()
+    val userInAuth = userService.getUserWithContacts(userDetails.username)
     val linkedAccounts = userContextService.discoverUsers(user)
       .map { LinkedAccountModel(it.authSource.uppercase(), it.username) }
 
@@ -42,7 +46,7 @@ class AccountController(
     val canSwitchUsernameToEmail = userInAuth.source == AuthSource.auth && email != null &&
       !user.username.contains('@') && userService.findUser(email).isEmpty
 
-    val usernameNotEmail = email != username.lowercase()
+    val usernameNotEmail = email != userDetails.username.lowercase()
 
     val redirectOk: Boolean = if (client != null && redirectUri != null) {
       backLinkHandler.validateRedirect(client, redirectUri)

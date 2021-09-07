@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -16,17 +17,21 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.util.UUID
 
 internal class UserContextServiceTest {
   private val deliusUserService: DeliusUserService = mock()
   private val authUserService: AuthUserService = mock()
   private val nomisUserService: NomisUserService = mock()
-  private val userContextService = UserContextService(deliusUserService, authUserService, nomisUserService)
+  private val userService: UserService = mock()
+  private val userContextService = UserContextService(deliusUserService, authUserService, nomisUserService, userService, false)
+  private val linkAccountsEnabledUserContextService = UserContextService(deliusUserService, authUserService, nomisUserService, userService, true)
 
   @Test
   fun `discoverUsers returns empty list for clients with 'normal' scopes`() {
     val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "email@email.com", "jwtId")
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, setOf("read"))
     assertThat(users).isEmpty()
@@ -36,6 +41,7 @@ internal class UserContextServiceTest {
   fun `discoverUsers returns empty list when not azuread from mapping`() {
     val loginUser = createSampleUser(username = "username", source = auth, id = UUID.randomUUID())
     val scopes = setOf("read", "delius")
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).isEmpty()
@@ -47,8 +53,23 @@ internal class UserContextServiceTest {
     val deliusUser = DeliusUserPersonDetails("username", "id", "user", "name", "email@email.com", true)
     val scopes = setOf("delius")
     whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(listOf(deliusUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
+    assertThat(users).containsExactly(deliusUser)
+
+    verify(deliusUserService).getDeliusUsersByEmail("emailid@email.com")
+  }
+
+  @Test
+  fun `discoverUsers can map if link accounts enabled`() {
+    val loginUser = UserDetailsImpl("username", "name", listOf(), "nomis", "emailid@email.com", "jwtId")
+    val deliusUser = DeliusUserPersonDetails("username", "id", "user", "name", "email@email.com", true)
+    val scopes = setOf("delius")
+    whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(listOf(deliusUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
+
+    val users = linkAccountsEnabledUserContextService.discoverUsers(loginUser, scopes)
     assertThat(users).containsExactly(deliusUser)
 
     verify(deliusUserService).getDeliusUsersByEmail("emailid@email.com")
@@ -58,6 +79,7 @@ internal class UserContextServiceTest {
   fun `discoverUsers tries all three sources when no valid scopes found`() {
     val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "emailid@email.com", "jwtId")
     val scopes = setOf("read,write")
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     userContextService.discoverUsers(loginUser, scopes)
     verify(deliusUserService).getDeliusUsersByEmail("emailid@email.com")
@@ -79,6 +101,7 @@ internal class UserContextServiceTest {
     )
     val scopes = setOf("nomis")
     whenever(nomisUserService.getNomisUsersByEmail(anyString())).thenReturn(listOf(nomisUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val user = userContextService.discoverUsers(loginUser, scopes)
     assertThat(user).containsExactly(nomisUser)
@@ -91,6 +114,7 @@ internal class UserContextServiceTest {
     val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "email@email.com", "jwtId")
     val scopes = setOf("delius")
     whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(emptyList())
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).isEmpty()
@@ -100,6 +124,7 @@ internal class UserContextServiceTest {
   fun `discoverUsers returns the empty when no to mapping exists`() {
     val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "email@email.com", "jwtId")
     val scopes = setOf("nomis")
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).isEmpty()
@@ -113,6 +138,7 @@ internal class UserContextServiceTest {
     val scopes = setOf("delius", "auth")
     whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(listOf(deliusUser))
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(authUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).containsExactlyInAnyOrder(deliusUser, authUser)
@@ -124,6 +150,7 @@ internal class UserContextServiceTest {
     val authUser = createSampleUser(username = "username", source = auth, enabled = true, verified = true)
     val scopes = setOf("delius", "auth")
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(authUser, authUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).hasSize(2).containsExactlyInAnyOrder(authUser, authUser)
@@ -144,6 +171,7 @@ internal class UserContextServiceTest {
     val scopes = setOf("delius", "auth")
     whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(listOf(deliusUser))
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(authUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).containsExactly(authUser)
@@ -156,6 +184,7 @@ internal class UserContextServiceTest {
     val unverifiedAuthUser = createSampleUser(username = "username1", source = auth, enabled = true)
     val scopes = setOf("auth")
     whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(authUser, unverifiedAuthUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).containsExactly(authUser)

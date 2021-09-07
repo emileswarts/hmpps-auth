@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
@@ -10,38 +11,38 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
-
-class UserMappingException(message: String) : Exception(message)
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 
 @Service
 class UserContextService(
   private val deliusUserService: DeliusUserService,
   private val authUserService: AuthUserService,
   private val nomisUserService: NomisUserService,
+  private val userService: UserService,
+  @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) {
 
   fun discoverUsers(loginUser: UserPersonDetails, scopes: Set<String> = emptySet()): List<UserPersonDetails> {
+    val authSource = AuthSource.fromNullableString(loginUser.authSource)
+    if (authSource != azuread && !linkAccounts) return emptyList()
+
     // if specific accounts are requested via scopes, attempt to find just those.
     // otherwise, attempt to find all accounts.
     val requestedSources = AuthSource.values()
       .filter { it.name in scopes }
-      .let { if (it.isEmpty()) setOf(auth, nomis, delius) else it }
+      .let { it.ifEmpty { setOf(auth, nomis, delius) } }
 
-    return when (AuthSource.fromNullableString(loginUser.authSource)) {
-      azuread -> {
-        requestedSources
-          .map { mapFromAzureAD(loginUser.userId, it).filter { it.isEnabled } }
-          .filter { it.isNotEmpty() }
-          .flatten()
-      }
+    val email = userService.getEmail(loginUser) ?: return emptyList()
+    return requestedSources.map { findUsers(email, it).filter { u -> u.isEnabled } }
+      .filter { it.isNotEmpty() }
+      .flatten()
+  }
+
+  private fun findUsers(email: String, to: AuthSource): List<UserPersonDetails> =
+    when (to) {
+      delius -> deliusUserService.getDeliusUsersByEmail(email)
+      auth -> authUserService.findAuthUsersByEmail(email).filter { it.verified }
+      nomis -> nomisUserService.getNomisUsersByEmail(email)
       else -> emptyList()
     }
-  }
-
-  private fun mapFromAzureAD(email: String, to: AuthSource): List<UserPersonDetails> = when (to) {
-    delius -> deliusUserService.getDeliusUsersByEmail(email)
-    auth -> authUserService.findAuthUsersByEmail(email).filter { it.verified }
-    nomis -> nomisUserService.getNomisUsersByEmail(email)
-    else -> emptyList()
-  }
 }

@@ -43,7 +43,7 @@ class UserContextApprovalHandler(
     }
 
     // All Azure AD users are sent down this route, the controller will work out what accounts are found etc.
-    authorizationRequest.isApproved = !isAzureAdUser(userAuthentication)
+    authorizationRequest.isApproved = !(isAzureAdUser(userAuthentication) || linkAccounts)
 
     return authorizationRequest
   }
@@ -67,7 +67,7 @@ class UserContextApprovalHandler(
 
     // if we are in as an azure user find out any users that can be mapped to the current user
     val userDetails = userAuthentication.principal as UserDetailsImpl
-    if (userDetails.authSource == azuread.source) {
+    if (userDetails.authSource == azuread.source || linkAccounts) {
       val users = userContextService.discoverUsers(userDetails, authorizationRequest.scope)
       userApprovalRequest["users"] = users
     }
