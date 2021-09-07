@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
-import java.util.Locale.getDefault
 
 @Validated
 @RestController
@@ -126,28 +125,13 @@ data class RoleDetails(
   val roleDescription: String?,
 
   @ApiModelProperty(required = true, value = "Administration Type")
-  val adminType: List<RoleAdminType>,
+  val adminType: List<AdminType>,
 
 ) {
   constructor(r: Authority) : this(
     r.roleCode,
     r.roleName,
     r.roleDescription,
-    r.adminType.map { RoleAdminType(it) }.sortedBy { it.adminTypeCode }
-  )
-}
-
-@ApiModel(description = "List of Admin types")
-data class RoleAdminType(
-  @ApiModelProperty(required = true, value = "Admin Type Code", example = "DPS_LSA")
-  val adminTypeCode: AdminType,
-
-  @ApiModelProperty(required = true, value = "Admin Type Name", example = "DPS Local System Administrator")
-  val adminTypeName: String,
-) {
-
-  constructor(a: String) : this(
-    AdminType.valueOf(a.uppercase(getDefault())),
-    AdminType.valueOf(a.uppercase(getDefault())).description
+    r.adminType
   )
 }

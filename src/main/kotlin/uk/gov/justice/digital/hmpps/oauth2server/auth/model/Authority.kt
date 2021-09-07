@@ -4,8 +4,10 @@ import org.apache.commons.lang3.StringUtils
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import java.util.UUID
+import javax.persistence.AttributeConverter
 import javax.persistence.Column
 import javax.persistence.Convert
+import javax.persistence.Converter
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -17,7 +19,7 @@ class Authority(
   roleCode: String,
   roleName: String,
   roleDescription: String? = null,
-  adminType: List<String> = listOf(),
+  adminType: List<AdminType> = listOf(),
 ) : GrantedAuthority {
   @Id
   @GeneratedValue(generator = "UUID")
@@ -35,9 +37,9 @@ class Authority(
   @Column(name = "role_description")
   var roleDescription: String?
 
-  @Column(name = "admin_type")
-  @Convert(converter = StringListConverter::class)
-  var adminType: List<String> = emptyList()
+  @Column(name = "admin_type", nullable = false)
+  @Convert(converter = EnumListConverter::class)
+  var adminType: List<AdminType>
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -63,5 +65,18 @@ class Authority(
     this.roleName = roleName
     this.roleDescription = roleDescription
     this.adminType = adminType
+  }
+}
+
+@Converter
+class EnumListConverter : AttributeConverter<List<AdminType>, String> {
+  override fun convertToDatabaseColumn(stringList: List<AdminType>): String =
+    stringList.joinToString(",") { it.adminTypeCode.trim() }
+
+  override fun convertToEntityAttribute(string: String): List<AdminType> {
+    return string.split(",").map {
+      it.trim()
+      AdminType.valueOf(it)
+    }
   }
 }

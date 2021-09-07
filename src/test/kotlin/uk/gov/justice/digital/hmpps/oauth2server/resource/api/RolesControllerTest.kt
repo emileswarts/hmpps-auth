@@ -54,7 +54,7 @@ class RolesControllerTest {
   inner class RoleDetail {
     @Test
     fun `Get role details`() {
-      val role = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = listOf("DPS_ADM"))
+      val role = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = listOf(AdminType.DPS_ADM))
 
       whenever(rolesService.getRoleDetail(any())).thenReturn(role)
 
@@ -64,7 +64,7 @@ class RolesControllerTest {
           roleCode = "RO1",
           roleName = "Role1",
           roleDescription = "First Role",
-          adminType = listOf(RoleAdminType(AdminType.DPS_ADM, "DPS Central Administrator"))
+          adminType = listOf(AdminType.DPS_ADM)
         )
       )
     }

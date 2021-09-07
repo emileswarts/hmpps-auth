@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
@@ -29,7 +30,7 @@ class RoleRepositoryTest {
   @Test
   fun givenATransientEntityItCanBePersisted() {
     val transientEntity = transientEntity()
-    val entity = Authority(transientEntity.authority, transientEntity.roleName)
+    val entity = Authority(roleCode = transientEntity.authority, roleName = transientEntity.roleName, adminType = transientEntity.adminType)
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -42,6 +43,7 @@ class RoleRepositoryTest {
     assertThat(retrievedEntity).isEqualTo(transientEntity)
     assertThat(retrievedEntity.authority).isEqualTo(transientEntity.authority)
     assertThat(retrievedEntity.roleName).isEqualTo(transientEntity.roleName)
+    assertThat(retrievedEntity.adminType).isEqualTo(transientEntity.adminType)
   }
 
   @Test
@@ -74,5 +76,5 @@ class RoleRepositoryTest {
       .containsExactly("GLOBAL_SEARCH", "LICENCE_RO", "LICENCE_VARY")
   }
 
-  private fun transientEntity() = Authority("hdc", "Licences")
+  private fun transientEntity() = Authority(roleCode = "hdc", roleName = "Licences", adminType = listOf(AdminType.EXT_ADM))
 }
