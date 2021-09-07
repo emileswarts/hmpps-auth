@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.ChildGro
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
@@ -153,6 +154,14 @@ class AuthExceptionHandler {
     log.info("Amend user email exception caught: {}", e.message)
     return ResponseEntity.badRequest()
       .body(ErrorDetail("email.${e.reason}", "Email address failed validation", "email"))
+  }
+
+  @ExceptionHandler(RoleNotFoundException::class)
+  fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorDetail> {
+    log.debug("Role not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.NOT_FOUND)
+      .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "role"))
   }
 
   companion object {

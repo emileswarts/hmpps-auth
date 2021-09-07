@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import java.util.UUID
 import javax.persistence.Column
+import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -12,7 +13,12 @@ import javax.persistence.Table
 
 @Entity
 @Table(name = "ROLES")
-class Authority(roleCode: String, roleName: String, roleDescription: String = "") : GrantedAuthority {
+class Authority(
+  roleCode: String,
+  roleName: String,
+  roleDescription: String? = null,
+  adminType: List<String> = listOf(),
+) : GrantedAuthority {
   @Id
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -28,6 +34,10 @@ class Authority(roleCode: String, roleName: String, roleDescription: String = ""
 
   @Column(name = "role_description")
   var roleDescription: String?
+
+  @Column(name = "admin_type")
+  @Convert(converter = StringListConverter::class)
+  var adminType: List<String> = emptyList()
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -52,5 +62,6 @@ class Authority(roleCode: String, roleName: String, roleDescription: String = ""
     this.roleCode = removeRolePrefixIfNecessary(roleCode)
     this.roleName = roleName
     this.roleDescription = roleDescription
+    this.adminType = adminType
   }
 }

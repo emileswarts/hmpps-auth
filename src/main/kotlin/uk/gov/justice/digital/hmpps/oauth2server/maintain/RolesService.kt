@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.maintain
 
+import org.hibernate.Hibernate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -24,4 +25,13 @@ class RolesService(
 
     return roleRepository.findAll(rolesFilter, pageable)
   }
+
+  @Throws(RoleNotFoundException::class)
+  fun getRoleDetail(roleCode: String): Authority {
+    val role = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("get", roleCode, "notfound")
+    Hibernate.initialize(role.adminType)
+    return role
+  }
+  class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
+    Exception("Unable to $action role: $role with reason: $errorCode")
 }

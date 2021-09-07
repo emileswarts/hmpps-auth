@@ -540,3 +540,8 @@ VALUES ('service-client','SERVICE','A Team', 'A Team contact', 'A team slack', '
        ('another-test-client','SERVICE','A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM','duplicate-dev','duplicate-deployment','duplicate-secret','API_CLIENT_ID','API_CLIENT_SECRET');
 INSERT INTO oauth_client_deployment_details (base_client_id,client_type, team, team_contact, team_slack, hosting)
 VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob slack', 'OTHER');
+
+update roles set role_description = 'Allow user to search globally for a user' where role_code = 'GLOBAL_SEARCH';
+update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';
+
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'GLOBAL_SEARCH';
