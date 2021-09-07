@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 
 class RolesControllerIntTest : IntegrationTest() {
@@ -151,6 +152,64 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .json("role_details.json".readFile())
+    }
+  }
+
+  @Nested
+  inner class AmendRoleName {
+
+    @Test
+    fun `Change role name endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/api/roles/ANY_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role name endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/api/roles/ANY_ROLE")
+        .headers(setAuthorisation("bob"))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+      {"error":"access_denied","error_description":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Change role name returns error when role not found`() {
+      webTestClient
+        .put().uri("/api/roles/Not_A_Role")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "error" to "Not Found",
+              "error_description" to "Unable to maintain role: Not_A_Role with reason: notfound",
+              "field" to "role"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role name`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isOk
     }
   }
 }

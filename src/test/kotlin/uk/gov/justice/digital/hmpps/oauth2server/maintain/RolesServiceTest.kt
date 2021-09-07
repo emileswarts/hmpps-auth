@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.oauth2server.maintain
 
+import com.microsoft.applicationinsights.TelemetryClient
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -16,11 +18,15 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleAmendment
 
 class RolesServiceTest {
   private val roleRepository: RoleRepository = mock()
+  private val telemetryClient: TelemetryClient = mock()
   private val rolesService = RolesService(
     roleRepository,
+    telemetryClient
   )
 
   @Nested
@@ -79,7 +85,37 @@ class RolesServiceTest {
 
       assertThatThrownBy {
         rolesService.getRoleDetail("RO1")
-      }.isInstanceOf(RolesService.RoleNotFoundException::class.java)
+      }.isInstanceOf(RoleNotFoundException::class.java)
+    }
+  }
+
+  @Nested
+  inner class AmendRoleName {
+    @Test
+    fun `update role name when no role matches`() {
+      val roleAmendment = RoleAmendment("UpdatedName")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
+
+      assertThatThrownBy {
+        rolesService.updateRole("user", "RO1", roleAmendment)
+      }.isInstanceOf(RoleNotFoundException::class.java)
+      verifyZeroInteractions(telemetryClient)
+    }
+
+    @Test
+    fun `update role name successfully`() {
+      val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role")
+      val roleAmendment = RoleAmendment("UpdatedName")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRole("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleName" to "UpdatedName"),
+        null
+      )
     }
   }
 }

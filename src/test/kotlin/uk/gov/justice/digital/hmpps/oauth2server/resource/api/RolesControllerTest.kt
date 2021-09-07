@@ -12,15 +12,24 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 
 class RolesControllerTest {
   private val rolesService: RolesService = mock()
-
   private val rolesController = RolesController(rolesService)
+  private val authentication =
+    TestingAuthenticationToken(
+      UserDetailsImpl("user", "name", ROLES_ADMIN_USER, AuthSource.auth.name, "userid", "jwtId"),
+      "pass",
+      "ROLE_ROLES_ADMIN"
+    )
 
   @Nested
   inner class ManageRoles {
@@ -77,5 +86,19 @@ class RolesControllerTest {
         .isInstanceOf(RoleNotFoundException::class.java)
         .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
+  }
+
+  @Nested
+  inner class AmendRoleName {
+    @Test
+    fun `amend role name`() {
+      val roleAmendment = RoleAmendment("role")
+      rolesController.amendRoleName("role1", authentication, roleAmendment)
+      verify(rolesService).updateRole("user", "role1", roleAmendment)
+    }
+  }
+
+  companion object {
+    private val ROLES_ADMIN_USER = listOf(SimpleGrantedAuthority("ROLE_ROLES_ADMIN"))
   }
 }

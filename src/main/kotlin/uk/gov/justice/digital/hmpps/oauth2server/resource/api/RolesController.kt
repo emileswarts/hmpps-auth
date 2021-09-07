@@ -13,14 +13,19 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
+import javax.validation.constraints.NotBlank
 
 @Validated
 @RestController
@@ -93,6 +98,32 @@ class RolesController(
     val returnedRole: Authority = rolesService.getRoleDetail(role)
     return RoleDetails(returnedRole)
   }
+
+  @PutMapping("/api/roles/{role}")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @ApiOperation(
+    value = "Amend role name.",
+    nickname = "AmendRoleName",
+    produces = "application/json"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
+      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+    ]
+  )
+  fun amendRoleName(
+    @ApiParam(value = "The role code of the role.", required = true)
+    @PathVariable role: String,
+    @ApiIgnore authentication: Authentication,
+    @ApiParam(
+      value = "Details of the role to be updated.",
+      required = true
+    ) @RequestBody roleAmendment: RoleAmendment,
+
+  ) {
+    rolesService.updateRole(authentication.name, role, roleAmendment)
+  }
 }
 
 @ApiModel(description = "Basic Role")
@@ -135,3 +166,10 @@ data class RoleDetails(
     r.adminType
   )
 }
+
+@ApiModel(description = "Role Name")
+data class RoleAmendment(
+  @ApiModelProperty(required = true, value = "Role Name", example = "Central admin")
+  @field:NotBlank(message = "Role name must be supplied")
+  val roleName: String,
+)
