@@ -34,14 +34,14 @@ dependencies {
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.5.3")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.2-RELEASE")
 
-  implementation("org.flywaydb:flyway-core:7.11.0")
+  implementation("org.flywaydb:flyway-core:7.15.0")
   implementation("com.zaxxer:HikariCP:4.0.3")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.microsoft.sqlserver:mssql-jdbc:9.2.1.jre15")
 
   runtimeOnly("com.h2database:h2:1.4.200")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.11.0.0")
+  runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.12.0.0")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -52,17 +52,21 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.slf4j:slf4j-api:1.7.31")
-  testImplementation("com.auth0:java-jwt:3.17.0")
+  testImplementation("org.slf4j:slf4j-api:1.7.32")
+  testImplementation("com.auth0:java-jwt:3.18.1")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.27.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
   testImplementation("io.swagger.parser.v3:swagger-parser-v2-converter:2.0.27")
 }
 
+java {
+  toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+}
+
 tasks {
-  compileKotlin {
+  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
       jvmTarget = "16"
