@@ -140,6 +140,7 @@ INSERT INTO users (user_id, username, email, verified, source)
         ('C3B15C4B-ADF5-493B-9424-DBCC65E7BFED', 'UOF_COORDINATOR_USER', 'uof_coordinator@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65E7BFEE', 'LICENCE_READONLY_TEST', 'licence_readonly_test@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65E8BFEF', 'RO_USER_READONLY_TEST', 'ro_user_readonly_test@digital.justice.gov.uk', 1, 'nomis'),
+        ('C3B15C4B-ADF5-493B-9424-DBCC65E8BFED', 'CA_RO_DM_USER', 'ca_ro_dm_user_test@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-667B-8711-DA7EB4432CED', 'SOC_PRISON_LOCAL', 'soc_prison_local@digital.justice.gov.uk', 1, 'nomis'),
         ('4115C3DF-317B-4007-BF58-F2ECA1BBEED4', 'PPM_ANALYST_USER', 'ppm_analyst_user@digital.justice.gov.uk', 1, 'nomis'),
         ('68599FE3-522D-4210-8296-D1469C35B93E', 'PPM_AO_USER', 'ppm_ao_user@digital.justice.gov.uk', 1, 'nomis'),
