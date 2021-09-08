@@ -40,7 +40,8 @@ class AccountController(
     ).orElseThrow()
     val userInAuth = userService.getUserWithContacts(userDetails.username)
     val linkedAccounts = userContextService.discoverUsers(user)
-      .map { LinkedAccountModel(it.authSource.uppercase(), it.username) }
+      .filterNot { it.authSource == userDetails.authSource && it.username == userDetails.username }
+      .map { LinkedAccountModel(AuthSource.fromNullableString(it.authSource).description, it.username) }
 
     val email = userInAuth.email
     val canSwitchUsernameToEmail = userInAuth.source == AuthSource.auth && email != null &&

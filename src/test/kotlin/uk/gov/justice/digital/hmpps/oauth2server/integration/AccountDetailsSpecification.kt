@@ -250,16 +250,16 @@ class AccountDetailsPage :
     assertThat(el("[data-qa='linkedAccountsHeading']").text()).isEqualTo("Your linked accounts")
     assertThat(find("[data-qa='linkedAccount']").count()).isEqualTo(4)
 
-    assertThat(el("[data-qa='system-0']").text()).isEqualTo("NOMIS")
+    assertThat(el("[data-qa='system-0']").text()).isEqualTo("DPS")
     assertThat(el("[data-qa='username-0']").text()).isEqualTo("ITAG_USER")
 
-    assertThat(el("[data-qa='system-1']").text()).isEqualTo("NOMIS")
+    assertThat(el("[data-qa='system-1']").text()).isEqualTo("DPS")
     assertThat(el("[data-qa='username-1']").text()).isEqualTo("ITAG_USER_ADM")
 
-    assertThat(el("[data-qa='system-2']").text()).isEqualTo("DELIUS")
+    assertThat(el("[data-qa='system-2']").text()).isEqualTo("Delius")
     assertThat(el("[data-qa='username-2']").text()).isEqualTo("DELIUSSMITH")
 
-    assertThat(el("[data-qa='system-3']").text()).isEqualTo("DELIUS")
+    assertThat(el("[data-qa='system-3']").text()).isEqualTo("Delius")
     assertThat(el("[data-qa='username-3']").text()).isEqualTo("DELIUSSMITH2")
     return this
   }

@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import com.fasterxml.jackson.annotation.JsonValue
 
-enum class AuthSource {
-  auth, azuread, delius, nomis, none;
+enum class AuthSource(val description: String) {
+  auth("External"), azuread("Microsoft Azure"), delius("Delius"), nomis("DPS"), none("None");
 
   @JsonValue
   val source: String = name

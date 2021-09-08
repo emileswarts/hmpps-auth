@@ -145,7 +145,8 @@ class AccountControllerTest {
     whenever(userService.getUserWithContacts(anyString())).thenReturn(nomisUser)
     whenever(backLinkHandler.validateRedirect(anyString(), anyString())).thenReturn(false)
 
-    val modelAndView = accountController.accountDetails("/somewhere-not-valid/", "bob", token, request, response, "Lw==")
+    val modelAndView =
+      accountController.accountDetails("/somewhere-not-valid/", "bob", token, request, response, "Lw==")
 
     assertThat(modelAndView.model).containsEntry("returnTo", "/")
   }
@@ -169,5 +170,30 @@ class AccountControllerTest {
     val modelAndView = accountController.accountDetails(null, null, token, request, response, "Lw==")
 
     assertThat(modelAndView.model).containsEntry("returnTo", "/")
+  }
+
+  @Test
+  fun `filter out own account in linked account list`() {
+    val nomisUser = createSampleUser("user", email = "anemail@somewhere.com", source = AuthSource.auth)
+    whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.of(nomisUser))
+    whenever(userService.getUserWithContacts(anyString())).thenReturn(nomisUser)
+    whenever(userContextService.discoverUsers(any(), any())).thenReturn(listOf(nomisUser))
+    val modelAndView = accountController.accountDetails(null, null, token, request, response, "Lw==")
+    @Suppress("UNCHECKED_CAST")
+    assertThat(modelAndView.model["linkedAccounts"] as List<LinkedAccountModel>).isEmpty()
+  }
+
+  @Test
+  fun `filter out own account in linked account list when multiple linked accounts`() {
+    val nomisUser = createSampleUser("user", email = "anemail@somewhere.com", source = AuthSource.auth)
+    val otherUser = createSampleUser("user", email = "anemail@somewhere.com", source = AuthSource.delius)
+    whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.of(nomisUser))
+    whenever(userService.getUserWithContacts(anyString())).thenReturn(nomisUser)
+    whenever(userContextService.discoverUsers(any(), any())).thenReturn(listOf(nomisUser, otherUser))
+    val modelAndView = accountController.accountDetails(null, null, token, request, response, "Lw==")
+    @Suppress("UNCHECKED_CAST")
+    assertThat(modelAndView.model["linkedAccounts"] as List<LinkedAccountModel>).containsOnly(
+      LinkedAccountModel("Delius", "user"),
+    )
   }
 }
