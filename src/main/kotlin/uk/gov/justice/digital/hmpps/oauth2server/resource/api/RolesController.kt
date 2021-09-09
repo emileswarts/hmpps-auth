@@ -25,7 +25,10 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
 
 @Validated
 @RestController
@@ -119,7 +122,7 @@ class RolesController(
     @ApiParam(
       value = "Details of the role to be updated.",
       required = true
-    ) @RequestBody roleAmendment: RoleAmendment,
+    ) @Valid @RequestBody roleAmendment: RoleAmendment,
 
   ) {
     rolesService.updateRole(authentication.name, role, roleAmendment)
@@ -171,5 +174,7 @@ data class RoleDetails(
 data class RoleAmendment(
   @ApiModelProperty(required = true, value = "Role Name", example = "Central admin")
   @field:NotBlank(message = "Role name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val roleName: String,
 )

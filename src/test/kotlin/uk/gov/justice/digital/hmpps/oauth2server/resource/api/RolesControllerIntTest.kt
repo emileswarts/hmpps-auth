@@ -203,7 +203,79 @@ class RolesControllerIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `Change role name`() {
+    fun `Change role name returns error when length too short`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "tim")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "roleAmendment"
+            )
+          )
+          Assertions.assertThat(it["error_description"] as String).contains("default message [roleName],100,4]")
+        }
+    }
+
+    @Test
+    fun `Change role name returns error when length too long`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleName" to "12345".repeat(20) + "y",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "roleAmendment"
+            )
+          )
+          Assertions.assertThat(it["error_description"] as String).contains("default message [roleName],100,4]")
+        }
+    }
+
+    @Test
+    fun `Create role name failed regex`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleName" to "a\$here",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "roleAmendment"
+            )
+          )
+          Assertions.assertThat(it["error_description"] as String).contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
+        }
+    }
+
+    @Test
+    fun `Change role name success`() {
       webTestClient
         .put().uri("/api/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
