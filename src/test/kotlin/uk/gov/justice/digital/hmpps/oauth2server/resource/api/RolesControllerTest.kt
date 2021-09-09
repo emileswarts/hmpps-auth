@@ -3,6 +3,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -10,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -30,6 +32,37 @@ class RolesControllerTest {
       "pass",
       "ROLE_ROLES_ADMIN"
     )
+
+  @Nested
+  inner class CreateRoles {
+    @Test
+    fun create() {
+      val newRole = CreateRole("CG", "Role", "Desc", mutableListOf(AdminType.EXT_ADM))
+      rolesController.createRole(authentication, newRole)
+      verify(rolesService).createRole("user", newRole)
+    }
+
+    @Test
+    fun `create - role can be created when description not present `() {
+      val newRole = CreateRole(roleCode = "CG", roleName = "Role", adminType = mutableListOf(AdminType.EXT_ADM, AdminType.EXT_ADM))
+      rolesController.createRole(authentication, newRole)
+      verify(rolesService).createRole("user", newRole)
+    }
+
+    @Test
+    fun `create - role already exist exception`() {
+      doThrow(RolesService.RoleExistsException("_code", "role code already exists")).whenever(rolesService)
+        .createRole(
+          anyString(),
+          any()
+        )
+
+      @Suppress("ClassName") val role = CreateRole("_code", " Role", "Description", mutableListOf(AdminType.DPS_ADM))
+      assertThatThrownBy { rolesController.createRole(authentication, role) }
+        .isInstanceOf(RolesService.RoleExistsException::class.java)
+        .withFailMessage("Unable to maintain role: code with reason: role code already exists")
+    }
+  }
 
   @Nested
   inner class ManageRoles {
@@ -63,7 +96,12 @@ class RolesControllerTest {
   inner class RoleDetail {
     @Test
     fun `Get role details`() {
-      val role = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = listOf(AdminType.DPS_ADM))
+      val role = Authority(
+        roleCode = "RO1",
+        roleName = "Role1",
+        roleDescription = "First Role",
+        adminType = listOf(AdminType.DPS_ADM)
+      )
 
       whenever(rolesService.getRoleDetail(any())).thenReturn(role)
 

@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
@@ -12,13 +13,14 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.anyString
-import org.mockito.Mockito.verify
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.CreateRole
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleAmendment
 
 class RolesServiceTest {
@@ -26,8 +28,89 @@ class RolesServiceTest {
   private val telemetryClient: TelemetryClient = mock()
   private val rolesService = RolesService(
     roleRepository,
-    telemetryClient
+    telemetryClient,
   )
+
+  @Nested
+  inner class CreateRoles {
+    @Test
+    fun `create role`() {
+      val createRole = CreateRole(
+        roleCode = "ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableListOf(AdminType.EXT_ADM)
+      )
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
+
+      rolesService.createRole("user", createRole)
+      val authority = Authority("ROLE", " Role Name", "Role description", mutableListOf(AdminType.EXT_ADM))
+      verify(roleRepository).findByRoleCode("ROLE")
+      verify(roleRepository).save(authority)
+      verify(telemetryClient).trackEvent(
+        "RoleCreateSuccess",
+        mapOf(
+          "username" to "user",
+          "roleCode" to "ROLE",
+          "roleName" to "Role Name",
+          "roleDescription" to "Role description",
+          "adminType" to "[EXT_ADM]"
+        ),
+        null
+      )
+    }
+
+    @Test
+    fun `create role - having adminType DPS_LSA will auto add DSP_ADM`() {
+      val createRole = CreateRole(
+        roleCode = "ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableListOf(AdminType.DPS_LSA)
+      )
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
+
+      rolesService.createRole("user", createRole)
+      val authority =
+        Authority("ROLE", " Role Name", "Role description", mutableListOf(AdminType.DPS_LSA, AdminType.DPS_ADM))
+      verify(roleRepository).findByRoleCode("ROLE")
+      verify(roleRepository).save(authority)
+      verify(telemetryClient).trackEvent(
+        "RoleCreateSuccess",
+        mapOf(
+          "username" to "user",
+          "roleCode" to "ROLE",
+          "roleName" to "Role Name",
+          "roleDescription" to "Role description",
+          "adminType" to "[DPS_LSA, DPS_ADM]"
+        ),
+        null
+      )
+    }
+
+    @Test
+    fun `Create role exists`() {
+      val createRole = CreateRole(
+        roleCode = "NEW_ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableListOf(AdminType.DPS_LSA)
+      )
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(
+        Authority(
+          roleCode = "NEW_ROLE",
+          roleName = "Role Name",
+          roleDescription = "Role description",
+          adminType = mutableListOf(AdminType.DPS_LSA)
+        )
+      )
+
+      assertThatThrownBy {
+        rolesService.createRole("user", createRole)
+      }.isInstanceOf(RolesService.RoleExistsException::class.java)
+        .hasMessage("Unable to create role: NEW_ROLE with reason: role code already exists")
+    }
+  }
 
   @Nested
   inner class ManageRoles {

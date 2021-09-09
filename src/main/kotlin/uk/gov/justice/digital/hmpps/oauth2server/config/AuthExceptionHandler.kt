@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.ChildGro
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
@@ -162,6 +163,14 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.NOT_FOUND)
       .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "role"))
+  }
+
+  @ExceptionHandler(RoleExistsException::class)
+  fun handleRoleExistsException(e: RoleExistsException): ResponseEntity<ErrorDetail> {
+    log.debug("Role exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.CONFLICT)
+      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "role"))
   }
 
   companion object {
