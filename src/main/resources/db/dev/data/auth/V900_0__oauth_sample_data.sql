@@ -77,7 +77,9 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('calculate-release-dates-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('calculate-release-dates-admin','3600','{}','ROLE_CRD_ADMIN,ROLE_GLOBAL_SEARCH,ROLE_SYSTEM_USER','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null),
        ('workload-measurement-ui','3600','{}',null,'authorization_code,refresh_token','read,write','$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
-       ('pre-sentence-service','1200','{}',null,'authorization_code','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000');
+       ('pre-sentence-service','1200','{}',null,'authorization_code','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
+       ('prisoner-transactions-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
+       ('prisoner-transactions-admin','3600','{}','ROLE_PRISONER_SEARCH,ROLE_SYSTEM_USER','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null);
 
 INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri, last_accessed, created, secret_updated)
 VALUES ('rotation-test-client-1','3600','{"mfa":"all"}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:8081/login', '2013-01-28 13:23:19.0000000', '2013-01-26 13:23:19.1234567', '2013-01-27 13:23:19.7654321'),
@@ -157,7 +159,8 @@ INSERT INTO users (user_id, username, email, verified, source)
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAF', 'HWPV_CASEWORK_MANAGER_BAND_5', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABA', 'HWPV_BAND_9', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABB', 'HWPV_SSCL_USER', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
-        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABC', 'HWPV_ALL_USER', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis');
+        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABC', 'HWPV_ALL_USER', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
+        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABD', 'PT_OMU_LOCAL', 'pt_omu_local@digital.justice.gov.uk', 1, 'nomis');
 
 INSERT INTO users (user_id, username, email, verified, last_logged_in, source)
  VALUES ('A2B6E3C0-2CE4-4148-9DFB-42E94BC78D02', 'NOMIS_DELETE', 'locked@somewhere.com', 1, '2018-02-04 13:23:19.0000000', 'nomis');
