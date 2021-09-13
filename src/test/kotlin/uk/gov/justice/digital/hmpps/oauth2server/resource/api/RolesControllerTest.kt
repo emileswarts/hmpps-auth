@@ -139,7 +139,7 @@ class RolesControllerTest {
   @Nested
   inner class AmendRoleDescription {
     @Test
-    fun `amend role name`() {
+    fun `amend role description`() {
       val roleAmendment = RoleDescriptionAmendment("roleDesc")
       rolesController.amendRoleDescription("role1", authentication, roleAmendment)
       verify(rolesService).updateRoleDescription("user", "role1", roleAmendment)

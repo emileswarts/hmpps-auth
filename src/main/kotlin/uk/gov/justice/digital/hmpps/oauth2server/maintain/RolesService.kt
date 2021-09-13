@@ -29,7 +29,7 @@ class RolesService(
     roleFromDb?.let { throw RoleExistsException(roleCode, "role code already exists") }
 
     val roleName = createRole.roleName.trim()
-    val roleDescription = createRole.roleDescription.trim()
+    val roleDescription = createRole.roleDescription?.trim()
     val adminType = createRole.adminType
 
     when {

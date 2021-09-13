@@ -202,7 +202,7 @@ data class CreateRole(
   )
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
-  val roleDescription: String = "",
+  val roleDescription: String? = null,
 
   @ApiModelProperty(
     required = true,
@@ -267,6 +267,6 @@ data class RoleNameAmendment(
 data class RoleDescriptionAmendment(
   @ApiModelProperty(required = true, value = "Role Description", example = "Maintaining admin users")
   @field:Size(max = 1024)
-  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val roleDescription: String,
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
+  val roleDescription: String?,
 )

@@ -18,278 +18,306 @@ class RolesControllerIntTest : IntegrationTest() {
   @Autowired
   private lateinit var roleRepository: RoleRepository
 
-  @Test
-  fun `Create role`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "RC",
-            "roleName" to " New role",
-            "roleDescription" to "New role description",
-            "adminType" to listOf("EXT_ADM")
+  @Nested
+  inner class CreateRole {
+
+    @Test
+    fun `Create role`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC",
+              "roleName" to " New role",
+              "roleDescription" to "New role description",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isCreated
+        .exchange()
+        .expectStatus().isCreated
 
-    val role = roleRepository.findByRoleCode("RC")
-    if (role != null) {
-      roleRepository.delete(role)
+      val role = roleRepository.findByRoleCode("RC")
+      if (role != null) {
+        roleRepository.delete(role)
+      }
     }
-  }
 
-  @Test
-  fun `Create role with multiline description`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "RC",
-            "roleName" to " New role",
-            "roleDescription" to "New role description\r\nwhich is multi line",
-            "adminType" to listOf("EXT_ADM")
+    @Test
+    fun `Create role passes regex validation`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC",
+              "roleName" to "good's & Role(),.-",
+              "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isCreated
+        .exchange()
+        .expectStatus().isCreated
 
-    val role = roleRepository.findByRoleCode("RC")
-    if (role != null) {
-      roleRepository.delete(role)
+      val role = roleRepository.findByRoleCode("RC")
+      if (role != null) {
+        roleRepository.delete(role)
+      }
     }
-  }
 
-  @Test
-  fun `Create role with no role description`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "RC",
-            "roleName" to " New role",
-            "adminType" to listOf("EXT_ADM")
+    @Test
+    fun `Create role with empty role description`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC",
+              "roleName" to " New role",
+              "roleDescription" to "",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isCreated
+        .exchange()
+        .expectStatus().isCreated
 
-    val role = roleRepository.findByRoleCode("RC")
-    if (role != null) {
-      roleRepository.delete(role)
+      val role = roleRepository.findByRoleCode("RC")
+      if (role != null) {
+        roleRepository.delete(role)
+      }
     }
-  }
 
-  @Test
-  fun `Create role error`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "",
-            "roleName" to "",
-            "adminType" to listOf<String>()
+    @Test
+    fun `Create role with no role description`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC",
+              "roleName" to " New role",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isBadRequest
-      .expectBody()
-      .jsonPath("$").value<Map<String, Any>> {
-        assertThat(it).containsAllEntriesOf(
-          mapOf(
-            "error" to "Bad Request",
-            "field" to "createRole"
-          )
-        )
-        assertThat(it["error_description"] as String).contains("default message [roleCode],30,2]")
-        assertThat(it["error_description"] as String).contains("default message [roleName],128,4]")
+        .exchange()
+        .expectStatus().isCreated
+
+      val role = roleRepository.findByRoleCode("RC")
+      if (role != null) {
+        roleRepository.delete(role)
       }
-  }
+    }
 
-  @Test
-  fun `Create role length too long`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "x".repeat(30) + "x",
-            "roleName" to "x".repeat(128) + "y",
-            "roleDescription" to "x".repeat(1024) + "y",
-            "adminType" to listOf("EXT_ADM")
+    @Test
+    fun `Create role error`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "",
+              "roleName" to "",
+              "adminType" to listOf<String>()
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isBadRequest
-      .expectBody()
-      .jsonPath("$").value<Map<String, Any>> {
-        assertThat(it).containsAllEntriesOf(
-          mapOf(
-            "error" to "Bad Request",
-            "field" to "createRole"
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "createRole"
+            )
           )
-        )
-        assertThat(it["error_description"] as String).contains("default message [roleCode],30,2]")
-        assertThat(it["error_description"] as String).contains("default message [roleName],128,4]")
-        assertThat(it["error_description"] as String).contains("default message [roleDescription],1024,0]")
-      }
-  }
+          assertThat(it["error_description"] as String).contains("default message [roleCode],30,2]")
+          assertThat(it["error_description"] as String).contains("default message [roleName],128,4]")
+        }
+    }
 
-  @Test
-  fun `Create role admin type empty`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLE_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "xxxx", "roleName" to "123456", "adminType" to listOf<String>()
+    @Test
+    fun `Create role length too long`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "x".repeat(30) + "x",
+              "roleName" to "x".repeat(128) + "y",
+              "roleDescription" to "x".repeat(1024) + "y",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isBadRequest
-      .expectBody()
-      .jsonPath("$").value<Map<String, Any>> {
-        assertThat(it).containsAllEntriesOf(
-          mapOf(
-            "error" to "Bad Request",
-            "field" to "createRole"
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "createRole"
+            )
           )
-        )
-        assertThat(it["error_description"] as String)
-          .contains("default message [Admin type cannot be empty]")
-      }
-  }
+          assertThat(it["error_description"] as String).contains("default message [roleCode],30,2]")
+          assertThat(it["error_description"] as String).contains("default message [roleName],128,4]")
+          assertThat(it["error_description"] as String).contains("default message [roleDescription],1024,0]")
+        }
+    }
 
-  @Test
-  fun `Create role failed regex`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "a-b",
-            "roleName" to "a\$here",
-            "roleDescription" to "a\$description",
-            "adminType" to listOf("EXT_ADM")
+    @Test
+    fun `Create role admin type empty`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLE_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "xxxx", "roleName" to "123456", "adminType" to listOf<String>()
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isBadRequest
-      .expectBody()
-      .jsonPath("$").value<Map<String, Any>> {
-        assertThat(it).containsAllEntriesOf(
-          mapOf(
-            "error" to "Bad Request",
-            "field" to "createRole"
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "createRole"
+            )
           )
-        )
-        assertThat(it["error_description"] as String)
-          .contains("default message [roleCode],[Ljavax.validation.constraints.Pattern")
-        assertThat(it["error_description"] as String)
-          .contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
-        assertThat(it["error_description"] as String)
-          .contains("default message [roleDescription],[Ljavax.validation.constraints.Pattern")
-      }
-  }
+          assertThat(it["error_description"] as String)
+            .contains("default message [Admin type cannot be empty]")
+        }
+    }
 
-  @Test
-  fun `Create role endpoint returns forbidden when dose not have admin role `() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("bob"))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "ROLE3",
-            "roleName" to " role 3",
-            "adminType" to listOf("EXT_ADM")
+    @Test
+    fun `Create role failed regex`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "a-b",
+              "roleName" to "a\$here",
+              "roleDescription" to "a\$description",
+              "adminType" to listOf("EXT_ADM")
+            )
           )
         )
-      )
-      .exchange()
-      .expectStatus().isForbidden
-      .expectBody()
-      .json(
-        """
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "createRole"
+            )
+          )
+          assertThat(it["error_description"] as String)
+            .contains("default message [roleCode],[Ljavax.validation.constraints.Pattern")
+          assertThat(it["error_description"] as String)
+            .contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
+          assertThat(it["error_description"] as String)
+            .contains("default message [roleDescription],[Ljavax.validation.constraints.Pattern")
+        }
+    }
+
+    @Test
+    fun `Create role endpoint returns forbidden when dose not have admin role `() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("bob"))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "ROLE3",
+              "roleName" to " role 3",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
       {"error":"access_denied","error_description":"Access is denied"}
-        """.trimIndent()
-      )
-  }
-
-  @Test
-  fun `Create role - role already exists`() {
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "ROLE3",
-            "roleName" to " role 3",
-            "roleDescription" to "New role description",
-            "adminType" to listOf("EXT_ADM")
-          )
+          """.trimIndent()
         )
-      )
-      .exchange()
-      .expectStatus().isCreated
-
-    webTestClient
-      .post().uri("/api/roles")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
-      .body(
-        fromValue(
-          mapOf(
-            "roleCode" to "ROLE3",
-            "roleName" to " role 3",
-            "roleDescription" to "New role description",
-            "adminType" to listOf("EXT_ADM")
-          )
-        )
-      )
-      .exchange()
-      .expectStatus().isEqualTo(HttpStatus.CONFLICT)
-      .expectHeader().contentType(APPLICATION_JSON)
-      .expectBody()
-      .jsonPath("$").value<Map<String, Any>> {
-        assertThat(it).containsExactlyInAnyOrderEntriesOf(
-          mapOf(
-            "error" to "role code already exists",
-            "error_description" to "Unable to create role: ROLE3 with reason: role code already exists",
-            "field" to "role"
-          )
-        )
-      }
-
-    val role = roleRepository.findByRoleCode("ROLE3")
-    if (role != null) {
-      roleRepository.delete(role)
     }
-  }
 
-  @Test
-  fun `Create role endpoint not accessible without valid token`() {
-    webTestClient.post().uri("/api/roles")
-      .exchange()
-      .expectStatus().isUnauthorized
+    @Test
+    fun `Create role - role already exists`() {
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "ROLE3",
+              "roleName" to " role 3",
+              "roleDescription" to "New role description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      webTestClient
+        .post().uri("/api/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "ROLE3",
+              "roleName" to " role 3",
+              "roleDescription" to "New role description",
+              "adminType" to listOf("EXT_ADM")
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "error" to "role code already exists",
+              "error_description" to "Unable to create role: ROLE3 with reason: role code already exists",
+              "field" to "role"
+            )
+          )
+        }
+
+      val role = roleRepository.findByRoleCode("ROLE3")
+      if (role != null) {
+        roleRepository.delete(role)
+      }
+    }
+
+    @Test
+    fun `Create role endpoint not accessible without valid token`() {
+      webTestClient.post().uri("/api/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
   }
 
   @Nested
@@ -529,7 +557,7 @@ class RolesControllerIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `Create role name failed regex`() {
+    fun `Change role name failed regex`() {
       webTestClient
         .put().uri("/api/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
@@ -563,6 +591,22 @@ class RolesControllerIntTest : IntegrationTest() {
         .exchange()
         .expectStatus().isOk
     }
+
+    @Test
+    fun `Change role name passes regex validation`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleName" to "good's & Role(),.-"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 
   @Nested
@@ -583,6 +627,7 @@ class RolesControllerIntTest : IntegrationTest() {
         .body(fromValue(mapOf("roleDescription" to "new role description")))
         .exchange()
         .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .json(
           """
@@ -626,6 +671,7 @@ class RolesControllerIntTest : IntegrationTest() {
         )
         .exchange()
         .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
@@ -639,7 +685,7 @@ class RolesControllerIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `Create role description failed regex`() {
+    fun `Change role description failed regex`() {
       webTestClient
         .put().uri("/api/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
@@ -652,6 +698,7 @@ class RolesControllerIntTest : IntegrationTest() {
         )
         .exchange()
         .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
@@ -680,6 +727,32 @@ class RolesControllerIntTest : IntegrationTest() {
         .put().uri("/api/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to "")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description returns success for no role description`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to null)))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description passes regex validation`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo"
+            )
+          )
+        )
         .exchange()
         .expectStatus().isOk
     }
