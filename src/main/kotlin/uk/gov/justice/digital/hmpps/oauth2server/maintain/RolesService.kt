@@ -11,7 +11,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.RolesFilter
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.CreateRole
-import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleAmendment
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleDescriptionAmendment
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleNameAmendment
 
 @Service
 @Transactional(transactionManager = "authTransactionManager", readOnly = true)
@@ -79,16 +80,30 @@ class RolesService(
 
   @Transactional(transactionManager = "authTransactionManager")
   @Throws(RoleNotFoundException::class)
-  fun updateRole(username: String, roleCode: String, roleAmendment: RoleAmendment) {
-    val roleToUpdate =
-      roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+  fun updateRoleName(username: String, roleCode: String, roleAmendment: RoleNameAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
     roleToUpdate.roleName = roleAmendment.roleName
     roleRepository.save(roleToUpdate)
 
     telemetryClient.trackEvent(
-      "RoleUpdateSuccess",
+      "RoleNameUpdateSuccess",
       mapOf("username" to username, "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
+      null
+    )
+  }
+
+  @Transactional(transactionManager = "authTransactionManager")
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleDescription(username: String, roleCode: String, roleAmendment: RoleDescriptionAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+
+    roleToUpdate.roleDescription = roleAmendment.roleDescription
+    roleRepository.save(roleToUpdate)
+
+    telemetryClient.trackEvent(
+      "RoleDescriptionUpdateSuccess",
+      mapOf("username" to username, "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
       null
     )
   }

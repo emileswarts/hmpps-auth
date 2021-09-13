@@ -21,7 +21,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.CreateRole
-import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleAmendment
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleDescriptionAmendment
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleNameAmendment
 
 class RolesServiceTest {
   private val roleRepository: RoleRepository = mock()
@@ -176,11 +177,11 @@ class RolesServiceTest {
   inner class AmendRoleName {
     @Test
     fun `update role name when no role matches`() {
-      val roleAmendment = RoleAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendment("UpdatedName")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
       assertThatThrownBy {
-        rolesService.updateRole("user", "RO1", roleAmendment)
+        rolesService.updateRoleName("user", "RO1", roleAmendment)
       }.isInstanceOf(RoleNotFoundException::class.java)
       verifyZeroInteractions(telemetryClient)
     }
@@ -188,15 +189,45 @@ class RolesServiceTest {
     @Test
     fun `update role name successfully`() {
       val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role")
-      val roleAmendment = RoleAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendment("UpdatedName")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
-      rolesService.updateRole("user", "RO1", roleAmendment)
+      rolesService.updateRoleName("user", "RO1", roleAmendment)
       verify(roleRepository).findByRoleCode("RO1")
       verify(roleRepository).save(dbRole)
       verify(telemetryClient).trackEvent(
-        "RoleUpdateSuccess",
+        "RoleNameUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleName" to "UpdatedName"),
+        null
+      )
+    }
+  }
+
+  @Nested
+  inner class AmendRoleDescription {
+    @Test
+    fun `update role description when no role matches`() {
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
+
+      assertThatThrownBy {
+        rolesService.updateRoleDescription("user", "RO1", roleAmendment)
+      }.isInstanceOf(RoleNotFoundException::class.java)
+      verifyZeroInteractions(telemetryClient)
+    }
+
+    @Test
+    fun `update role description successfully`() {
+      val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc")
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRoleDescription("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleDescriptionUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleDescription" to "UpdatedDescription"),
         null
       )
     }
