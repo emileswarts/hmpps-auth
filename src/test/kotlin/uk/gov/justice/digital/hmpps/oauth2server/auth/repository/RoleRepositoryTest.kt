@@ -44,6 +44,11 @@ class RoleRepositoryTest {
     assertThat(retrievedEntity.authority).isEqualTo(transientEntity.authority)
     assertThat(retrievedEntity.roleName).isEqualTo(transientEntity.roleName)
     assertThat(retrievedEntity.adminType).isEqualTo(transientEntity.adminType)
+
+    // clear up to prevent subsequent tests failing
+    repository.delete(retrievedEntity)
+    TestTransaction.flagForCommit()
+    TestTransaction.end()
   }
 
   @Test
