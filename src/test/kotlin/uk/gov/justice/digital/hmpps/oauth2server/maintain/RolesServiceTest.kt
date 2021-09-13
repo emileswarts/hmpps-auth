@@ -39,7 +39,7 @@ class RolesServiceTest {
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableListOf(AdminType.EXT_ADM)
+        adminType = mutableSetOf(AdminType.EXT_ADM)
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
@@ -61,12 +61,12 @@ class RolesServiceTest {
     }
 
     @Test
-    fun `create role - having adminType DPS_LSA will auto add DSP_ADM`() {
+    fun `create role - having adminType DPS_LSA will auto add DPS_ADM`() {
       val createRole = CreateRole(
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableListOf(AdminType.DPS_LSA)
+        adminType = mutableSetOf(AdminType.DPS_LSA)
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
@@ -94,7 +94,7 @@ class RolesServiceTest {
         roleCode = "NEW_ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableListOf(AdminType.DPS_LSA)
+        adminType = mutableSetOf(AdminType.DPS_LSA)
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(
         Authority(

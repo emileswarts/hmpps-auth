@@ -32,7 +32,7 @@ class AccountDetailsSpecification : AbstractDeliusAuthSpecification() {
   }
 
   @Test
-  fun `auth account details back link to dsp`() {
+  fun `auth account details back link to DPS`() {
     goTo(loginPage).loginAs("AUTH_RO_USER")
     goTo("/account-details?redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fsearch-external-users&client_id=elite2apiclient")
 

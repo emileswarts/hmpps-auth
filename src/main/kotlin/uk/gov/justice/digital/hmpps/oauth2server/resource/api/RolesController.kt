@@ -32,6 +32,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFo
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
 
@@ -156,26 +157,26 @@ class RolesController(
 }
 
 data class CreateRole(
-  @ApiModelProperty(required = true, value = "Role Code", example = "MFA", position = 1)
+  @ApiModelProperty(required = true, value = "Role Code", example = "AUTH_GROUP_MANAGER", position = 1)
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30)
   @field:Pattern(regexp = "^[0-9A-Za-z_]*")
   val roleCode: String,
 
-  @ApiModelProperty(required = true, value = "roleName", example = "Multi Factor Authentication", position = 2)
+  @ApiModelProperty(required = true, value = "roleName", example = "Auth Group Manager", position = 2)
   @field:NotBlank(message = "role name must be supplied")
-  @field:Size(min = 4, max = 100)
+  @field:Size(min = 4, max = 128)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val roleName: String,
 
   @ApiModelProperty(
     required = false,
     value = "roleDescription",
-    example = "Enforces MFA/2FA on an individual user",
+    example = "Allow Group Manager to administer the account within their groups",
     position = 3
   )
   @field:Size(max = 1024)
-  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
   val roleDescription: String = "",
 
   @ApiModelProperty(
@@ -184,7 +185,8 @@ data class CreateRole(
     example = "[\"EXT_ADM\", \"DPS_ADM\"]",
     position = 3
   )
-  val adminType: MutableList<AdminType>,
+  @field:NotEmpty(message = "Admin type cannot be empty")
+  val adminType: MutableSet<AdminType>,
 )
 
 @ApiModel(description = "Basic Role")
@@ -207,13 +209,13 @@ data class RoleBasics(
 
 @ApiModel(description = "Role Details")
 data class RoleDetails(
-  @ApiModelProperty(required = true, value = "Role Code", example = "MFA")
+  @ApiModelProperty(required = true, value = "Role Code", example = "AUTH_GROUP_MANAGER")
   val roleCode: String,
 
-  @ApiModelProperty(required = true, value = "Role Name", example = "Multi Factor Authentication")
+  @ApiModelProperty(required = true, value = "Role Name", example = "Auth Group Manager")
   val roleName: String,
 
-  @ApiModelProperty(required = true, value = "Role Description", example = "Enforces MFA/2FA on an individual user")
+  @ApiModelProperty(required = true, value = "Role Description", example = "Allow Group Manager to administer the account within their groups")
   val roleDescription: String?,
 
   @ApiModelProperty(required = true, value = "Administration Type")

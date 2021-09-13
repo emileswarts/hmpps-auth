@@ -37,14 +37,14 @@ class RolesControllerTest {
   inner class CreateRoles {
     @Test
     fun create() {
-      val newRole = CreateRole("CG", "Role", "Desc", mutableListOf(AdminType.EXT_ADM))
+      val newRole = CreateRole("CG", "Role", "Desc", mutableSetOf(AdminType.EXT_ADM))
       rolesController.createRole(authentication, newRole)
       verify(rolesService).createRole("user", newRole)
     }
 
     @Test
     fun `create - role can be created when description not present `() {
-      val newRole = CreateRole(roleCode = "CG", roleName = "Role", adminType = mutableListOf(AdminType.EXT_ADM, AdminType.EXT_ADM))
+      val newRole = CreateRole(roleCode = "CG", roleName = "Role", adminType = mutableSetOf(AdminType.EXT_ADM, AdminType.EXT_ADM))
       rolesController.createRole(authentication, newRole)
       verify(rolesService).createRole("user", newRole)
     }
@@ -57,7 +57,7 @@ class RolesControllerTest {
           any()
         )
 
-      @Suppress("ClassName") val role = CreateRole("_code", " Role", "Description", mutableListOf(AdminType.DPS_ADM))
+      @Suppress("ClassName") val role = CreateRole("_code", " Role", "Description", mutableSetOf(AdminType.DPS_ADM))
       assertThatThrownBy { rolesController.createRole(authentication, role) }
         .isInstanceOf(RolesService.RoleExistsException::class.java)
         .withFailMessage("Unable to maintain role: code with reason: role code already exists")

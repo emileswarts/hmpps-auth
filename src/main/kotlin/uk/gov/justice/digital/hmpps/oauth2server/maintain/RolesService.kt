@@ -32,13 +32,13 @@ class RolesService(
     val adminType = createRole.adminType
 
     when {
-      adminType.contains(AdminType.DPS_LSA) && !adminType.contains(AdminType.DPS_ADM) -> {
+      adminType.contains(AdminType.DPS_LSA) -> {
         adminType.add(AdminType.DPS_ADM)
       }
     }
 
     val role =
-      Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType)
+      Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType.toList())
     roleRepository.save(role)
 
     // // if roleAdmin is DPS_LSA or DPS_ADM then create role in NOMIS
