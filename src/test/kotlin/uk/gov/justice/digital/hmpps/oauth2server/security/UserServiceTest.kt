@@ -441,7 +441,6 @@ class UserServiceTest {
         )
 
       assertThat(userService.findPrisonUsersByFirstAndLastNames("first", "last"))
-
         .containsExactlyInAnyOrder(
           PrisonUserDto(
             username = "U1",

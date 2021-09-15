@@ -695,7 +695,6 @@ class AddChangeSecondaryEmailSpecification : AbstractDeliusAuthSpecification() {
 
     accountDetailsPage.navigateToChangeSecondaryEmail()
     accountMfaEmailPage
-
       .resendCodeLink()
 
     accountMfaEmailResendCodePage.resendCodeByEmail()
