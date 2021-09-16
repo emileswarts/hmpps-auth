@@ -179,6 +179,31 @@ class RolesController(
   ) {
     rolesService.updateRoleDescription(authentication.name, role, roleAmendment)
   }
+
+  @PutMapping("/api/roles/{role}/admintype")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @ApiOperation(
+    value = "Amend role admin type.",
+    nickname = "AmendRoleAdminType",
+    produces = "application/json"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
+      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+    ]
+  )
+  fun amendRoleAdminType(
+    @ApiParam(value = "The role code of the role.", required = true)
+    @PathVariable role: String,
+    @ApiIgnore authentication: Authentication,
+    @ApiParam(
+      value = "Details of the role to be updated.",
+      required = true
+    ) @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
+  ) {
+    rolesService.updateRoleAdminType(authentication.name, role, roleAmendment)
+  }
 }
 
 data class CreateRole(
@@ -260,7 +285,7 @@ data class RoleNameAmendment(
   @field:NotBlank(message = "Role name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val roleName: String,
+  val roleName: String
 )
 
 @ApiModel(description = "Role Description")
@@ -268,5 +293,12 @@ data class RoleDescriptionAmendment(
   @ApiModelProperty(required = true, value = "Role Description", example = "Maintaining admin users")
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
-  val roleDescription: String?,
+  val roleDescription: String?
+)
+
+@ApiModel(description = "Role Administration Types")
+data class RoleAdminTypeAmendment(
+  @ApiModelProperty(required = true, value = "Role Administration Types", example = "[\"DPS_ADM\"]")
+  @field:NotEmpty(message = "Admin type cannot be empty")
+  val adminType: MutableSet<AdminType>
 )

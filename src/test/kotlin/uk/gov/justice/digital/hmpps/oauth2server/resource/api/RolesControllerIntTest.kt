@@ -757,4 +757,85 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectStatus().isOk
     }
   }
+
+  @Nested
+  inner class AmendRoleAdminType {
+
+    @Test
+    fun `Change role adminType endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/api/roles/ANY_ROLE/admintype")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role adminType endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/api/roles/ANY_ROLE/admintype")
+        .headers(setAuthorisation("bob"))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json(
+          """
+      {"error":"access_denied","error_description":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Change role admin type returns error when role not found`() {
+      webTestClient
+        .put().uri("/api/roles/Not_A_Role/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "error" to "Not Found",
+              "error_description" to "Unable to maintain role: Not_A_Role with reason: notfound",
+              "field" to "role"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role adminType returns bad request for no admin type`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf<String>())))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "error" to "Bad Request",
+              "field" to "roleAdminTypeAmendment"
+            )
+          )
+          assertThat(it["error_description"] as String)
+            .contains("default message [Admin type cannot be empty]")
+        }
+    }
+
+    @Test
+    fun `Change role admin type returns bad request when adminType does not exist`() {
+      webTestClient
+        .put().uri("/api/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("adminType" to listOf("DOES_NOT_EXIST"))))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+    }
+  }
 }

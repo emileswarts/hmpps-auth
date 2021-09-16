@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.RolesFilter
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.CreateRole
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleNameAmendment
 
@@ -104,6 +105,23 @@ class RolesService(
     telemetryClient.trackEvent(
       "RoleDescriptionUpdateSuccess",
       mapOf("username" to username, "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
+      null
+    )
+  }
+
+  @Transactional(transactionManager = "authTransactionManager")
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleAdminType(username: String, roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+
+    if (AdminType.DPS_LSA in roleAmendment.adminType) { roleAmendment.adminType.add(AdminType.DPS_ADM) }
+
+    roleToUpdate.adminType = roleAmendment.adminType.toList()
+    roleRepository.save(roleToUpdate)
+
+    telemetryClient.trackEvent(
+      "RoleAdminTypeUpdateSuccess",
+      mapOf("username" to username, "roleCode" to roleCode, "newRoleAdminType" to roleAmendment.adminType.toString()),
       null
     )
   }

@@ -34,7 +34,7 @@ class RolesControllerTest {
     )
 
   @Nested
-  inner class CreateRoles {
+  inner class CreateRole {
     @Test
     fun create() {
       val newRole = CreateRole("CG", "Role", "Desc", mutableSetOf(AdminType.EXT_ADM))
@@ -134,6 +134,16 @@ class RolesControllerTest {
       rolesController.amendRoleName("role1", authentication, roleAmendment)
       verify(rolesService).updateRoleName("user", "role1", roleAmendment)
     }
+
+    @Test
+    fun `amend role name with no match throws exception`() {
+      whenever(rolesService.updateRoleName(anyString(), anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleNameAmendment("role")
+
+      assertThatThrownBy { rolesController.amendRoleName("NoRole", authentication, roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
+    }
   }
 
   @Nested
@@ -143,6 +153,43 @@ class RolesControllerTest {
       val roleAmendment = RoleDescriptionAmendment("roleDesc")
       rolesController.amendRoleDescription("role1", authentication, roleAmendment)
       verify(rolesService).updateRoleDescription("user", "role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role description if no description set`() {
+      val roleAmendment = RoleDescriptionAmendment(null)
+      rolesController.amendRoleDescription("role1", authentication, roleAmendment)
+      verify(rolesService).updateRoleDescription("user", "role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role description with no match throws exception`() {
+      whenever(rolesService.updateRoleDescription(anyString(), anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleDescriptionAmendment("role description")
+
+      assertThatThrownBy { rolesController.amendRoleDescription("NoRole", authentication, roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
+    }
+  }
+
+  @Nested
+  inner class AmendRoleAdminType {
+    @Test
+    fun `amend role admin type`() {
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.DPS_ADM))
+      rolesController.amendRoleAdminType("role1", authentication, roleAmendment)
+      verify(rolesService).updateRoleAdminType("user", "role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role admin type with no match throws exception`() {
+      whenever(rolesService.updateRoleAdminType(anyString(), anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.DPS_ADM))
+
+      assertThatThrownBy { rolesController.amendRoleAdminType("NoRole", authentication, roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
 
