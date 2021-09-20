@@ -8,6 +8,8 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   implementation("org.springframework.security:spring-security-jwt:1.1.1.RELEASE")
+  implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
@@ -53,7 +55,7 @@ dependencies {
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.32")
-  testImplementation("com.auth0:java-jwt:3.18.1")
+  testImplementation("com.auth0:java-jwt:3.18.2")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
