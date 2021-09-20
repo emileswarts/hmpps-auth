@@ -236,7 +236,7 @@ data class CreateRole(
     position = 3
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: MutableSet<AdminType>,
+  val adminType: Set<AdminType>,
 )
 
 @ApiModel(description = "Basic Role")
@@ -300,5 +300,5 @@ data class RoleDescriptionAmendment(
 data class RoleAdminTypeAmendment(
   @ApiModelProperty(required = true, value = "Role Administration Types", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: MutableSet<AdminType>
+  val adminType: Set<AdminType>
 )

@@ -31,16 +31,10 @@ class RolesService(
 
     val roleName = createRole.roleName.trim()
     val roleDescription = createRole.roleDescription?.trim()
-    val adminType = createRole.adminType
-
-    when {
-      adminType.contains(AdminType.DPS_LSA) -> {
-        adminType.add(AdminType.DPS_ADM)
-      }
-    }
+    val adminType = createRole.adminType.addDpsAdmTypeIfRequired()
 
     val role =
-      Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType.toList())
+      Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType)
     roleRepository.save(role)
 
     // // if roleAdmin is DPS_LSA or DPS_ADM then create role in NOMIS
@@ -114,17 +108,17 @@ class RolesService(
   fun updateRoleAdminType(username: String, roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
-    if (AdminType.DPS_LSA in roleAmendment.adminType) { roleAmendment.adminType.add(AdminType.DPS_ADM) }
-
-    roleToUpdate.adminType = roleAmendment.adminType.toList()
+    roleToUpdate.adminType = roleAmendment.adminType.addDpsAdmTypeIfRequired()
     roleRepository.save(roleToUpdate)
 
     telemetryClient.trackEvent(
       "RoleAdminTypeUpdateSuccess",
-      mapOf("username" to username, "roleCode" to roleCode, "newRoleAdminType" to roleAmendment.adminType.toString()),
+      mapOf("username" to username, "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
       null
     )
   }
+
+  private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).toList()
 
   class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
     Exception("Unable to $action role: $role with reason: $errorCode")
