@@ -4,6 +4,10 @@ plugins {
   kotlin("plugin.jpa") version "1.5.30"
 }
 
+dependencyCheck {
+  suppressionFiles.add("auth-suppressions.xml")
+}
+
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
