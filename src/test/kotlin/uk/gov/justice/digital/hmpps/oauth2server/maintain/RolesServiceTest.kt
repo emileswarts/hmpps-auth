@@ -331,5 +331,81 @@ class RolesServiceTest {
         null
       )
     }
+
+    @Test
+    fun `update role admin type without DPS_ADM will not remove immutable DPS_ADM if it already exists`() {
+      val dbRole = Authority(
+        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
+        adminType = listOf(AdminType.EXT_ADM, AdminType.DPS_ADM)
+      )
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.EXT_ADM))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRoleAdminType("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleAdminTypeUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "[EXT_ADM, DPS_ADM]"),
+        null
+      )
+    }
+
+    @Test
+    fun `update role admin type without EXT_ADM will not remove immutable EXT_ADM if it already exists`() {
+      val dbRole = Authority(
+        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
+        adminType = listOf(AdminType.EXT_ADM, AdminType.DPS_ADM)
+      )
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.DPS_ADM))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRoleAdminType("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleAdminTypeUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "[DPS_ADM, EXT_ADM]"),
+        null
+      )
+    }
+
+    @Test
+    fun `update role admin type will not duplicate existing immutable EXT_ADM`() {
+      val dbRole = Authority(
+        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
+        adminType = listOf(AdminType.EXT_ADM,)
+      )
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.EXT_ADM, AdminType.DPS_ADM))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRoleAdminType("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleAdminTypeUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "[EXT_ADM, DPS_ADM]"),
+        null
+      )
+    }
+
+    @Test
+    fun `update role admin type without DPS_LSA will remove DPS_LSA if it already exists`() {
+      val dbRole = Authority(
+        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
+        adminType = listOf(AdminType.EXT_ADM, AdminType.DPS_ADM, AdminType.DPS_LSA)
+      )
+      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.EXT_ADM))
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      rolesService.updateRoleAdminType("user", "RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleAdminTypeUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "[EXT_ADM, DPS_ADM]"),
+        null
+      )
+    }
   }
 }

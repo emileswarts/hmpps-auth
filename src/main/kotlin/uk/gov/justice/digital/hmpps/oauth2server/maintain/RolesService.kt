@@ -31,7 +31,7 @@ class RolesService(
 
     val roleName = createRole.roleName.trim()
     val roleDescription = createRole.roleDescription?.trim()
-    val adminType = createRole.adminType.addDpsAdmTypeIfRequired()
+    val adminType = createRole.adminType.addDpsAdmTypeIfRequired().toList()
 
     val role =
       Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType)
@@ -107,8 +107,9 @@ class RolesService(
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(username: String, roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+    val immutableAdminTypesInDb = roleToUpdate.adminType.filter { it != AdminType.DPS_LSA }
 
-    roleToUpdate.adminType = roleAmendment.adminType.addDpsAdmTypeIfRequired()
+    roleToUpdate.adminType = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
     roleRepository.save(roleToUpdate)
 
     telemetryClient.trackEvent(
@@ -118,7 +119,7 @@ class RolesService(
     )
   }
 
-  private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this).toList()
+  private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
 
   class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
     Exception("Unable to $action role: $role with reason: $errorCode")
