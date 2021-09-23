@@ -1823,27 +1823,28 @@ class AuthUserServiceTest {
     }
 
     @Test
-    fun firstNameLessThan() {
-      assertThatThrownBy {
-        authUserService.amendUser(
-          "userme",
-          "hello<input",
-          "last"
-        )
-      }.isInstanceOf(CreateUserException::class.java)
-        .hasMessage("Create user failed for field firstName with reason: invalid")
-    }
+    fun firstNameXssChars() {
 
-    @Test
-    fun firstNameGreaterThan() {
-      assertThatThrownBy {
-        authUserService.amendUser(
-          "userme",
-          "helloinput>",
-          "last"
-        )
-      }.isInstanceOf(CreateUserException::class.java)
-        .hasMessage("Create user failed for field firstName with reason: invalid")
+      val assertFirstNameInvalid = { firstName: String ->
+        assertThatThrownBy {
+          authUserService.amendUser(
+            "userme",
+            firstName,
+            "last"
+          )
+        }.isInstanceOf(CreateUserException::class.java)
+          .hasMessage("Create user failed for field firstName with reason: invalid")
+      }
+
+      assertFirstNameInvalid("hello<input") // Unicode U+003C
+      assertFirstNameInvalid("hello＜input") // Unicode U+FF1C
+      assertFirstNameInvalid("hello〈input") // Unicode U+2329
+      assertFirstNameInvalid("hello〈input") // Unicode U+3008
+
+      assertFirstNameInvalid("hello>input") // Unicode U+003E
+      assertFirstNameInvalid("hello＞input") // Unicode U+FF1E
+      assertFirstNameInvalid("hello〉input") // Unicode U+232A
+      assertFirstNameInvalid("hello〉input") // Unicode U+3009
     }
 
     @Test
@@ -1871,27 +1872,28 @@ class AuthUserServiceTest {
     }
 
     @Test
-    fun lastNameLessThan() {
-      assertThatThrownBy {
-        authUserService.amendUser(
-          "userme",
-          "last",
-          "hello<input"
-        )
-      }.isInstanceOf(CreateUserException::class.java)
-        .hasMessage("Create user failed for field lastName with reason: invalid")
-    }
+    fun lastNameXssChars() {
 
-    @Test
-    fun lastNameGreaterThan() {
-      assertThatThrownBy {
-        authUserService.amendUser(
-          "userme",
-          "last",
-          "helloinput>"
-        )
-      }.isInstanceOf(CreateUserException::class.java)
-        .hasMessage("Create user failed for field lastName with reason: invalid")
+      val assertLastNameInvalid = { lastName: String ->
+        assertThatThrownBy {
+          authUserService.amendUser(
+            "userme",
+            "last",
+            lastName
+          )
+        }.isInstanceOf(CreateUserException::class.java)
+          .hasMessage("Create user failed for field lastName with reason: invalid")
+      }
+
+      assertLastNameInvalid("hello<input") // Unicode U+003C
+      assertLastNameInvalid("hello＜input") // Unicode U+FF1C
+      assertLastNameInvalid("hello〈input") // Unicode U+2329
+      assertLastNameInvalid("hello〈input") // Unicode U+3008
+
+      assertLastNameInvalid("hello>input") // Unicode U+003E
+      assertLastNameInvalid("hello＞input") // Unicode U+FF1E
+      assertLastNameInvalid("hello〉input") // Unicode U+232A
+      assertLastNameInvalid("hello〉input") // Unicode U+3009
     }
 
     @Test

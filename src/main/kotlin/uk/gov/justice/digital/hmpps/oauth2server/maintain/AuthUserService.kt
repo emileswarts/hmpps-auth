@@ -383,14 +383,14 @@ class AuthUserService(
   private fun validate(firstName: String?, lastName: String?) {
     if (firstName.isNullOrBlank()) throw CreateUserException("firstName", "required")
     else {
-      if (firstName.contains('<') || firstName.contains('>')) throw CreateUserException("firstName", "invalid")
+      if (firstName.any(XSS_CHAR_BLOCK_LIST::contains)) throw CreateUserException("firstName", "invalid")
       if (firstName.length < MIN_LENGTH_FIRST_NAME) throw CreateUserException("firstName", "length")
       else if (firstName.length > MAX_LENGTH_FIRST_NAME) throw CreateUserException("firstName", "maxlength")
     }
 
     if (lastName.isNullOrBlank()) throw CreateUserException("lastName", "required")
     else {
-      if (lastName.contains('<') || lastName.contains('>')) throw CreateUserException("lastName", "invalid")
+      if (lastName.any(XSS_CHAR_BLOCK_LIST::contains)) throw CreateUserException("lastName", "invalid")
       if (lastName.length < MIN_LENGTH_LAST_NAME) throw CreateUserException("lastName", "length")
       else if (lastName.length > MAX_LENGTH_LAST_NAME) throw CreateUserException("lastName", "maxlength")
     }
@@ -471,5 +471,10 @@ class AuthUserService(
     private const val MAX_LENGTH_LAST_NAME = 50
     private const val MIN_LENGTH_FIRST_NAME = 2
     private const val MIN_LENGTH_LAST_NAME = 2
+
+    // XSS char block list:
+    // These variants of greater-than and less-than are persisted as the standard versions
+    // (U+003C and U+003E) in the database
+    private val XSS_CHAR_BLOCK_LIST = setOf('<', '＜', '〈', '〈', '>', '＞', '〉', '〉')
   }
 }
