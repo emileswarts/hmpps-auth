@@ -37,11 +37,6 @@ class RolesService(
       Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType)
     roleRepository.save(role)
 
-    // // if roleAdmin is DPS_LSA or DPS_ADM then create role in NOMIS
-    // if (adminType.contains(AdminType.DPS_ADM) || adminType.contains(AdminType.DPS_LSA)) {
-    //   // createRole in nomis
-    // }
-
     telemetryClient.trackEvent(
       "RoleCreateSuccess",
       mapOf(

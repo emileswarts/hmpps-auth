@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
@@ -189,7 +190,7 @@ class AuthUserRoleService(
     Authority.removeRolePrefixIfNecessary(StringUtils.upperCase(StringUtils.trim(role)))
 
   val allRoles: List<Authority>
-    get() = roleRepository.findAllByOrderByRoleName()
+    get() = roleRepository.findAllByOrderByRoleNameLike(AdminType.EXT_ADM.adminTypeCode)
 
   fun getAllAssignableRoles(username: String, authorities: Collection<GrantedAuthority>) =
     if (canMaintainAuthUsers(authorities)) {
@@ -216,8 +217,7 @@ class AuthUserRoleService(
   fun getAssignableRolesByUserId(userId: String, authorities: Collection<GrantedAuthority>): List<Authority> =
     userRepository.findByIdOrNull(UUID.fromString(userId))?.let {
       Sets.difference(
-        getAllAssignableRolesByUserId
-        (userId, authorities),
+        getAllAssignableRolesByUserId(userId, authorities),
         it.authorities
       )
         .sortedBy { it.roleName }

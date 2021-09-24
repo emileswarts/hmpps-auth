@@ -60,9 +60,21 @@ class RoleRepositoryTest {
   }
 
   @Test
-  fun findAllByOrderByRoleName() {
-    assertThat(repository.findAllByOrderByRoleName()).extracting<String> { obj: Authority -> obj.authority }
+  fun `findAllByOrderByRoleNameLike EXT_ADM`() {
+    assertThat(repository.findAllByOrderByRoleNameLike(AdminType.EXT_ADM.adminTypeCode)).extracting<String> { obj: Authority -> obj.authority }
       .contains("ROLE_GLOBAL_SEARCH", "ROLE_PECS_POLICE")
+  }
+
+  @Test
+  fun `findAllByOrderByRoleNameLike DPS_ADM`() {
+    assertThat(repository.findAllByOrderByRoleNameLike(AdminType.DPS_ADM.adminTypeCode)).extracting<String> { obj: Authority -> obj.authority }
+      .contains("ROLE_GLOBAL_SEARCH", "ROLE_UNIT_TEST_DPS_ROLE")
+  }
+
+  @Test
+  fun `findAllByOrderByRoleNameLike EXT_ADM does not contain DPS Roles`() {
+    assertThat(repository.findAllByOrderByRoleNameLike(AdminType.EXT_ADM.adminTypeCode)).extracting<String> { obj: Authority -> obj.authority }
+      .doesNotContain("ROLES_TEST_DPS")
   }
 
   @Test

@@ -552,3 +552,6 @@ update roles set role_description = 'Allow user to search globally for a user' w
 update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';
 
 update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'GLOBAL_SEARCH';
+
+INSERT INTO roles (role_id, role_code, role_name, role_description, admin_Type)
+VALUES (newid(), 'UNIT_TEST_DPS_ROLE', 'Test Role DPS', 'DPS Role for unit tests', 'DPS_ADM');

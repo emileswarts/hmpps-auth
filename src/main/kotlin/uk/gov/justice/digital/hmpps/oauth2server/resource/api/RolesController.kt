@@ -233,7 +233,7 @@ data class CreateRole(
     required = true,
     value = "adminType, can be used if multiple admin types required",
     example = "[\"EXT_ADM\", \"DPS_ADM\"]",
-    position = 3
+    position = 4
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
