@@ -7,7 +7,7 @@ import org.fluentlenium.core.domain.FluentList
 import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
-import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension
+import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension.Companion.azureOIDC
 
 class HomePageSpecification : AbstractDeliusAuthSpecification() {
   @Page
@@ -31,7 +31,7 @@ class HomePageSpecification : AbstractDeliusAuthSpecification() {
 
   @Test
   fun `Log in with azuread user`() {
-    AzureOIDCExtension.azureOIDC.stubToken("email_not_matched@digital.justice.gov.uk")
+    azureOIDC.stubToken("email_not_matched@digital.justice.gov.uk")
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
 
@@ -40,11 +40,18 @@ class HomePageSpecification : AbstractDeliusAuthSpecification() {
 
   @Test
   fun `Log in with azuread user mapped to auth users`() {
-    AzureOIDCExtension.azureOIDC.stubToken("auth_test2@digital.justice.gov.uk")
+    azureOIDC.stubToken("auth_test2@digital.justice.gov.uk")
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
 
     homePage.checkLinks("DETAILS", "USERADMIN", "OAUTHADMIN")
+  }
+
+  @Test
+  fun `Log in with azuread fails due to invalid access token`() {
+    azureOIDC.stubTokenFailure()
+    goTo(loginPage).clickAzureOIDCLink()
+    loginPage.checkJusticeGovUkError()
   }
 }
 

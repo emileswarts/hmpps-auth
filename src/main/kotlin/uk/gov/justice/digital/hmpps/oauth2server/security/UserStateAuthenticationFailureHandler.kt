@@ -2,10 +2,12 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.apache.commons.lang3.StringUtils
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.CredentialsExpiredException
 import org.springframework.security.authentication.LockedException
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
@@ -26,8 +28,9 @@ class UserStateAuthenticationFailureHandler(
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
   private val telemetryClient: TelemetryClient,
 ) : SimpleUrlAuthenticationFailureHandler(FAILURE_URL) {
-  companion object {
+  private companion object {
     private const val FAILURE_URL = "/sign-in"
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   init {
@@ -92,6 +95,10 @@ class UserStateAuthenticationFailureHandler(
         }
       }
       is DeliusAuthenticationServiceException -> Pair("invalid", "deliusdown")
+      is OAuth2AuthenticationException -> {
+        log.error("Unable to connect to azure due to:", exception)
+        Pair("justiceunavailable", null)
+      }
       else -> Pair("invalid", null)
     }
 

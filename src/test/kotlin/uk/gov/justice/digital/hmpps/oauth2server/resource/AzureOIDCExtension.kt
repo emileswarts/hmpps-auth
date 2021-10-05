@@ -37,6 +37,15 @@ class AzureOIDCMockServer : WireMockServer(
     .extensions(ResponseTemplateTransformer(false), TokenSignerTransformer())
 ) {
 
+  fun stubTokenFailure() {
+    stubFor(
+      post(urlEqualTo("/tenant-id/oauth2/v2.0/token")).willReturn(
+        aResponse()
+          .withStatus(401)
+      )
+    )
+  }
+
   fun stubToken(email: String) {
     stubFor(
       post(urlEqualTo("/tenant-id/oauth2/v2.0/token")).willReturn(

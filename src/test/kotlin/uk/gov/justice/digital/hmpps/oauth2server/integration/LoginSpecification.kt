@@ -371,6 +371,11 @@ class LoginPage : AuthPage<LoginPage>("HMPPS Digital Services - Sign in", "Sign 
     return this
   }
 
+  fun checkJusticeGovUkError(): LoginPage {
+    checkError("Sign in with a justice.gov.uk account is unavailable at present.")
+    return this
+  }
+
   fun forgottenPasswordLink() {
     forgottenPassword.click()
   }
