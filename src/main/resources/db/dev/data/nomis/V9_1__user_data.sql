@@ -460,7 +460,8 @@ VALUES (1, 'OMIC_ADMIN', 'Omic Administrator', 1, 'APP', 'GENERAL'),
   (48, 'HWPV_CASEWORK_MANAGER_BAND_5', 'HWPV Band 5', 99, 'APP', 'ADMIN'),
   (49, 'HWPV_BAND_9', 'HWPV Band 9', 99, 'APP', 'ADMIN'),
   (50, 'HWPV_SSCL_USER', 'HWPV SSCL', 99, 'APP', 'ADMIN'),
-  (51, 'MMP_READER', 'Manage my Prison Reader', 99, 'APP', 'ADMIN');
+  (51, 'MMP_READER', 'Manage my Prison Reader', 99, 'APP', 'ADMIN'),
+  (52, 'RELEASE_DATES_CALCULATOR', 'Release dates calculator', 99, 'APP', 'ADMIN');
 
 INSERT INTO USER_CASELOAD_ROLES (ROLE_ID, CASELOAD_ID, USERNAME)
 VALUES (-1, 'MDI', 'ITAG_USER'),
@@ -535,7 +536,8 @@ VALUES (-1, 'MDI', 'ITAG_USER'),
   (12, 'NWEB', 'CA_RO_DM_USER'),
   (13, 'NWEB', 'CA_RO_DM_USER'),
   (8, 'NWEB', 'CA_RO_DM_USER'),
-  (51, 'NWEB', 'MMP_USER');
+  (51, 'NWEB', 'MMP_USER'),
+  (52, 'NWEB', 'CALCULATE_RELEASE_DATES_LOCAL');
 
 Insert into internet_addresses (INTERNET_ADDRESS_ID, OWNER_CLASS, OWNER_ID, OWNER_SEQ, OWNER_CODE,
                                 INTERNET_ADDRESS_CLASS, INTERNET_ADDRESS, CREATE_DATETIME, CREATE_USER_ID,
