@@ -368,8 +368,8 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[2].roleName").isEqualTo("Auth Client Management (admin)")
-        .jsonPath("$.content[2].roleCode").isEqualTo("OAUTH_ADMIN")
+        .jsonPath("$.content[2].roleName").isEqualTo("Approve Category assessments")
+        .jsonPath("$.content[2].roleCode").isEqualTo("APPROVE_CATEGORISATION")
     }
 
     @Test
@@ -380,9 +380,8 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[2].roleName")
-        .isEqualTo("Auth Client Management (admin)")
-        .jsonPath("$.content[2].roleCode").isEqualTo("OAUTH_ADMIN")
+        .jsonPath("$.content[2].roleName").isEqualTo("HWPV Band 2")
+        .jsonPath("$.content[2].roleCode").isEqualTo("HWPV_CLAIM_ENTRY_BAND_2")
     }
 
     @Test
@@ -393,15 +392,18 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[1].roleName").isEqualTo("Auth Client Management (admin)")
-        .jsonPath("$.content[1].roleCode").isEqualTo("OAUTH_ADMIN")
+        .jsonPath("$.content[1].roleName").isEqualTo("Pathfinder Approval")
+        .jsonPath("$.content[1].roleCode").isEqualTo("PF_APPROVAL")
+        .jsonPath("$.content[1].roleDescription").isEmpty
+        .jsonPath("$.content[1].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("DPS Central Administrator")
     }
 
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(37)
-        .jsonPath("$.totalPages").isEqualTo(13)
+        .jsonPath("$.totalElements").isEqualTo(67)
+        .jsonPath("$.totalPages").isEqualTo(23)
         .jsonPath("$.last").isEqualTo(false)
   }
 

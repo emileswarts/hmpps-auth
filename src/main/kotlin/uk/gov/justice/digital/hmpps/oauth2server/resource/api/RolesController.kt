@@ -103,11 +103,11 @@ class RolesController(
   )
   fun getAllRoles(
     @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
-  ): Page<RoleBasics> =
+  ): Page<RoleDetails> =
     rolesService.getAllRoles(
       pageable
     )
-      .map { RoleBasics.fromAuthority(it) }
+      .map { RoleDetails(it) }
 
   @GetMapping("/api/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -238,24 +238,6 @@ data class CreateRole(
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
 )
-
-@ApiModel(description = "Basic Role")
-data class RoleBasics(
-  @ApiModelProperty(required = true, value = "Role Code", example = "GLOBAL_SEARCH")
-  val roleCode: String,
-
-  @ApiModelProperty(required = true, value = "Role Name", example = "Global Search")
-  val roleName: String
-) {
-  companion object {
-    fun fromAuthority(authority: Authority): RoleBasics {
-      return RoleBasics(
-        roleCode = authority.roleCode,
-        roleName = authority.roleName,
-      )
-    }
-  }
-}
 
 @ApiModel(description = "Role Details")
 data class RoleDetails(

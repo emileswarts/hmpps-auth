@@ -551,7 +551,51 @@ VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob
 update roles set role_description = 'Allow user to search globally for a user' where role_code = 'GLOBAL_SEARCH';
 update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';
 
-update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'GLOBAL_SEARCH';
-
 INSERT INTO roles (role_id, role_code, role_name, role_description, admin_Type)
-VALUES (newid(), 'UNIT_TEST_DPS_ROLE', 'Test Role DPS', 'DPS Role for unit tests', 'DPS_ADM');
+VALUES (newid(), 'UNIT_TEST_DPS_ROLE', 'Test Role DPS', 'DPS Role for unit tests', 'DPS_ADM'),
+  (newid(), 'OMIC_ADMIN', 'Omic Administrator', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'CENTRAL_ADMIN', 'All Powerful Admin', null, 'DPS_ADM'),
+  (newid(), 'KW_MIGRATION', 'KW Migration', null, 'DPS_ADM'),
+  (newid(), 'MAINTAIN_ACCESS_ROLES_ADMIN', 'Maintain Access Roles Admin', null, 'DPS_ADM'),
+  (newid(), 'LICENCE_CA', 'Licence Case Admin', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'LICENCE_DM', 'Licence Decision Maker', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'SYSTEM_READ_ONLY', 'System Read Only', null, 'DPS_ADM'),
+  (newid(), 'INACTIVE_BOOKINGS', 'View Inactive Bookings', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'CREATE_CATEGORISATION', 'Create Category assessments', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'APPROVE_CATEGORISATION', 'Approve Category assessments', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'CATEGORISATION_SECURITY', 'Security Cat tool role', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'MAINTAIN_IEP', 'Maintain IEP',  null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'VIEW_SENSITIVE_CASE_NOTES', 'View Secure Case Notes', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'ADD_SENSITIVE_CASE_NOTES', 'Add Secure Case Notes', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'PF_STD_PRISON', 'Pathfinder Standard Prison', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'USE_OF_FORCE_REVIEWER', 'Use of force reviewer', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'PF_APPROVAL', 'Pathfinder Approval',  null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'POM', 'Prisoner Offender Manager', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'PF_STD_PRISON_RO', 'Pathfinder Prison Read Only', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'USE_OF_FORCE_COORDINATOR', 'Use of force coordinator', null, 'DPS_ADM'),
+  (newid(), 'LICENCE_READONLY', 'Licence read only',  null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'PF_LOCAL_READER', 'Pathfinder Local Reader', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'PPM_GLOBAL', 'PPM Global',  null, 'DPS_ADM'),
+  (newid(), 'LICENCE_RO_READONLY', 'Licence RO Read Only', null, 'DPS_ADM,DPS_LSA'),
+  (newid(), 'HWPV_CLAIM_ENTRY_BAND_2', 'HWPV Band 2', null, 'DPS_ADM'),
+  (newid(), 'HWPV_CLAIM_PAYMENT_BAND_3', 'HWPV Band 3', null, 'DPS_ADM'),
+  (newid(), 'HWPV_CASEWORK_MANAGER_BAND_5', 'HWPV Band 5', null, 'DPS_ADM'),
+  (newid(), 'HWPV_BAND_9', 'HWPV Band 9', null, 'DPS_ADM'),
+  (newid(), 'HWPV_SSCL_USER', 'HWPV SSCL',  null, 'DPS_ADM'),
+  (newid(), 'MMP_READER', 'Manage my Prison Reader', null, 'DPS_ADM');
+
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'GLOBAL_SEARCH';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'NOMIS_BATCHLOAD';
+update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'LICENCE_RO';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'OAUTH_ADMIN';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'MAINTAIN_OAUTH_USERS';
+update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'SOC_CUSTODY';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_ANALYST';
+update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'ARTEMIS_USER';
+update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'PF_NATIONAL_READER';
+update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'PF_HQ';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_AUTHORISING_OFFICER';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_GLOBAL_ADMIN';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'HMPPS_REGISTERS_MAINTAINER';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'MANAGE_RECALLS';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_AUDIT';
