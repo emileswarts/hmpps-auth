@@ -11,7 +11,9 @@ data class AuthUserRole(
 
   @ApiModelProperty(required = true, value = "Role Name", example = "Licence Responsible Officer")
   val roleName: String,
-) {
 
-  constructor(a: Authority) : this(a.roleCode, a.roleName)
+  @ApiModelProperty(required = true, value = "Role Description", example = "Responsible for licences")
+  val roleDescription: String?
+) {
+  constructor(a: Authority) : this(a.roleCode, a.roleName, a.roleDescription)
 }

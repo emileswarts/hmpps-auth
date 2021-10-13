@@ -36,7 +36,7 @@ class AuthUserRolesControllerTest {
     val responseEntity = authUserRolesController.rolesByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", principal)
     assertThat(responseEntity).containsOnly(
       AuthUserRole(Authority("FRED", "FRED")),
-      AuthUserRole(Authority("GLOBAL_SEARCH", "Global Search"))
+      AuthUserRole(Authority("GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user"))
     )
   }
 
@@ -57,13 +57,13 @@ class AuthUserRolesControllerTest {
     whenever(authUserRoleService.getAssignableRolesByUserId(anyString(), any())).thenReturn(
       listOf(
         Authority("FRED", "FRED"),
-        Authority("GLOBAL_SEARCH", "Global Search")
+        Authority("GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user")
       )
     )
     val response = authUserRolesController.assignableRolesByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", principal)
     assertThat(response).containsOnly(
       AuthUserRole(Authority("FRED", "FRED")),
-      AuthUserRole(Authority("GLOBAL_SEARCH", "Global Search"))
+      AuthUserRole(Authority("GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user"))
     )
   }
 
@@ -73,7 +73,10 @@ class AuthUserRolesControllerTest {
         username = "USER",
         email = "email",
         verified = true,
-        authorities = setOf(Authority("FRED", "FRED"), Authority("GLOBAL_SEARCH", "Global Search"))
+        authorities = setOf(
+          Authority("FRED", "FRED"),
+          Authority("GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user")
+        )
       )
     }
 }

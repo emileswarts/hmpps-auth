@@ -15,7 +15,7 @@ class AuthAllRolesControllerTest {
   @Test
   fun allRoles() {
     val auth1 = Authority("FRED", "FRED")
-    val auth2 = Authority("GLOBAL_SEARCH", "Global Search")
+    val auth2 = Authority("GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user")
     whenever(authUserRoleService.allRoles).thenReturn(listOf(auth1, auth2))
     val response = controller.allRoles()
     assertThat(response).containsOnly(AuthUserRole(auth1), AuthUserRole(auth2))

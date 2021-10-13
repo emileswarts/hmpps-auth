@@ -401,8 +401,8 @@ class AuthUserControllerTest {
 
   @Test
   fun `Get list of searchable roles success`() {
-    val role1 = Authority("roles1", "desc1")
-    val role2 = Authority("roles2", "desc2")
+    val role1 = Authority("roles1", "name1", "desc1")
+    val role2 = Authority("roles2", "name2")
     whenever(authUserRoleService.getAllAssignableRoles(anyString(), any())).thenReturn(setOf(role1, role2))
     val responseEntity = authUserController.searchableRoles(authentication)
     assertThat(responseEntity).containsOnly(AuthUserRole(role1), AuthUserRole(role2))
