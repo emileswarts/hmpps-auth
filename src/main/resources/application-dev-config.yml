@@ -33,6 +33,8 @@ delius:
         - 'ROLE_GLOBAL_SEARCH'
       TEST_WORKLOAD_MEASUREMENT_ROLE:
         - 'ROLE_WORKLOAD_MEASUREMENT'
+      TEST_MANAGE_A_WORKFORCE_ALLOCATE_ROLE:
+        - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
 
 tokenverification:
   enabled: false
