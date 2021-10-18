@@ -28,3 +28,6 @@ sonar-project.properties
 .httpie*
 
 moj-sortable-table
+
+helm_deploy/*/Chart.lock
+helm_deploy/*/charts/
