@@ -1,23 +1,32 @@
----
-# Per environment values which override defaults in hmpps-auth/values.yaml
-generic-service:
-  replicaCount: 2
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
-  env:
-    SPRING_PROFILES_ACTIVE: "oracle,delius,azure-oidc"
-    APPLICATION_SIGNIN_URL: "https://sign-in-stage.hmpps.service.justice.gov.uk/auth/"
-    APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
-    APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
-    APPLICATION_NON_PROD_WARNING_ENABLED: "true"
-    APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
-    APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
-    APPLICATION_LINK_ACCOUNTS: "false"
-    DELIUS_ENDPOINT_URL: "https://community-api-secure.stage.delius.probation.hmpps.dsd.io"
-    JWT_JWK_KEY_ID: "dev-jwk-kid"
-    TOKENVERIFICATION_ENDPOINT_URL: ""
-    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+replicaCount: 2
 
-  env_comma_joined_from_list:
-    APPLICATION_AUTHENTICATION_MFA_ALLOWLIST:
-      office: "217.33.148.210/32"
-      mojvpn: "81.134.202.29/32"
+image:
+  repository: quay.io/hmpps/hmpps-auth
+  tag: latest
+  pullPolicy: IfNotPresent
+  port: 8080
+  livenessProbePath: /auth/health/liveness
+  readinessProbePath: /auth/health/readiness
+
+mfa_allowlist:
+  office: "217.33.148.210/32"
+  mojvpn: "81.134.202.29/32"
+
+env:
+  SPRING_PROFILES_ACTIVE: "oracle,delius,azure-oidc"
+  APPLICATION_SIGNIN_URL: "https://sign-in-stage.hmpps.service.justice.gov.uk/auth/"
+  APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
+  APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
+  APPLICATION_AUTHENTICATION_UI_ALLOWLIST: "81.134.202.29,217.33.148.210"
+  APPLICATION_LINK_ACCOUNTS: "false"
+  APPLICATION_NON_PROD_WARNING_ENABLED: "true"
+  APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
+  APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
+  DELIUS_ENDPOINT_URL: "https://community-api-secure.stage.delius.probation.hmpps.dsd.io"
+  JWT_COOKIE_EXPIRY_TIME: "12h"
+  JWT_JWK_KEY_ID: "dev-jwk-kid"
+  TOKENVERIFICATION_ENDPOINT_URL: ""
+  APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
