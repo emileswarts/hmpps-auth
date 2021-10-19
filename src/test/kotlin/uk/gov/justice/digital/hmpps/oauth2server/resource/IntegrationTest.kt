@@ -57,7 +57,10 @@ abstract class IntegrationTest {
     baseUrl = "http://localhost:$localServerPort/auth"
     // need to override port as random port only assigned on server startup
     ReflectionTestUtils.setField(deliusClientReg.providerDetails, "tokenUri", "$baseUrl/oauth/token")
+  }
 
+  @BeforeEach
+  internal fun setupTokenVerification() {
     (tokenVerificationApiRestTemplate.resource as TokenVerificationClientCredentials).accessTokenUri =
       "http://localhost:$localServerPort/auth/oauth/token"
   }

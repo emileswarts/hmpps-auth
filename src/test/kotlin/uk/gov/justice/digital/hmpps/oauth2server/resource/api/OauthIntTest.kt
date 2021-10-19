@@ -2,14 +2,19 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.auth0.jwt.JWT
 import com.microsoft.applicationinsights.TelemetryClient
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
 import org.json.JSONObject
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.security.oauth2.client.OAuth2RestTemplate
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
@@ -20,6 +25,13 @@ import java.util.Base64
 class OauthIntTest : IntegrationTest() {
   @MockBean
   private lateinit var telemetryClient: TelemetryClient
+  @MockBean
+  private lateinit var tokenVerificationApiRestTemplate: OAuth2RestTemplate
+
+  @BeforeEach
+  internal override fun setupTokenVerification() {
+    // no action required as mocking
+  }
 
   @Test
   fun `Existing auth code stored in database can be redeemed for access token`() {
@@ -55,6 +67,23 @@ class OauthIntTest : IntegrationTest() {
         assertThat(it["expires_in"] as Int).isLessThan(3600)
         assertThat(it).doesNotContainKey("refreshToken")
       }
+  }
+
+  @Test
+  fun `Client Credentials Login doesn't create token verification`() {
+    val encodedClientAndSecret = convertToBase64("deliusnewtech", "clientsecret")
+    webTestClient
+      .post().uri("/oauth/token?grant_type=client_credentials")
+      .header("Authorization", "Basic $encodedClientAndSecret")
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$").value<Map<String, Any>> {
+        assertThat(it).containsKey("expires_in")
+        assertThat(it["expires_in"] as Int).isLessThan(3600)
+        assertThat(it).doesNotContainKey("refreshToken")
+      }
+    verifyZeroInteractions(tokenVerificationApiRestTemplate)
   }
 
   @Test
@@ -217,6 +246,26 @@ class OauthIntTest : IntegrationTest() {
         assertThat(it["auth_source"]).isEqualTo("nomis")
         assertThat(it["sub"]).isEqualTo("ITAG_USER")
       }
+  }
+
+  @Test
+  fun `Password Credentials Login calls token verification`() {
+
+    val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
+    webTestClient
+      .post().uri("/oauth/token?grant_type=password&username=ITAG_USER&password=password")
+      .header("Authorization", "Basic $encodedClientAndSecret")
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$").value<Map<String, Any>> {
+        assertThat(it).containsKey("expires_in")
+        assertThat(it["expires_in"] as Int).isLessThan(28800)
+        assertThat(it["refresh_token"]).isNotNull
+        assertThat(it["auth_source"]).isEqualTo("nomis")
+        assertThat(it["sub"]).isEqualTo("ITAG_USER")
+      }
+    verify(tokenVerificationApiRestTemplate).postForLocation(eq("/token?authJwtId={authJwtId}"), any(), any<Any>())
   }
 
   @Test
