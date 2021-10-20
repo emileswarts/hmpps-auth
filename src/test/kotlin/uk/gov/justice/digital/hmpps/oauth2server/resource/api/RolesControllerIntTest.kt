@@ -356,6 +356,74 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectBody()
         .json("manage_roles.json".readFile())
     }
+
+    @Test
+    fun `Manage Roles endpoint returns roles filtered by requested roleCode`() {
+      webTestClient
+        .get().uri("/api/roles?roleCode=GLOBAL")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles2.json".readFile())
+    }
+
+    @Test
+    fun `Manage Roles endpoint returns roles filter requested roleName when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/api/roles?roleName=admin")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles3.json".readFile())
+    }
+
+    @Test
+    fun `Manage Roles endpoint returns roles filter requested adminType when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/api/roles?adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles1.json".readFile())
+    }
+
+    @Test
+    fun `Manage Roles endpoint returns roles filter requested multiple adminTypes when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/api/roles?adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.content[0].roleName").isEqualTo("Add Secure Case Notes")
+        .jsonPath("$.content[0].roleCode").isEqualTo("ADD_SENSITIVE_CASE_NOTES")
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+    }
+
+    @Test
+    fun `Manage Roles endpoint returns roles filter requested when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/api/roles?roleName=add&roleCode=ADD_SENSITIVE_CASE_NOTES&adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.content[0].roleName").isEqualTo("Add Secure Case Notes")
+        .jsonPath("$.content[0].roleCode").isEqualTo("ADD_SENSITIVE_CASE_NOTES")
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+        .jsonPath("$.content[0].adminType[2].adminTypeCode").doesNotExist()
+        .jsonPath("$.totalElements").isEqualTo(1)
+    }
   }
 
   @Nested

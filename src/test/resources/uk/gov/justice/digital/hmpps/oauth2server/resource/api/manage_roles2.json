@@ -1,0 +1,81 @@
+{
+  "content": [
+    {
+      "roleCode": "GLOBAL_APPOINTMENT",
+      "roleName": "Global Appointment",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "GLOBAL_SEARCH",
+      "roleName": "Global Search",
+      "roleDescription": "Allow user to search globally for a user",
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "PPM_GLOBAL",
+      "roleName": "PPM Global",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "PPM_GLOBAL_ADMIN",
+      "roleName": "PPM Global Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 4,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "numberOfElements": 4,
+  "first": true,
+  "empty": false
+}

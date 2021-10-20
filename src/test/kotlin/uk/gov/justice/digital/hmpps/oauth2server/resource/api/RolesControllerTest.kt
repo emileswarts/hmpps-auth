@@ -4,6 +4,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -71,10 +72,13 @@ class RolesControllerTest {
       val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
       val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
       val roles = listOf(role1, role2)
-      whenever(rolesService.getAllRoles(any())).thenReturn(PageImpl(roles))
+      whenever(rolesService.getAllRoles(isNull(), isNull(), any(), any())).thenReturn(PageImpl(roles))
 
-      val allRoles = rolesController.getAllRoles(Pageable.unpaged())
+      val allRoles = rolesController.getAllRoles(null, null, listOf(), Pageable.unpaged())
       verify(rolesService).getAllRoles(
+        null,
+        null,
+        listOf(),
         Pageable.unpaged(),
       )
       assertThat(allRoles.size).isEqualTo(2)
@@ -82,10 +86,13 @@ class RolesControllerTest {
 
     @Test
     fun `No Roles Found`() {
-      whenever(rolesService.getAllRoles(any())).thenReturn(PageImpl(listOf()))
+      whenever(rolesService.getAllRoles(isNull(), isNull(), any(), any())).thenReturn(PageImpl(listOf()))
 
-      val noRoles = rolesController.getAllRoles(Pageable.unpaged())
+      val noRoles = rolesController.getAllRoles(null, null, listOf(), Pageable.unpaged())
       verify(rolesService).getAllRoles(
+        null,
+        null,
+        listOf(),
         Pageable.unpaged(),
       )
       assertThat(noRoles.size).isEqualTo(0)

@@ -123,7 +123,7 @@ class RolesServiceTest {
       val roles = listOf(role1, role2)
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(PageImpl(roles))
 
-      val allRoles = rolesService.getAllRoles(Pageable.unpaged())
+      val allRoles = rolesService.getAllRoles(null, null, null, Pageable.unpaged())
       assertThat(allRoles.size).isEqualTo(2)
     }
 
@@ -131,20 +131,78 @@ class RolesServiceTest {
     fun `get all roles returns no roles`() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
 
-      val allRoles = rolesService.getAllRoles(Pageable.unpaged())
+      val allRoles = rolesService.getAllRoles(null, null, null, Pageable.unpaged())
       assertThat(allRoles.size).isEqualTo(0)
     }
 
     @Test
-    fun `get All Roles check filter`() {
+    fun `get All Roles check filter - multiple `() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
       val unpaged = Pageable.unpaged()
       rolesService.getAllRoles(
+        "Admin",
+        "HWPV",
+        listOf(AdminType.EXT_ADM, AdminType.DPS_LSA),
         unpaged,
       )
       verify(roleRepository).findAll(
         check {
-          assertThat(it).extracting("roleCodes").isEqualTo(null)
+          assertThat(it).extracting("roleName").isEqualTo("Admin")
+          assertThat(it).extracting("roleCode").isEqualTo("HWPV")
+          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.EXT_ADM, AdminType.DPS_LSA))
+        },
+        eq(unpaged)
+      )
+    }
+    @Test
+    fun `get All Roles check filter - roleName`() {
+      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
+      val unpaged = Pageable.unpaged()
+      rolesService.getAllRoles(
+        "Admin",
+        null,
+        null,
+        unpaged,
+      )
+      verify(roleRepository).findAll(
+        check {
+          assertThat(it).extracting("roleName").isEqualTo("Admin")
+        },
+        eq(unpaged)
+      )
+    }
+
+    @Test
+    fun `get All Roles check filter - roleCode`() {
+      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
+      val unpaged = Pageable.unpaged()
+      rolesService.getAllRoles(
+        null,
+        "HWPV",
+        null,
+        unpaged,
+      )
+      verify(roleRepository).findAll(
+        check {
+          assertThat(it).extracting("roleCode").isEqualTo("HWPV")
+        },
+        eq(unpaged)
+      )
+    }
+
+    @Test
+    fun `get All Roles check filter - adminType`() {
+      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
+      val unpaged = Pageable.unpaged()
+      rolesService.getAllRoles(
+        null,
+        null,
+        listOf(AdminType.DPS_ADM, AdminType.DPS_LSA),
+        unpaged,
+      )
+      verify(roleRepository).findAll(
+        check {
+          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
         },
         eq(unpaged)
       )

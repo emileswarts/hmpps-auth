@@ -51,11 +51,16 @@ class RolesService(
   }
 
   fun getAllRoles(
-    pageable: Pageable
+    roleName: String?,
+    roleCode: String?,
+    adminTypes: List<AdminType>?,
+    pageable: Pageable,
   ): Page<Authority> {
 
     val rolesFilter = RolesFilter(
-      roleCodes = null,
+      roleName = roleName,
+      adminTypes = adminTypes,
+      roleCode = roleCode,
     )
 
     return roleRepository.findAll(rolesFilter, pageable)

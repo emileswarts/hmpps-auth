@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import springfox.documentation.annotations.ApiIgnore
@@ -102,10 +103,22 @@ class RolesController(
     ]
   )
   fun getAllRoles(
+    @ApiParam(value = "Role name or partial of a role name") @RequestParam(
+      required = false,
+    ) roleName: String?,
+    @ApiParam(value = "Role code or partial of a role code") @RequestParam(
+      required = false,
+    ) roleCode: String?,
+    @ApiParam(value = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.") @RequestParam(
+      required = false,
+    ) adminTypes: List<AdminType>?,
     @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
   ): Page<RoleDetails> =
     rolesService.getAllRoles(
-      pageable
+      roleName,
+      roleCode,
+      adminTypes,
+      pageable,
     )
       .map { RoleDetails(it) }
 

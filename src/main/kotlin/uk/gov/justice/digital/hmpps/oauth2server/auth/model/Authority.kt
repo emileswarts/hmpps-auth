@@ -41,6 +41,9 @@ class Authority(
   @Convert(converter = EnumListConverter::class)
   var adminType: List<AdminType>
 
+  @Column(name = "admin_type", nullable = false, updatable = false, insertable = false)
+  lateinit var adminTypesAsString: String
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
