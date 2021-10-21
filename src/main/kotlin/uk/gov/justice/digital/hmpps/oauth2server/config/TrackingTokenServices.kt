@@ -91,8 +91,7 @@ open class TrackingTokenServices(
       // if we're using a password grant then there won't be any authentication, so just use the jti
       token.additionalInformation["jti"] as String?
     }
-    val grantType = authentication.oAuth2Request.requestParameters.get("grant_type")
-    if (tokenVerificationEnabled && grantType != "client_credentials" && !jwtId.isNullOrEmpty()) {
+    if (tokenVerificationEnabled && !jwtId.isNullOrEmpty()) {
       // now send token to token verification service so can validate them
       restTemplate.postForLocation("/token?authJwtId={authJwtId}", token.value, jwtId)
     }
