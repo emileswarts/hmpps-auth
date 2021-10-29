@@ -118,6 +118,20 @@ env:
   - name: DELIUS_ROLES_MAPPINGS_MASBT002
     value: "ROLE_MANAGE_SUPERVISIONS_RO,ROLE_MANAGE_SUPERVISIONS"
 
+  - name: NOMIS_CLIENT_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        key: NOMIS_CLIENT_CLIENT_ID
+        name: {{ template "app.name" . }}
+  - name: NOMIS_CLIENT_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        key: NOMIS_CLIENT_CLIENT_SECRET
+        name: {{ template "app.name" . }}
+
+  - name: NOMIS_ENDPOINT_URL
+    value: {{ .Values.env.NOMIS_ENDPOINT_URL | quote }}
+
   - name: JWT_COOKIE_EXPIRY_TIME
     value: {{ .Values.env.JWT_COOKIE_EXPIRY_TIME | quote }}
   - name: JWT_JWK_KEY_ID

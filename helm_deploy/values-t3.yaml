@@ -16,7 +16,7 @@ mfa_allowlist:
   mojvpn: "81.134.202.29/32"
 
 env:
-  SPRING_PROFILES_ACTIVE: "oracle,delius,token-verification,azure-oidc"
+  SPRING_PROFILES_ACTIVE: "oracle,nomis,delius,token-verification,azure-oidc"
   APPLICATION_SIGNIN_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/"
   APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
   APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
@@ -26,6 +26,7 @@ env:
   APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
   APPLICATION_LINK_ACCOUNTS: "true"
   DELIUS_ENDPOINT_URL: "https://community-api-secure.test.delius.probation.hmpps.dsd.io"
+  NOMIS_ENDPOINT_URL: "https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk"
   JWT_COOKIE_EXPIRY_TIME: "12h"
   JWT_JWK_KEY_ID: "dev-jwk-kid"
   TOKENVERIFICATION_ENDPOINT_URL: "https://token-verification-api-dev.prison.service.justice.gov.uk"

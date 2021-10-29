@@ -157,6 +157,16 @@ delius:
     access-token-uri: ${auth.token.url}
     authentication-scheme: header
     client-authentication-scheme: header
+  health.timeout: 1s
+  endpoint.timeout: 5s
+
+nomis:
+  client:
+    access-token-uri: ${auth.token.url}
+    authentication-scheme: header
+    client-authentication-scheme: header
+  health.timeout: 2s
+  endpoint.timeout: 10s
 
 tokenverification:
   client:

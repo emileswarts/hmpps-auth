@@ -5,6 +5,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.web.server.LocalServerPort
@@ -34,7 +35,12 @@ abstract class IntegrationTest {
   private lateinit var jwtAuthHelper: JwtAuthHelper
 
   @Autowired
+  @Qualifier("deliusClientRegistration")
   private lateinit var deliusClientReg: ClientRegistration
+
+  @Autowired
+  @Qualifier("nomisClientRegistration")
+  private lateinit var nomisClientReg: ClientRegistration
 
   @Autowired
   private lateinit var tokenVerificationApiRestTemplate: OAuth2RestTemplate
@@ -57,7 +63,12 @@ abstract class IntegrationTest {
     baseUrl = "http://localhost:$localServerPort/auth"
     // need to override port as random port only assigned on server startup
     ReflectionTestUtils.setField(deliusClientReg.providerDetails, "tokenUri", "$baseUrl/oauth/token")
+    // need to override port as random port only assigned on server startup
+    ReflectionTestUtils.setField(nomisClientReg.providerDetails, "tokenUri", "$baseUrl/oauth/token")
+  }
 
+  @BeforeEach
+  internal fun setupTokenVerification() {
     (tokenVerificationApiRestTemplate.resource as TokenVerificationClientCredentials).accessTokenUri =
       "http://localhost:$localServerPort/auth/oauth/token"
   }

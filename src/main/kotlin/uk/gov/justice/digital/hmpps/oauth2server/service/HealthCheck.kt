@@ -55,3 +55,15 @@ class DeliusApiHealth(@Qualifier("deliusHealthWebClient") private val webClient:
     }
   }
 }
+
+@Component
+class NomisApiHealth(@Qualifier("nomisHealthWebClient") private val webClient: WebClient) :
+  WebClientHealthCheck(webClient) {
+  override fun health(): Mono<Health> = super.health().map { health ->
+    when (health.status) {
+      Status.DOWN ->
+        Health.up().withDetails(health.details).build()
+      else -> health
+    }
+  }
+}

@@ -36,6 +36,16 @@ delius:
       TEST_MANAGE_A_WORKFORCE_ALLOCATE_ROLE:
         - 'ROLE_MANAGE_A_WORKFORCE_ALLOCATE'
 
+nomis:
+  enabled: false
+  endpoint:
+    url: http://localhost:8101
+    timeout: 1s
+
+  client:
+    client-id: hmpps-auth-nomis-client
+    client-secret: hmpps-auth-nomis-client
+
 tokenverification:
   enabled: false
   endpoint:
