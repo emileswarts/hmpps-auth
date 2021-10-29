@@ -7,6 +7,7 @@ import org.springframework.security.jwt.crypto.sign.RsaSigner
 import org.springframework.security.oauth2.common.OAuth2AccessToken
 import org.springframework.security.oauth2.common.util.JsonParserFactory
 import org.springframework.security.oauth2.provider.OAuth2Authentication
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.security.KeyPair
@@ -19,6 +20,7 @@ class JwtKeyIdHeaderAccessTokenConverter(private val keyId: String, keyPair: Key
   init {
     super.setKeyPair(keyPair)
     this.signer = RsaSigner(keyPair.private as RSAPrivateKey)
+    (accessTokenConverter as DefaultAccessTokenConverter).setIncludeGrantType(true)
   }
 
   override fun encode(accessToken: OAuth2AccessToken, authentication: OAuth2Authentication): String {

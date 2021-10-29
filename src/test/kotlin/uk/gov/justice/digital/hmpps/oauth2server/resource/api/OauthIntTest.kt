@@ -472,6 +472,27 @@ class OauthIntTest : IntegrationTest() {
     assertThat(JWT.decode(token as String?).getHeaderClaim("kid").asString()).isEqualTo("dps-client-key")
   }
 
+  @Test
+  fun `Grant type is returned in client_credentials token`() {
+    val token = getClientCredentialsToken(convertToBase64("deliusnewtech", "clientsecret"))
+
+    assertThat(JWT.decode(token).getClaim("grant_type").asString()).isEqualTo("client_credentials")
+  }
+
+  @Test
+  fun `Grant type is returned in client_credentials token with username`() {
+    val token = getClientCredentialsTokenWithUsername(convertToBase64("deliusnewtech", "clientsecret"), "username")
+
+    assertThat(JWT.decode(token).getClaim("grant_type").asString()).isEqualTo("client_credentials")
+  }
+
+  @Test
+  fun `Grant type is returned in password token`() {
+    val token = getPasswordCredentialsToken(convertToBase64("elite2apiclient", "clientsecret"))
+
+    assertThat(JWT.decode(token).getClaim("grant_type").asString()).isEqualTo("password")
+  }
+
   private fun convertToBase64(client: String, secret: String): String =
     Base64.getEncoder().encodeToString("$client:$secret".toByteArray())
 
