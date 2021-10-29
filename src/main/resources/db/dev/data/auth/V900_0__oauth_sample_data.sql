@@ -38,6 +38,7 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('offender-events-client','1200','{}','ROLE_SYSTEM_READ_ONLY,ROLE_SYSTEM_USER,ROLE_PRISON_OFFENDER_EVENTS','client_credentials','read','$2a$10$.95l4ENV1OEZ6qWd4R5QTOXZrjvTQmN402z1pjRUr2EwGFYdkDDnm',null,null,'read',null),
        ('sentence-plan-api-client','3600', '{}','ROLE_OASYS_READ_ONLY','client_credentials', null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null,'read', null),
        ('delius-auth-api-client','3600', '{}','ROLE_COMMUNITY_AUTH_INT','client_credentials', null,'{bcrypt}$2a$10$OPvgbwhWDQ/yysDHfhzClO0ud2Q11fAIGt6n.dIW.v0wFFNW1Rnm.', null, null,'read', null),
+       ('hmpps-auth-nomis-client','3600', '{}','ROLE_MANAGE_NOMIS_USER_ACCOUNT','client_credentials', null,'{bcrypt}$2a$04$8kdX3GqQDxb3VT4R3qZ21uHY49NAeyjzxlMBHiwjCoKYfETXCgqle', null, null,'read', null),
        ('token-verification-auth-api-client','3600', '{}','ROLE_AUTH_TOKEN_VERIFICATION','client_credentials', null,'{bcrypt}$2a$10$hQPvQMNfbh2vhjTjDWHpoeN.iRFRddJJug6qtBkWzQ8uPEc53isZy', null, null,'read', null),
        ('v1-client','1200','{}','ROLE_NOMIS_API_V1,ROLE_BOOKING_CREATE,ROLE_BOOKING_RECALL,ROLE_GLOBAL_SEARCH','client_credentials','read,write','$2a$10$r12DB/sqXduodnjtAY/ykO0S3KCySdVW4zhG3jlIRaIsfVkFOEds2',null,null,'read,write',null),
        ('probation-offender-search-indexer-client','3600','{}','ROLE_PROBATION_INDEX,ROLE_COMMUNITY','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read',null),

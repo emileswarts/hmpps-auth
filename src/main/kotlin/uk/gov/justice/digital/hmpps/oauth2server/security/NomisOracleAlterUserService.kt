@@ -1,32 +1,36 @@
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.orm.jpa.JpaSystemException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import java.sql.SQLException
-import javax.sql.DataSource
 
 @Service
 @Profile("oracle")
 class NomisOracleAlterUserService(
-  @Qualifier("dataSource") dataSource: DataSource,
   private val staffUserAccountRepository: StaffUserAccountRepository,
   userRepository: UserRepository,
   verifyEmailService: VerifyEmailService,
-) : NomisUserService(staffUserAccountRepository, userRepository, verifyEmailService) {
+  nomisUserApiService: NomisUserApiService,
+  @Value("\${nomis.enabled:false}") private val nomisEnabled: Boolean,
+) : NomisUserService(staffUserAccountRepository, userRepository, verifyEmailService, nomisUserApiService, nomisEnabled) {
 
   private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   @Transactional
-  override fun changePassword(username: String?, password: String?) {
+  override fun changePasswordInternal(username: String, password: String) {
+    // if nomis api enabled then don't want it changed twice
+    if (nomisEnabled) return
+
     try {
       staffUserAccountRepository.changePassword(username, password)
     } catch (e: JpaSystemException) {

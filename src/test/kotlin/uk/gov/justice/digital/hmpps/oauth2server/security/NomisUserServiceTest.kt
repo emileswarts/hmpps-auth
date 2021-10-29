@@ -6,12 +6,14 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.springframework.jdbc.CannotGetJdbcConnectionException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
@@ -21,6 +23,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDeta
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.LinkEmailAndUsername
@@ -33,8 +36,27 @@ internal class NomisUserServiceTest {
   private val staffUserAccountRepository: StaffUserAccountRepository = mock()
   private val userRepository: UserRepository = mock()
   private val verifyEmailService: VerifyEmailService = mock()
+  private val nomisUserApiService: NomisUserApiService = mock()
   private val nomisUserService: NomisUserService =
-    NomisH2AlterUserService(dataSource, passwordEncoder, staffUserAccountRepository, verifyEmailService, userRepository)
+    NomisH2AlterUserService(
+      dataSource,
+      passwordEncoder,
+      staffUserAccountRepository,
+      verifyEmailService,
+      userRepository,
+      nomisUserApiService,
+      true
+    )
+  private val disabledNomisUserService: NomisUserService =
+    NomisH2AlterUserService(
+      dataSource,
+      passwordEncoder,
+      staffUserAccountRepository,
+      verifyEmailService,
+      userRepository,
+      nomisUserApiService,
+      false
+    )
 
   @Nested
   inner class getNomisUsersByEmail {
@@ -105,6 +127,7 @@ internal class NomisUserServiceTest {
         User.EmailType.PRIMARY
       )
     }
+
     @Test
     fun `user not found`() {
       whenever(staffUserAccountRepository.findById(any())).thenReturn(Optional.empty())
@@ -112,6 +135,25 @@ internal class NomisUserServiceTest {
       assertThatThrownBy {
         nomisUserService.changeEmailAndRequestVerification("user", "email", "url", User.EmailType.PRIMARY)
       }.isInstanceOf(UsernameNotFoundException::class.java).hasMessage("Account for username user not found")
+    }
+  }
+
+  @Nested
+  inner class ChangePassword {
+    @Test
+    fun `changePassword disabled`() {
+      assertThatThrownBy { disabledNomisUserService.changePassword("user", "pass") }
+        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+      verify(staffUserAccountRepository).changePassword("user", "pass")
+      verifyZeroInteractions(nomisUserApiService)
+    }
+
+    @Test
+    fun `changePassword enabled`() {
+      assertThatThrownBy { nomisUserService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2") }
+        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+
+      verify(nomisUserApiService).changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
     }
   }
 

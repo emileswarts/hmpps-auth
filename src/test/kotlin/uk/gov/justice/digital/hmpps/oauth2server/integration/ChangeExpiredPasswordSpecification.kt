@@ -1,16 +1,23 @@
 package uk.gov.justice.digital.hmpps.oauth2server.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.RandomStringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.fluentlenium.core.annotation.Page
 import org.fluentlenium.core.annotation.PageUrl
 import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.openqa.selenium.support.FindBy
 import org.springframework.util.MultiValueMap
 import org.springframework.web.util.UriComponentsBuilder
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientMockServer.Companion.clientBaseUrl
 
+@ExtendWith(NomisExtension::class)
 class ChangeExpiredPasswordSpecification : AbstractAuthSpecification() {
 
   @Page
@@ -72,6 +79,11 @@ class ChangeExpiredPasswordSpecification : AbstractAuthSpecification() {
     homePage
       .isAtPage()
       .assertNameDisplayedCorrectly("C. Password2")
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/EXPIRED_TEST2_USER/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test
@@ -131,6 +143,11 @@ class ChangeExpiredPasswordSpecification : AbstractAuthSpecification() {
 
     getAccessToken(authCode!!)
       .jsonPath(".user_name").isEqualTo("EXPIRED_TEST3_USER")
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/EXPIRED_TEST3_USER/change-password"))
+        .withRequestBody(equalTo("dodgypass1"))
+    )
   }
 
   private fun splitQuery(url: String): MultiValueMap<String, String> {

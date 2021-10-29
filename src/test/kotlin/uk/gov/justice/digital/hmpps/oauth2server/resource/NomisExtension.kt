@@ -38,7 +38,7 @@ class NomisExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback, 
 
 class NomisApiMockServer : WireMockServer(
   wireMockConfig()
-    .port(8101)
+    .port(8102)
     .usingFilesUnderClasspath("nomis")
     .extensions(ResponseTemplateTransformer(false))
 )

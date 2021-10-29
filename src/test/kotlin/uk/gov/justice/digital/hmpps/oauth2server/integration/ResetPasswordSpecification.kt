@@ -1,12 +1,19 @@
 package uk.gov.justice.digital.hmpps.oauth2server.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.fluentlenium.core.annotation.Page
 import org.fluentlenium.core.annotation.PageUrl
 import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.openqa.selenium.support.FindBy
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
 
+@ExtendWith(NomisExtension::class)
 class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
 
   @Page
@@ -95,6 +102,11 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("CA_USER_TEST", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/CA_USER_TEST/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test
@@ -118,6 +130,11 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("RESET_TEST_USER", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/RESET_TEST_USER/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test
@@ -164,6 +181,11 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("LOCKED_NOMIS_USER", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/LOCKED_NOMIS_USER/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test
@@ -233,6 +255,11 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("reset_test_user", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/RESET_TEST_USER/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test
@@ -291,6 +318,11 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("NOMIS_NEVER_LOGGED_IN", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/NOMIS_NEVER_LOGGED_IN/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
   }
 
   @Test

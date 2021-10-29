@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -8,6 +9,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType.PRIMA
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.LinkEmailAndUsername
@@ -19,6 +21,8 @@ abstract class NomisUserService(
   private val staffUserAccountRepository: StaffUserAccountRepository,
   private val userRepository: UserRepository,
   private val verifyEmailService: VerifyEmailService,
+  private val nomisUserApiService: NomisUserApiService,
+  @Value("\${nomis.enabled:false}") private val nomisEnabled: Boolean,
 ) {
   fun getNomisUserByUsername(username: String): Optional<NomisUserPersonDetails> =
     staffUserAccountRepository.findById(username.uppercase())
@@ -58,7 +62,7 @@ abstract class NomisUserService(
   }
 
   @Transactional
-  fun changePasswordWithUnlock(username: String?, password: String?) {
+  fun changePasswordWithUnlock(username: String, password: String) {
     changePassword(username, password)
     staffUserAccountRepository.unlockUser(username)
   }
@@ -68,5 +72,11 @@ abstract class NomisUserService(
     staffUserAccountRepository.lockUser(username)
   }
 
-  abstract fun changePassword(username: String?, password: String?)
+  fun changePassword(username: String, password: String) {
+    if (nomisEnabled) nomisUserApiService.changePassword(username, password)
+    // bit naff here - but until we have migrated everything need to also call changePasswordInternal too
+    changePasswordInternal(username, password)
+  }
+
+  abstract fun changePasswordInternal(username: String, password: String)
 }

@@ -21,10 +21,10 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
 
   fun getClientRegistration(): ClientRegistration = ClientRegistration.withRegistrationId(clientId)
     .clientName(clientId)
-    .clientId(environment.getProperty("$clientId.client.client-id"))
-    .clientSecret(environment.getProperty("$clientId.client.client-secret"))
-    .clientSecret(environment.getProperty("$clientId.client.client-secret"))
-    .tokenUri(environment.getProperty("$clientId.client.access-token-uri"))
+    .clientId(environment.getRequiredProperty("$clientId.client.client-id"))
+    .clientSecret(environment.getRequiredProperty("$clientId.client.client-secret"))
+    .clientSecret(environment.getRequiredProperty("$clientId.client.client-secret"))
+    .tokenUri(environment.getRequiredProperty("$clientId.client.access-token-uri"))
     .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
     .build()
 
@@ -36,8 +36,8 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     val oauth2 = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2.setDefaultClientRegistrationId(clientId)
 
-    val apiTimeout = environment.getProperty("$clientId.endpoint.timeout", Duration::class.java)
-    val endpointUrl = environment.getProperty("$clientId.endpoint.url", String::class.java)
+    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
 
     return builder
       .baseUrl("${endpointUrl}$prefix")
@@ -45,22 +45,22 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
       .clientConnector(
         getClientConnectorWithTimeouts(
           apiTimeout, apiTimeout,
-          endpointUrl, environment.getProperty("$clientId.enabled", Boolean::class.java)
+          endpointUrl, environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
         )
       )
       .build()
   }
 
   fun getHealthWebClient(builder: WebClient.Builder): WebClient {
-    val endpointUrl = environment.getProperty("$clientId.endpoint.url", String::class.java)
-    val healthTimeout = environment.getProperty("$clientId.health.timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+    val healthTimeout = environment.getRequiredProperty("$clientId.health.timeout", Duration::class.java)
 
     return builder
       .baseUrl(endpointUrl)
       .clientConnector(
         getClientConnectorWithTimeouts(
           healthTimeout, healthTimeout, endpointUrl,
-          environment.getProperty("$clientId.enabled", Boolean::class.java)
+          environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
         )
       )
       .build()

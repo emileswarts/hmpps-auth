@@ -39,7 +39,7 @@ delius:
 nomis:
   enabled: false
   endpoint:
-    url: http://localhost:8101
+    url: http://localhost:8102
     timeout: 1s
 
   client:
