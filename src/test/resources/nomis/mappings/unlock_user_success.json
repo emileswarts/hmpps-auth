@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPattern": "/users/.*/change-password"
+    "urlPattern": "/users/.*/unlock-user"
   },
   "response": {
     "status": 200,

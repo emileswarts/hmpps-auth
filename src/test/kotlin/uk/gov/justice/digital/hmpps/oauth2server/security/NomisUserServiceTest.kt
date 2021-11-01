@@ -157,6 +157,46 @@ internal class NomisUserServiceTest {
     }
   }
 
+  @Nested
+  inner class ChangePasswordWithUnlock {
+    @Test
+    fun `changePasswordWithUnlock disabled`() {
+      assertThatThrownBy { disabledNomisUserService.changePasswordWithUnlock("user", "pass") }
+        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+      verify(staffUserAccountRepository).changePassword("user", "pass")
+
+      // doesn't actually call staffUserAccountRepository.unlockUser since the exception is thrown first
+
+      verifyZeroInteractions(nomisUserApiService)
+    }
+
+    @Test
+    fun `changePasswordWithUnlock enabled`() {
+      assertThatThrownBy { nomisUserService.changePasswordWithUnlock("NOMIS_PASSWORD_RESET", "helloworld2") }
+        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+
+      verify(nomisUserApiService).changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
+
+      // doesn't actually call nomisUserApiService.unlockAccount since the exception is thrown first
+    }
+  }
+
+  @Nested
+  inner class lockAccount {
+    @Test
+    fun `lockAccount disabled`() {
+      disabledNomisUserService.lockAccount("user")
+      verify(staffUserAccountRepository).lockUser("user")
+      verifyZeroInteractions(nomisUserApiService)
+    }
+
+    @Test
+    fun `lockAccount enabled`() {
+      nomisUserService.lockAccount("NOMIS_PASSWORD_RESET")
+      verify(nomisUserApiService).lockAccount("NOMIS_PASSWORD_RESET")
+    }
+  }
+
   private fun getNomisUser(username: String): NomisUserPersonDetails =
     createSampleNomisUser(
       staff = Staff(firstName = "bob", status = "INACTIVE", lastName = "last", staffId = 5),

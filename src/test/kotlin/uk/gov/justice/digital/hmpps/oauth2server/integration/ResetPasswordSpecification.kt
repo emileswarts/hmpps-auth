@@ -104,9 +104,10 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     homePage.isAt()
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/CA_USER_TEST/change-password"))
+      putRequestedFor(urlEqualTo("/users/CA_USER_TEST/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/CA_USER_TEST/unlock-user")))
   }
 
   @Test
@@ -132,9 +133,10 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     homePage.isAt()
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/RESET_TEST_USER/change-password"))
+      putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/unlock-user")))
   }
 
   @Test
@@ -178,14 +180,13 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
 
     resetPasswordSuccessPage.isAtPage()
 
-    goTo(loginPage)
-      .loginAs("LOCKED_NOMIS_USER", "helloworld2")
-    homePage.isAt()
+    // can't now call attempt login as the unlock was calling the nomis api
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/LOCKED_NOMIS_USER/change-password"))
+      putRequestedFor(urlEqualTo("/users/LOCKED_NOMIS_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/LOCKED_NOMIS_USER/unlock-user")))
   }
 
   @Test
@@ -257,9 +258,10 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     homePage.isAt()
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/RESET_TEST_USER/change-password"))
+      putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/unlock-user")))
   }
 
   @Test
@@ -320,9 +322,10 @@ class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
     homePage.isAt()
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/NOMIS_NEVER_LOGGED_IN/change-password"))
+      putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN/unlock-user")))
   }
 
   @Test

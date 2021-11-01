@@ -81,7 +81,7 @@ class ChangeExpiredPasswordSpecification : AbstractAuthSpecification() {
       .assertNameDisplayedCorrectly("C. Password2")
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/EXPIRED_TEST2_USER/change-password"))
+      putRequestedFor(urlEqualTo("/users/EXPIRED_TEST2_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
     )
   }
@@ -145,7 +145,7 @@ class ChangeExpiredPasswordSpecification : AbstractAuthSpecification() {
       .jsonPath(".user_name").isEqualTo("EXPIRED_TEST3_USER")
 
     nomisApi.verify(
-      putRequestedFor(urlEqualTo("/EXPIRED_TEST3_USER/change-password"))
+      putRequestedFor(urlEqualTo("/users/EXPIRED_TEST3_USER/change-password"))
         .withRequestBody(equalTo("dodgypass1"))
     )
   }

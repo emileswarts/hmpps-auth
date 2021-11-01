@@ -9,8 +9,22 @@ class NomisUserApiService(
   @Qualifier("nomisWebClient") private val webClient: WebClient,
 ) {
   fun changePassword(username: String, password: String) {
-    webClient.put().uri("/{username}/change-password", username)
+    webClient.put().uri("/users/{username}/change-password", username)
       .bodyValue(password)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
+  fun lockAccount(username: String) {
+    webClient.put().uri("/users/{username}/lock-user", username)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
+  fun unlockAccount(username: String) {
+    webClient.put().uri("/users/{username}/unlock-user", username)
       .retrieve()
       .toBodilessEntity()
       .block()

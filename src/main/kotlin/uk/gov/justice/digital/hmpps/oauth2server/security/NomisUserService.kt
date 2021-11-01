@@ -64,12 +64,14 @@ abstract class NomisUserService(
   @Transactional
   fun changePasswordWithUnlock(username: String, password: String) {
     changePassword(username, password)
-    staffUserAccountRepository.unlockUser(username)
+    if (nomisEnabled) nomisUserApiService.unlockAccount(username)
+    else staffUserAccountRepository.unlockUser(username)
   }
 
   @Transactional
-  fun lockAccount(username: String?) {
-    staffUserAccountRepository.lockUser(username)
+  fun lockAccount(username: String) {
+    if (nomisEnabled) nomisUserApiService.lockAccount(username)
+    else staffUserAccountRepository.lockUser(username)
   }
 
   fun changePassword(username: String, password: String) {

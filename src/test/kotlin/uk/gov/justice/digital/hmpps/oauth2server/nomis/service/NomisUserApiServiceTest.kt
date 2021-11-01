@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,15 +28,28 @@ class NomisUserApiServiceTest : IntegrationTest() {
     nomisService = NomisUserApiService(webClient)
   }
 
-  @Nested
-  inner class ChangePassword {
-    @Test
-    fun `changePassword enabled`() {
-      nomisService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
-      nomisApi.verify(
-        putRequestedFor(urlEqualTo("/NOMIS_PASSWORD_RESET/change-password"))
-          .withRequestBody(equalTo("helloworld2"))
-      )
-    }
+  @Test
+  fun `changePassword`() {
+    nomisService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
+  }
+
+  @Test
+  fun lockAccount() {
+    nomisService.lockAccount("NOMIS_PASSWORD_RESET")
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/users/NOMIS_PASSWORD_RESET/lock-user"))
+    )
+  }
+
+  @Test
+  fun unlockAccount() {
+    nomisService.unlockAccount("NOMIS_PASSWORD_RESET")
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/users/NOMIS_PASSWORD_RESET/unlock-user"))
+    )
   }
 }
