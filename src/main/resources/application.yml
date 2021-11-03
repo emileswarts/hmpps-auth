@@ -153,6 +153,7 @@ saved-request:
     expiry-time: 0
 
 delius:
+  enabled: false
   client:
     access-token-uri: ${auth.token.url}
     authentication-scheme: header
@@ -161,6 +162,7 @@ delius:
   endpoint.timeout: 5s
 
 nomis:
+  enabled: false
   client:
     access-token-uri: ${auth.token.url}
     authentication-scheme: header
