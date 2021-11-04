@@ -46,7 +46,7 @@ mfa_allowlist:
 
 
 env:
-  SPRING_PROFILES_ACTIVE: "oracle,delius,token-verification"
+  SPRING_PROFILES_ACTIVE: "oracle,nomis,delius,token-verification"
   APPLICATION_SIGNIN_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/"
   APPLICATION_SUPPORT_URL: "https://support-preprod.hmpps.service.justice.gov.uk/feedback-and-support"
   APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "false"
