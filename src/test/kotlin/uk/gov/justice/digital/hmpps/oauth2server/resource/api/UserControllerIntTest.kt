@@ -385,7 +385,7 @@ class UserControllerIntTest : IntegrationTest() {
   fun `User Roles endpoint returns roles for nomis user`() {
     webTestClient
       .get().uri("/api/user/ITAG_USER/roles")
-      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PPM_USER_ADMIN")))
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -399,7 +399,7 @@ class UserControllerIntTest : IntegrationTest() {
   fun `User Roles endpoint returns roles for auth user`() {
     webTestClient
       .get().uri("/api/user/AUTH_ADM/roles")
-      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PPM_USER_ADMIN")))
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -413,7 +413,7 @@ class UserControllerIntTest : IntegrationTest() {
   fun `User Roles endpoint returns roles for delius user`() {
     webTestClient
       .get().uri("/api/user/DELIUS/roles")
-      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PPM_USER_ADMIN")))
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -428,7 +428,7 @@ class UserControllerIntTest : IntegrationTest() {
   fun `User Roles endpoint returns not found for unknown username`() {
     webTestClient
       .get().uri("/api/user/UNKNOWN/roles")
-      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PPM_USER_ADMIN")))
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
       .exchange()
       .expectStatus().isNotFound
   }

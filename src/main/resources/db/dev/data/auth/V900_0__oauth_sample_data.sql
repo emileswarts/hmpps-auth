@@ -44,8 +44,8 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('probation-offender-search-indexer-client','3600','{}','ROLE_PROBATION_INDEX,ROLE_COMMUNITY','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read',null),
        ('delius-login-client','28800','{}',null,'authorization_code,refresh_token','read,delius','$2a$10$RYwV0QebHAovVXWPySb2lefr3HTDntGu1euXHDJc3zwh2NsqeNGHG','43200',null,'read,delius','http://localhost:5000/login/callback,http://localhost:5000/reset'),
        ('probation-offender-events-client','3600','{}','ROLE_COMMUNITY_EVENTS,ROLE_COMMUNITY','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read',null),
-       ('hmpps-ppm-client','3600','{}',null,'authorization_code','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
-       ('hmpps-ppm-system','3600','{}','ROLE_SYSTEM_USER,ROLE_GLOBAL_SEARCH,ROLE_PPM_USER_ADMIN','client_credentials','read','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read',null),
+       ('pcms-client','3600','{}',null,'authorization_code','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
+       ('pcms-system','3600','{}','ROLE_SYSTEM_USER,ROLE_GLOBAL_SEARCH,ROLE_PCMS_USER_ADMIN','client_credentials','read','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read',null),
        ('manage-intelligence-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('manage-intelligence-admin','3600','{}','ROLE_GLOBAL_SEARCH,ROLE_INTEL_ADMIN,ROLE_COMMUNITY','client_credentials','read,write','$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S',43200,null,'read,write',null),
        ('submit-information-report-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000,http://localhost:3001/login/callback,http://localhost:3001'),
@@ -150,15 +150,15 @@ INSERT INTO users (user_id, username, email, verified, source)
         ('C3B15C4B-ADF5-493B-9424-DBCC65E8BFEF', 'RO_USER_READONLY_TEST', 'ro_user_readonly_test@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65E8BFED', 'CA_RO_DM_USER', 'ca_ro_dm_user_test@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-667B-8711-DA7EB4432CED', 'SOC_PRISON_LOCAL', 'soc_prison_local@digital.justice.gov.uk', 1, 'nomis'),
-        ('4115C3DF-317B-4007-BF58-F2ECA1BBEED4', 'PPM_ANALYST_USER', 'ppm_analyst_user@digital.justice.gov.uk', 1, 'nomis'),
-        ('68599FE3-522D-4210-8296-D1469C35B93E', 'PPM_AO_USER', 'ppm_ao_user@digital.justice.gov.uk', 1, 'nomis'),
-        ('26E3087B-FA89-4D8B-914C-D72B287E4289', 'PPM_GLOBAL_ADMIN_USER', 'ppm_global_admin_user@digital.justice.gov.uk', 1, 'nomis'),
+        ('4115C3DF-317B-4007-BF58-F2ECA1BBEED4', 'PCMS_ANALYST_USER', 'pcms_analyst_user@digital.justice.gov.uk', 1, 'nomis'),
+        ('68599FE3-522D-4210-8296-D1469C35B93E', 'PCMS_AO_USER', 'pcms_ao_user@digital.justice.gov.uk', 1, 'nomis'),
+        ('26E3087B-FA89-4D8B-914C-D72B287E4289', 'PCMS_GLOBAL_ADMIN_USER', 'pcms_global_admin_user@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65E7BFEF', 'PRISON_COLLATOR_LOCAL', 'prison_collator_local@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3C4E2', 'PRISON_ANALYST_LOCAL', 'prison_analyst_local@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3C4E3', 'PPUD_USER', 'ppud.user.test@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65E7BAAA', 'CALCULATE_RELEASE_DATES_LOCAL', 'calculate_release_dates_local@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAB', 'CVL_OMU_LOCAL', 'cvl_omu_local@digital.justice.gov.uk', 1, 'nomis'),
-        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAC', 'PPM_AUDIT_USER', 'ppm_audit_user@digital.justice.gov.uk', 1, 'nomis'),
+        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAC', 'PCMS_AUDIT_USER', 'pcms_audit_user@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAD', 'HWPV_CLAIM_ENTRY_BAND_2', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAE', 'HWPV_CLAIM_PAYMENT_BAND_3', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CAAF', 'HWPV_CASEWORK_MANAGER_BAND_5', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
@@ -581,7 +581,6 @@ VALUES (newid(), 'UNIT_TEST_DPS_ROLE', 'Test Role DPS', 'DPS Role for unit tests
   (newid(), 'USE_OF_FORCE_COORDINATOR', 'Use of force coordinator', null, 'DPS_ADM'),
   (newid(), 'LICENCE_READONLY', 'Licence read only',  null, 'DPS_ADM,DPS_LSA'),
   (newid(), 'PF_LOCAL_READER', 'Pathfinder Local Reader', null, 'DPS_ADM,DPS_LSA'),
-  (newid(), 'PPM_GLOBAL', 'PPM Global',  null, 'DPS_ADM'),
   (newid(), 'LICENCE_RO_READONLY', 'Licence RO Read Only', null, 'DPS_ADM,DPS_LSA'),
   (newid(), 'HWPV_CLAIM_ENTRY_BAND_2', 'HWPV Band 2', null, 'DPS_ADM'),
   (newid(), 'HWPV_CLAIM_PAYMENT_BAND_3', 'HWPV Band 3', null, 'DPS_ADM'),
@@ -596,12 +595,12 @@ update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'LICEN
 update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'OAUTH_ADMIN';
 update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'MAINTAIN_OAUTH_USERS';
 update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'SOC_CUSTODY';
-update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_ANALYST';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PCMS_ANALYST';
 update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'ARTEMIS_USER';
 update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'PF_NATIONAL_READER';
 update roles set admin_type = 'DPS_ADM,DPS_LSA,EXT_ADM' where role_code = 'PF_HQ';
-update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_AUTHORISING_OFFICER';
-update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_GLOBAL_ADMIN';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PCMS_AUTHORISING_OFFICER';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PCMS_GLOBAL_ADMIN';
 update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'HMPPS_REGISTERS_MAINTAINER';
 update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'MANAGE_RECALLS';
-update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PPM_AUDIT';
+update roles set admin_type = 'DPS_ADM,EXT_ADM' where role_code = 'PCMS_AUDIT';

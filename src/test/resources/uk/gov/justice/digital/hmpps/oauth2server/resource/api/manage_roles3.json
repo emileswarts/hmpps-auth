@@ -109,8 +109,8 @@
       ]
     },
     {
-      "roleCode": "PPM_GLOBAL_ADMIN",
-      "roleName": "PPM Global Admin",
+      "roleCode": "PCMS_GLOBAL_ADMIN",
+      "roleName": "PCMS Global Admin",
       "roleDescription": null,
       "adminType": [
         {

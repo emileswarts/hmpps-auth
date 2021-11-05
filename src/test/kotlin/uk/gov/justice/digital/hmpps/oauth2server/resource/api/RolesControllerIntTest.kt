@@ -460,18 +460,18 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[1].roleName").isEqualTo("Pathfinder Approval")
-        .jsonPath("$.content[1].roleCode").isEqualTo("PF_APPROVAL")
+        .jsonPath("$.content[1].roleName").isEqualTo("PECS Person Escort Record Author")
+        .jsonPath("$.content[1].roleCode").isEqualTo("PECS_PER_AUTHOR")
         .jsonPath("$.content[1].roleDescription").isEmpty
-        .jsonPath("$.content[1].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
-        .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("DPS Central Administrator")
+        .jsonPath("$.content[1].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+        .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("External Administrator")
     }
 
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(67)
-        .jsonPath("$.totalPages").isEqualTo(23)
+        .jsonPath("$.totalElements").isEqualTo(66)
+        .jsonPath("$.totalPages").isEqualTo(22)
         .jsonPath("$.last").isEqualTo(false)
   }
 

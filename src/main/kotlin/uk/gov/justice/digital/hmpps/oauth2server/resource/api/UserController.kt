@@ -126,7 +126,7 @@ class UserController(private val userService: UserService) {
 
   @GetMapping("/api/user/{username}/roles")
   @ApiOperation(
-    value = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PPM_USER_ADMIN.",
+    value = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
     nickname = "userRoles",
     consumes = "application/json",
     produces = "application/json"
@@ -138,7 +138,7 @@ class UserController(private val userService: UserService) {
     ]
   )
   @PreAuthorize(
-    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PPM_USER_ADMIN')"
+    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')"
   )
   fun userRoles(
     @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
@@ -239,7 +239,7 @@ class UserController(private val userService: UserService) {
     )
   )
   @PreAuthorize(
-    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PPM_USER_ADMIN')"
+    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')"
   )
   fun searchForUsersInMultipleSourceSystems(
     @ApiParam(
