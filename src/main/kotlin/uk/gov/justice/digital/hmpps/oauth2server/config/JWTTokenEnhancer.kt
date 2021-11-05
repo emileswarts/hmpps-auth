@@ -13,17 +13,21 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.Companion.fromNullableString
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.util.Optional
 
 class JWTTokenEnhancer : TokenEnhancer {
   @Autowired
   private lateinit var clientsDetailsService: ClientDetailsService
+  @Autowired
+  private lateinit var userService: UserService
 
   companion object {
     private const val ADD_INFO_AUTH_SOURCE = "auth_source"
     const val ADD_INFO_NAME = "name"
     const val ADD_INFO_USER_NAME = "user_name"
     const val ADD_INFO_USER_ID = "user_id"
+    const val ADD_INFO_USER_UUID = "user_uuid"
     const val SUBJECT = "sub"
     private const val REQUEST_PARAM_USER_NAME = "username"
     private const val REQUEST_PARAM_AUTH_SOURCE = "auth_source"
@@ -37,6 +41,7 @@ class JWTTokenEnhancer : TokenEnhancer {
       val userAuthentication = authentication.userAuthentication
       val userDetails = userAuthentication.principal as UserPersonDetails
       val userId = StringUtils.defaultString(userDetails.userId, userAuthentication.name)
+      val uuid = userService.findUser(userAuthentication.name).map { it.userId }.orElse(null)
       val clientDetails = clientsDetailsService.loadClientByClientId(authentication.oAuth2Request.clientId)
       // note that DefaultUserAuthenticationConverter will automatically add user_name to the access token, so
       // removal of user_name will only affect the authorisation code response and not the access token field.
@@ -46,7 +51,8 @@ class JWTTokenEnhancer : TokenEnhancer {
           ADD_INFO_AUTH_SOURCE to StringUtils.defaultIfBlank(userDetails.authSource, "none"),
           ADD_INFO_USER_NAME to userAuthentication.name,
           ADD_INFO_USER_ID to userId,
-          ADD_INFO_NAME to userDetails.name
+          ADD_INFO_USER_UUID to uuid,
+          ADD_INFO_NAME to userDetails.name,
         ),
         clientDetails
       )

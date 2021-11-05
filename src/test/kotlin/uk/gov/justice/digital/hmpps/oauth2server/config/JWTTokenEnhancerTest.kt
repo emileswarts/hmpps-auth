@@ -18,19 +18,24 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.OAuth2Request
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import org.springframework.test.util.ReflectionTestUtils
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
+import java.util.Optional
 import java.util.UUID
 
 internal class JWTTokenEnhancerTest {
   private val authentication: OAuth2Authentication = mock()
   private val clientDetailsService: ClientDetailsService = mock()
+  private val userService: UserService = mock()
   private val jwtTokenEnhancer = JWTTokenEnhancer()
 
   @BeforeEach
   internal fun setUp() {
     ReflectionTestUtils.setField(jwtTokenEnhancer, "clientsDetailsService", clientDetailsService)
+    ReflectionTestUtils.setField(jwtTokenEnhancer, "userService", userService)
   }
 
   @Test
@@ -54,12 +59,14 @@ internal class JWTTokenEnhancerTest {
       )
     )
     whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(createBaseClientDetails("+user_name,-name"))
+    whenever(userService.findUser(any())).thenReturn(Optional.of(user))
     jwtTokenEnhancer.enhance(token, authentication)
     assertThat(token.additionalInformation).containsOnly(
       entry("sub", "user"),
       entry("user_name", "user"),
       entry("auth_source", "auth"),
-      entry("user_id", uuid.toString())
+      entry("user_id", uuid.toString()),
+      entry("user_uuid", uuid.toString()),
     )
   }
 
@@ -84,12 +91,14 @@ internal class JWTTokenEnhancerTest {
       )
     )
     whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(createBaseClientDetails("-auth_source"))
+    whenever(userService.findUser(any())).thenReturn(Optional.of(user))
     jwtTokenEnhancer.enhance(token, authentication)
     assertThat(token.additionalInformation).containsOnly(
       entry("sub", "user"),
       entry("name", "Joe bloggs"),
       entry("user_name", "user"),
-      entry("user_id", uuid.toString())
+      entry("user_id", uuid.toString()),
+      entry("user_uuid", uuid.toString()),
     )
   }
 
@@ -114,13 +123,15 @@ internal class JWTTokenEnhancerTest {
       )
     )
     whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(BaseClientDetails())
+    whenever(userService.findUser(any())).thenReturn(Optional.of(user))
     jwtTokenEnhancer.enhance(token, authentication)
     assertThat(token.additionalInformation).containsOnly(
       entry("sub", "user"),
       entry("name", "Joe bloggs"),
       entry("auth_source", "auth"),
       entry("user_name", "user"),
-      entry("user_id", uuid.toString())
+      entry("user_id", uuid.toString()),
+      entry("user_uuid", uuid.toString()),
     )
   }
 
@@ -162,12 +173,16 @@ internal class JWTTokenEnhancerTest {
       )
     )
     whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(createBaseClientDetails("-name,+user_name"))
+    val user = User("user", source = AuthSource.delius)
+    user.id = UUID.randomUUID()
+    whenever(userService.findUser(any())).thenReturn(Optional.of(user))
     jwtTokenEnhancer.enhance(token, authentication)
     assertThat(token.additionalInformation).containsOnly(
       entry("sub", "user"),
       entry("user_name", "user"),
       entry("auth_source", "none"),
-      entry("user_id", "userID")
+      entry("user_id", "userID"),
+      entry("user_uuid", user.id.toString()),
     )
   }
 

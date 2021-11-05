@@ -85,6 +85,7 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
         assertThat(claims.getClaim("user_name")).isEqualTo("ITAG_USER")
         assertThat(claims.getClaim("name")).isEqualTo("Itag User")
         assertThat(claims.getClaim("user_id")).isEqualTo("1")
+        assertThat(claims.getClaim("user_uuid")).isEqualTo("a04c70ee-51c9-4852-8d0d-130da5c85c42")
         assertThat(claims.getClaim("sub")).isEqualTo("ITAG_USER")
         assertThat(claims.getClaim("auth_source")).isEqualTo("nomis")
       }

@@ -37,6 +37,7 @@ class OauthIntTest : IntegrationTest() {
       .expectBody()
       .jsonPath(".user_name").isEqualTo("ITAG_USER")
       .jsonPath(".user_id").isEqualTo("1")
+      .jsonPath(".user_uuid").isEqualTo("a04c70ee-51c9-4852-8d0d-130da5c85c42")
       .jsonPath(".sub").isEqualTo("ITAG_USER")
       .jsonPath(".auth_source").isEqualTo("nomis")
   }

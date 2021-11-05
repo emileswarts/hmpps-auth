@@ -32,6 +32,7 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.oauth2server.utils.JwtAuthHelper.JwtParameters
 import java.time.LocalDateTime
@@ -41,6 +42,7 @@ internal class TrackingTokenServicesTest {
   private val telemetryClient: TelemetryClient = mock()
   private val tokenStore: TokenStore = mock()
   private val clientDetailsService: ClientDetailsService = mock()
+  private val userService: UserService = mock()
   private val clientRepository: ClientRepository = mock()
   private val restTemplate: RestTemplate = mock()
   private val tokenVerificationClientCredentials = TokenVerificationClientCredentials()
@@ -59,6 +61,7 @@ internal class TrackingTokenServicesTest {
     tokenServicesVerificationDisabled.setTokenStore(tokenStore)
     val tokenEnhancer = JWTTokenEnhancer()
     ReflectionTestUtils.setField(tokenEnhancer, "clientsDetailsService", clientDetailsService)
+    ReflectionTestUtils.setField(tokenEnhancer, "userService", userService)
     tokenServices.setTokenEnhancer(tokenEnhancer)
     tokenServicesVerificationDisabled.setTokenEnhancer(tokenEnhancer)
     whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(BaseClientDetails())
