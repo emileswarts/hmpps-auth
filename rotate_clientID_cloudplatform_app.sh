@@ -61,9 +61,6 @@ enforce_var_set CLIENTID
 enforce_var_set CLIENTSECRET
 enforce_var_set BASE_CLIENT_ID
 
-# Run against cloudplatforms k8s cluster by default, otherwise set KUBE_CONTEXT
-kubectl config use-context "${KUBE_CONTEXT:-live-1.cloud-platform.service.justice.gov.uk}"
-
 CLIENT="${CLIENTID}:${CLIENTSECRET}"
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
@@ -93,11 +90,20 @@ echo "Talking to host \"${HOST}\""
 echo "Fetching deployment data for clientID \"${BASE_CLIENT_ID}\""
 clientInfo_json=$(hmpps_auth GET "${HOST}/auth/api/client/${BASE_CLIENT_ID}")
 
-namespace=$(echo "${clientInfo_json}" | jq -r .clientDeployment.namespace)
+contextAndNamespace=$(echo "${clientInfo_json}" | jq -r .clientDeployment.namespace)
 deployment=$(echo "${clientInfo_json}" | jq -r .clientDeployment.deployment)
 secretName=$(echo "${clientInfo_json}" | jq -r .clientDeployment.secretName)
 clientIdKey=$(echo "${clientInfo_json}" | jq -r .clientDeployment.clientIdKey)
 secretKey=$(echo "${clientInfo_json}" | jq -r .clientDeployment.secretKey)
+
+context=${contextAndNamespace//:*/}
+namespace=${contextAndNamespace//*:/}
+if [[ $context == $contextAndNamespace ]]; then
+  # Run against cloudplatforms k8s cluster by default, otherwise set KUBE_CONTEXT
+  kubectl config use-context "${KUBE_CONTEXT:-live-1.cloud-platform.service.justice.gov.uk}"
+else
+  kubectl config use-context "${context}"
+fi
 
 # Check if $deployment exists and is readable
 if ! kubectl -n "${namespace}" get deployment "${deployment}" &>/dev/null; then
