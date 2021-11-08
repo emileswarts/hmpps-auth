@@ -53,7 +53,7 @@ class HomeControllerTest {
     whenever(authServicesService.listEnabled(any())).thenReturn(ALL_SERVICES)
     setUpAuthentication(AuthSource.azuread, "ROLE_BOB")
     val authorities = setOf(Authority("ROLE_OTHER", "Role Other"))
-    whenever(userContextService.discoverUsers(any(), any())).thenReturn(
+    whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(
       listOf(
         DeliusUserPersonDetails(
           username = "user",
@@ -80,7 +80,7 @@ class HomeControllerTest {
     whenever(authServicesService.listEnabled(any())).thenReturn(ALL_SERVICES)
     setUpAuthentication(AuthSource.nomis, "ROLE_BOB")
     val authorities = setOf(Authority("ROLE_OTHER", "Role Other"))
-    whenever(userContextService.discoverUsers(any(), any())).thenReturn(
+    whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(
       listOf(
         DeliusUserPersonDetails(
           username = "user",

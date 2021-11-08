@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
@@ -142,6 +143,20 @@ internal class UserContextServiceTest {
 
     val users = userContextService.discoverUsers(loginUser, scopes)
     assertThat(users).containsExactlyInAnyOrder(deliusUser, authUser)
+  }
+
+  @Test
+  fun `discoverUsers filters by user roles`() {
+    val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "email@email.com", "jwtId")
+    val deliusUser = DeliusUserPersonDetails("username", "id", "user", "name", "email@email.com", true)
+    val authUser = createSampleUser(username = "username", source = auth, enabled = true, verified = true, authorities = setOf(Authority("ROLE_BOB", "Role Bob")))
+    val scopes = setOf("delius", "auth")
+    whenever(deliusUserService.getDeliusUsersByEmail(anyString())).thenReturn(listOf(deliusUser))
+    whenever(authUserService.findAuthUsersByEmail(anyString())).thenReturn(listOf(authUser))
+    whenever(userService.getEmail(any())).thenReturn(loginUser.userId)
+
+    val users = userContextService.discoverUsers(loginUser, scopes, roles = listOf("ROLE_BOB"))
+    assertThat(users).containsExactlyInAnyOrder(authUser)
   }
 
   @Test

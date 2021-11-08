@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
@@ -33,4 +34,6 @@ class AuthServicesService(private val oauthServiceRepository: OauthServiceReposi
   fun removeService(code: String) {
     oauthServiceRepository.deleteById(code)
   }
+
+  fun findService(code: String): Service? = oauthServiceRepository.findByIdOrNull(code)
 }

@@ -22,7 +22,11 @@ class UserContextService(
   @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) {
 
-  fun discoverUsers(loginUser: UserPersonDetails, scopes: Set<String> = emptySet()): List<UserPersonDetails> {
+  fun discoverUsers(
+    loginUser: UserPersonDetails,
+    scopes: Set<String> = emptySet(),
+    roles: List<String> = emptyList(),
+  ): List<UserPersonDetails> {
     val authSource = AuthSource.fromNullableString(loginUser.authSource)
     if (authSource != azuread && !linkAccounts) return emptyList()
 
@@ -33,10 +37,14 @@ class UserContextService(
       .let { it.ifEmpty { setOf(auth, nomis, delius) } }
 
     val email = userService.getEmail(loginUser) ?: return emptyList()
-    return requestedSources.map { findUsers(email, it).filter { u -> u.isEnabled } }
+    return requestedSources.map { findEnabledUsersWithRoles(email, it, roles) }
       .filter { it.isNotEmpty() }
       .flatten()
   }
+
+  private fun findEnabledUsersWithRoles(email: String, source: AuthSource, roles: List<String>) = findUsers(email, source)
+    .filter { u -> u.isEnabled }
+    .filter { roles.isEmpty() || it.authorities.map { r -> r.authority }.intersect(roles.toSet()).isNotEmpty() }
 
   private fun findUsers(email: String, to: AuthSource): List<UserPersonDetails> =
     when (to) {

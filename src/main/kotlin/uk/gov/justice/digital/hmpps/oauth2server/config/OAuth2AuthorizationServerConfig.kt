@@ -42,6 +42,7 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 import org.springframework.web.client.RestTemplate
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserContextApprovalHandler
+import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
@@ -67,6 +68,7 @@ class OAuth2AuthorizationServerConfig(
   private val userContextService: UserContextService,
   private val mfaClientNetworkService: MfaClientNetworkService,
   private val clientRepository: ClientRepository,
+  private val authServicesService: AuthServicesService,
   @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) : AuthorizationServerConfigurerAdapter() {
 
@@ -141,7 +143,7 @@ class OAuth2AuthorizationServerConfig(
 
   private fun userApprovalHandler(): UserApprovalHandler {
     val approvalHandler =
-      UserContextApprovalHandler(userContextService, jdbcClientDetailsService(), mfaClientService(), linkAccounts)
+      UserContextApprovalHandler(userContextService, jdbcClientDetailsService(), mfaClientService(), linkAccounts, authServicesService)
     approvalHandler.setRequestFactory(requestFactory())
     approvalHandler.setTokenStore(tokenStore())
     return approvalHandler

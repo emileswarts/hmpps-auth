@@ -4,6 +4,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
@@ -16,16 +17,19 @@ import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetails
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory
 import org.springframework.security.oauth2.provider.token.TokenStore
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess
+import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
 
 internal class UserContextApprovalHandlerTest {
   private val userContextService: UserContextService = mock()
+  private val authServicesService: AuthServicesService = mock()
   private val mfaClientService: MfaClientService = mock()
-  private val handler = UserContextApprovalHandler(userContextService, mock(), mfaClientService, false)
-  private val linkAccountsEnabledHandler = UserContextApprovalHandler(userContextService, mock(), mfaClientService, true)
+  private val handler = UserContextApprovalHandler(userContextService, mock(), mfaClientService, false, authServicesService)
+  private val linkAccountsEnabledHandler = UserContextApprovalHandler(userContextService, mock(), mfaClientService, true, authServicesService)
   private val authentication: Authentication = mock()
   private val authorizationRequest = AuthorizationRequest()
   private val requestFactory: OAuth2RequestFactory = mock()
@@ -121,7 +125,7 @@ internal class UserContextApprovalHandlerTest {
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name))
       whenever(mfaClientService.clientNeedsMfa(any())).thenReturn(true)
       val users = listOf(createSampleUser(username = "harry"))
-      whenever(userContextService.discoverUsers(any(), any())).thenReturn(users)
+      whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
       assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users), entry("requireMfa", true))
     }
@@ -143,7 +147,7 @@ internal class UserContextApprovalHandlerTest {
         UserDetailsImpl("user", "name", setOf(), AuthSource.azuread.name, "userid", "jwtId", passedMfa = true)
       )
       val users = listOf(createSampleUser(username = "harry"))
-      whenever(userContextService.discoverUsers(any(), any())).thenReturn(users)
+      whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
       assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
     }
@@ -155,9 +159,24 @@ internal class UserContextApprovalHandlerTest {
         UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
       )
       val users = listOf(createSampleUser(username = "harry"))
-      whenever(userContextService.discoverUsers(any(), any())).thenReturn(users)
+      whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
       assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+    }
+
+    @Test
+    fun `roles passed through to discover users`() {
+      authorizationRequest.requestParameters = mutableMapOf("bob" to "joe")
+      val userDetails =
+        UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
+      whenever(authentication.principal).thenReturn(userDetails)
+      val users = listOf(createSampleUser(username = "harry"))
+      val service = Service("CODE", "NAME", "Description", "ROLE_BOB,ROLE_FRED", "http://some.url", true, "a@b.com")
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
+      val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
+      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      verify(userContextService).discoverUsers(userDetails, emptySet(), listOf("ROLE_BOB", "ROLE_FRED"))
     }
   }
 }

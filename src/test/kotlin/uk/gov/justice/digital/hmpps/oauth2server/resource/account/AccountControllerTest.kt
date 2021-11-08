@@ -177,7 +177,7 @@ class AccountControllerTest {
     val nomisUser = createSampleUser("user", email = "anemail@somewhere.com", source = AuthSource.auth)
     whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.of(nomisUser))
     whenever(userService.getUserWithContacts(anyString())).thenReturn(nomisUser)
-    whenever(userContextService.discoverUsers(any(), any())).thenReturn(listOf(nomisUser))
+    whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(listOf(nomisUser))
     val modelAndView = accountController.accountDetails(null, null, token, request, response, "Lw==")
     @Suppress("UNCHECKED_CAST")
     assertThat(modelAndView.model["linkedAccounts"] as List<LinkedAccountModel>).isEmpty()
@@ -189,7 +189,7 @@ class AccountControllerTest {
     val otherUser = createSampleUser("user", email = "anemail@somewhere.com", source = AuthSource.delius)
     whenever(userService.getMasterUserPersonDetails(anyString(), any())).thenReturn(Optional.of(nomisUser))
     whenever(userService.getUserWithContacts(anyString())).thenReturn(nomisUser)
-    whenever(userContextService.discoverUsers(any(), any())).thenReturn(listOf(nomisUser, otherUser))
+    whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(listOf(nomisUser, otherUser))
     val modelAndView = accountController.accountDetails(null, null, token, request, response, "Lw==")
     @Suppress("UNCHECKED_CAST")
     assertThat(modelAndView.model["linkedAccounts"] as List<LinkedAccountModel>).containsOnly(
