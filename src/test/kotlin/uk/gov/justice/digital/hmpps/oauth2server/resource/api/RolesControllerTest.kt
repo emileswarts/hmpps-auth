@@ -66,6 +66,29 @@ class RolesControllerTest {
   }
 
   @Nested
+  inner class GetAllRoles {
+    @Test
+    fun `get roles`() {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
+      whenever(rolesService.getRoles(any())).thenReturn(listOf(role1, role2))
+
+      val roles = rolesController.getRoles(listOf())
+      verify(rolesService).getRoles(listOf())
+      assertThat(roles.size).isEqualTo(2)
+    }
+
+    @Test
+    fun `No Roles Found`() {
+      whenever(rolesService.getRoles(any())).thenReturn(listOf())
+
+      val noRoles = rolesController.getRoles(listOf())
+      verify(rolesService).getRoles(listOf())
+      assertThat(noRoles.size).isEqualTo(0)
+    }
+  }
+
+  @Nested
   inner class ManageRoles {
     @Test
     fun `get roles`() {

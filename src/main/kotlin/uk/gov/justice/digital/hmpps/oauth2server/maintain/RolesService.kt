@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
@@ -48,6 +49,16 @@ class RolesService(
       ),
       null
     )
+  }
+
+  fun getRoles(
+    adminTypes: List<AdminType>?,
+  ): List<Authority> {
+
+    val rolesFilter = RolesFilter(
+      adminTypes = adminTypes,
+    )
+    return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
   }
 
   fun getAllRoles(

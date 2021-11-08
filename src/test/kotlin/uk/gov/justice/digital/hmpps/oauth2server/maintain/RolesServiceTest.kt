@@ -16,6 +16,7 @@ import org.mockito.Mockito.anyString
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.RoleRepository
@@ -111,6 +112,42 @@ class RolesServiceTest {
         rolesService.createRole("user", createRole)
       }.isInstanceOf(RolesService.RoleExistsException::class.java)
         .hasMessage("Unable to create role: NEW_ROLE with reason: role code already exists")
+    }
+  }
+
+  @Nested
+  inner class GetRoles {
+    @Test
+    fun `get all roles`() {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
+      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
+
+      val allRoles = rolesService.getRoles(null)
+      assertThat(allRoles.size).isEqualTo(2)
+    }
+
+    @Test
+    fun `get all roles returns no roles`() {
+      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf())
+
+      val allRoles = rolesService.getRoles(null)
+      assertThat(allRoles.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `get All Roles check filter`() {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
+      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
+
+      rolesService.getRoles(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
+      verify(roleRepository).findAll(
+        check {
+          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
+        },
+        eq(Sort.by(Sort.Direction.ASC, "roleName"))
+      )
     }
   }
 

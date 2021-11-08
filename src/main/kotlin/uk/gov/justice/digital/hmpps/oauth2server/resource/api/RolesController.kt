@@ -64,8 +64,29 @@ class RolesController(
   ) {
     rolesService.createRole(authentication.name, createRole)
   }
-
   @GetMapping("/api/roles")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
+  @ApiOperation(
+    value = "get all Roles",
+    nickname = "getAllRoles",
+    produces = "application/json"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)
+    ]
+  )
+  fun getRoles(
+    @ApiParam(value = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
+    @RequestParam(
+      required = false,
+    ) adminTypes: List<AdminType>?,
+  ): List<RoleDetails> = rolesService.getRoles(adminTypes)
+    .map {
+      RoleDetails(it)
+    }
+
+  @GetMapping("/api/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @ApiImplicitParams(
     ApiImplicitParam(
@@ -92,8 +113,8 @@ class RolesController(
     )
   )
   @ApiOperation(
-    value = "get all Roles.",
-    nickname = "getAllRoles",
+    value = "get all paged Roles.",
+    nickname = "getAllPagedRoles",
     produces = "application/json"
   )
   @ApiResponses(
