@@ -178,5 +178,21 @@ internal class UserContextApprovalHandlerTest {
       assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
       verify(userContextService).discoverUsers(userDetails, emptySet(), listOf("ROLE_BOB", "ROLE_FRED"))
     }
+
+    @Test
+    fun `calls auth service with base client id`() {
+      authorizationRequest.requestParameters = mutableMapOf("bob" to "joe")
+      authorizationRequest.clientId = "base-client-239"
+      val userDetails =
+        UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
+      whenever(authentication.principal).thenReturn(userDetails)
+      val users = listOf(createSampleUser(username = "harry"))
+      val service = Service("CODE", "NAME", "Description", "ROLE_BOB,ROLE_FRED", "http://some.url", true, "a@b.com")
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
+      val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
+      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      verify(authServicesService).findService("base-client")
+    }
   }
 }

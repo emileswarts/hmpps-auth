@@ -52,7 +52,7 @@ class ClientsController(
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
-        .addObject("baseClientId", clientService.baseClientId(baseClientId))
+        .addObject("baseClientId", ClientService.baseClientId(baseClientId))
     } else {
       val (clientDetails, clients) = ClientDetailsWithCopies(AuthClientDetails(), emptyList())
       ModelAndView("ui/form", "clientDetails", clientDetails)
@@ -133,7 +133,7 @@ class ClientsController(
       .addObject("clientSecret", clientSecret)
       .addObject("base64ClientId", base64ClientId)
       .addObject("base64ClientSecret", base64ClientSecret)
-      .addObject("baseClientId", clientService.baseClientId(clientId))
+      .addObject("baseClientId", ClientService.baseClientId(clientId))
 
   @GetMapping("/{clientId}/delete")
   @PreAuthorize("hasRole('ROLE_OAUTH_ADMIN')")
@@ -175,7 +175,7 @@ class ClientsController(
       .addObject("clientSecret", clientSecret)
       .addObject("base64ClientId", base64ClientId)
       .addObject("base64ClientSecret", base64ClientSecret)
-      .addObject("baseClientId", clientService.baseClientId(clientId))
+      .addObject("baseClientId", ClientService.baseClientId(clientId))
 
   // Unfortunately the getAdditionalInformation getter creates an unmodifiable map, so can't be used with web binder.
   // Have to therefore extend and create our own accessor instead.

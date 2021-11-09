@@ -179,19 +179,18 @@ class ClientService(
       throw DuplicateClientsException(baseClientId, "MaxReached")
     }
 
-    val ids = clients.map {
-      clientNumber(it.id)
-    }
+    val ids = clients.map { clientNumber(it.id) }
 
     val increment = ids.maxOrNull()?.plus(1)
 
     return "$baseClientId-$increment"
   }
 
-  fun baseClientId(clientId: String): String = clientId.replace(regex = clientIdSuffixRegex, replacement = "")
-  private fun clientNumber(clientId: String): Int = clientId.substringAfterLast("-").toIntOrNull() ?: 0
-
-  private val clientIdSuffixRegex = "-[0-9]*$".toRegex()
+  companion object {
+    private val clientIdSuffixRegex = "-[0-9]*$".toRegex()
+    fun baseClientId(clientId: String): String = clientId.replace(regex = clientIdSuffixRegex, replacement = "")
+    private fun clientNumber(clientId: String): Int = clientId.substringAfterLast("-").toIntOrNull() ?: 0
+  }
 }
 
 data class ClientDetailsWithCopies(val clientDetails: ClientDetails, val duplicates: List<Client>)

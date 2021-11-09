@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.provider.ClientDetailsService
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
+import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
 
@@ -70,7 +71,7 @@ class UserContextApprovalHandler(
     // if we are in as an azure user find out any users that can be mapped to the current user
     val userDetails = userAuthentication.principal as UserDetailsImpl
     if (userDetails.authSource == azuread.source || linkAccounts) {
-      val requiredRoles = authServicesService.findService(authorizationRequest.clientId)?.roles ?: emptyList()
+      val requiredRoles = authServicesService.findService(ClientService.baseClientId(authorizationRequest.clientId))?.roles ?: emptyList()
       val users = userContextService.discoverUsers(loginUser = userDetails, scopes = authorizationRequest.scope, roles = requiredRoles)
       userApprovalRequest["users"] = users
     }
