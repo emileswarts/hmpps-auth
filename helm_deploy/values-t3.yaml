@@ -24,7 +24,7 @@ env:
   APPLICATION_NON_PROD_WARNING_ENABLED: "true"
   APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
   APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
-  APPLICATION_LINK_ACCOUNTS: "true"
+  APPLICATION_LINK_ACCOUNTS: "false"
   DELIUS_ENDPOINT_URL: "https://community-api-secure.test.delius.probation.hmpps.dsd.io"
   NOMIS_ENDPOINT_URL: "https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk"
   JWT_COOKIE_EXPIRY_TIME: "12h"
