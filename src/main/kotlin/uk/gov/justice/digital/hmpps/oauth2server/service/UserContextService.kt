@@ -32,9 +32,7 @@ class UserContextService(
 
     // if specific accounts are requested via scopes, attempt to find just those.
     // otherwise, attempt to find all accounts.
-    val requestedSources = AuthSource.values()
-      .filter { it.name in scopes }
-      .let { it.ifEmpty { setOf(auth, nomis, delius) } }
+    val requestedSources = findRequestedSources(scopes)
 
     val email = userService.getEmail(loginUser) ?: return emptyList()
     return requestedSources.map { findEnabledUsersWithRoles(email, it, roles) }
@@ -42,9 +40,27 @@ class UserContextService(
       .flatten()
   }
 
-  private fun findEnabledUsersWithRoles(email: String, source: AuthSource, roles: List<String>) = findUsers(email, source)
-    .filter { u -> u.isEnabled }
-    .filter { roles.isEmpty() || it.authorities.map { r -> r.authority }.intersect(roles.toSet()).isNotEmpty() }
+  fun checkUser(
+    loginUser: UserPersonDetails,
+    scopes: Set<String> = emptySet(),
+    roles: List<String> = emptyList(),
+  ): Boolean {
+    val requestedSources = findRequestedSources(scopes)
+    return requestedSources.contains(AuthSource.fromNullableString(loginUser.authSource)) &&
+      checkUserHasRole(loginUser, roles)
+  }
+
+  private fun findRequestedSources(scopes: Set<String>): Collection<AuthSource> = AuthSource.values()
+    .filter { it.name in scopes }
+    .let { it.ifEmpty { setOf(auth, nomis, delius) } }
+
+  private fun findEnabledUsersWithRoles(email: String, source: AuthSource, roles: List<String>) =
+    findUsers(email, source)
+      .filter { u -> u.isEnabled }
+      .filter { checkUserHasRole(it, roles) }
+
+  private fun checkUserHasRole(user: UserPersonDetails, roles: List<String>) =
+    roles.isEmpty() || user.authorities.map { r -> r.authority }.intersect(roles.toSet()).isNotEmpty()
 
   private fun findUsers(email: String, to: AuthSource): List<UserPersonDetails> =
     when (to) {

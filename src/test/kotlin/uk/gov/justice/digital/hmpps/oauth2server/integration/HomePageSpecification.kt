@@ -26,7 +26,7 @@ class HomePageSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage).loginAs("ITAG_USER", "password")
     homePage.isAt()
 
-    homePage.checkLinks("CATTOOL", "NOMIS", "KW", "DETAILS", "USERADMIN")
+    homePage.checkLinks("CATTOOL", "NOMIS", "KW", "DETAILS", "manage-user-accounts-ui")
   }
 
   @Test
@@ -44,7 +44,7 @@ class HomePageSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
 
-    homePage.checkLinks("DETAILS", "USERADMIN", "OAUTHADMIN")
+    homePage.checkLinks("DETAILS", "manage-user-accounts-ui", "OAUTHADMIN")
   }
 
   @Test

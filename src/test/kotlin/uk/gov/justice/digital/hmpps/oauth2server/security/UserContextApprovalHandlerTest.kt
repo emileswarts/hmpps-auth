@@ -37,6 +37,8 @@ internal class UserContextApprovalHandlerTest {
   private val oAuth2AccessToken: OAuth2AccessToken = mock()
   private val clientDetails: ClientDetails = mock()
 
+  private val service = Service("CODE", "NAME", "Description", "ROLE_BOB,ROLE_FRED", "http://some.url", true, "a@b.com")
+
   @BeforeEach
   internal fun setUp() {
     handler.setRequestFactory(requestFactory)
@@ -66,6 +68,8 @@ internal class UserContextApprovalHandlerTest {
       )
       whenever(tokenStore.getAccessToken(any())).thenReturn(oAuth2AccessToken)
       whenever(oAuth2AccessToken.isExpired).thenReturn(false)
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(true)
       val approval = handler.checkForPreApproval(authorizationRequest, authentication)
       assertThat(approval.isApproved).isTrue
     }
@@ -93,12 +97,32 @@ internal class UserContextApprovalHandlerTest {
     }
 
     @Test
+    fun `not approved as no privileges`() {
+      authorizationRequest.clientId = "base-client-239"
+      val userDetails =
+        UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
+      whenever(authentication.principal).thenReturn(
+        userDetails
+      )
+      whenever(tokenStore.getAccessToken(any())).thenReturn(oAuth2AccessToken)
+      whenever(oAuth2AccessToken.isExpired).thenReturn(false)
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(false)
+      val approval = handler.checkForPreApproval(authorizationRequest, authentication)
+      assertThat(approval.isApproved).isFalse
+      verify(authServicesService).findService("base-client")
+      verify(userContextService).checkUser(userDetails, emptySet(), listOf("ROLE_BOB", "ROLE_FRED"))
+    }
+
+    @Test
     fun `approved as not azure ad user`() {
       whenever(authentication.principal).thenReturn(
         UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId", passedMfa = true)
       )
       whenever(tokenStore.getAccessToken(any())).thenReturn(oAuth2AccessToken)
       whenever(oAuth2AccessToken.isExpired).thenReturn(false)
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(true)
       val approval = handler.checkForPreApproval(authorizationRequest, authentication)
       assertThat(approval.isApproved).isTrue
     }
@@ -112,6 +136,7 @@ internal class UserContextApprovalHandlerTest {
       whenever(authentication.principal).thenReturn(
         UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId", passedMfa = true)
       )
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(true)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
       assertThat(map).containsExactly(entry("bob", "joe"))
     }
@@ -127,7 +152,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users), entry("requireMfa", true))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "requireMfa" to true, "service" to null))
     }
 
     @Test
@@ -136,8 +161,21 @@ internal class UserContextApprovalHandlerTest {
       whenever(authentication.principal).thenReturn(
         UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId", passedMfa = true)
       )
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(true)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
       assertThat(map).containsExactly(entry("bob", "joe"))
+    }
+
+    @Test
+    fun `user has no privileges`() {
+      authorizationRequest.requestParameters = mutableMapOf("bob" to "joe")
+      whenever(authentication.principal).thenReturn(
+        UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId", passedMfa = true)
+      )
+      whenever(authServicesService.findService(any())).thenReturn(service)
+      whenever(userContextService.checkUser(any(), any(), any())).thenReturn(false)
+      val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "service" to "NAME", "users" to emptyList<UserPersonDetails>()))
     }
 
     @Test
@@ -149,7 +187,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to null))
     }
 
     @Test
@@ -161,7 +199,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to null))
     }
 
     @Test
@@ -171,11 +209,10 @@ internal class UserContextApprovalHandlerTest {
         UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
       whenever(authentication.principal).thenReturn(userDetails)
       val users = listOf(createSampleUser(username = "harry"))
-      val service = Service("CODE", "NAME", "Description", "ROLE_BOB,ROLE_FRED", "http://some.url", true, "a@b.com")
       whenever(authServicesService.findService(any())).thenReturn(service)
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to "NAME"))
       verify(userContextService).discoverUsers(userDetails, emptySet(), listOf("ROLE_BOB", "ROLE_FRED"))
     }
 
@@ -187,11 +224,10 @@ internal class UserContextApprovalHandlerTest {
         UserDetailsImpl("user", "name", setOf(), AuthSource.nomis.name, "userid", "jwtId", passedMfa = true)
       whenever(authentication.principal).thenReturn(userDetails)
       val users = listOf(createSampleUser(username = "harry"))
-      val service = Service("CODE", "NAME", "Description", "ROLE_BOB,ROLE_FRED", "http://some.url", true, "a@b.com")
       whenever(authServicesService.findService(any())).thenReturn(service)
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactly(entry("bob", "joe"), entry("users", users))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to "NAME"))
       verify(authServicesService).findService("base-client")
     }
   }

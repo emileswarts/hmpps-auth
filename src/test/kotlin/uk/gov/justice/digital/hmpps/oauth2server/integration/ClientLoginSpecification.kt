@@ -43,6 +43,9 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   @Page
   internal lateinit var selectUserPage: SelectUserPage
 
+  @Page
+  internal lateinit var selectUserNoRolesPage: SelectUserNoRolesPage
+
   @Test
   fun `I can sign in from another client`() {
     clientSignIn("ITAG_USER", "password")
@@ -192,9 +195,9 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
   }
 
   @Test
-  fun `Sign in as azure ad user with a disabled auth account leaves user as azure`() {
+  fun `Sign in as azure ad user with a disabled auth account leaves user as azure but with warning`() {
     // The email is mapped to AUTH_GROUP_MANAGER in the nomis database
-    azureClientSignIn("auth_disabled@digital.justice.gov.uk")
+    azureClientSignInNoPrivilegesContinue("auth_disabled@digital.justice.gov.uk")
       .jsonPath(".user_name").isEqualTo("FE016DC1-83A6-4B39-9ACC-7CE82D2921D9")
       .jsonPath(".user_id").isEqualTo("auth_disabled@digital.justice.gov.uk")
       .jsonPath(".sub").isEqualTo("FE016DC1-83A6-4B39-9ACC-7CE82D2921D9")
@@ -218,6 +221,18 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
         val claims = JWTParser.parse(it[0].toString()).jwtClaimsSet
         assertThat(claims.getClaim("user_name")).isEqualTo("AUTH_CHANGE_TEST")
       }
+  }
+
+  @Test
+  fun `Sign in as a user with no privileges in service gives warning`() {
+    clientAccess("manage-user-accounts-ui") {
+      loginPage.isAtPage().submitLogin("AUTH_USER", "password123456")
+      selectUserNoRolesPage.isAtPage().proceed()
+    }
+      .jsonPath(".user_name").isEqualTo("AUTH_USER")
+      .jsonPath(".user_id").isEqualTo("608955ae-52ed-44cc-884c-011597a77949")
+      .jsonPath(".sub").isEqualTo("AUTH_USER")
+      .jsonPath(".auth_source").isEqualTo("auth")
   }
 
   @Test
@@ -303,6 +318,15 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
       selectUserPage.isAtPage().selectUser("auth", username)
     }
   }
+  private fun azureClientSignInNoPrivilegesContinue(email: String): BodyContentSpec {
+    AzureOIDCExtension.azureOIDC.stubToken(email)
+    return clientAccess(
+      "azure-login-client"
+    ) {
+      loginPage.clickAzureOIDCLink()
+      selectUserNoRolesPage.isAtPage().proceed()
+    }
+  }
 }
 
 @PageUrl("/oauth/authorize")
@@ -313,5 +337,15 @@ class SelectUserPage : AuthPage<SelectUserPage>("HMPPS Digital Services - Select
   fun selectUser(authSource: String, username: String) {
     el("input[value='$authSource/$username']").click()
     selectButton.submit()
+  }
+}
+
+@PageUrl("/oauth/authorize")
+class SelectUserNoRolesPage : AuthPage<SelectUserNoRolesPage>("HMPPS Digital Services - Missing privileges", "Missing privileges") {
+  @FindBy(css = "input[type='submit']")
+  private lateinit var continueButton: FluentWebElement
+
+  fun proceed() {
+    continueButton.submit()
   }
 }

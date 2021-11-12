@@ -51,11 +51,10 @@ class UserSelectorAndMfaAuthorizationEndpoint(
 
     val selectedUser = users?.let {
       when (users.size) {
-        // no users found so don't need to do anything?
-        0 -> null
+        0 -> return ModelAndView("userSelectorNoRoles", model)
         1 -> {
           val user = users[0] as UserPersonDetails
-          "${user.authSource}/${user.username}"
+          with(user) { "$authSource/$username" }
         }
         // otherwise take user to userSelector page to select their user first
         // need to go there since if end up doing role based mfa selection then need to map user before selecting role
@@ -94,7 +93,7 @@ class UserSelectorAndMfaAuthorizationEndpoint(
     val mfaPassed = user?.passedMfa == true
 
     val replacedAuthentication = if ((clientNeedsMfa && mfaPassed) || !clientNeedsMfa) {
-      if (!account.isNullOrBlank() && authentication != null) {
+      if (!account.isNullOrBlank() && account != "true" && authentication != null) {
         replaceAuthentication(account, authentication, approvalParameters)
       } else if (mfaPassed) {
         approvalParameters[USER_OAUTH_APPROVAL] = "true"

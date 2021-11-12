@@ -116,7 +116,8 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
       val modelAndView =
         endpoint.authorize(mutableMapOf(), mapOf(), sessionStatus, authentication)
 
-      assertThat(modelAndView.view).isSameAs(view)
+      assertThat(modelAndView.viewName).isEqualTo("userSelectorNoRoles")
+      assertThat(modelAndView.model).isEmpty()
     }
 
     @Test
@@ -190,6 +191,22 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
 
       assertThat(approveView).isSameAs(view)
       verify(userService).getMasterUserPersonDetailsWithEmailCheck("bloggs", AuthSource.none, loginDetails)
+      verify(authorizationEndpoint).approveOrDeny(approvalParameters, model, sessionStatus, authentication)
+    }
+
+    @Test
+    fun `test approveOrDeny account set to true`() {
+      whenever(authorizationEndpoint.approveOrDeny(any(), any(), any(), any())).thenReturn(view)
+      val authorizationRequest = AuthorizationRequest("bob", setOf())
+      val loginDetails =
+        UserDetailsImpl("user", "name", setOf(), AuthSource.azuread.name, "userid", "jwtId", passedMfa = true)
+      whenever(authentication.principal).thenReturn(loginDetails)
+
+      val approvalParameters = mutableMapOf("user_oauth_approval" to "true")
+      val model = mutableMapOf<String, Any>("authorizationRequest" to authorizationRequest)
+      val approveView = endpoint.approveOrDeny(approvalParameters, model, sessionStatus, authentication)
+
+      assertThat(approveView).isSameAs(view)
       verify(authorizationEndpoint).approveOrDeny(approvalParameters, model, sessionStatus, authentication)
     }
 

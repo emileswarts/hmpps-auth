@@ -40,19 +40,29 @@ class UserContextApprovalHandler(
     // we are purposefully not calling the super method, because if we deny the request
     // based on unapproved scopes we do not currently have a way to explicitly approve it.
 
-    if (!(userAuthentication.principal as UserDetailsImpl).passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest.clientId)) {
+    val userDetails = userAuthentication.principal as UserDetailsImpl
+    if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest.clientId)) {
       authorizationRequest.isApproved = false
       return authorizationRequest
     }
 
     // All Azure AD users are sent down this route, the controller will work out what accounts are found etc.
-    authorizationRequest.isApproved = !(isAzureAdUser(userAuthentication) || linkAccounts)
+    val authSource = AuthSource.fromNullableString(userDetails.authSource)
+    authorizationRequest.isApproved =
+      !(authSource == azuread || linkAccounts || noPrivileges(userDetails, authorizationRequest))
 
     return authorizationRequest
   }
 
-  private fun isAzureAdUser(userAuthentication: Authentication) =
-    AuthSource.fromNullableString((userAuthentication.principal as UserDetailsImpl).authSource) == azuread
+  private fun noPrivileges(userDetails: UserDetailsImpl, authorizationRequest: AuthorizationRequest): Boolean {
+    val service = authServicesService.findService(ClientService.baseClientId(authorizationRequest.clientId))
+    val serviceRoles = service?.roles ?: emptyList()
+    return !userContextService.checkUser(
+      loginUser = userDetails,
+      scopes = authorizationRequest.scope,
+      roles = serviceRoles
+    )
+  }
 
   /**
    * Overridden to
@@ -70,10 +80,22 @@ class UserContextApprovalHandler(
 
     // if we are in as an azure user find out any users that can be mapped to the current user
     val userDetails = userAuthentication.principal as UserDetailsImpl
+    val service = authServicesService.findService(ClientService.baseClientId(authorizationRequest.clientId))
+    val serviceRoles = service?.roles ?: emptyList()
     if (userDetails.authSource == azuread.source || linkAccounts) {
-      val requiredRoles = authServicesService.findService(ClientService.baseClientId(authorizationRequest.clientId))?.roles ?: emptyList()
-      val users = userContextService.discoverUsers(loginUser = userDetails, scopes = authorizationRequest.scope, roles = requiredRoles)
+      val users = userContextService.discoverUsers(
+        loginUser = userDetails,
+        scopes = authorizationRequest.scope,
+        roles = serviceRoles
+      )
       userApprovalRequest["users"] = users
+      userApprovalRequest["service"] = service?.name
+    } else if (!userContextService.checkUser(
+        loginUser = userDetails, scopes = authorizationRequest.scope, roles = serviceRoles
+      )
+    ) {
+      userApprovalRequest["users"] = emptyList<UserPersonDetails>()
+      userApprovalRequest["service"] = service?.name
     }
 
     if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest.clientId)) {
