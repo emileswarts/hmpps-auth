@@ -5,15 +5,20 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import org.hibernate.validator.constraints.URL
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
+import org.springframework.http.HttpHeaders
 import org.springframework.http.client.reactive.ClientHttpConnector
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.security.oauth2.core.AuthorizationGrantType
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.Connection
 import reactor.netty.http.client.HttpClient
+import uk.gov.justice.digital.hmpps.oauth2server.utils.UserContext
 import java.time.Duration
 
 abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, private val clientId: String) {
@@ -42,6 +47,25 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     return builder
       .baseUrl("${endpointUrl}$prefix")
       .apply(oauth2.oauth2Configuration())
+      .clientConnector(
+        getClientConnectorWithTimeouts(
+          apiTimeout, apiTimeout,
+          endpointUrl, environment.getRequiredProperty("$clientId.enabled", Boolean::class.java),
+        )
+      )
+      .build()
+  }
+
+  fun getWebClientWithCurrentUserToken(
+    builder: WebClient.Builder,
+    prefix: String = ""
+  ): WebClient {
+    val apiTimeout = environment.getRequiredProperty("$clientId.endpoint.timeout", Duration::class.java)
+    val endpointUrl = environment.getRequiredProperty("$clientId.endpoint.url", String::class.java)
+
+    return builder
+      .baseUrl("${endpointUrl}$prefix")
+      .filter(addAuthHeaderFilterFunction())
       .clientConnector(
         getClientConnectorWithTimeouts(
           apiTimeout, apiTimeout,
@@ -101,3 +125,11 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
+
+private fun addAuthHeaderFilterFunction(): ExchangeFilterFunction =
+  ExchangeFilterFunction { request: ClientRequest?, next: ExchangeFunction ->
+    val filtered = ClientRequest.from(request)
+      .header(HttpHeaders.AUTHORIZATION, UserContext.getAuthToken())
+      .build()
+    next.exchange(filtered)
+  }

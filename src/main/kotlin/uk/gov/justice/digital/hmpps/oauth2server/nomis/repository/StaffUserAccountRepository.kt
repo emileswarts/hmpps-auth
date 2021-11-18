@@ -15,11 +15,6 @@ interface StaffUserAccountRepository : CrudRepository<NomisUserPersonDetails, St
   )
   fun findAllNomisUsersByEmailAddress(email: String): List<NomisUserPersonDetails>
 
-  fun findByStaffFirstNameIgnoreCaseAndStaffLastNameIgnoreCase(
-    firstName: String,
-    lastName: String,
-  ): List<NomisUserPersonDetails>
-
   @Modifying
   @Query(value = "call oms_utils.change_user_password(:username, :password)", nativeQuery = true)
   fun changePassword(username: String?, password: String?)

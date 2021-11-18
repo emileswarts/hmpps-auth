@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.azure.service.AzureUserService
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
@@ -149,7 +149,7 @@ class UserService(
   }
 
   fun findPrisonUsersByFirstAndLastNames(firstName: String, lastName: String): List<PrisonUserDto> {
-    val nomisUsers: List<NomisUserPersonDetails> =
+    val nomisUsers: List<NomisUserSummaryDto> =
       nomisUserService.findPrisonUsersByFirstAndLastNames(firstName, lastName)
     val nomisUsernames = nomisUsers.map { it.username }
 
@@ -173,7 +173,7 @@ class UserService(
       .map { nomisUser ->
         PrisonUserDto(
           username = nomisUser.username,
-          userId = nomisUser.userId,
+          userId = nomisUser.staffId,
           email = authUsersByUsername[nomisUser.username]?.email ?: validNomisEmailByUsername[nomisUser.username],
           verified = if (authUsersByUsername[nomisUser.username] == null) {
             validNomisEmailByUsername.containsKey(nomisUser.username)
@@ -182,7 +182,7 @@ class UserService(
           },
           firstName = nomisUser.firstName,
           lastName = nomisUser.lastName,
-          activeCaseLoadId = nomisUser.activeCaseLoadId
+          activeCaseLoadId = nomisUser.activeCaseload?.id
         )
       }
   }

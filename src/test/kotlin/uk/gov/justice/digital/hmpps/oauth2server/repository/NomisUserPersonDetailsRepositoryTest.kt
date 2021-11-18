@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.repository
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -29,16 +28,7 @@ class NomisUserPersonDetailsRepositoryTest {
   private lateinit var repository: StaffUserAccountRepository
 
   @Test
-  fun findByFirstAndLastName() {
-    val results = repository.findByStaffFirstNameIgnoreCaseAndStaffLastNameIgnoreCase("rYaN", "OrtON")
-
-    assertThat(results)
-      .extracting("username", "staff.firstName", "staff.lastName")
-      .containsExactly(tuple("RO_USER_TEST", "Ryan", "Orton"))
-  }
-
-  @Test
-  fun givenATransientEntityItCanBePeristed() {
+  fun givenATransientEntityItCanBePersisted() {
     val entity = transientEntity()
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()

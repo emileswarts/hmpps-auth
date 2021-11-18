@@ -28,6 +28,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.PrisonCaseload
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
@@ -412,21 +414,9 @@ class UserServiceTest {
 
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          createSampleNomisUser(
-            staff = Staff(firstName = "f1", lastName = "l1", staffId = 1, status = "INACTIVE"),
-            username = "U1",
-            activeCaseLoadId = null
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f2", lastName = "l2", staffId = 2, status = "INACTIVE"),
-            username = "U2",
-            activeCaseLoadId = null
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f3", lastName = "l3", staffId = 3, status = "INACTIVE"),
-            username = "U3",
-            activeCaseLoadId = "MDI"
-          ),
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, null),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"))
         )
       )
 
@@ -475,24 +465,11 @@ class UserServiceTest {
 
     @Test
     fun `Prison users matched in auth`() {
-
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          createSampleNomisUser(
-            staff = Staff(firstName = "f1", lastName = "l1", staffId = 1, status = "INACTIVE"),
-            username = "U1",
-            activeCaseLoadId = "MDI"
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f2", lastName = "l2", staffId = 2, status = "INACTIVE"),
-            username = "U2",
-            activeCaseLoadId = null
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f3", lastName = "l3", staffId = 3, status = "INACTIVE"),
-            username = "U3",
-            activeCaseLoadId = "MDI"
-          ),
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland")),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"))
         )
       )
 
@@ -544,26 +521,10 @@ class UserServiceTest {
 
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          createSampleNomisUser(
-            staff = Staff(firstName = "f1", lastName = "l1", staffId = 1, status = "INACTIVE"),
-            username = "U1",
-            activeCaseLoadId = "MDI"
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f2", lastName = "l2", staffId = 2, status = "INACTIVE"),
-            username = "U2",
-            activeCaseLoadId = null
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f3", lastName = "l3", staffId = 3, status = "INACTIVE"),
-            username = "U3",
-            activeCaseLoadId = null
-          ),
-          createSampleNomisUser(
-            staff = Staff(firstName = "f4", lastName = "l4", staffId = 4, status = "INACTIVE"),
-            username = "U4",
-            activeCaseLoadId = "MDI"
-          ),
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland")),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, null),
+          NomisUserSummaryDto("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"))
         )
       )
 

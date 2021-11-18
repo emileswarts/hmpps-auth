@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.LinkEmailAndUsername
@@ -34,7 +35,7 @@ abstract class NomisUserService(
       .filter { it.verified }
       .map { it.username }
 
-    val allNomisInAuth = if (allNomisInAuthUsernames.size > 0)
+    val allNomisInAuth = if (allNomisInAuthUsernames.isNotEmpty())
       staffUserAccountRepository.findAllById(allNomisInAuthUsernames).toSet() else setOf()
 
     val allNomis = staffUserAccountRepository.findAllNomisUsersByEmailAddress(emailLowered)
@@ -43,8 +44,8 @@ abstract class NomisUserService(
     return allNomis.union(allNomisInAuth).toList()
   }
 
-  fun findPrisonUsersByFirstAndLastNames(firstName: String, lastName: String): List<NomisUserPersonDetails> {
-    return staffUserAccountRepository.findByStaffFirstNameIgnoreCaseAndStaffLastNameIgnoreCase(firstName, lastName)
+  fun findPrisonUsersByFirstAndLastNames(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+    return nomisUserApiService.findUsers(firstName, lastName)
   }
 
   fun changeEmailAndRequestVerification(username: String, emailInput: String?, url: String, emailType: EmailType): LinkEmailAndUsername {

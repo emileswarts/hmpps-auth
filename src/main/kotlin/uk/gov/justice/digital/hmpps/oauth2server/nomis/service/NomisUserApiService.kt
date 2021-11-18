@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordExceptio
 @Service
 class NomisUserApiService(
   @Qualifier("nomisWebClient") private val webClient: WebClient,
+  @Qualifier("nomisUserWebClient") private val nomisUserWebClient: WebClient,
   private val objectMapper: ObjectMapper,
 ) {
   fun changePassword(username: String, password: String) {
@@ -47,7 +48,35 @@ class NomisUserApiService(
       .toBodilessEntity()
       .block()
   }
+
+  fun findUsers(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+    return nomisUserWebClient.get().uri {
+      it.path("/users/staff")
+        .queryParam("firstName", firstName)
+        .queryParam("lastName", lastName)
+        .build()
+    }
+      .retrieve()
+      .bodyToMono(NomisUserList::class.java)
+      .block()!!
+  }
 }
+
+class NomisUserList : MutableList<NomisUserSummaryDto> by ArrayList()
+
+data class NomisUserSummaryDto(
+  val username: String,
+  val staffId: String,
+  val firstName: String,
+
+  val lastName: String,
+  val active: Boolean,
+  val activeCaseload: PrisonCaseload?
+)
+data class PrisonCaseload(
+  val id: String,
+  val name: String
+)
 
 fun <T> errorWhenBadRequest(
   exception: WebClientResponseException,

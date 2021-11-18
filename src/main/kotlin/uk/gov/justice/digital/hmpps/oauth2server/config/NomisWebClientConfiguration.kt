@@ -20,6 +20,11 @@ class NomisWebClientConfiguration(appContext: ApplicationContext) :
     authorizedClientManager: OAuth2AuthorizedClientManager
   ): WebClient = getWebClient(builder, authorizedClientManager)
 
+  @Bean("nomisUserWebClient")
+  fun nomisUserWebClient(
+    builder: WebClient.Builder,
+  ): WebClient = getWebClientWithCurrentUserToken(builder)
+
   @Bean("nomisHealthWebClient")
   fun nomisHealthWebClient(builder: WebClient.Builder): WebClient = getHealthWebClient(builder)
 }

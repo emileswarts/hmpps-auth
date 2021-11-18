@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -31,13 +34,17 @@ class NomisUserApiServiceTest : IntegrationTest() {
   lateinit var webClient: WebClient
 
   @Autowired
+  @Qualifier("nomisUserWebClient")
+  lateinit var nomisUserWebClient: WebClient
+
+  @Autowired
   lateinit var objectMapper: ObjectMapper
 
   private lateinit var nomisService: NomisUserApiService
 
   @BeforeEach
   fun setUp() {
-    nomisService = NomisUserApiService(webClient, objectMapper)
+    nomisService = NomisUserApiService(webClient, nomisUserWebClient, objectMapper)
   }
 
   @DisplayName("changePassword")
@@ -46,8 +53,8 @@ class NomisUserApiServiceTest : IntegrationTest() {
     @Test
     fun `it will succeed when API is OK`() {
       nomisApi.stubFor(
-        WireMock.put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
-          WireMock.aResponse()
+        put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
+          aResponse()
             .withHeader("Content-Type", "application/json")
             .withStatus(HttpURLConnection.HTTP_OK)
         )
@@ -63,8 +70,8 @@ class NomisUserApiServiceTest : IntegrationTest() {
     @Test
     fun `it will throw an exception for unexpected errors`() {
       nomisApi.stubFor(
-        WireMock.put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
-          WireMock.aResponse()
+        put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
+          aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
               """
@@ -86,8 +93,8 @@ class NomisUserApiServiceTest : IntegrationTest() {
     @Test
     fun `it will throw a PasswordValidationFailureException for simple validation failures`() {
       nomisApi.stubFor(
-        WireMock.put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
-          WireMock.aResponse()
+        put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
+          aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
               """
@@ -110,8 +117,8 @@ class NomisUserApiServiceTest : IntegrationTest() {
     @Test
     fun `it will throw a PasswordValidationFailureException for NOMIS validation failures`() {
       nomisApi.stubFor(
-        WireMock.put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
-          WireMock.aResponse()
+        put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
+          aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
               """
@@ -134,8 +141,8 @@ class NomisUserApiServiceTest : IntegrationTest() {
     @Test
     fun `it will throw a ReusedPasswordException when NOMIS detects password has been used before`() {
       nomisApi.stubFor(
-        WireMock.put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
-          WireMock.aResponse()
+        put(urlEqualTo("/users/NOMIS_PASSWORD_RESET/change-password")).willReturn(
+          aResponse()
             .withHeader("Content-Type", "application/json")
             .withBody(
               """
@@ -169,6 +176,59 @@ class NomisUserApiServiceTest : IntegrationTest() {
     nomisService.unlockAccount("NOMIS_PASSWORD_RESET")
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/NOMIS_PASSWORD_RESET/unlock-user"))
+    )
+  }
+
+  @Test
+  fun `findUsers returns a matching user`() {
+    nomisApi.stubFor(
+      get(urlEqualTo("/users/staff?firstName=First&lastName=Last")).willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withStatus(HttpURLConnection.HTTP_OK)
+          .withBody(
+            """
+            [ {
+        "username": "ITAG_USER",
+        "staffId": 100,
+        "email": "itag_user@digital.justice.gov.uk",
+        "verified": true,
+        "firstName": "Api",
+        "lastName": "User",
+        "name": "Api User",
+        "activeCaseLoadId": "MDI"
+    }]
+            """.trimIndent()
+          )
+      )
+    )
+
+    nomisService.findUsers("First", "Last")
+    nomisApi.verify(
+      getRequestedFor(
+        urlEqualTo("/users/staff?firstName=First&lastName=Last")
+      )
+    )
+  }
+
+  @Test
+  fun `findUsers returns no matching users`() {
+    nomisApi.stubFor(
+      get(urlEqualTo("/users/staff?firstName=First&lastName=Last")).willReturn(
+        aResponse()
+          .withHeader("Content-Type", "application/json")
+          .withStatus(HttpURLConnection.HTTP_OK)
+          .withBody(
+            "[]"
+          )
+      )
+    )
+
+    nomisService.findUsers("First", "Last")
+    nomisApi.verify(
+      getRequestedFor(
+        urlEqualTo("/users/staff?firstName=First&lastName=Last")
+      )
     )
   }
 }

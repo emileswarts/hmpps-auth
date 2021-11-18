@@ -5,19 +5,35 @@ import com.nhaarman.mockitokotlin2.check
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 
+@ExtendWith(NomisExtension::class)
 class PrisonUserControllerIntTest : IntegrationTest() {
   @MockBean
   private lateinit var telemetryClient: TelemetryClient
+  @MockBean
+  private lateinit var nomisUserApiService: NomisUserApiService
 
   @Test
   fun `Prison user end-point returns results`() {
+    whenever(nomisUserApiService.findUsers("ryAn", "OrtoN")).thenReturn(
+      listOf(
+        NomisUserSummaryDto(
+          "RO_USER_TEST", "11", "Ryan", "Orton", true, null
+        )
+      )
+    )
+
     webTestClient
       .get().uri("/api/prisonuser?firstName=ryAn&lastName=OrtoN")
       .headers(setAuthorisation("UOF_REVIEWER_USER", listOf("ROLE_USE_OF_FORCE")))
