@@ -9,13 +9,14 @@ import org.springframework.security.oauth2.provider.ClientDetailsService
 import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientDeploymentRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordGenerator
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.count
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.lastAccessed
@@ -23,14 +24,16 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.secretUpdated
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.team
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.type
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
-@Service
+@org.springframework.stereotype.Service
 class ClientService(
   private val clientsDetailsService: ClientDetailsService,
   private val clientRegistrationService: ClientRegistrationService,
   private val passwordGenerator: PasswordGenerator,
   private val clientRepository: ClientRepository,
   private val clientDeploymentRepository: ClientDeploymentRepository,
+  private val oauthServiceRepository: OauthServiceRepository,
 ) {
 
   @Throws(ClientAlreadyExistsException::class)
@@ -51,20 +54,25 @@ class ClientService(
   fun listUniqueClients(sortBy: SortBy, filterBy: ClientFilter?): List<ClientSummary> {
     val baseClients = clientRepository.findAll().groupBy { baseClientId(it.id) }.toSortedMap()
     val deployments = clientDeploymentRepository.findAll().associateBy { it.baseClientId }
+    val services = oauthServiceRepository.findAll().associateBy { it.code }
     return baseClients.toList().map {
       val deployment: ClientDeployment? = deployments[it.first]
+      val service: Service? = services[it.first]
       val firstClient = it.second[0]
       val lastAccessed = it.second.map { it.lastAccessed }.maxOrNull()
       val secretUpdated = it.second.map { it.secretUpdated }.maxOrNull()
       ClientSummary(
         baseClientId = it.first,
         clientType = deployment?.type,
+        service = service?.name ?: deployment?.type?.name?.lowercase()?.replaceFirstChar(Char::uppercaseChar),
         teamName = deployment?.team,
         grantTypes = firstClient.authorizedGrantTypes.sorted().joinToString("\n"),
         roles = firstClient.authoritiesWithoutPrefix.sorted().joinToString("\n"),
         lastAccessed = lastAccessed,
+        lastAccessedTime = lastAccessed?.toEpochSecond(ZoneOffset.UTC),
         secretUpdated = secretUpdated,
-        count = it.second.size
+        secretUpdatedTime = secretUpdated?.toEpochSecond(ZoneOffset.UTC),
+        count = it.second.size,
       )
     }.filter { cs ->
       filterBy?.let { filter ->
@@ -203,11 +211,14 @@ data class ClientDuplicateIdsAndDeployment(
 data class ClientSummary(
   val baseClientId: String,
   val clientType: ClientType?,
+  val service: String?,
   val teamName: String?,
   val grantTypes: String,
   val roles: String,
   val lastAccessed: LocalDateTime?,
+  val lastAccessedTime: Long?,
   val secretUpdated: LocalDateTime?,
+  val secretUpdatedTime: Long?,
   val count: Int,
 )
 

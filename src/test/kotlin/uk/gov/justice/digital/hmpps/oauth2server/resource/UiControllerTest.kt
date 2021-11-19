@@ -25,9 +25,12 @@ internal class UiControllerTest {
         roles = "role",
         count = 5,
         clientType = ClientType.PERSONAL,
+        service = "Some service",
         teamName = "name",
         lastAccessed = null,
-        secretUpdated = null
+        lastAccessedTime = null,
+        secretUpdated = null,
+        secretUpdatedTime = null,
       )
     )
     val filterBy = ClientFilter(role = "bob")

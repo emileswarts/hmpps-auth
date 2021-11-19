@@ -27,15 +27,18 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType.SERVICE
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientDeploymentRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
 import uk.gov.justice.digital.hmpps.oauth2server.resource.ClientsController.AuthClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordGenerator
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.count
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.Optional
 
 internal class ClientServiceTest {
   private val clientRepository: ClientRepository = mock()
   private val clientDeploymentRepository: ClientDeploymentRepository = mock()
+  private val oauthServiceRepository: OauthServiceRepository = mock()
   private val clientDetailsService: ClientDetailsService = mock()
   private val clientRegistrationService: ClientRegistrationService = mock()
   private val passwordGenerator: PasswordGenerator = mock()
@@ -44,7 +47,8 @@ internal class ClientServiceTest {
     clientRegistrationService,
     passwordGenerator,
     clientRepository,
-    clientDeploymentRepository
+    clientDeploymentRepository,
+    oauthServiceRepository,
   )
 
   @Nested
@@ -298,9 +302,12 @@ internal class ClientServiceTest {
           roles = "bob\nfred",
           count = 1,
           clientType = null,
+          service = null,
           teamName = null,
           lastAccessed = lastAccessed,
+          lastAccessedTime = lastAccessed.toEpochSecond(ZoneOffset.UTC),
           secretUpdated = secretUpdated,
+          secretUpdatedTime = secretUpdated.toEpochSecond(ZoneOffset.UTC),
         )
       )
     }
@@ -329,9 +336,12 @@ internal class ClientServiceTest {
           roles = "",
           count = 2,
           clientType = null,
+          service = null,
           teamName = null,
           lastAccessed = lastAccessedLatest,
+          lastAccessedTime = lastAccessedLatest.toEpochSecond(ZoneOffset.UTC),
           secretUpdated = secretUpdatedLatest,
+          secretUpdatedTime = secretUpdatedLatest.toEpochSecond(ZoneOffset.UTC),
         )
       )
     }
@@ -372,9 +382,12 @@ internal class ClientServiceTest {
           roles = "",
           count = 1,
           clientType = PERSONAL,
+          service = "Personal",
           teamName = "name",
           lastAccessed = lastAccessed,
+          lastAccessedTime = lastAccessed.toEpochSecond(ZoneOffset.UTC),
           secretUpdated = secretUpdated,
+          secretUpdatedTime = secretUpdated.toEpochSecond(ZoneOffset.UTC),
         )
       )
     }

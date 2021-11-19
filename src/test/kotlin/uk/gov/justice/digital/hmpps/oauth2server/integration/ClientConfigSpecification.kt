@@ -379,12 +379,12 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
 
     goTo(clientSummaryPage).filterBy(clientType = "SERVICE")
     clientSummaryPage.checkClientSummary(
-      rowsMin = 3, rowsMax = 20, client = "service-client", text = "service-client SERVICE A Team client_credentials"
+      rowsMin = 3, rowsMax = 20, client = "service-client", text = "service-client Service A Team client_credentials"
     )
     clientSummaryPage.checkClientDoesntExist("apireporting")
 
-    val clientTypeColumns = find("table tbody td[data-test='clientTypes']").texts()
-    assertThat(clientTypeColumns).hasSizeGreaterThanOrEqualTo(2).containsOnly("SERVICE")
+    val clientTypeColumns = find("table tbody td[data-test='service']").texts()
+    assertThat(clientTypeColumns).hasSizeGreaterThanOrEqualTo(2).containsOnly("Service")
   }
 
   @Test

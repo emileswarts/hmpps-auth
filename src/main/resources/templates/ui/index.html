@@ -58,7 +58,7 @@
       <tr class="govuk-table__row">
         <th class="govuk-table__header" scope="col" aria-sort="ascending">Client</th>
         <th class="govuk-table__header" scope="col" aria-sort="none">Count</th>
-        <th class="govuk-table__header" scope="col" aria-sort="none">Client type</th>
+        <th class="govuk-table__header" scope="col" aria-sort="none">Service</th>
         <th class="govuk-table__header" scope="col" aria-sort="none">Team name</th>
         <th class="govuk-table__header" scope="col" aria-sort="none">Grant types</th>
         <th class="govuk-table__header" scope="col" aria-sort="none">Roles</th>
@@ -76,12 +76,14 @@
           <strong class="govuk-tag govuk-tag--yellow" th:if="${client.count == 2}">2</strong>
           <strong class="govuk-tag govuk-tag--red" th:if="${client.count > 2}" th:text="${client.count}">3</strong>
         </td>
-        <td th:text="${client.clientType}" class="govuk-table__cell" data-test="clientTypes"></td>
+        <td th:text="${client.service}" class="govuk-table__cell" data-test="service"></td>
         <td th:text="${client.teamName}" class="govuk-table__cell"></td>
         <td th:text="${client.grantTypes}" class="govuk-table__cell client-grant-types" data-test="grantTypes"></td>
         <td th:text="${client.roles}" class="govuk-table__cell client-roles" data-test="roles"></td>
-        <td th:text="${#temporals.format(client.secretUpdated, 'dd-MM-yyyy')}" class="govuk-table__cell"></td>
-        <td th:text="${#temporals.format(client.lastAccessed, 'dd-MM-yyyy')}" class="govuk-table__cell"></td>
+        <td th:text="${#temporals.format(client.secretUpdated, 'dd-MM-yyyy')}"
+            data-th-attr="data-sort-value=${client.secretUpdatedTime}" class="govuk-table__cell"></td>
+        <td th:text="${#temporals.format(client.lastAccessed, 'dd-MM-yyyy')}"
+            data-th-attr="data-sort-value=${client.lastAccessedTime}" class="govuk-table__cell"></td>
       </tr>
       </tbody>
     </table>
