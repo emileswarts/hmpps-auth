@@ -73,6 +73,35 @@ class AuthServicesServiceTest {
       verify(oauthServiceRepository).findById("code")
     }
   }
+  @Nested
+  inner class loadServiceDetails {
+    @Test
+    internal fun `load client service details`() {
+      val clientServiceDetails = createClientServiceDetails()
+      whenever(oauthServiceRepository.findById(anyString())).thenReturn(Optional.of(clientServiceDetails))
+      val clientService = authServicesService.loadServiceDetails("client")
+
+      assertThat(clientService).isEqualTo(clientServiceDetails)
+      verify(oauthServiceRepository).findById("client")
+    }
+
+    @Test
+    internal fun `load client service details - no details held`() {
+      val clientServiceDetails = authServicesService.loadServiceDetails("client")
+
+      assertThat(clientServiceDetails).isNull()
+      verify(oauthServiceRepository).findById("client")
+    }
+    private fun createClientServiceDetails(): Service = Service(
+      code = "client",
+      name = "client service",
+      description = "A service",
+      authorisedRoles = "A Role",
+      url = "http://localhost:3001/",
+      enabled = true,
+      email = "bob@Ateam",
+    )
+  }
 
   @Nested
   inner class updateService {

@@ -25,18 +25,21 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.resource.ClientsController.AuthClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
+import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
 
 class ClientControllerTest {
+  private val authServiceServices: AuthServicesService = mock()
   private val clientRegistrationService: ClientRegistrationService = mock()
   private val clientService: ClientService = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val controller = ClientsController(clientRegistrationService, clientService, telemetryClient)
+  private val controller = ClientsController(authServiceServices, clientRegistrationService, clientService, telemetryClient)
   private val authentication = TestingAuthenticationToken(
     UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId"),
     "pass"
@@ -69,6 +72,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
+      assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
 

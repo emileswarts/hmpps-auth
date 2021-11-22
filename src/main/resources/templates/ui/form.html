@@ -170,6 +170,74 @@
         </dd>
       </div>
     </dl>
+
+
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-m">Service details</h2>
+      </div>
+<!--      <div class="govuk-grid-column-one-third">-->
+<!--        <a class="govuk-link govuk-link&#45;&#45;no-visited-state" id="serviceChange" name="serviceChange"-->
+<!--           th:href="@{/ui/services/form?code=__${clients[0].id}__}">Change service details</a>-->
+<!--      </div>-->
+    </div>
+    <dl class="govuk-summary-list">
+
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service name
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceName" name="serviceName"
+            th:text="${service.name != null} ? ${service.name} : ''">
+          Service name
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service description
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceDescription" name="serviceDescription"
+            th:text="${service.description != null} ? ${service.description} : ''">
+          Service description
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service authorised roles
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceAuthorisedRoles" name="serviceAuthorisedRoles"
+            th:text="${service.authorisedRolesWithNewlines != null} ? ${service.authorisedRolesWithNewlines} : ''">
+          Service authorised roles
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service URL
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceUrl" name="serviceUrl"
+            th:text="${service.url != null} ? ${service.url} : ''">
+          Service URL
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service contact us URL or email
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceEmail" name="serviceEmail"
+            th:text="${service.email != null} ? ${service.email} : ''">
+          Service contact us URL or email
+        </dd>
+      </div>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+          Service status
+        </dt>
+        <dd class="govuk-summary-list__value" id="serviceEnabled" name="serviceEnabled"
+            th:text="${service.enabled != null} ? ${service.enabled} : ''">
+          Service status
+        </dd>
+      </div>
+    </dl>
   </div>
 
   <form th:with="clientType=${param.client != null} ? 'edit' : 'add'" th:action="@{'/ui/clients/'+ ${clientType}}"
@@ -187,7 +255,7 @@
 
       <a th:if="${clientDetails.jiraNo != null}"
          th:href="@{https://dsdmoj.atlassian.net/browse/__${clientDetails.jiraNo}__}"
-         class="govuk-link"  id="jiraNoLink"> https://dsdmoj.atlassian.net/browse/<span
+         class="govuk-link" id="jiraNoLink"> https://dsdmoj.atlassian.net/browse/<span
         th:text="${clientDetails.jiraNo}">DT-2264</span></a>
     </div>
     <br>

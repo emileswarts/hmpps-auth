@@ -349,6 +349,15 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `Service details are displayed for a authorisation grant client`() {
+    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+
+    goTo(clientSummaryPage).editClient("manage-user-accounts-ui")
+    clientMaintenancePage.isAtPage()
+      .checkServiceDetails()
+  }
+
+  @Test
   fun `I can filter by role`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -542,6 +551,16 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
     assertThat(el("#secretName").displayed()).isFalse
     assertThat(el("#clientIdKey").displayed()).isFalse
     assertThat(el("#secretKey").displayed()).isFalse
+    return this
+  }
+
+  fun checkServiceDetails(): ClientMaintenancePage {
+    assertThat(el("#serviceName").text()).isEqualTo("Manage user accounts")
+    assertThat(el("#serviceDescription").text()).isEmpty()
+    assertThat(el("#serviceAuthorisedRoles").text()).isEqualTo("ROLE_KW_MIGRATION ROLE_MAINTAIN_ACCESS_ROLES ROLE_MAINTAIN_ACCESS_ROLES_ADMIN ROLE_MAINTAIN_OAUTH_USERS ROLE_AUTH_GROUP_MANAGER")
+    assertThat(el("#serviceUrl").text()).isEqualTo("http://localhost:3001/")
+    assertThat(el("#serviceEmail").text()).isEmpty()
+    assertThat(el("#serviceEnabled").text()).isEqualTo("true")
     return this
   }
 

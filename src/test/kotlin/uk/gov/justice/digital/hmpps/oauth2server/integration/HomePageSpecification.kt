@@ -26,7 +26,7 @@ class HomePageSpecification : AbstractDeliusAuthSpecification() {
     goTo(loginPage).loginAs("ITAG_USER", "password")
     homePage.isAt()
 
-    homePage.checkLinks("CATTOOL", "NOMIS", "KW", "DETAILS", "manage-user-accounts-ui")
+    homePage.checkLinks("categorisationtool", "NOMIS", "KW", "DETAILS", "manage-user-accounts-ui")
   }
 
   @Test

@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthorityPropertyEditor
 import uk.gov.justice.digital.hmpps.oauth2server.config.SplitCollectionEditor
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
@@ -32,6 +34,7 @@ import java.util.Base64.getEncoder
 @Controller
 @RequestMapping("ui/clients")
 class ClientsController(
+  private val authServicesService: AuthServicesService,
   private val clientRegistrationService: ClientRegistrationService,
   private val clientService: ClientService,
   private val telemetryClient: TelemetryClient,
@@ -44,15 +47,17 @@ class ClientsController(
 
   @GetMapping("/form")
   @PreAuthorize("hasRole('ROLE_OAUTH_ADMIN')")
-  fun showEditForm(@RequestParam(value = "client", required = false) baseClientId: String?): ModelAndView {
-    return if (baseClientId != null) {
+  fun showEditForm(@RequestParam(value = "client", required = false) clientId: String?): ModelAndView {
+    return if (clientId != null) {
+      val baseClientId = ClientService.baseClientId(clientId)
       val (clientDetails, clients) = clientService.loadClientWithCopies(baseClientId)
-      val clientDeployment =
-        clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
+      val clientDeployment = clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
+      val serviceDetails = authServicesService.loadServiceDetails(baseClientId) ?: Service(code = baseClientId, name = "", description = "", url = "")
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
-        .addObject("baseClientId", ClientService.baseClientId(baseClientId))
+        .addObject("baseClientId", baseClientId)
+        .addObject("service", serviceDetails)
     } else {
       val (clientDetails, clients) = ClientDetailsWithCopies(AuthClientDetails(), emptyList())
       ModelAndView("ui/form", "clientDetails", clientDetails)

@@ -21,6 +21,10 @@ class AuthServicesService(private val oauthServiceRepository: OauthServiceReposi
   fun getService(code: String): Service = oauthServiceRepository.findById(code)
     .orElseThrow { EntityNotFoundException("Entity $code not found") }
 
+  fun loadServiceDetails(baseClientId: String): Service? {
+    return oauthServiceRepository.findByIdOrNull(baseClientId)
+  }
+
   fun updateService(service: Service) {
     oauthServiceRepository.save(service)
   }
