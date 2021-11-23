@@ -61,13 +61,19 @@ class ClientService(
       val firstClient = it.second[0]
       val lastAccessed = it.second.map { it.lastAccessed }.maxOrNull()
       val secretUpdated = it.second.map { it.secretUpdated }.maxOrNull()
+      val roles = firstClient.authoritiesWithoutPrefix.sorted().joinToString("\n")
+      val serviceRoles = service?.roles?.sorted()?.map { it.substringAfter("ROLE_") }?.joinToString("\n")
+      val serviceRolesWithTitle = serviceRoles?.let { "Service roles:\n$serviceRoles" } ?: ""
+      val joinedRoles = if (firstClient.authorities.isEmpty()) serviceRolesWithTitle
+      else if (serviceRoles?.isEmpty() != false) roles else "$roles\n$serviceRolesWithTitle"
+
       ClientSummary(
         baseClientId = it.first,
         clientType = deployment?.type,
         service = service?.name ?: deployment?.type?.name?.lowercase()?.replaceFirstChar(Char::uppercaseChar),
         teamName = deployment?.team,
         grantTypes = firstClient.authorizedGrantTypes.sorted().joinToString("\n"),
-        roles = firstClient.authoritiesWithoutPrefix.sorted().joinToString("\n"),
+        roles = joinedRoles,
         lastAccessed = lastAccessed,
         lastAccessedTime = lastAccessed?.toEpochSecond(ZoneOffset.UTC),
         secretUpdated = secretUpdated,

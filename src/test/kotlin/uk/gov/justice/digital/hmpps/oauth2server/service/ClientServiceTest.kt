@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType.PERSONAL
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType.SERVICE
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientDeploymentRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
@@ -432,6 +433,30 @@ internal class ClientServiceTest {
       whenever(clientRepository.findAll()).thenReturn(listOf(aClient, aClient2))
       val clients = clientService.listUniqueClients(count, ClientFilter(clientType = SERVICE, role = "bob", grantType = "pass"))
       assertThat(clients.map { it.baseClientId }).containsOnly("a-client")
+    }
+
+    @Test
+    internal fun `use service name if set`() {
+      whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client")))
+      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "")))
+      val clients = clientService.listUniqueClients(count, null)
+      assertThat(clients.map { it.service }).containsExactly("Service Name")
+    }
+
+    @Test
+    internal fun `combine roles`() {
+      whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client-2", authorities = listOf("ROLE_BOB"))))
+      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "", authorisedRoles = "ROLE_JOE")))
+      val clients = clientService.listUniqueClients(count, null)
+      assertThat(clients.map { it.roles }).containsExactly("BOB\nService roles:\nJOE")
+    }
+
+    @Test
+    internal fun `combine roles no authorities`() {
+      whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client-2")))
+      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "", authorisedRoles = "ROLE_JOE")))
+      val clients = clientService.listUniqueClients(count, null)
+      assertThat(clients.map { it.roles }).containsExactly("Service roles:\nJOE")
     }
   }
 
