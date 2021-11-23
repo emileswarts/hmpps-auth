@@ -164,12 +164,16 @@ if [[ ! -z "${stop_after_creation}" ]]; then
   echo "Stopping after update" && exit 0
 fi
 
-# Restart the app deployment
-echo "Restarting deployment \"${deployment}\""
-kubectl -n "${namespace}" rollout restart deployment "${deployment}"
+if [[ ! -z "${ignore_missing_deployment}" ]]; then
+  echo "Ignoring missing deployment so not restarting deployment"
+else
+  # Restart the app deployment
+  echo "Restarting deployment \"${deployment}\""
+  kubectl -n "${namespace}" rollout restart deployment "${deployment}"
 
-# Wait for restart to complete
-kubectl -n "${namespace}" rollout status deployment "${deployment}"
+  # Wait for restart to complete
+  kubectl -n "${namespace}" rollout status deployment "${deployment}"
+fi
 
 ### Delete the old secret no longer used
 echo "Deleting old clientID ${currentClientID}"
