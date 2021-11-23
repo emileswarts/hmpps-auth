@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -182,7 +183,9 @@ class NomisUserApiServiceTest : IntegrationTest() {
   @Test
   fun `findUsers returns a matching user`() {
     nomisApi.stubFor(
-      get(urlEqualTo("/users/staff?firstName=First&lastName=Last")).willReturn(
+      get(
+        urlEqualTo("/users/staff?firstName=First&lastName=Last")
+      ).willReturn(
         aResponse()
           .withHeader("Content-Type", "application/json")
           .withStatus(HttpURLConnection.HTTP_OK)
@@ -203,12 +206,13 @@ class NomisUserApiServiceTest : IntegrationTest() {
       )
     )
 
-    nomisService.findUsers("First", "Last")
+    val users = nomisService.findUsers("First", "Last")
     nomisApi.verify(
       getRequestedFor(
         urlEqualTo("/users/staff?firstName=First&lastName=Last")
       )
     )
+    assertThat(users).isNotEmpty
   }
 
   @Test
@@ -224,11 +228,74 @@ class NomisUserApiServiceTest : IntegrationTest() {
       )
     )
 
-    nomisService.findUsers("First", "Last")
+    val users = nomisService.findUsers("First", "Last")
     nomisApi.verify(
       getRequestedFor(
         urlEqualTo("/users/staff?firstName=First&lastName=Last")
       )
     )
+    assertThat(users).isEmpty()
+  }
+
+  @Nested
+  inner class FindUsersByEmail {
+    @Test
+    fun `findUsers returns no matching users`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/user?email=missing@justice.gov.uk"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+              .withBody(
+                "[]"
+              )
+          )
+      )
+
+      val users = nomisService.findUsersByEmailAddress("missing@justice.gov.uk")
+      nomisApi.verify(
+        getRequestedFor(
+          urlEqualTo("/users/user?email=missing@justice.gov.uk")
+        )
+      )
+      assertThat(users).isEmpty()
+    }
+
+    @Test
+    fun `findUsers returns a matching user`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/user?email=itag_user@digital.justice.gov.uk"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+              .withBody(
+                """
+            [ {
+        "username": "ITAG_USER",
+        "staffId": 100,
+        "firstName": "Api",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "active": true,
+        "accountStatus": "EXPIRED",
+        "accountType": "GENERAL",
+        "primaryEmail": "itag_user@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+    }]
+                """.trimIndent()
+              )
+          )
+      )
+
+      val users = nomisService.findUsersByEmailAddress("itag_user@digital.justice.gov.uk")
+      nomisApi.verify(
+        getRequestedFor(
+          urlEqualTo("/users/user?email=itag_user@digital.justice.gov.uk")
+        )
+      )
+      assertThat(users).isNotEmpty
+    }
   }
 }
