@@ -80,8 +80,16 @@ class AuthServicesServiceTest {
       val clientServiceDetails = createClientServiceDetails()
       whenever(oauthServiceRepository.findById(anyString())).thenReturn(Optional.of(clientServiceDetails))
       val clientService = authServicesService.loadServiceDetails("client")
-
-      assertThat(clientService).isEqualTo(clientServiceDetails)
+      val service = ServiceSummary(
+        code = "client",
+        name = "client service",
+        description = "A service",
+        authorisedRoles = "A Role",
+        url = "http://localhost:3001/",
+        enabled = true,
+        email = "bob@Ateam",
+      )
+      assertThat(clientService).isEqualTo(service)
       verify(oauthServiceRepository).findById("client")
     }
 
@@ -89,7 +97,8 @@ class AuthServicesServiceTest {
     internal fun `load client service details - no details held`() {
       val clientServiceDetails = authServicesService.loadServiceDetails("client")
 
-      assertThat(clientServiceDetails).isNull()
+      val service = ServiceSummary(code = "", name = "", description = "", authorisedRoles = "", url = "", enabled = null, email = "")
+      assertThat(clientServiceDetails).isEqualTo(service)
       verify(oauthServiceRepository).findById("client")
     }
     private fun createClientServiceDetails(): Service = Service(

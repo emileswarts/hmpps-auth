@@ -171,7 +171,7 @@
       </div>
     </dl>
 
-
+    <div class="govuk-form-group" th:if="${#lists.contains(clientDetails.authorizedGrantTypes, 'authorization_code') }">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Service details</h2>
@@ -185,59 +185,60 @@
 
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service name
+          Name
         </dt>
         <dd class="govuk-summary-list__value" id="serviceName" name="serviceName"
             th:text="${service.name != null} ? ${service.name} : ''">
-          Service name
+          Name
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service description
+          Description
         </dt>
         <dd class="govuk-summary-list__value" id="serviceDescription" name="serviceDescription"
             th:text="${service.description != null} ? ${service.description} : ''">
-          Service description
+          Description
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service authorised roles
+          Authorised roles
         </dt>
         <dd class="govuk-summary-list__value" id="serviceAuthorisedRoles" name="serviceAuthorisedRoles"
-            th:text="${service.authorisedRolesWithNewlines != null} ? ${service.authorisedRolesWithNewlines} : ''">
-          Service authorised roles
+            th:text="${service.authorisedRoles != null} ? ${service.authorisedRoles} : ''">
+          Authorised roles
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service URL
+          URL
         </dt>
         <dd class="govuk-summary-list__value" id="serviceUrl" name="serviceUrl"
             th:text="${service.url != null} ? ${service.url} : ''">
-          Service URL
+          URL
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service contact us URL or email
+          Contact us URL or email
         </dt>
         <dd class="govuk-summary-list__value" id="serviceEmail" name="serviceEmail"
             th:text="${service.email != null} ? ${service.email} : ''">
-          Service contact us URL or email
+          Contact us URL or email
         </dd>
       </div>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-          Service status
+          Tile on homepage
         </dt>
         <dd class="govuk-summary-list__value" id="serviceEnabled" name="serviceEnabled"
-            th:text="${service.enabled != null} ? ${service.enabled} : ''">
-          Service status
+            th:text="${service.enabled} ? 'Yes' : 'No'">
+          Tile on homepage
         </dd>
       </div>
     </dl>
+  </div>
   </div>
 
   <form th:with="clientType=${param.client != null} ? 'edit' : 'add'" th:action="@{'/ui/clients/'+ ${clientType}}"

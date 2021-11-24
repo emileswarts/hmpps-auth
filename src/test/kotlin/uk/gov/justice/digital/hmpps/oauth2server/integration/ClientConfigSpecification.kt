@@ -358,6 +358,15 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `Service details are not displayed for a client-credential clients`() {
+    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+
+    goTo(clientSummaryPage).editClient("v1-client")
+    clientMaintenancePage.isAtPage()
+      .checkServiceDetailsNotShown()
+  }
+
+  @Test
   fun `I can filter by role`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -557,10 +566,20 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
   fun checkServiceDetails(): ClientMaintenancePage {
     assertThat(el("#serviceName").text()).isEqualTo("Manage user accounts")
     assertThat(el("#serviceDescription").text()).isEmpty()
-    assertThat(el("#serviceAuthorisedRoles").text()).isEqualTo("ROLE_KW_MIGRATION ROLE_MAINTAIN_ACCESS_ROLES ROLE_MAINTAIN_ACCESS_ROLES_ADMIN ROLE_MAINTAIN_OAUTH_USERS ROLE_AUTH_GROUP_MANAGER")
+    assertThat(el("#serviceAuthorisedRoles").text()).isEqualTo("AUTH_GROUP_MANAGER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS")
     assertThat(el("#serviceUrl").text()).isEqualTo("http://localhost:3001/")
     assertThat(el("#serviceEmail").text()).isEmpty()
-    assertThat(el("#serviceEnabled").text()).isEqualTo("true")
+    assertThat(el("#serviceEnabled").text()).isEqualTo("Yes")
+    return this
+  }
+
+  fun checkServiceDetailsNotShown(): ClientMaintenancePage {
+    assertThat(el("#serviceName").displayed()).isFalse
+    assertThat(el("#serviceDescription").displayed()).isFalse
+    assertThat(el("#serviceAuthorisedRoles").displayed()).isFalse
+    assertThat(el("#serviceUrl").displayed()).isFalse
+    assertThat(el("#serviceEmail").displayed()).isFalse
+    assertThat(el("#serviceEnabled").displayed()).isFalse
     return this
   }
 

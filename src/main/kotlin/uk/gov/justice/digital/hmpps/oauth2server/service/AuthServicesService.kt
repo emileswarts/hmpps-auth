@@ -21,8 +21,18 @@ class AuthServicesService(private val oauthServiceRepository: OauthServiceReposi
   fun getService(code: String): Service = oauthServiceRepository.findById(code)
     .orElseThrow { EntityNotFoundException("Entity $code not found") }
 
-  fun loadServiceDetails(baseClientId: String): Service? {
-    return oauthServiceRepository.findByIdOrNull(baseClientId)
+  fun loadServiceDetails(baseClientId: String): ServiceSummary? {
+    val service = oauthServiceRepository.findByIdOrNull(baseClientId)
+    val roles = service?.roles?.map { it.substringAfter("ROLE_") }?.sorted()?.joinToString("\n") ?: ""
+    return ServiceSummary(
+      code = service?.code ?: "",
+      name = service?.name ?: "",
+      description = service?.description ?: "",
+      authorisedRoles = roles,
+      url = service?.url ?: "",
+      enabled = service?.enabled,
+      email = service?.email ?: "",
+    )
   }
 
   fun updateService(service: Service) {
@@ -41,3 +51,13 @@ class AuthServicesService(private val oauthServiceRepository: OauthServiceReposi
 
   fun findService(code: String): Service? = oauthServiceRepository.findByIdOrNull(code)
 }
+
+data class ServiceSummary(
+  val code: String?,
+  val name: String?,
+  val description: String?,
+  var authorisedRoles: String?,
+  val url: String?,
+  val enabled: Boolean?,
+  val email: String?,
+)
