@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.nomis.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -72,23 +73,21 @@ class NomisUserApiService(
         .build()
     }
       .retrieve()
-      .bodyToMono(NomisUserSummaryList::class.java)
+      .bodyToMono(object : ParameterizedTypeReference<List<NomisUserSummaryDto>>() {})
       .block()!!
   }
 }
 
 class NomisUserList : MutableList<NomisApiUserDetails> by ArrayList()
 
-class NomisUserSummaryList : MutableList<NomisUserSummaryDto> by ArrayList()
-
 data class NomisUserSummaryDto(
   val username: String,
   val staffId: String,
   val firstName: String,
-
   val lastName: String,
   val active: Boolean,
-  val activeCaseload: PrisonCaseload?
+  val activeCaseload: PrisonCaseload?,
+  val email: String?,
 )
 data class PrisonCaseload(
   val id: String,
