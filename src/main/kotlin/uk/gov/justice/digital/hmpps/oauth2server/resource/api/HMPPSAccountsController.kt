@@ -1,0 +1,120 @@
+package uk.gov.justice.digital.hmpps.oauth2server.resource.api
+
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiResponse
+import io.swagger.annotations.ApiResponses
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
+import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
+import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.HMPPSAccountType.Delius
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.HMPPSAccountType.NOMIS
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
+import java.time.LocalDateTime
+
+@RestController
+class HMPPSAccountsController(private val service: HMPPSAccountsService) {
+  @GetMapping("/api/accounts/multiple")
+  @ApiOperation(
+    value = """
+      A  list of users that have accounts in more than one HMPPS system
+    """,
+    nickname = "searchForUsersWithMultipleAccounts",
+    produces = "application/json"
+  )
+  @ApiResponses(value = [ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)])
+  @PreAuthorize(
+    "hasAnyRole('ROLE_ACCOUNT_RESEARCH')"
+  )
+  fun searchForUsersWithMultipleAccounts(): List<HMPPSAccounts> =
+    service.searchForUsersWithMultipleAccounts()
+}
+
+@Service
+class HMPPSAccountsService(
+  private val nomisUserApiService: NomisUserApiService,
+  private val userService: UserService,
+  private val deliusUserService: DeliusUserService
+) {
+  companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
+  fun searchForUsersWithMultipleAccounts(): List<HMPPSAccounts> {
+    val pageSize = 200
+    val pages = nomisUserApiService.findAllActiveUsers(PageRequest.of(0, pageSize)).totalPages
+    log.info("Found $pages pages of users")
+    fun getAssociatedDeliusAccounts(email: String): List<HMPPSAccount> {
+      return deliusUserService.getDeliusUsersByEmail(email).filter { it.isEnabled }.map { deliusAccount ->
+        HMPPSAccount(
+          accountType = Delius,
+          username = deliusAccount.username,
+          firstName = deliusAccount.firstName,
+          lastName = deliusAccount.surname
+        )
+      }
+    }
+    return (0 until pages).flatMap {
+      nomisUserApiService.findAllActiveUsers(PageRequest.of(it, pageSize)).also { log.info("Requesting page $it") }
+        .map { nomisUser ->
+          nomisUser to userService.findUser(nomisUser.username)
+        }
+        .filter { (_, maybeUser) ->
+          maybeUser.filter { user ->
+            user.hasLoggedInRecently()
+          }.isPresent
+        }
+        .map { (nomisUser, user) -> (nomisUser to user.orElseThrow()) }
+        .map { (nomisUser, user) ->
+          HMPPSAccounts(
+            accounts = listOf(
+              HMPPSAccount(
+                accountType = NOMIS,
+                username = nomisUser.username,
+                firstName = nomisUser.firstName,
+                lastName = nomisUser.lastName,
+              )
+            ),
+            email = user.email!!,
+          )
+        }
+        .map { account ->
+          account.copy(accounts = account.accounts + getAssociatedDeliusAccounts(account.email))
+        }
+        .filter { account -> account.hasMultipleAccounts() }
+    }
+  }
+}
+
+data class HMPPSAccounts(
+  val accounts: List<HMPPSAccount>,
+  val email: String,
+)
+
+data class HMPPSAccount(
+  val accountType: HMPPSAccountType,
+  val username: String,
+  val firstName: String,
+  val lastName: String
+)
+
+enum class HMPPSAccountType {
+  Delius,
+  NOMIS
+}
+
+private fun User.hasLoggedInRecently(): Boolean {
+  return lastLoggedIn.isAfter(
+    LocalDateTime.now().minusMonths(3)
+  )
+}
+
+private fun HMPPSAccounts.hasMultipleAccounts(): Boolean {
+  return accounts.size > 1
+}

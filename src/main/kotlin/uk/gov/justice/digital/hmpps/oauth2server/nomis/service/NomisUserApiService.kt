@@ -1,9 +1,14 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.service
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -76,7 +81,30 @@ class NomisUserApiService(
       .bodyToMono(object : ParameterizedTypeReference<List<NomisUserSummaryDto>>() {})
       .block()!!
   }
+
+  fun findAllActiveUsers(page: PageRequest): PageImpl<NomisUserSummaryDto> {
+    return webClient.get().uri {
+      it.path("/users")
+        .queryParam("status", "ACTIVE")
+        .queryParam("page", page.pageNumber)
+        .queryParam("size", page.pageSize)
+        .build()
+    }
+      .retrieve()
+      .bodyToMono(typeReference<RestResponsePage<NomisUserSummaryDto>>())
+      .block()!!
+  }
 }
+
+class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(
+  @JsonProperty("content") content: List<T>,
+  @JsonProperty("number") number: Int,
+  @JsonProperty("size") size: Int,
+  @JsonProperty("totalElements") totalElements: Long,
+  @Suppress("UNUSED_PARAMETER") @JsonProperty(
+    "pageable"
+  ) pageable: JsonNode
+) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)
 
 class NomisUserList : MutableList<NomisApiUserDetails> by ArrayList()
 
@@ -89,6 +117,7 @@ data class NomisUserSummaryDto(
   val activeCaseload: PrisonCaseload?,
   val email: String?,
 )
+
 data class PrisonCaseload(
   val id: String,
   val name: String
@@ -114,3 +143,5 @@ private fun mapUserDetailsToNomisUser(userDetails: NomisApiUserDetails): NomisAp
     enabled = userDetails.enabled,
     roles = userDetails.roles.map { roleCode -> SimpleGrantedAuthority(roleCode) }
   )
+
+inline fun <reified T> typeReference() = object : ParameterizedTypeReference<T>() {}
