@@ -171,7 +171,10 @@ INSERT INTO users (user_id, username, email, verified, source)
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABB', 'HWPV_SSCL_USER', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABC', 'HWPV_ALL_USER', 'prisonvisitsbooking@digital.justice.gov.uk', 1, 'nomis'),
         ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABD', 'PT_OMU_LOCAL', 'pt_omu_local@digital.justice.gov.uk', 1, 'nomis'),
-        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABE', 'MMP_USER', 'mmp_user@digital.justice.gov.uk', 1, 'nomis');
+        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABE', 'MMP_USER', 'mmp_user@digital.justice.gov.uk', 1, 'nomis'),
+        ('2D787EC4-556F-4D13-818A-45D6843B9A8D', 'SLM_MAILROOM_USER_LOCAL', 'send_legal_mail_mailroom_user_local@digital.justice.gov.uk', 1, 'nomis'),
+        ('F770E655-B59C-427F-8DBB-0EE5FD00B895', 'SLM_SECURITY_ANALYST_LOCAL', 'send_legal_mail_security_analyst_local@digital.justice.gov.uk', 1, 'nomis');
+
 
 INSERT INTO users (user_id, username, email, verified, last_logged_in, source)
  VALUES ('A2B6E3C0-2CE4-4148-9DFB-42E94BC78D02', 'NOMIS_DELETE', 'locked@somewhere.com', 1, '2018-02-04 13:23:19.0000000', 'nomis');
