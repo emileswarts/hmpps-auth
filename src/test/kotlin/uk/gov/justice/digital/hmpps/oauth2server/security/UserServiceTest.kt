@@ -402,7 +402,6 @@ class UserServiceTest {
     fun `no matches`() {
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(listOf())
       whenever(authUserService.findAuthUsersByUsernames(listOf())).thenReturn(listOf())
-      whenever(verifyEmailService.getExistingEmailAddressesForUsernames(listOf())).thenReturn(mapOf())
 
       assertThat(userService.findPrisonUsersByFirstAndLastNames("first", "last")).isEmpty()
     }
@@ -414,21 +413,11 @@ class UserServiceTest {
 
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, null),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"))
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, null, "u1@justice.gov.uk"),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, null),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
-
-      whenever(verifyEmailService.getExistingEmailAddressesForUsernames(anyList()))
-        .thenReturn(
-          mapOf(
-            "U1" to mutableSetOf("u1@justice.gov.uk", "u1@somethingelse.gov.uk"),
-
-            // Two matching e-mail suffixes results in no e-mail address.
-            "U3" to mutableSetOf("u3@justice.gov.uk", "another-u3@justice.gov.uk")
-          )
-        )
 
       assertThat(userService.findPrisonUsersByFirstAndLastNames("first", "last"))
         .containsExactlyInAnyOrder(
@@ -460,16 +449,15 @@ class UserServiceTest {
             activeCaseLoadId = "MDI"
           ),
         )
-      verify(verifyEmailService).getExistingEmailAddressesForUsernames(listOf("U1", "U2", "U3"))
     }
 
     @Test
     fun `Prison users matched in auth`() {
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland")),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"))
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, null),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 
@@ -512,8 +500,6 @@ class UserServiceTest {
             activeCaseLoadId = "MDI"
           ),
         )
-
-      verify(verifyEmailService).getExistingEmailAddressesForUsernames(listOf())
     }
 
     @Test
@@ -521,10 +507,10 @@ class UserServiceTest {
 
       whenever(nomisUserService.findPrisonUsersByFirstAndLastNames("first", "last")).thenReturn(
         listOf(
-          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland")),
-          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null),
-          NomisUserSummaryDto("U3", "3", "F3", "l3", false, null),
-          NomisUserSummaryDto("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"))
+          NomisUserSummaryDto("U1", "1", "F1", "l1", false, PrisonCaseload("MDI", "Moorland"), null),
+          NomisUserSummaryDto("U2", "2", "F2", "l2", false, null, "u2@justice.gov.uk"),
+          NomisUserSummaryDto("U3", "3", "F3", "l3", false, null, "u3@justice.gov.uk"),
+          NomisUserSummaryDto("U4", "4", "F4", "l4", false, PrisonCaseload("MDI", "Moorland"), null)
         )
       )
 
@@ -537,14 +523,6 @@ class UserServiceTest {
           createSampleUser(verified = true, source = auth, username = "U3", email = "u3@b.com"),
         )
       )
-
-      whenever(verifyEmailService.getExistingEmailAddressesForUsernames(anyList()))
-        .thenReturn(
-          mapOf(
-            Pair("U2", mutableSetOf("u2@justice.gov.uk", "u2@somethingelse.gov.uk")),
-            Pair("U3", mutableSetOf("u3@justice.gov.uk")),
-          )
-        )
 
       assertThat(userService.findPrisonUsersByFirstAndLastNames("first", "last"))
         .containsExactlyInAnyOrder(
@@ -585,8 +563,6 @@ class UserServiceTest {
             activeCaseLoadId = "MDI"
           ),
         )
-
-      verify(verifyEmailService).getExistingEmailAddressesForUsernames(listOf("U2", "U3", "U4"))
     }
   }
 

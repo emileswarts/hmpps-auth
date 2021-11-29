@@ -29,7 +29,7 @@ class PrisonUserControllerIntTest : IntegrationTest() {
     whenever(nomisUserApiService.findUsers("ryAn", "OrtoN")).thenReturn(
       listOf(
         NomisUserSummaryDto(
-          "RO_USER_TEST", "11", "Ryan", "Orton", true, null
+          "RO_USER_TEST", "11", "Ryan", "Orton", true, null, "nomis@email"
         )
       )
     )

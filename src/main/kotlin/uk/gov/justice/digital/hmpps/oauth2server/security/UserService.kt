@@ -39,7 +39,6 @@ class UserService(
 
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
-    fun isHmppsEmail(email: String) = email.endsWith("justice.gov.uk")
     fun isHmpsGsiEmail(email: String) = email.endsWith("hmps.gsi.gov.uk")
   }
 
@@ -151,40 +150,23 @@ class UserService(
   fun findPrisonUsersByFirstAndLastNames(firstName: String, lastName: String): List<PrisonUserDto> {
     val nomisUsers: List<NomisUserSummaryDto> =
       nomisUserService.findPrisonUsersByFirstAndLastNames(firstName, lastName)
-    val nomisUsernames = nomisUsers.map { it.username }
 
     val authUsersByUsername = authUserService
-      .findAuthUsersByUsernames(nomisUsernames)
-      .filter {
-        !it.email.isNullOrBlank() && it.source == nomis
-      }.map { it.username to it }
-      .toMap()
+      .findAuthUsersByUsernames(nomisUsers.map { it.username })
+      .filter { !it.email.isNullOrBlank() && it.source == nomis }
+      .associateBy { it.username }
 
-    val missingUsernames = nomisUsernames.minus(authUsersByUsername.keys)
-
-    val emailsByUsername = verifyEmailService.getExistingEmailAddressesForUsernames(missingUsernames)
-
-    val validNomisEmailByUsername = emailsByUsername
-      .mapValues { (_, emails) -> emails.filter(UserService::isHmppsEmail) }
-      .filter { (_, emails) -> emails.size == 1 }
-      .mapValues { (_, emails) -> emails.first() }
-
-    return nomisUsers
-      .map { nomisUser ->
-        PrisonUserDto(
-          username = nomisUser.username,
-          userId = nomisUser.staffId,
-          email = authUsersByUsername[nomisUser.username]?.email ?: validNomisEmailByUsername[nomisUser.username],
-          verified = if (authUsersByUsername[nomisUser.username] == null) {
-            validNomisEmailByUsername.containsKey(nomisUser.username)
-          } else {
-            authUsersByUsername[nomisUser.username]?.verified ?: false
-          },
-          firstName = nomisUser.firstName,
-          lastName = nomisUser.lastName,
-          activeCaseLoadId = nomisUser.activeCaseload?.id
-        )
-      }
+    return nomisUsers.map {
+      PrisonUserDto(
+        username = it.username,
+        userId = it.staffId,
+        email = authUsersByUsername[it.username]?.email ?: it.email,
+        verified = authUsersByUsername[it.username]?.verified ?: (it.email != null),
+        firstName = it.firstName,
+        lastName = it.lastName,
+        activeCaseLoadId = it.activeCaseload?.id
+      )
+    }
   }
 
   fun searchUsersInMultipleSourceSystems(
