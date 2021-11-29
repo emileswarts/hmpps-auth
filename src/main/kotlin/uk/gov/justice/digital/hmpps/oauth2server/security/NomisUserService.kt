@@ -31,20 +31,16 @@ abstract class NomisUserService(
   fun getNomisUsersByEmail(email: String): List<NomisUserPersonDetails> {
     val emailLowered = email.lowercase()
 
-    // Find all users in auth with the specified email address
     val allNomisInAuthUsernames = userRepository.findByEmailAndSourceOrderByUsername(emailLowered, nomis)
       .filter { it.verified }
       .map { it.username }
 
-    // Find all nomis users for the usernames
     val allNomisInAuth = if (allNomisInAuthUsernames.isNotEmpty())
       staffUserAccountRepository.findAllById(allNomisInAuthUsernames).toSet() else setOf()
 
-    // find all nomis users for the given email address
     val allNomis = staffUserAccountRepository.findAllNomisUsersByEmailAddress(emailLowered)
       .toSet()
 
-    // then join together
     return allNomis.union(allNomisInAuth).toList()
   }
 
