@@ -5,9 +5,11 @@ package uk.gov.justice.digital.hmpps.oauth2server.config
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.ServletRequestBindingException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserGroupException
@@ -26,6 +28,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.Auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
+import java.lang.Exception
 
 @RestControllerAdvice
 class AuthExceptionHandler {
@@ -171,6 +174,29 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.CONFLICT)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "role"))
+  }
+
+  @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
+  fun rethrowAccessException(e: org.springframework.security.access.AccessDeniedException) {
+    throw e
+  }
+
+  @ExceptionHandler(HttpMessageConversionException::class)
+  fun rethrowAccessException(e: HttpMessageConversionException) {
+    throw e
+  }
+
+  @ExceptionHandler(ServletRequestBindingException::class)
+  fun rethrowAccessException(e: ServletRequestBindingException) {
+    throw e
+  }
+
+  @ExceptionHandler(Exception::class)
+  fun handleException(e: Exception): ResponseEntity<ErrorDetail> {
+    log.error("Unexpected exception", e)
+    return ResponseEntity
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .body(ErrorDetail(HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase, "An unexpected error occurred"))
   }
 
   companion object {

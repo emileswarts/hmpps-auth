@@ -66,9 +66,10 @@ class HMPPSAccountsService(
           nomisUser to userService.findUser(nomisUser.username)
         }
         .filter { (_, maybeUser) ->
-          maybeUser.filter { user ->
-            user.hasLoggedInRecently()
-          }.isPresent
+          maybeUser
+            .filter { user -> user.hasLoggedInRecently() }
+            .filter { user -> user.email != null }
+            .isPresent
         }
         .map { (nomisUser, user) -> (nomisUser to user.orElseThrow()) }
         .map { (nomisUser, user) ->

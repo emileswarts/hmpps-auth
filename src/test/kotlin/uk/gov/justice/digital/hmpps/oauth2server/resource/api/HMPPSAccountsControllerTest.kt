@@ -163,6 +163,50 @@ class HMPPSAccountsControllerTest : IntegrationTest() {
 
     verify(deliusUserService, never()).getDeliusUsersByEmail(any())
   }
+  @Test
+  internal fun `will not return user if user has no email address in Auth`() {
+    whenever(nomisUserApiService.findAllActiveUsers(any())).thenReturn(
+      PageImpl<NomisUserSummaryDto>(
+        listOf(
+          NomisUserSummaryDto(
+            username = "TIM.BEANS",
+            staffId = "123",
+            firstName = "TIM",
+            lastName = "BEANS",
+            active = true,
+            activeCaseload = null,
+            email = "tim.beans@justice.gov.uk",
+          )
+        ),
+        Pageable.ofSize(200), 1
+      )
+    )
+
+    whenever(userService.findUser(any())).thenReturn(
+      Optional.of(
+        User(
+          username = "TIM.BEANS",
+          email = null,
+          source = AuthSource.nomis
+        ).apply {
+          lastLoggedIn = LocalDateTime.now().minusMinutes(10)
+        }
+      )
+    )
+
+    webTestClient
+      .get().uri("/api/accounts/multiple")
+      .headers(setAuthorisation("SOME_USER", listOf("ROLE_ACCOUNT_RESEARCH")))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody()
+      .jsonPath("$").value<List<Any>> {
+        assertThat(it).hasSize(0)
+      }
+
+    verify(deliusUserService, never()).getDeliusUsersByEmail(any())
+  }
 
   @Test
   internal fun `will user when they have active accounts in both NOMIS and Delius`() {
