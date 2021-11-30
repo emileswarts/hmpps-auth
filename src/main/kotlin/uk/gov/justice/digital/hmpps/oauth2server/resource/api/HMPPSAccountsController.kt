@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.slf4j.LoggerFactory
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
@@ -32,8 +34,15 @@ class HMPPSAccountsController(private val service: HMPPSAccountsService) {
   @PreAuthorize(
     "hasAnyRole('ROLE_ACCOUNT_RESEARCH')"
   )
-  fun searchForUsersWithMultipleAccounts(): List<HMPPSAccounts> =
-    service.searchForUsersWithMultipleAccounts()
+  fun searchForUsersWithMultipleAccounts(
+    @ApiParam(value = "page number to start searching NOMIS users from", required = true)
+    @RequestParam(value = "page", required = false)
+    page: Int?,
+    @ApiParam(value = "page count to retrieve for NOMIS users. Each page is 200 users", required = true)
+    @RequestParam(value = "pageCount", required = false)
+    pageCount: Int?,
+  ): List<HMPPSAccounts> =
+    service.searchForUsersWithMultipleAccounts(page, pageCount)
 }
 
 @Service
@@ -46,7 +55,7 @@ class HMPPSAccountsService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  fun searchForUsersWithMultipleAccounts(): List<HMPPSAccounts> {
+  fun searchForUsersWithMultipleAccounts(page: Int?, pageCount: Int?): List<HMPPSAccounts> {
     val pageSize = 200
     val pages = nomisUserApiService.findAllActiveUsers(PageRequest.of(0, pageSize)).totalPages
     log.info("Found $pages pages of users")
@@ -60,7 +69,11 @@ class HMPPSAccountsService(
         )
       }
     }
-    return (0 until pages).flatMap {
+
+    val fromPage = page ?: 0
+    val untilPage = minOf(pageCount?.let { fromPage + pageCount } ?: pages, pages)
+
+    return (fromPage until untilPage).flatMap {
       nomisUserApiService.findAllActiveUsers(PageRequest.of(it, pageSize)).also { log.info("Requesting page $it") }
         .map { nomisUser ->
           nomisUser to userService.findUser(nomisUser.username)

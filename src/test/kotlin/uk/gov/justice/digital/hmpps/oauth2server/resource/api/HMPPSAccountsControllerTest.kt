@@ -163,6 +163,7 @@ class HMPPSAccountsControllerTest : IntegrationTest() {
 
     verify(deliusUserService, never()).getDeliusUsersByEmail(any())
   }
+
   @Test
   internal fun `will not return user if user has no email address in Auth`() {
     whenever(nomisUserApiService.findAllActiveUsers(any())).thenReturn(
@@ -322,6 +323,80 @@ class HMPPSAccountsControllerTest : IntegrationTest() {
     verify(nomisUserApiService).findAllActiveUsers(
       check {
         assertThat(it.pageNumber).isEqualTo(2)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+  }
+
+  @Test
+  internal fun `will page through select pages of active NOMIS users`() {
+    val twoHundredUsers = (1..200).map {
+      NomisUserSummaryDto(
+        username = "NOMIS.TIM.BEANS.$it",
+        staffId = "123",
+        firstName = "TIM",
+        lastName = "BEANS",
+        active = true,
+        activeCaseload = null,
+        email = "tim.beans@justice.gov.uk",
+      )
+    }
+    whenever(nomisUserApiService.findAllActiveUsers(any())).thenReturn(
+      PageImpl<NomisUserSummaryDto>(
+        twoHundredUsers, Pageable.ofSize(200), 200_000
+      )
+    )
+
+    whenever(userService.findUser(any())).thenReturn(
+      Optional.empty()
+    )
+
+    webTestClient
+      .get()
+      .uri { it.path("/api/accounts/multiple").queryParam("page", "20").queryParam("pageCount", "5").build() }
+      .headers(setAuthorisation("SOME_USER", listOf("ROLE_ACCOUNT_RESEARCH")))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody()
+      .jsonPath("$").value<List<Any>> {
+        assertThat(it).hasSize(0)
+      }
+
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(0)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(20)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(21)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(22)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(23)
+        assertThat(it.pageSize).isEqualTo(200)
+      }
+    )
+    verify(nomisUserApiService).findAllActiveUsers(
+      check {
+        assertThat(it.pageNumber).isEqualTo(24)
         assertThat(it.pageSize).isEqualTo(200)
       }
     )
