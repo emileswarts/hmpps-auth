@@ -1,0 +1,29 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPattern": "/users/user\\?email=ro_user@some.justice.gov.uk"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "username": "RO_DEMO",
+        "staffId": 10,
+        "firstName": "Licence",
+        "lastName": "Responsible Officer Demo",
+        "activeCaseloadId": "BAI",
+        "active": true,
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "primaryEmail": "ro_user@some.justice.gov.uk",
+        "dpsRoleCodes": [
+          "LICENCE_RO"
+        ]
+      }
+    ]
+  }
+}

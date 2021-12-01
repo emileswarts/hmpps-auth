@@ -11,7 +11,7 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientMockServer.Companion.clientBaseUrl
 
-class MfaSpecification : AbstractDeliusAuthSpecification() {
+class MfaSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Page
   private lateinit var mfaEmailPage: MfaEmailPage

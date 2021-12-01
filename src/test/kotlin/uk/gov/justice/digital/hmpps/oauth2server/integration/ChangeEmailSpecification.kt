@@ -7,7 +7,7 @@ import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 
-class ChangeEmailSpecification : AbstractDeliusAuthSpecification() {
+class ChangeEmailSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Page
   private lateinit var passwordPromptForEmailPage: PasswordPromptForEmailPage

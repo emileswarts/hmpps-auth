@@ -32,7 +32,7 @@ import java.time.temporal.ChronoUnit
  * default the dev profile doesn't have it enabled so that other clients can use this project without issues.
  */
 @ExtendWith(RemoteClientExtension::class)
-class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
+class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Page
   private lateinit var clientSummaryPage: ClientSummaryPage
@@ -170,7 +170,7 @@ class ClientLoginSpecification : AbstractDeliusAuthSpecification() {
 
   @Test
   fun `I can sign in from another client as azure ad user with a nomis account and verified auth email`() {
-    // The email is mapped to RO_USER in the nomis database
+    // The email is mapped to ITAG_USER in the nomis database
     azureClientSignIn("itag_user@digital.justice.gov.uk")
       .jsonPath(".user_name").isEqualTo("ITAG_USER")
       .jsonPath(".user_id").isEqualTo("1")

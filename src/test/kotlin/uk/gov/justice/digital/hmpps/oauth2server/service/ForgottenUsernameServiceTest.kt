@@ -10,9 +10,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountDetail
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.service.notify.NotificationClientApi
 
@@ -45,7 +43,12 @@ class ForgottenUsernameServiceTest {
     verify(deliusUserService).getDeliusUsersByEmail("a.user@justice.gov.uk")
     verify(authUserService).findAuthUsersByEmail("a.user@justice.gov.uk")
     verify(nomisUserService).getNomisUsersByEmail("a.user@justice.gov.uk")
-    verify(notificationClientApi).sendEmail("emailNotFoundTemplate", "a.user@justice.gov.uk", mapOf<String, Any>(), null)
+    verify(notificationClientApi).sendEmail(
+      "emailNotFoundTemplate",
+      "a.user@justice.gov.uk",
+      mapOf<String, Any>(),
+      null
+    )
   }
 
   @Test
@@ -65,7 +68,12 @@ class ForgottenUsernameServiceTest {
     verify(deliusUserService).getDeliusUsersByEmail("a.user@justice.gov.uk")
     verify(authUserService).findAuthUsersByEmail("a.user@justice.gov.uk")
     verify(nomisUserService).getNomisUsersByEmail("a.user@justice.gov.uk")
-    verify(notificationClientApi).sendEmail("emailNotFoundTemplate", "a.user@justice.gov.uk", mapOf<String, Any>(), null)
+    verify(notificationClientApi).sendEmail(
+      "emailNotFoundTemplate",
+      "a.user@justice.gov.uk",
+      mapOf<String, Any>(),
+      null
+    )
   }
 
   @Test
@@ -98,14 +106,11 @@ class ForgottenUsernameServiceTest {
 
   @Test
   fun `one username found for nomis user`() {
-    val nomisUser = NomisUserPersonDetails(
-      "username1",
-      "",
-      Staff(firstName = "bob", status = "ACTIVE", lastName = "Smith", staffId = 1),
-      "GEN",
-      "MDI",
-      listOf(),
-      AccountDetail("username1", "OPEN", "GEN", null)
+    val nomisUser = createSampleNomisApiUser(
+      username = "username1",
+      firstName = "Bob",
+      lastName = "Smith",
+      email = "a.user@justice.gov.uk",
     )
     whenever(nomisUserService.getNomisUsersByEmail(anyString())).thenReturn(listOf(nomisUser))
     val username = service.forgottenUsername("a.user@justice.gov.uk", "someurl/forgotten-username")
@@ -269,14 +274,12 @@ class ForgottenUsernameServiceTest {
         )
       )
 
-    val nomisUser = NomisUserPersonDetails(
-      "username1",
-      "",
-      Staff(firstName = "bob", status = "ACTIVE", lastName = "Smith", staffId = 1),
-      "GEN",
-      "MDI",
-      listOf(),
-      AccountDetail("username1", "OPEN", "GEN", null)
+    val nomisUser = createSampleNomisApiUser(
+      username = "username1",
+      userId = "",
+      firstName = "Bob",
+      lastName = "Smith",
+      email = "a.user@justice.gov.uk",
     )
     val deliusUser = DeliusUserPersonDetails("username2", "id", "user", "name", "email@email.com", true)
 

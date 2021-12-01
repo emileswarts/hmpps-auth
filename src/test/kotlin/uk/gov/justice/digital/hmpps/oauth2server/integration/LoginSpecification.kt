@@ -12,7 +12,7 @@ import org.openqa.selenium.support.FindBy
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientMockServer.Companion.clientBaseUrl
 import uk.gov.justice.digital.hmpps.oauth2server.resource.TokenVerificationExtension.Companion.tokenVerificationApi
 
-class LoginSpecification : AbstractDeliusAuthSpecification() {
+class LoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   @Page
   internal lateinit var homePage: HomePage
 

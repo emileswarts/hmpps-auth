@@ -20,7 +20,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientExtension
  * default the dev profile doesn't have it enabled so that other clients can use this project without issues.
  */
 @ExtendWith(RemoteClientExtension::class)
-class MfaServiceBasedClientLoginSpecification : AbstractDeliusAuthSpecification() {
+class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   @Page
   internal lateinit var selectUserPage: SelectUserPage
 

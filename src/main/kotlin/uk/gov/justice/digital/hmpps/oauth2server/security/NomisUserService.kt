@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType.PRIMARY
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
@@ -28,24 +29,20 @@ abstract class NomisUserService(
   fun getNomisUserByUsername(username: String): Optional<NomisUserPersonDetails> =
     staffUserAccountRepository.findById(username.uppercase())
 
-  fun getNomisUsersByEmail(email: String): List<NomisUserPersonDetails> {
+  fun getNomisUsersByEmail(email: String): List<NomisApiUserPersonDetails> {
     val emailLowered = email.lowercase()
 
     // Find all users in auth with the specified email address
     val allNomisInAuthUsernames = userRepository.findByEmailAndSourceOrderByUsername(emailLowered, nomis)
       .filter { it.verified }
-      .map { it.username }
+      .associate { it.username to it.email }
 
-    // Find all nomis users for the usernames
-    val allNomisInAuth = if (allNomisInAuthUsernames.isNotEmpty())
-      staffUserAccountRepository.findAllById(allNomisInAuthUsernames).toSet() else setOf()
+    // Find all nomis users for the usernames or email address
+    val allNomis =
+      nomisUserApiService.findUsersByEmailAddressAndUsernames(emailLowered, allNomisInAuthUsernames.keys)
 
-    // find all nomis users for the given email address
-    val allNomis = staffUserAccountRepository.findAllNomisUsersByEmailAddress(emailLowered)
-      .toSet()
-
-    // then join together
-    return allNomis.union(allNomisInAuth).toList()
+    // then use all the results from nomis with emails from auth
+    return allNomis.map { it.copy(email = emailLowered) }
   }
 
   fun findPrisonUsersByFirstAndLastNames(firstName: String, lastName: String): List<NomisUserSummaryDto> {

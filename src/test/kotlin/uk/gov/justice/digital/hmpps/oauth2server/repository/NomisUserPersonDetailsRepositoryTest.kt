@@ -78,12 +78,6 @@ class NomisUserPersonDetailsRepositoryTest {
     assertThat(entity.password).startsWith("{bcrypt}")
   }
 
-  @Test
-  fun `find users by email address`() {
-    val users = repository.findAllNomisUsersByEmailAddress("phillips@fredjustice.gov.uk")
-    assertThat(users).extracting<String> { it.username }.containsExactly("RO_USER")
-  }
-
   private fun transientEntity() = NomisUserPersonDetails(
     username = "TEST_USER",
     password = null,

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension.Companion.azureOIDC
 
-class HomePageSpecification : AbstractDeliusAuthSpecification() {
+class HomePageSpecification : AbstractNomisAndDeliusAuthSpecification() {
   @Page
   private lateinit var homePage: HomePage
 

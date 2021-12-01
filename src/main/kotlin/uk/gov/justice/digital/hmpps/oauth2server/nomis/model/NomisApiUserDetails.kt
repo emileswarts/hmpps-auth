@@ -8,7 +8,7 @@ data class NomisApiUserDetails @JsonCreator constructor(
   @JsonProperty("username") val username: String,
   @JsonProperty("lastName") val surname: String,
   @JsonProperty("firstName") val firstName: String,
-  @JsonProperty("primaryEmail") val email: String,
+  @JsonProperty("primaryEmail") val email: String?,
   @JsonProperty("active") val enabled: Boolean,
   @JsonProperty("dpsRoleCodes") val roles: List<String>,
 )

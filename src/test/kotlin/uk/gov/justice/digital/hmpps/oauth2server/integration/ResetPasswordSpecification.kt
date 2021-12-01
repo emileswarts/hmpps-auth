@@ -8,13 +8,10 @@ import org.fluentlenium.core.annotation.Page
 import org.fluentlenium.core.annotation.PageUrl
 import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.openqa.selenium.support.FindBy
-import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
 
-@ExtendWith(NomisExtension::class)
-class ResetPasswordSpecification : AbstractDeliusAuthSpecification() {
+class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Page
   private lateinit var resetPasswordRequestPage: ResetPasswordRequestPage

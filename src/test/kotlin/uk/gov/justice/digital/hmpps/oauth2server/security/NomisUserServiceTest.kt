@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
@@ -64,31 +65,29 @@ internal class NomisUserServiceTest {
     fun `no users found`() {
       assertThat(nomisUserService.getNomisUsersByEmail("EmAil")).isEmpty()
 
-      verify(staffUserAccountRepository).findAllNomisUsersByEmailAddress("email")
+      verify(nomisUserApiService).findUsersByEmailAddressAndUsernames("email", setOf())
       verify(userRepository).findByEmailAndSourceOrderByUsername("email", nomis)
       verifyNoMoreInteractions(staffUserAccountRepository)
     }
 
     @Test
     fun `users found`() {
-      val joe = getNomisUser("JOE")
-      val fred = getNomisUser("FRED")
-      val harry = getNomisUser("HARRY")
-      val bob = getNomisUser("BOB")
-      whenever(staffUserAccountRepository.findAllNomisUsersByEmailAddress(anyString())).thenReturn(
-        listOf(
-          joe,
-          fred,
-          harry
-        )
-      )
       whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), any())).thenReturn(
         listOf(getUserFromAuth("JOE"), getUserFromAuth("BOB"))
       )
-      whenever(staffUserAccountRepository.findAllById(any())).thenReturn(listOf(joe, bob))
-      assertThat(nomisUserService.getNomisUsersByEmail("email")).containsExactlyInAnyOrder(joe, fred, harry, bob)
-
-      verify(staffUserAccountRepository).findAllById(listOf("JOE", "BOB"))
+      whenever(nomisUserApiService.findUsersByEmailAddressAndUsernames(anyString(), any())).thenReturn(
+        listOf(
+          createSampleNomisApiUser("JOE"),
+          createSampleNomisApiUser("FRED"),
+          createSampleNomisApiUser("HARRY"),
+        )
+      )
+      assertThat(nomisUserService.getNomisUsersByEmail("email@address")).containsExactlyInAnyOrder(
+        createSampleNomisApiUser("JOE", email = "email@address"),
+        createSampleNomisApiUser("FRED", email = "email@address"),
+        createSampleNomisApiUser("HARRY", email = "email@address"),
+      )
+      verify(nomisUserApiService).findUsersByEmailAddressAndUsernames("email@address", setOf("JOE", "BOB"))
     }
 
     @Test
@@ -99,8 +98,7 @@ internal class NomisUserServiceTest {
 
       assertThat(nomisUserService.getNomisUsersByEmail("email")).isEmpty()
 
-      verify(staffUserAccountRepository).findAllNomisUsersByEmailAddress("email")
-      verifyNoMoreInteractions(staffUserAccountRepository)
+      verify(nomisUserApiService).findUsersByEmailAddressAndUsernames("email", setOf())
     }
   }
 

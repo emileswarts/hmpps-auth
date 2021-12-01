@@ -16,9 +16,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountDetail
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
@@ -99,14 +97,12 @@ internal class UserContextServiceTest {
     @Test
     fun `discoverUsers can map from azureAD to nomis`() {
       val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "emailid@email.com", "jwtId")
-      val nomisUser = NomisUserPersonDetails(
-        "username",
-        "",
-        Staff(firstName = "bob", status = "ACTIVE", lastName = "Smith", staffId = 1),
-        "GEN",
-        "MDI",
-        listOf(),
-        AccountDetail("username", "OPEN", "GEN", null)
+      val nomisUser = createSampleNomisApiUser(
+        username = "username",
+        userId = "",
+        firstName = "Bob",
+        lastName = "Smith",
+        email = "a.user@justice.gov.uk",
       )
       val scopes = setOf("nomis")
       whenever(nomisUserService.getNomisUsersByEmail(anyString())).thenReturn(listOf(nomisUser))

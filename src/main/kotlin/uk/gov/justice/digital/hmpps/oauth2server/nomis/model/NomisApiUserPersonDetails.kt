@@ -11,7 +11,7 @@ data class NomisApiUserPersonDetails(
   override val userId: String,
   override val firstName: String,
   val surname: String,
-  val email: String,
+  val email: String?,
   private val enabled: Boolean = false,
   private val locked: Boolean = false,
   private val roles: Collection<GrantedAuthority?> = emptySet(),

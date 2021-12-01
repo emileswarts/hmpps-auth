@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -25,9 +27,18 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordExceptio
 class NomisUserApiService(
   @Qualifier("nomisWebClient") private val webClient: WebClient,
   @Qualifier("nomisUserWebClient") private val nomisUserWebClient: WebClient,
+  @Value("\${nomis.enabled:false}") private val nomisEnabled: Boolean,
   private val objectMapper: ObjectMapper,
 ) {
+  private companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
   fun changePassword(username: String, password: String) {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, not changing password for {}", username)
+      return
+    }
     webClient.put().uri("/users/{username}/change-password", username)
       .bodyValue(password)
       .retrieve()
@@ -45,6 +56,10 @@ class NomisUserApiService(
   }
 
   fun lockAccount(username: String) {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, not locking account for {}", username)
+      return
+    }
     webClient.put().uri("/users/{username}/lock-user", username)
       .retrieve()
       .toBodilessEntity()
@@ -52,25 +67,38 @@ class NomisUserApiService(
   }
 
   fun unlockAccount(username: String) {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, not unlocking account for {}", username)
+      return
+    }
     webClient.put().uri("/users/{username}/unlock-user", username)
       .retrieve()
       .toBodilessEntity()
       .block()
   }
 
-  fun findUsersByEmailAddress(emailAddress: String): List<NomisApiUserPersonDetails> {
-    val userDetails = webClient.get().uri {
+  fun findUsersByEmailAddressAndUsernames(emailAddress: String, usernames: Set<String>): List<NomisApiUserPersonDetails> {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, returning empty for {}", emailAddress)
+      return listOf()
+    }
+    val userDetails = webClient.post().uri {
       it.path("/users/user")
         .queryParam("email", emailAddress)
         .build()
     }
+      .bodyValue(usernames)
       .retrieve()
-      .bodyToMono(NomisUserList::class.java)
-      .block()
+      .bodyToMono(object : ParameterizedTypeReference<List<NomisApiUserDetails>>() {})
+      .block()!!
     return userDetails.map(::mapUserDetailsToNomisUser)
   }
 
   fun findUsers(firstName: String, lastName: String): List<NomisUserSummaryDto> {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, returning empty for {} {}", firstName, lastName)
+      return listOf()
+    }
     return nomisUserWebClient.get().uri {
       it.path("/users/staff")
         .queryParam("firstName", firstName)
@@ -106,8 +134,6 @@ class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) const
   ) pageable: JsonNode
 ) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)
 
-class NomisUserList : MutableList<NomisApiUserDetails> by ArrayList()
-
 data class NomisUserSummaryDto(
   val username: String,
   val staffId: String,
@@ -139,7 +165,7 @@ private fun mapUserDetailsToNomisUser(userDetails: NomisApiUserDetails): NomisAp
     userId = userDetails.staffId,
     firstName = userDetails.firstName,
     surname = userDetails.surname,
-    email = userDetails.email.lowercase(),
+    email = userDetails.email?.lowercase(),
     enabled = userDetails.enabled,
     roles = userDetails.roles.map { roleCode -> SimpleGrantedAuthority(roleCode) }
   )

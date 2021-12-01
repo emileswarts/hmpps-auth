@@ -7,7 +7,7 @@ import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 
-class ForgottenUsernameSpecification : AbstractDeliusAuthSpecification() {
+class ForgottenUsernameSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Page
   private lateinit var forgottenUsernameRequestPage: ForgottenUsernameRequestPage

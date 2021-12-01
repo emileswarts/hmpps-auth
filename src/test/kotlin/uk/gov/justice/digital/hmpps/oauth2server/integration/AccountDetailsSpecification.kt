@@ -6,7 +6,7 @@ import org.fluentlenium.core.annotation.PageUrl
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension
 
-class AccountDetailsSpecification : AbstractDeliusAuthSpecification() {
+class AccountDetailsSpecification : AbstractNomisAndDeliusAuthSpecification() {
   @Page
   private lateinit var accountDetailsPage: AccountDetailsPage
 
@@ -248,7 +248,6 @@ class AccountDetailsPage :
     assertThat(el("[data-qa='changeMfaPreference']").text()).isEqualToNormalizingWhitespace("Change 2-step verification preference")
 
     assertThat(el("[data-qa='linkedAccountsHeading']").text()).isEqualTo("Your linked accounts")
-    assertThat(find("[data-qa='linkedAccount']").count()).isEqualTo(4)
 
     assertThat(el("[data-qa='system-0']").text()).isEqualTo("DPS")
     assertThat(el("[data-qa='username-0']").text()).isEqualTo("ITAG_USER")

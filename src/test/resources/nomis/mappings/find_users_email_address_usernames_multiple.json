@@ -1,0 +1,46 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPattern": "/users/user\\?email=multiple.user.test@digital.justice.gov.uk"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "username": "ITAG_USER",
+        "staffId": 100,
+        "firstName": "Api",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "active": true,
+        "accountStatus": "EXPIRED",
+        "accountType": "GENERAL",
+        "primaryEmail": "itag_user@digital.justice.gov.uk",
+        "dpsRoleCodes": [
+          "ROLE_GLOBAL_SEARCH",
+          "ROLE_ROLES_ADMIN"
+        ]
+      },
+      {
+        "username": "ITAG_USER_ADM",
+        "staffId": 100,
+        "firstName": "API",
+        "lastName": "USER",
+        "activeCaseloadId": "MDI",
+        "active": true,
+        "accountStatus": "OPEN",
+        "accountType": "ADMIN",
+        "dpsRoleCodes": [
+          "MAINTAIN_ACCESS_ROLES",
+          "MAINTAIN_ACCESS_ROLES_ADMIN",
+          "OAUTH_ADMIN",
+          "MAINTAIN_OAUTH_USERS"
+        ]
+      }
+    ]
+  }
+}
