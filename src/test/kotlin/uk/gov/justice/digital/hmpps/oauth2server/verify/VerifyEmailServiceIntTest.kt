@@ -26,7 +26,7 @@ class VerifyEmailServiceIntTest {
   private val notificationClient: NotificationClientApi = mock()
 
   @Autowired
-  private lateinit var referenceCodesService: ReferenceCodesService
+  private lateinit var referenceCodesService: EmailDomainService
 
   @Autowired
   private lateinit var userRepository: UserRepository

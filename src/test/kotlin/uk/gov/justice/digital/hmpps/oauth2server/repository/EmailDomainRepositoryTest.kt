@@ -9,21 +9,19 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.DomainCodeIdentifier
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.ReferenceCode
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.ReferenceDomain.EMAIL_DOMAIN
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.ReferenceCodeRepository
 
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, NomisDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-class ReferenceCodeRepositoryTest {
+class EmailDomainRepositoryTest {
   @Autowired
-  private lateinit var repository: ReferenceCodeRepository
+  private lateinit var repository: EmailDomainRepository
 
   @Test
   fun givenATransientEntityItCanBePersisted() {
@@ -32,32 +30,19 @@ class ReferenceCodeRepositoryTest {
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()
     TestTransaction.end()
-    assertThat(persistedEntity.domainCodeIdentifier).isNotNull
+    assertThat(persistedEntity.id).isNotNull
     TestTransaction.start()
-    val retrievedEntity = repository.findById(entity.domainCodeIdentifier).orElseThrow()
+    val retrievedEntity = repository.findById(entity.id!!).orElseThrow()
 
-    // equals only compares the business key columns
-    assertThat(retrievedEntity).isEqualTo(transientEntity)
+    assertThat(retrievedEntity.name).isEqualTo(transientEntity.name)
     assertThat(retrievedEntity.description).isEqualTo(transientEntity.description)
-    assertThat(retrievedEntity.active).isEqualTo(transientEntity.active)
   }
 
   @Test
   fun givenAnExistingUserTheyCanBeRetrieved() {
-    val retrievedEntity = repository.findById(DomainCodeIdentifier(EMAIL_DOMAIN, "PROBATION")).orElseThrow()
-    assertThat(retrievedEntity.description).isEqualTo("HMIProbation.gov.uk")
-    assertThat(retrievedEntity.active).isTrue()
+    val retrievedEntity = repository.findAll().first()
+    assertThat(retrievedEntity.name).isEqualTo("%advancecharity.org.uk")
   }
 
-  @Test
-  fun testFind() {
-    val codes = repository.findByDomainCodeIdentifierDomainAndActiveIsTrueAndExpiredDateIsNull(EMAIL_DOMAIN)
-    assertThat(codes).extracting("description").contains("%justice.gov.uk", "HMIProbation.gov.uk").hasSize(9)
-  }
-
-  private fun transientEntity() = ReferenceCode(
-    domainCodeIdentifier = DomainCodeIdentifier(EMAIL_DOMAIN, "JOE"),
-    active = true,
-    description = "some description"
-  )
+  private fun transientEntity() = EmailDomain(id = null, name = "gov.uk", description = "some description")
 }

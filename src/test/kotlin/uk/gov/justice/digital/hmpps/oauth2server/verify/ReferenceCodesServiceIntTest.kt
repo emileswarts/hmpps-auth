@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 open class ReferenceCodesServiceIntTest {
   @Autowired
-  private lateinit var referenceCodesService: ReferenceCodesService
+  private lateinit var referenceCodesService: EmailDomainService
 
   @Test
   fun isValidEmailDomain_probation() {

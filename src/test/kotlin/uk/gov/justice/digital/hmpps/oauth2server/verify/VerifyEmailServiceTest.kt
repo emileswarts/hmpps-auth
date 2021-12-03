@@ -33,7 +33,7 @@ class VerifyEmailServiceTest {
   private val jdbcTemplate: NamedParameterJdbcTemplate = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val notificationClient: NotificationClientApi = mock()
-  private val referenceCodesService: ReferenceCodesService = mock()
+  private val referenceCodesService: EmailDomainService = mock()
   private val verifyEmailService = VerifyEmailService(
     userRepository,
     userTokenRepository,

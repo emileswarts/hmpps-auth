@@ -29,7 +29,7 @@ class VerifyEmailService(
   private val jdbcTemplate: NamedParameterJdbcTemplate,
   private val telemetryClient: TelemetryClient,
   private val notificationClient: NotificationClientApi,
-  private val referenceCodesService: ReferenceCodesService,
+  private val emailDomainService: EmailDomainService,
   @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 ) {
 
@@ -185,7 +185,7 @@ class VerifyEmailService(
     if (!email.matches(Regex("[0-9A-Za-z@.'_\\-+]*"))) {
       throw ValidEmailException("characters")
     }
-    if (emailType == EmailType.PRIMARY && !referenceCodesService.isValidEmailDomain(email.substring(atIndex + 1))) {
+    if (emailType == EmailType.PRIMARY && !emailDomainService.isValidEmailDomain(email.substring(atIndex + 1))) {
       throw ValidEmailException("domain")
     }
   }
