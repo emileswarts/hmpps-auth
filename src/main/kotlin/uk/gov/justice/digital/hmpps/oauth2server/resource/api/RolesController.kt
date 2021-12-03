@@ -91,7 +91,7 @@ class RolesController(
   @ApiImplicitParams(
     ApiImplicitParam(
       name = "page",
-      dataType = "int",
+      dataType = "java.lang.Integer",
       paramType = "query",
       value = "Results page you want to retrieve (0..N)",
       example = "0",
@@ -99,7 +99,7 @@ class RolesController(
     ),
     ApiImplicitParam(
       name = "size",
-      dataType = "int",
+      dataType = "java.lang.Integer",
       paramType = "query",
       value = "Number of records per page.",
       example = "10",
@@ -107,7 +107,7 @@ class RolesController(
     ),
     ApiImplicitParam(
       name = "sort",
-      dataType = "string",
+      dataType = "java.lang.String",
       paramType = "query",
       value = "Sort column and direction, eg sort=roleName,desc"
     )

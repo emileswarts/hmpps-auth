@@ -31,8 +31,7 @@ dependencies {
 
   implementation("javax.transaction:javax.transaction-api:1.3")
 
-  implementation("io.springfox:springfox-swagger2:2.9.2")
-  implementation("io.springfox:springfox-swagger-ui:2.9.2")
+  implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("io.swagger:swagger-core:1.6.2")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")

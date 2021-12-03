@@ -1,12 +1,11 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.base.Predicates
 import io.swagger.util.ReferenceSerializationConfigurer
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import springfox.documentation.builders.PathSelectors
+import springfox.documentation.builders.PathSelectors.regex
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.ApiInfo
 import springfox.documentation.service.Contact
@@ -31,11 +30,9 @@ class SwaggerConfig {
       .select()
       .apis(RequestHandlerSelectors.any())
       .paths(
-        Predicates.or(
-          PathSelectors.regex("(\\/info.*)"),
-          PathSelectors.regex("(\\/api.*)"),
-          PathSelectors.regex("(\\/health)")
-        )
+        regex("(/auth/api.*)")
+          .or(regex("(/auth/info.*)"))
+          .or(regex("(/auth/health.*)"))
       )
       .build()
     docket.genericModelSubstitutes(Optional::class.java)

@@ -1,7 +1,7 @@
 # HMPPS Oauth2 / SSO Server
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-auth/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-auth)
-[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui.html)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs)
 
 Spring Boot 2.1, Java 11 OAUTH2 Server integrating with NOMIS database, DELIUS (via community api) and an auth database for storing external users.
 

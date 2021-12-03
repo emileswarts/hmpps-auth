@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 
@@ -19,7 +20,7 @@ class AuthServicesController(private val authServicesService: AuthServicesServic
 
   @GetMapping("/api/services/me")
   @ApiOperation(value = "Get my services.", nickname = "my services", produces = "application/json")
-  fun myServices(authentication: Authentication): List<AuthService> =
+  fun myServices(@ApiIgnore authentication: Authentication): List<AuthService> =
     authServicesService.listEnabled(authentication.authorities).map { AuthService(it) }
 }
 
