@@ -29,6 +29,9 @@ abstract class NomisUserService(
   fun getNomisUserByUsername(username: String): Optional<NomisUserPersonDetails> =
     staffUserAccountRepository.findById(username.uppercase())
 
+  fun getNomisUserByUsernameFromNomisUserApiService(username: String): NomisApiUserPersonDetails? =
+    nomisUserApiService.findUserByUsername(username.uppercase())
+
   fun getNomisUsersByEmail(email: String): List<NomisApiUserPersonDetails> {
     val emailLowered = email.lowercase()
 
@@ -49,19 +52,22 @@ abstract class NomisUserService(
     return nomisUserApiService.findUsers(firstName, lastName)
   }
 
-  fun changeEmailAndRequestVerification(username: String, emailInput: String?, url: String, emailType: EmailType): LinkEmailAndUsername {
-    val user = getNomisUserByUsername(username)
-      .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
-
-    return verifyEmailService.changeEmailAndRequestVerification(
-      username = user.username,
-      emailInput = emailInput,
-      firstName = user.firstName,
-      fullname = user.name,
-      url = url,
-      emailType = PRIMARY
-    )
-  }
+  fun changeEmailAndRequestVerification(
+    username: String,
+    emailInput: String?,
+    url: String,
+    emailType: EmailType
+  ): LinkEmailAndUsername =
+    getNomisUserByUsernameFromNomisUserApiService(username)?.let {
+      return verifyEmailService.changeEmailAndRequestVerification(
+        username = it.username,
+        emailInput = emailInput,
+        firstName = it.firstName,
+        fullname = it.name,
+        url = url,
+        emailType = PRIMARY
+      )
+    } ?: throw UsernameNotFoundException("Account for username $username not found")
 
   @Transactional
   fun changePasswordWithUnlock(username: String, password: String) {

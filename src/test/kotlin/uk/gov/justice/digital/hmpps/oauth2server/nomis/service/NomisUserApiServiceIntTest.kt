@@ -27,6 +27,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
+import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
 import java.net.HttpURLConnection
@@ -330,6 +331,99 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
 
       val users = nomisService.findUsersByEmailAddressAndUsernames("itag_user@digital.justice.gov.uk", setOf())
       assertThat(users.map { it.username }).containsExactly("ITAG_USER")
+    }
+  }
+
+  @Nested
+  inner class findUserByUsername {
+
+    @Test
+    fun `findUserByUsername returns a matching user`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/ITAG_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+              .withBody(
+                """
+            {
+        "username": "ITAG_USER",
+        "staffId": 100,
+        "firstName": "Api",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "active": true,
+        "accountStatus": "EXPIRED",
+        "accountType": "GENERAL",
+        "primaryEmail": "itag_user@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+    }
+                """.trimIndent()
+              )
+          )
+      )
+
+      val user = nomisService.findUserByUsername("ITAG_USER")
+      nomisApi.verify(
+        getRequestedFor(
+          urlEqualTo("/users/ITAG_USER")
+        )
+      )
+      assertThat(user).isNotNull
+    }
+
+    @Test
+    fun `it will return null for 404 errors`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/ITAG_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withBody(
+                """
+                {
+                  "status": 404,
+                  "userMessage": "User ITAG_USER not found",
+                  "developerMessage": "User ITAG_USER not found"
+                }
+                """.trimIndent()
+              )
+              .withStatus(HttpURLConnection.HTTP_NOT_FOUND)
+          )
+      )
+
+      val user = nomisService.findUserByUsername("ITAG_USER")
+      nomisApi.verify(
+        getRequestedFor(
+          urlEqualTo("/users/ITAG_USER")
+        )
+      )
+      assertThat(user).isNull()
+    }
+
+    @Test
+    fun `it will throw an exception for 500 errors`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/ITAG_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withBody(
+                """
+                {
+                  "status": 500,
+                  "userMessage": "NullPointerException",
+                  "developerMessage": "NullPointerException"
+                }
+                """.trimIndent()
+              )
+              .withStatus(HttpURLConnection.HTTP_INTERNAL_ERROR)
+          )
+      )
+
+      assertThatThrownBy { nomisService.findUserByUsername("ITAG_USER") }
+        .isInstanceOf(NomisUserServiceException::class.java)
     }
   }
 

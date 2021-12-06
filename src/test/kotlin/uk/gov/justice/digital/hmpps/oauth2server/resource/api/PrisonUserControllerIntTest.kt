@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
@@ -115,6 +116,12 @@ class PrisonUserControllerIntTest : IntegrationTest() {
 
   @Test
   fun `Prison user email endpoint succeeds to alter user email`() {
+    whenever(nomisUserApiService.findUserByUsername("NOMIS_EMAIL_TEST")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "NOMIS_EMAIL_TEST", userId = "47", firstName = "Nomis", surname = "Email Test", email = "nomis@email"
+      )
+    )
+
     // calling email endpoint will automatically add the user to auth database
     webTestClient
       .post().uri("/api/user/email")

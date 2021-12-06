@@ -19,16 +19,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.LinkEmailAndUsername
-import java.util.Optional
 import javax.sql.DataSource
 
 internal class NomisUserServiceTest {
@@ -107,20 +104,18 @@ internal class NomisUserServiceTest {
     @Test
     fun `success path`() {
       val lue = LinkEmailAndUsername("link", "email", "username")
-      whenever(staffUserAccountRepository.findById(any())).thenReturn(
-        Optional.of(getNomisUser("joe"))
-      )
+      whenever(nomisUserApiService.findUserByUsername(any())).thenReturn(getNomisApiUser("joe"))
       whenever(verifyEmailService.changeEmailAndRequestVerification(any(), any(), any(), any(), any(), any()))
         .thenReturn(lue)
 
       val response = nomisUserService.changeEmailAndRequestVerification("user", "email", "url", User.EmailType.PRIMARY)
       assertThat(response).isSameAs(lue)
-      verify(staffUserAccountRepository).findById("USER")
+      verify(nomisUserApiService).findUserByUsername("USER")
       verify(verifyEmailService).changeEmailAndRequestVerification(
         "joe",
         "email",
         "Bob",
-        "Bob Last",
+        "Bob Harris",
         "url",
         User.EmailType.PRIMARY
       )
@@ -128,7 +123,7 @@ internal class NomisUserServiceTest {
 
     @Test
     fun `user not found`() {
-      whenever(staffUserAccountRepository.findById(any())).thenReturn(Optional.empty())
+      whenever(nomisUserApiService.findUserByUsername(any())).thenReturn(null)
 
       assertThatThrownBy {
         nomisUserService.changeEmailAndRequestVerification("user", "email", "url", User.EmailType.PRIMARY)
@@ -195,11 +190,8 @@ internal class NomisUserServiceTest {
     }
   }
 
-  private fun getNomisUser(username: String): NomisUserPersonDetails =
-    createSampleNomisUser(
-      staff = Staff(firstName = "bob", status = "INACTIVE", lastName = "last", staffId = 5),
-      username = username
-    )
+  private fun getNomisApiUser(username: String): NomisApiUserPersonDetails =
+    createSampleNomisApiUser(username = username)
 
   private fun getUserFromAuth(username: String) = createSampleUser(username = username, source = nomis, verified = true)
 }

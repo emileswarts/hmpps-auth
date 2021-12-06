@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
 
@@ -108,6 +109,34 @@ class NomisUserApiService(
       .retrieve()
       .bodyToMono(object : ParameterizedTypeReference<List<NomisUserSummaryDto>>() {})
       .block()!!
+  }
+
+  fun findUserByUsername(username: String): NomisApiUserPersonDetails? {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, returning empty for {}", username)
+      return null
+    }
+    val userDetails = nomisUserWebClient.get().uri("/users/{username}", username)
+      .retrieve()
+      .bodyToMono(NomisApiUserDetails::class.java)
+      .onErrorResume(
+        WebClientResponseException.NotFound::class.java
+      ) {
+        log.debug("User not found in NOMIS due to {}", it.message)
+        Mono.empty()
+      }
+      .onErrorResume(WebClientResponseException::class.java) {
+        log.warn(
+          "Unable to retrieve details from NOMIS for user {} due to {}",
+          username,
+          (it as WebClientResponseException).statusCode
+        )
+        Mono.error(NomisUserServiceException(username))
+      }
+      .block()
+    return userDetails?.let {
+      mapUserDetailsToNomisUser(userDetails)
+    }
   }
 
   fun findAllActiveUsers(page: PageRequest): PageImpl<NomisUserSummaryDto> {

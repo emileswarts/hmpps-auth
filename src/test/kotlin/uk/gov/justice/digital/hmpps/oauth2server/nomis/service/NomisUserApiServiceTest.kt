@@ -59,4 +59,13 @@ class NomisUserApiServiceTest {
       verifyZeroInteractions(webClient)
     }
   }
+
+  @Nested
+  inner class findUserByUsername {
+    @Test
+    fun `it will do nothing when disabled`() {
+      nomisDisabledService.findUserByUsername("Joe")
+      verifyZeroInteractions(webClient)
+    }
+  }
 }
