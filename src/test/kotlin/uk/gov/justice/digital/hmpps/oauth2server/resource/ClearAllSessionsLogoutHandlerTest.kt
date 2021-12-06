@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.web.client.RestTemplate
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.JwtAuthenticationHelper
@@ -31,14 +31,14 @@ class ClearAllSessionsLogoutHandlerTest {
   @Test
   fun `logout no cookie found`() {
     clearAllSessionsLogoutHandler.logout(httpServletRequest, httpServletResponse, null)
-    verifyZeroInteractions(restTemplate)
+    verifyNoInteractions(restTemplate)
   }
 
   @Test
   fun `logout no authentication found`() {
     whenever(jwtCookieHelper.readValueFromCookie(any())).thenReturn(Optional.of("cookie_value"))
     clearAllSessionsLogoutHandler.logout(httpServletRequest, httpServletResponse, null)
-    verifyZeroInteractions(restTemplate)
+    verifyNoInteractions(restTemplate)
   }
 
   @Test
@@ -54,6 +54,6 @@ class ClearAllSessionsLogoutHandlerTest {
     whenever(jwtCookieHelper.readValueFromCookie(any())).thenReturn(Optional.of("cookie_value"))
     whenever(jwtAuthenticationHelper.readUserDetailsFromJwt(anyString())).thenReturn(Optional.of(user))
     clearAllSessionsLogoutHandlerTokenVerificationDisabled.logout(httpServletRequest, httpServletResponse, null)
-    verifyZeroInteractions(restTemplate)
+    verifyNoInteractions(restTemplate)
   }
 }

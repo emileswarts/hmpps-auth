@@ -3,17 +3,17 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -157,7 +157,7 @@ class ClientControllerTest {
 
       assertThatThrownBy { controller.editClient(authentication, authClientDetails, null) }.isEqualTo(exception)
 
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     private fun createAuthClientDetails(): AuthClientDetails {
@@ -202,7 +202,7 @@ class ClientControllerTest {
 
       val mandv = controller.duplicateClient(authentication, "client")
 
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
       assertThat(mandv.viewName).isEqualTo("redirect:/ui/clients/form")
       assertThat(mandv.model).containsOnly(
         entry("client", "client"),
@@ -242,7 +242,7 @@ class ClientControllerTest {
 
       assertThatThrownBy { controller.deleteClient(authentication, "client") }.isEqualTo(exception)
 
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
   }
 

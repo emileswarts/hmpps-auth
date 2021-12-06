@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.oauth2server.timed
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoInteractions
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 
 class NotifyPreDisableAuthUsersTest {
   private val notifyPreDisableAuthUsersService: NotifyPreDisableAuthUsersService = mock()

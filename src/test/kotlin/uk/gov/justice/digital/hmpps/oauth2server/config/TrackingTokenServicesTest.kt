@@ -3,18 +3,18 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -102,7 +102,7 @@ internal class TrackingTokenServicesTest {
       whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       tokenServicesVerificationDisabled.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
-      verifyZeroInteractions(restTemplate)
+      verifyNoInteractions(restTemplate)
     }
 
     @Test
@@ -182,7 +182,7 @@ internal class TrackingTokenServicesTest {
         refreshToken,
         TokenRequest(emptyMap(), "client", emptySet(), "refresh")
       )
-      verifyZeroInteractions(restTemplate)
+      verifyNoInteractions(restTemplate)
     }
 
     @Test
@@ -210,7 +210,7 @@ internal class TrackingTokenServicesTest {
         refreshToken,
         TokenRequest(emptyMap(), "token-verification-client-id", emptySet(), "refresh")
       )
-      verifyZeroInteractions(restTemplate)
+      verifyNoInteractions(restTemplate)
     }
   }
 

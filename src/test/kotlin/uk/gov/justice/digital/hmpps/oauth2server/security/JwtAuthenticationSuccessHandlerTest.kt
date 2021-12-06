@@ -2,17 +2,17 @@
 
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.verify
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.RedirectStrategy
@@ -101,7 +101,7 @@ class JwtAuthenticationSuccessHandlerTest {
         response,
         UsernamePasswordAuthenticationToken("user", "pass")
       )
-      verifyZeroInteractions(restTemplate)
+      verifyNoInteractions(restTemplate)
     }
   }
 
@@ -196,7 +196,7 @@ class JwtAuthenticationSuccessHandlerTest {
       )
       handler.proceed(request, response, token)
       verify(redirectStrategy).sendRedirect(request, response, "/")
-      verifyZeroInteractions(clientService)
+      verifyNoInteractions(clientService)
     }
   }
 

@@ -3,16 +3,16 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.account
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.check
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.TestingAuthenticationToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
@@ -51,7 +51,7 @@ class UseEmailControllerTest {
     fun `use email no action if not changed`() {
       val view = useEmailController.useEmail(token, request, response)
 
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
       assertThat(view).isEqualTo("redirect:/account-details")
     }
 

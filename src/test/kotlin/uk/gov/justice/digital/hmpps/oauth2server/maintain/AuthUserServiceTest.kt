@@ -3,13 +3,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.maintain
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.isNull
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +13,17 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.anyCollection
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Captor
-import org.mockito.Mockito.doThrow
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -358,7 +358,7 @@ class AuthUserServiceTest {
         "SOME_HOST/verify-email-confirm?token=SOME_TOKEN",
         EmailType.PRIMARY
       )
-      verifyZeroInteractions(notificationClient)
+      verifyNoInteractions(notificationClient)
     }
 
     @Test
@@ -1095,7 +1095,7 @@ class AuthUserServiceTest {
         "SOME_HOST/verify-email-confirm?token=SOME_TOKEN",
         EmailType.PRIMARY
       )
-      verifyZeroInteractions(notificationClient)
+      verifyNoInteractions(notificationClient)
     }
 
     @Test
@@ -1241,7 +1241,7 @@ class AuthUserServiceTest {
       val optionalUser = Optional.of(createSampleUser())
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(optionalUser)
       authUserService.enableUser("user", "admin", "some/auth/url", SUPER_USER)
-      verifyZeroInteractions(notificationClient)
+      verifyNoInteractions(notificationClient)
     }
 
     @Test
@@ -1357,7 +1357,7 @@ class AuthUserServiceTest {
       val optionalUser = Optional.of(createSampleUser())
       whenever(userRepository.findById(any())).thenReturn(optionalUser)
       authUserService.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "admin", "some/auth/url", SUPER_USER)
-      verifyZeroInteractions(notificationClient)
+      verifyNoInteractions(notificationClient)
     }
 
     @Test
@@ -1988,7 +1988,7 @@ class AuthUserServiceTest {
         .thenReturn(Optional.empty())
       assertThat(authUserService.useEmailAsUsername("user")).isNull()
       assertThat(user.username).isEqualTo("me")
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     @Test
@@ -1998,7 +1998,7 @@ class AuthUserServiceTest {
         .thenReturn(Optional.empty())
       assertThat(authUserService.useEmailAsUsername("user")).isNull()
       assertThat(user.username).isEqualTo("me@joe.com")
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     @Test
@@ -2008,7 +2008,7 @@ class AuthUserServiceTest {
         .thenReturn(Optional.of(user))
       assertThat(authUserService.useEmailAsUsername("user")).isNull()
       assertThat(user.username).isEqualTo("me")
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
   }
 

@@ -2,17 +2,17 @@
 
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.jdbc.CannotGetJdbcConnectionException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -138,7 +138,7 @@ internal class NomisUserServiceTest {
       assertThatThrownBy { disabledNomisUserService.changePassword("user", "pass") }
         .isInstanceOf(CannotGetJdbcConnectionException::class.java)
       verify(staffUserAccountRepository).changePassword("user", "pass")
-      verifyZeroInteractions(nomisUserApiService)
+      verifyNoInteractions(nomisUserApiService)
     }
 
     @Test
@@ -160,7 +160,7 @@ internal class NomisUserServiceTest {
 
       // doesn't actually call staffUserAccountRepository.unlockUser since the exception is thrown first
 
-      verifyZeroInteractions(nomisUserApiService)
+      verifyNoInteractions(nomisUserApiService)
     }
 
     @Test
@@ -180,7 +180,7 @@ internal class NomisUserServiceTest {
     fun `lockAccount disabled`() {
       disabledNomisUserService.lockAccount("user")
       verify(staffUserAccountRepository).lockUser("user")
-      verifyZeroInteractions(nomisUserApiService)
+      verifyNoInteractions(nomisUserApiService)
     }
 
     @Test

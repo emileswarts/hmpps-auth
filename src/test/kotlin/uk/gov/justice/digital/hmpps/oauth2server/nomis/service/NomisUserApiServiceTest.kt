@@ -3,10 +3,10 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verifyNoInteractions
 import org.springframework.web.reactive.function.client.WebClient
 
 class NomisUserApiServiceTest {
@@ -20,7 +20,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 
@@ -29,7 +29,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.lockAccount("NOMIS_PASSWORD_RESET")
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 
@@ -38,7 +38,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.unlockAccount("NOMIS_PASSWORD_RESET")
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 
@@ -47,7 +47,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.findUsersByEmailAddressAndUsernames("missing@justice.gov.uk", setOf("bob"))
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 
@@ -56,7 +56,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.findUsers("Joe", "Bloggs")
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 
@@ -65,7 +65,7 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.findUserByUsername("Joe")
-      verifyZeroInteractions(webClient)
+      verifyNoInteractions(webClient)
     }
   }
 }

@@ -2,16 +2,16 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.auth0.jwt.JWT
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
 import org.json.JSONObject
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
@@ -84,7 +84,7 @@ class OauthIntTest : IntegrationTest() {
         assertThat(it["expires_in"] as Int).isLessThan(3600)
         assertThat(it).doesNotContainKey("refreshToken")
       }
-    verifyZeroInteractions(tokenVerificationApiRestTemplate)
+    verifyNoInteractions(tokenVerificationApiRestTemplate)
   }
 
   @Test

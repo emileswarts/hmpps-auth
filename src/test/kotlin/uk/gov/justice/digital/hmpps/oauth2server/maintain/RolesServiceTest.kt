@@ -1,18 +1,18 @@
 package uk.gov.justice.digital.hmpps.oauth2server.maintain
 
 import com.microsoft.applicationinsights.TelemetryClient
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.check
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.anyString
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.check
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -279,7 +279,7 @@ class RolesServiceTest {
       assertThatThrownBy {
         rolesService.updateRoleName("user", "RO1", roleAmendment)
       }.isInstanceOf(RoleNotFoundException::class.java)
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     @Test
@@ -337,7 +337,7 @@ class RolesServiceTest {
       assertThatThrownBy {
         rolesService.updateRoleDescription("user", "RO1", roleAmendment)
       }.isInstanceOf(RoleNotFoundException::class.java)
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     @Test
@@ -367,7 +367,7 @@ class RolesServiceTest {
       assertThatThrownBy {
         rolesService.updateRoleAdminType("user", "RO1", roleAmendment)
       }.isInstanceOf(RoleNotFoundException::class.java)
-      verifyZeroInteractions(telemetryClient)
+      verifyNoInteractions(telemetryClient)
     }
 
     @Test
