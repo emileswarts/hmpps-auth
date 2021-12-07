@@ -51,7 +51,7 @@ class AuthServicesServiceTest {
       val authorities = listOf(SimpleGrantedAuthority("ROLE_LICENCE_DM"))
       whenever(oauthServiceRepository.findAllByEnabledTrueOrderByName()).thenReturn(ALL_SERVICES)
       assertThat(authServicesService.listEnabled(authorities)).extracting<String> { (it as Service).code }
-        .containsExactly("DM", "LIC", "NOMIS")
+        .containsExactly("DM", "LIC", "prison-staff-hub")
       verify(oauthServiceRepository).findAllByEnabledTrueOrderByName()
     }
   }
@@ -164,7 +164,7 @@ class AuthServicesServiceTest {
     private val ALL_SERVICES = mutableListOf(
       createService("DM", "ROLE_LICENCE_DM", "a@b.com"), // single role
       createService("LIC", "ROLE_LICENCE_CA,ROLE_LICENCE_DM,ROLE_LICENCE_RO", null), // multiple role
-      createService("NOMIS", null, "c@d.com"), // available to all roles
+      createService("prison-staff-hub", null, "c@d.com"), // available to all roles
       createService("OTHER", "ROLE_OTHER", null), // not available
     )
 

@@ -26,7 +26,7 @@ class AuthServicesController(private val authServicesService: AuthServicesServic
 
 @ApiModel(description = "Digital Services")
 data class AuthService(
-  @ApiModelProperty(required = true, example = "NOMIS")
+  @ApiModelProperty(required = true, example = "prison-staff-hub")
   val code: String,
 
   @ApiModelProperty(required = true, example = "Digital Prison Services")

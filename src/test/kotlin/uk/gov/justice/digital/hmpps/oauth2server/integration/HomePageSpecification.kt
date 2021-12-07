@@ -18,7 +18,7 @@ class HomePageSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage).loginAs("CA_USER")
     homePage.isAt()
 
-    homePage.checkLinks("NOMIS", "HDC", "DETAILS")
+    homePage.checkLinks("prison-staff-hub", "HDC", "DETAILS")
   }
 
   @Test
@@ -26,7 +26,7 @@ class HomePageSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage).loginAs("ITAG_USER", "password")
     homePage.isAt()
 
-    homePage.checkLinks("categorisationtool", "NOMIS", "KW", "DETAILS", "manage-user-accounts-ui")
+    homePage.checkLinks("categorisationtool", "prison-staff-hub", "KW", "DETAILS", "manage-user-accounts-ui")
   }
 
   @Test

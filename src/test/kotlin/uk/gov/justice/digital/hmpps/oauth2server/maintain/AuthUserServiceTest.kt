@@ -93,7 +93,7 @@ class AuthUserServiceTest {
 
   @BeforeEach
   fun setUp() {
-    mockServiceOfNameWithSupportLink("NOMIS", "nomis_support_link")
+    mockServiceOfNameWithSupportLink("prison-staff-hub", "nomis_support_link")
   }
 
   @Nested
@@ -202,7 +202,7 @@ class AuthUserServiceTest {
     fun pecsUserGroupSupportLink() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
       whenever(userRepository.findByUsernameAndMasterIsTrue(anyString())).thenReturn(Optional.of(userOfGroups("PECS_GROUP")))
-      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      mockServiceOfNameWithSupportLink("book-a-secure-move-ui", "book-a-secure-move-ui_support_link")
       authUserService.amendUserEmail(
         "ANY_USER_NAME",
         "ANY_USER-EMAIL",
@@ -215,7 +215,7 @@ class AuthUserServiceTest {
         anyString(),
         anyString(),
         check {
-          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+          assertThat(it["supportLink"]).isEqualTo("book-a-secure-move-ui_support_link")
         },
         isNull()
       )
@@ -255,7 +255,7 @@ class AuthUserServiceTest {
           )
         )
       )
-      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      mockServiceOfNameWithSupportLink("book-a-secure-move-ui", "book-a-secure-move-ui_support_link")
       authUserService.amendUserEmail(
         "ANY_USER_NAME",
         "ANY_USER-EMAIL",
@@ -268,7 +268,7 @@ class AuthUserServiceTest {
         anyString(),
         anyString(),
         check {
-          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+          assertThat(it["supportLink"]).isEqualTo("book-a-secure-move-ui_support_link")
         },
         isNull()
       )
@@ -781,7 +781,7 @@ class AuthUserServiceTest {
     @Test
     fun `createUserByEmail pecs user group support link`() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
-      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      mockServiceOfNameWithSupportLink("book-a-secure-move-ui", "book-a-secure-move-ui_support_link")
       whenever(authUserGroupService.getAssignableGroups(anyString(), any())).thenReturn(
         listOf(
           Group(
@@ -803,7 +803,7 @@ class AuthUserServiceTest {
         anyString(),
         anyString(),
         check {
-          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+          assertThat(it["supportLink"]).isEqualTo("book-a-secure-move-ui_support_link")
         },
         isNull()
       )
@@ -939,7 +939,7 @@ class AuthUserServiceTest {
     fun pecsUserGroupSupportLink() {
       whenever(userRepository.save(any())).thenReturn(createSampleUser(id = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")))
       whenever(userRepository.findById(any())).thenReturn(Optional.of(userOfGroups("PECS_GROUP")))
-      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      mockServiceOfNameWithSupportLink("book-a-secure-move-ui", "book-a-secure-move-ui_support_link")
       authUserService.amendUserEmailByUserId(
         SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
@@ -952,7 +952,7 @@ class AuthUserServiceTest {
         anyString(),
         anyString(),
         check {
-          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+          assertThat(it["supportLink"]).isEqualTo("book-a-secure-move-ui_support_link")
         },
         isNull()
       )
@@ -992,7 +992,7 @@ class AuthUserServiceTest {
           )
         )
       )
-      mockServiceOfNameWithSupportLink("BOOK_MOVE", "book_move_support_link")
+      mockServiceOfNameWithSupportLink("book-a-secure-move-ui", "book-a-secure-move-ui_support_link")
       authUserService.amendUserEmailByUserId(
         SAMPLE_UUID.toString(),
         "ANY_USER-EMAIL",
@@ -1005,7 +1005,7 @@ class AuthUserServiceTest {
         anyString(),
         anyString(),
         check {
-          assertThat(it["supportLink"]).isEqualTo("book_move_support_link")
+          assertThat(it["supportLink"]).isEqualTo("book-a-secure-move-ui_support_link")
         },
         isNull()
       )

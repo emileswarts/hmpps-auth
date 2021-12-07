@@ -88,7 +88,7 @@ class AuthUserService(
   }
 
   private fun getInitialEmailSupportLink(groups: Collection<Group>): String {
-    val serviceCode = groups.firstOrNull { it.groupCode.startsWith("PECS") }?.let { "BOOK_MOVE" } ?: "NOMIS"
+    val serviceCode = groups.firstOrNull { it.groupCode.startsWith("PECS") }?.let { "book-a-secure-move-ui" } ?: "prison-staff-hub"
     return oauthServiceRepository.findById(serviceCode).map { it.email!! }.orElseThrow()
   }
 

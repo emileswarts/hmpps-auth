@@ -15,10 +15,10 @@ class AuthServicesIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.code == 'NOMIS')]")
+      .jsonPath(".[?(@.code == 'prison-staff-hub')]")
       .isEqualTo(
         mapOf(
-          "code" to "NOMIS",
+          "code" to "prison-staff-hub",
           "name" to "Digital Prison Service",
           "description" to "View and Manage Offenders in Prison (Old name was NEW NOMIS)",
           "contact" to "feedback@digital.justice.gov.uk",
@@ -39,10 +39,10 @@ class AuthServicesIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.code == 'NOMIS')]")
+      .jsonPath(".[?(@.code == 'prison-staff-hub')]")
       .isEqualTo(
         mapOf(
-          "code" to "NOMIS",
+          "code" to "prison-staff-hub",
           "name" to "Digital Prison Service",
           "description" to "View and Manage Offenders in Prison (Old name was NEW NOMIS)",
           "contact" to "feedback@digital.justice.gov.uk",
@@ -50,7 +50,7 @@ class AuthServicesIntTest : IntegrationTest() {
         )
       )
       .jsonPath(".[*].code").value<List<String>> {
-        assertThat(it).containsExactlyInAnyOrder("NOMIS", "DETAILS")
+        assertThat(it).containsExactlyInAnyOrder("prison-staff-hub", "DETAILS")
       }
   }
 
