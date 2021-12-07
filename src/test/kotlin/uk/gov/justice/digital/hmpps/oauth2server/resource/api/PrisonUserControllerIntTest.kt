@@ -12,6 +12,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.OPEN
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
@@ -118,7 +119,12 @@ class PrisonUserControllerIntTest : IntegrationTest() {
   fun `Prison user email endpoint succeeds to alter user email`() {
     whenever(nomisUserApiService.findUserByUsername("NOMIS_EMAIL_TEST")).thenReturn(
       NomisApiUserPersonDetails(
-        username = "NOMIS_EMAIL_TEST", userId = "47", firstName = "Nomis", surname = "Email Test", email = "nomis@email"
+        username = "NOMIS_EMAIL_TEST",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = OPEN,
       )
     )
 

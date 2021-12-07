@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.model
 
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.OPEN
+
 class NomisUserPersonDetailsHelper {
 
   companion object {
@@ -23,6 +25,7 @@ class NomisUserPersonDetailsHelper {
       lastName: String = "Harris",
       email: String = "b.h@somewhere.com",
       enabled: Boolean = true,
+      accountStatus: AccountStatus = OPEN,
     ): NomisApiUserPersonDetails = NomisApiUserPersonDetails(
       username = username,
       userId = userId,
@@ -30,6 +33,7 @@ class NomisUserPersonDetailsHelper {
       surname = lastName,
       email = email,
       enabled = enabled,
+      accountStatus = accountStatus,
     )
   }
 }

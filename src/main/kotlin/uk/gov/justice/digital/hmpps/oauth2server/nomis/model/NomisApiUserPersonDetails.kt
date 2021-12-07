@@ -15,6 +15,7 @@ data class NomisApiUserPersonDetails(
   private val enabled: Boolean = false,
   private val locked: Boolean = false,
   private val roles: Collection<GrantedAuthority?> = emptySet(),
+  val accountStatus: AccountStatus,
 ) : UserPersonDetails {
 
   override fun getUsername(): String = username
