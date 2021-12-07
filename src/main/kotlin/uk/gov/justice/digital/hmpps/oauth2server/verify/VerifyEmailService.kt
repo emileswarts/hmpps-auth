@@ -287,17 +287,6 @@ class VerifyEmailService(
              and s.username = :username
       """
 
-    private const val EXISTING_EMAIL_FOR_USERNAMES_SQL =
-      """
-        select s.username username,
-               internet_address email     
-          from internet_addresses i
-               inner join STAFF_USER_ACCOUNTS s on i.owner_id = s.staff_id and owner_class = 'STF'
-         where internet_address_class = 'EMAIL' and 
-               s.username in (:usernames) 
-      group by s.username, internet_address
-      """
-
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     private const val MAX_LENGTH_EMAIL = 240
   }

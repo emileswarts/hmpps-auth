@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
@@ -55,11 +56,10 @@ class ResetPasswordServiceImpl(
           .flatten()
 
         if (userDetailsList.size == 1) {
-          var userPersonDetails = userDetailsList.first()
-          when (AuthSource.fromNullableString(userPersonDetails.authSource)) {
-            AuthSource.nomis -> saveNomisUser(userPersonDetails)
-            AuthSource.delius -> saveDeliusUser(userPersonDetails)
-          }
+          val userPersonDetails = userDetailsList.first()
+          val authSource = AuthSource.fromNullableString(userPersonDetails.authSource)
+          if (authSource == AuthSource.nomis) saveNomisUser(userPersonDetails)
+          else if (authSource == AuthSource.delius) saveDeliusUser(userPersonDetails)
           // update the match list as we have now saved the user
           matches = userRepository.findByEmail(email)
         } else {
@@ -115,11 +115,15 @@ class ResetPasswordServiceImpl(
     val user = userPersonDetails.toUser()
     return if (!passwordAllowedToBeReset(user, userPersonDetails)) {
       Optional.empty()
-    } else userService.getEmailAddressFromNomis(user.username).map { e: String? ->
-      user.email = e
-      user.verified = true
-      userRepository.save(user)
-      user
+    } else {
+      val email = if (userPersonDetails is NomisApiUserPersonDetails) Optional.ofNullable(userPersonDetails.email)
+      else userService.getEmailAddressFromNomis(user.username)
+      email.map {
+        user.email = it
+        user.verified = true
+        userRepository.save(user)
+        user
+      }
     }
   }
 
@@ -178,10 +182,13 @@ class ResetPasswordServiceImpl(
       // for non nomis users they must be enabled (so can be locked)
       return userPersonDetails.isEnabled
     }
-    // otherwise must be nomis user so will have a staff account instead.
-    val staffUserAccount = userPersonDetails as NomisUserPersonDetails
-    val status = staffUserAccount.accountDetail.status
-    return staffUserAccount.staff.isActive && (!status.isLocked || status.isUserLocked || user.locked)
+    val (status, active) = if (userPersonDetails is NomisUserPersonDetails) {
+      userPersonDetails.accountDetail.status to userPersonDetails.staff.isActive
+    } else {
+      val nomisApiUser = userPersonDetails as NomisApiUserPersonDetails
+      nomisApiUser.accountStatus to nomisApiUser.isEnabled
+    }
+    return active && (!status.isLocked || status.isUserLocked || user.locked)
   }
 
   @Transactional(transactionManager = "authTransactionManager")

@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.oauth2server.integration
 
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import org.assertj.core.api.Assertions.assertThat
 import org.fluentlenium.core.annotation.Page
 import org.fluentlenium.core.annotation.PageUrl
@@ -10,6 +13,7 @@ import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
+import java.net.HttpURLConnection
 
 class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
@@ -323,6 +327,62 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
         .withRequestBody(equalTo("helloworld2"))
     )
     nomisApi.verify(putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN/unlock-user")))
+  }
+
+  @Test
+  fun `A NOMIS user who has never logged into DPS can reset password by email address`() {
+    nomisApi.stubFor(
+      post(urlPathEqualTo("/users/user"))
+        .withQueryParam("email", equalTo("bob.smith.never@justice.gov.uk"))
+        .atPriority(1)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpURLConnection.HTTP_OK)
+            .withBody(
+              """
+            [{
+                "username": "NOMIS_NEVER_LOGGED_IN2",
+                "staffId": 100,
+                "firstName": "Api",
+                "lastName": "User",
+                "activeCaseloadId": "MDI",
+                "active": true,
+                "accountStatus": "OPEN",
+                "accountType": "GENERAL",
+                "primaryEmail": "bob.smith.never@justice.gov.uk",
+                "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+            }]
+              """.trimIndent()
+            )
+        )
+    )
+
+    goTo(loginPage)
+      .forgottenPasswordLink()
+
+    resetPasswordRequestPage
+      .submitUsernameOrEmail("bob.smith.never@justice.gov.uk")
+
+    resetPasswordLinkSentPage.isAtPage()
+    val resetLink = resetPasswordLinkSentPage.getResetLink()
+
+    goTo(resetLink)
+
+    resetPasswordPage
+      .inputAndConfirmNewPassword("helloworld2")
+
+    resetPasswordSuccessPage.isAtPage()
+
+    goTo(loginPage)
+      .loginAs("NOMIS_NEVER_LOGGED_IN2", "helloworld2")
+    homePage.isAt()
+
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN2/change-password"))
+        .withRequestBody(equalTo("helloworld2"))
+    )
+    nomisApi.verify(putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN2/unlock-user")))
   }
 
   @Test

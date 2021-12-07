@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDe
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountDetail
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Role
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
@@ -482,7 +483,11 @@ class ResetPasswordServiceTest {
       val user = createSampleUser(username = "someuser", email = "a@b.com", person = Person("Bob", "Smith"), enabled = true, source = nomis, verified = true)
 
       whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(), listOf(user))
-      whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(nomis))).thenReturn(listOf(userPersonDetails))
+      whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(nomis))).thenReturn(
+        listOf(
+          createSampleNomisApiUser("user", email = "Bob.smith@justice.gov.uk")
+        )
+      )
       whenever(userService.getEmailAddressFromNomis(anyString())).thenReturn(Optional.of("Bob.smith@justice.gov.uk"))
       whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(userPersonDetails))
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(userPersonDetails)
@@ -504,11 +509,11 @@ class ResetPasswordServiceTest {
       assertThat(optionalLink).isPresent
 
       verify(userRepository).save(
-        check { user ->
-          assertThat(user.username).isEqualTo("user")
-          assertThat(user.email).isEqualTo("Bob.smith@justice.gov.uk")
-          assertThat(user.verified).isTrue
-          assertThat(user.source).isEqualTo(nomis)
+        check {
+          assertThat(it.username).isEqualTo("user")
+          assertThat(it.email).isEqualTo("Bob.smith@justice.gov.uk")
+          assertThat(it.verified).isTrue
+          assertThat(it.source).isEqualTo(nomis)
         }
       )
     }
