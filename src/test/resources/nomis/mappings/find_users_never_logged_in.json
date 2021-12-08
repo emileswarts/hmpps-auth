@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/NOMIS_NEVER_LOGGED_IN"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "NOMIS_NEVER_LOGGED_IN",
+        "staffId": 100,
+        "firstName": "Api",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "active": true,
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "primaryEmail": "bob.smith.never@justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+      }
+  }
+}

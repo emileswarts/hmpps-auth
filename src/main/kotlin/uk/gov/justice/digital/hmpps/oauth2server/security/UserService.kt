@@ -50,7 +50,11 @@ class UserService(
 
   fun findEnabledOrNomisLockedUserPersonDetails(username: String): UserPersonDetails? =
     authUserService.getAuthUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) }
-      .or { nomisUserService.getNomisUserByUsername(username).filter { it.isEnabled || it.accountDetail.status == AccountStatus.LOCKED }.map { UserPersonDetails::class.java.cast(it) } }
+      .or {
+        Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
+          .filter { it.isEnabled || it.accountStatus == AccountStatus.LOCKED }
+          .map { UserPersonDetails::class.java.cast(it) }
+      }
       .or { azureUserService.getAzureUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) } }
       .or { deliusUserService.getDeliusUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) } }
       .orElse(null)

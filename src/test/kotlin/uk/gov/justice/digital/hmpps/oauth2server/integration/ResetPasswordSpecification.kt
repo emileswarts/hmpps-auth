@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.oauth2server.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
@@ -79,6 +81,32 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Test
   fun `A user can reset their password by email address`() {
+    nomisApi.stubFor(
+      get(urlPathEqualTo("/users/CA_USER_TEST"))
+        .atPriority(1)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpURLConnection.HTTP_OK)
+            .withBody(
+              """
+            {
+                  "username": "CA_USER_TEST",
+                  "staffId": 100,
+                  "firstName": "Api",
+                  "lastName": "User",
+                  "activeCaseloadId": "MDI",
+                  "active": true,
+                  "accountStatus": "EXPIRED",
+                  "accountType": "GENERAL",
+                  "primaryEmail": "reset_test@digital.justice.gov.uk",
+                  "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+            }
+              """.trimIndent()
+            )
+        )
+    )
+
     goTo(loginPage)
       .forgottenPasswordLink()
 
@@ -103,6 +131,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("CA_USER_TEST", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/CA_USER_TEST")))
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/CA_USER_TEST/change-password"))
@@ -132,6 +162,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("RESET_TEST_USER", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/RESET_TEST_USER")))
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/change-password"))
@@ -165,6 +197,32 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Test
   fun `A locked NOMIS user can reset their password`() {
+    nomisApi.stubFor(
+      get(urlPathEqualTo("/users/LOCKED_NOMIS_USER"))
+        .atPriority(1)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpURLConnection.HTTP_OK)
+            .withBody(
+              """
+            {
+                  "username": "LOCKED_NOMIS_USER",
+                  "staffId": 100,
+                  "firstName": "Api",
+                  "lastName": "User",
+                  "activeCaseloadId": "MDI",
+                  "active": true,
+                  "accountStatus": "EXPIRED",
+                  "accountType": "GENERAL",
+                  "primaryEmail": "reset_test@digital.justice.gov.uk",
+                  "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+            }
+              """.trimIndent()
+            )
+        )
+    )
+
     goTo(loginPage)
       .forgottenPasswordLink()
 
@@ -182,6 +240,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordSuccessPage.isAtPage()
 
     // can't now call attempt login as the unlock was calling the nomis api
+
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/LOCKED_NOMIS_USER")))
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/LOCKED_NOMIS_USER/change-password"))
@@ -258,6 +318,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
       .loginAs("reset_test_user", "helloworld2")
     homePage.isAt()
 
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/RESET_TEST_USER")))
+
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/RESET_TEST_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
@@ -322,6 +384,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
       .loginAs("NOMIS_NEVER_LOGGED_IN", "helloworld2")
     homePage.isAt()
 
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN")))
+
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN/change-password"))
         .withRequestBody(equalTo("helloworld2"))
@@ -357,6 +421,31 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
             )
         )
     )
+    nomisApi.stubFor(
+      get(urlPathEqualTo("/users/NOMIS_NEVER_LOGGED_IN2"))
+        .atPriority(1)
+        .willReturn(
+          aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withStatus(HttpURLConnection.HTTP_OK)
+            .withBody(
+              """
+            {
+                  "username": "NOMIS_NEVER_LOGGED_IN2",
+                  "staffId": 100,
+                  "firstName": "Api",
+                  "lastName": "User",
+                  "activeCaseloadId": "MDI",
+                  "active": true,
+                  "accountStatus": "EXPIRED",
+                  "accountType": "GENERAL",
+                  "primaryEmail": "bob.smith.never@justice.gov.uk",
+                  "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+            }
+              """.trimIndent()
+            )
+        )
+    )
 
     goTo(loginPage)
       .forgottenPasswordLink()
@@ -377,6 +466,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage)
       .loginAs("NOMIS_NEVER_LOGGED_IN2", "helloworld2")
     homePage.isAt()
+
+    nomisApi.verify(getRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN2")))
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/NOMIS_NEVER_LOGGED_IN2/change-password"))

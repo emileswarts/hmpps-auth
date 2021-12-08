@@ -25,7 +25,10 @@ import uk.gov.justice.digital.hmpps.oauth2server.azure.service.AzureUserService
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
@@ -102,8 +105,23 @@ class UserServiceTest {
     }
 
     @Test
-    fun `findEnabledOrNomisLockedUserPersonDetails nomis user`() {
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+    fun `findEnabledOrNomisLockedUserPersonDetails nomis user is enabled`() {
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
+      val user = userService.findEnabledOrNomisLockedUserPersonDetails("bob")
+      assertThat(user?.username).isEqualTo("nomisuser")
+    }
+
+    @Test
+    fun `findEnabledOrNomisLockedUserPersonDetails nomis user is locked`() {
+      val staffUserAccountForBobLocked =
+        createSampleNomisApiUser(
+          firstName = "bOb",
+          lastName = "bloggs",
+          username = "nomisuser",
+          enabled = false,
+          accountStatus = AccountStatus.LOCKED
+        )
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffUserAccountForBobLocked)
       val user = userService.findEnabledOrNomisLockedUserPersonDetails("bob")
       assertThat(user?.username).isEqualTo("nomisuser")
     }
@@ -713,6 +731,16 @@ class UserServiceTest {
           ),
           username = "nomisuser"
         )
+      )
+
+  private val staffNomisApiUserAccountForBob: NomisApiUserPersonDetails
+    get() =
+      createSampleNomisApiUser(
+        firstName = "bOb",
+        lastName = "bloggs",
+        username = "nomisuser",
+        enabled = true,
+        accountStatus = AccountStatus.OPEN
       )
 
   private val deliusUserAccountForBob =

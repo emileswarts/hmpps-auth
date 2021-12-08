@@ -54,7 +54,7 @@ Can then be accessed in a browser on http://localhost:8080/auth/sign-in
 
 ### Run locally with token verification and delius enabled (for integration tests) on the command line
 ```bash
-SPRING_PROFILES_ACTIVE=dev,token-verification,delius,azure-oidc-int-test ./gradlew bootRun
+SPRING_PROFILES_ACTIVE=dev,token-verification,delius,nomis,azure-oidc-int-test ./gradlew bootRun
 ```
 
 ### Run integration tests locally against the development instance (in a separate terminal) with:
