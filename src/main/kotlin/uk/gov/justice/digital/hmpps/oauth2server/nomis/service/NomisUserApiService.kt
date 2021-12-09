@@ -116,7 +116,7 @@ class NomisUserApiService(
       log.debug("Nomis integration disabled, returning empty for {}", username)
       return null
     }
-    val userDetails = nomisUserWebClient.get().uri("/users/{username}", username)
+    val userDetails = webClient.get().uri("/users/{username}", username)
       .retrieve()
       .bodyToMono(NomisApiUserDetails::class.java)
       .onErrorResume(
