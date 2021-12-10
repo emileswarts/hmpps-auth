@@ -8,6 +8,9 @@ dependencyCheck {
   suppressionFiles.add("auth-suppressions.xml")
 }
 
+// added specifically due to thymeleaf@3.0.12.RELEASE and CVE-2021-43466 - remove when update included in spring-boot
+ext["thymeleaf.version"] = "3.0.13.RELEASE"
+
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
