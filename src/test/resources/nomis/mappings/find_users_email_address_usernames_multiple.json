@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "POST",
-    "urlPattern": "/users/user\\?email=multiple.user.test@digital.justice.gov.uk"
+    "urlPattern": "/users/user\\?email=multiple.user.test%40digital.justice.gov.uk"
   },
   "response": {
     "status": 200,

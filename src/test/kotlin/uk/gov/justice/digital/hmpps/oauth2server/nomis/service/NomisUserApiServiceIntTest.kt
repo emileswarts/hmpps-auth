@@ -247,7 +247,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     @Test
     fun `findUsers returns no matching users`() {
       nomisApi.stubFor(
-        post(urlEqualTo("/users/user?email=missing@justice.gov.uk"))
+        post(urlPathEqualTo("/users/user"))
+          .atPriority(1)
           .willReturn(
             aResponse()
               .withHeader("Content-Type", "application/json")
@@ -261,7 +262,30 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
       val users = nomisService.findUsersByEmailAddressAndUsernames("missing@justice.gov.uk", setOf("bob"))
       nomisApi.verify(
         postRequestedFor(
-          urlEqualTo("/users/user?email=missing@justice.gov.uk")
+          urlEqualTo("/users/user?email=missing%40justice.gov.uk")
+        )
+      )
+      assertThat(users).isEmpty()
+    }
+    @Test
+    fun `findUsers encodes the email address parameter`() {
+      nomisApi.stubFor(
+        post(urlPathEqualTo("/users/user"))
+          .atPriority(1)
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+              .withBody(
+                "[]"
+              )
+          )
+      )
+
+      val users = nomisService.findUsersByEmailAddressAndUsernames("missing joe + bob@justice.gov.uk", setOf("bob"))
+      nomisApi.verify(
+        postRequestedFor(
+          urlEqualTo("/users/user?email=missing%20joe%20%2B%20bob%40justice.gov.uk")
         )
       )
       assertThat(users).isEmpty()
@@ -270,7 +294,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     @Test
     fun `findUsers returns a matching user`() {
       nomisApi.stubFor(
-        post(urlEqualTo("/users/user?email=itag_user@digital.justice.gov.uk"))
+        post(urlPathEqualTo("/users/user"))
+          .atPriority(1)
           .willReturn(
             aResponse()
               .withHeader("Content-Type", "application/json")
@@ -297,7 +322,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
       val users = nomisService.findUsersByEmailAddressAndUsernames("itag_user@digital.justice.gov.uk", setOf())
       nomisApi.verify(
         postRequestedFor(
-          urlEqualTo("/users/user?email=itag_user@digital.justice.gov.uk")
+          urlEqualTo("/users/user?email=itag_user%40digital.justice.gov.uk")
         )
       )
       assertThat(users).isNotEmpty
@@ -306,7 +331,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     @Test
     fun `findUsers hydrates users that don't have an email address in NOMIS`() {
       nomisApi.stubFor(
-        post(urlEqualTo("/users/user?email=itag_user@digital.justice.gov.uk"))
+        post(urlPathEqualTo("/users/user"))
+          .atPriority(1)
           .willReturn(
             aResponse()
               .withHeader("Content-Type", "application/json")

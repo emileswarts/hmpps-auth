@@ -85,8 +85,8 @@ class NomisUserApiService(
     }
     val userDetails = webClient.post().uri {
       it.path("/users/user")
-        .queryParam("email", emailAddress)
-        .build()
+        .queryParam("email", "{emailAddress}")
+        .build(emailAddress)
     }
       .bodyValue(usernames)
       .retrieve()
@@ -102,9 +102,9 @@ class NomisUserApiService(
     }
     return nomisUserWebClient.get().uri {
       it.path("/users/staff")
-        .queryParam("firstName", firstName)
-        .queryParam("lastName", lastName)
-        .build()
+        .queryParam("firstName", "{firstName}")
+        .queryParam("lastName", "{lastName}")
+        .build(firstName, lastName)
     }
       .retrieve()
       .bodyToMono(object : ParameterizedTypeReference<List<NomisUserSummaryDto>>() {})
