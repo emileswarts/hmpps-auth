@@ -122,7 +122,7 @@ open class AuthPage<T>(
     if (headingStartsWith) {
       assertThat(headingText.text()).startsWith(heading)
     } else {
-      assertThat(headingText.text()).isEqualTo(heading)
+      checkHeadingText(heading)
     }
   }
 
@@ -131,11 +131,16 @@ open class AuthPage<T>(
     return this as T
   }
 
+  internal fun checkHeadingText(h1: String): T {
+    assertThat(headingText.text()).isEqualTo(h1)
+    return this as T
+  }
+
   internal fun isAtError(): T {
     super.isAt()
 
     assertThat(window().title()).isEqualTo("Error: $title")
-    assertThat(headingText.text()).isEqualTo(heading)
+    checkHeadingText(heading)
 
     return this as T
   }

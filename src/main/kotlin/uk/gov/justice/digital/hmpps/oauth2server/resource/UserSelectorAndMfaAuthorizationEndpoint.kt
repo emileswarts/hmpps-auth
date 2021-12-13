@@ -93,7 +93,7 @@ class UserSelectorAndMfaAuthorizationEndpoint(
     val mfaPassed = user?.passedMfa == true
 
     val replacedAuthentication = if ((clientNeedsMfa && mfaPassed) || !clientNeedsMfa) {
-      if (!account.isNullOrBlank() && account != "true" && authentication != null) {
+      if (!account.isNullOrBlank() && authentication != null) {
         replaceAuthentication(account, authentication, approvalParameters)
       } else if (mfaPassed) {
         approvalParameters[USER_OAUTH_APPROVAL] = "true"
@@ -116,7 +116,7 @@ class UserSelectorAndMfaAuthorizationEndpoint(
       username, AuthSource.fromNullableString(source), loginUser
     )
     return user.map { upd ->
-      // if we're successful with the replace then change the approval parameter to true
+      // if we're successful with the replacement then change the approval parameter to true
       approvalParameters[USER_OAUTH_APPROVAL] = "true"
 
       // now replace the principal

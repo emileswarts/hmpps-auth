@@ -3,36 +3,22 @@
       xmlns:th="http://www.thymeleaf.org"
       layout:decorate="~{fragments/layout}">
 <head>
-  <title>Missing privileges</title>
+  <title>Missing permissions</title>
 </head>
 <body>
 <div layout:fragment="content">
-  <h1 class="govuk-heading-l">Missing privileges</h1>
+  <h1 class="govuk-heading-l">You do not have permission to view <span th:text="${service}" data-qa="service">this service</span></h1>
 
   <p class="govuk-body">
-    Your account doesn't appear to have any privileges to access <span th:text="${service}" data-qa="service">this service</span>.
+    Try signing out and signing in with a different account.
   </p>
   <p class="govuk-body">
-    You can continue to the service but it might not work as expected.
-  </p>
-  <p class="govuk-body">
-    If you have multiple HMPPS accounts then you could try signing out and sign in as a different user account instead.
-  </p>
-  <p class="govuk-body">
-    If you continue to have issues then please visit
+    If you think you should have access to this service, visit
     <a th:href="${@environment.getProperty('application.support.url')}" data-qa="contact" class="govuk-link">
-      Feedback and Support
-    </a>
-    for your service.
+      feedback and support</a>.
   </p>
 
-  <form id="confirmationForm" name="confirmationForm" th:action="@{/user-selector-no-roles}" method="POST">
-    <p class="govuk-body">
-      <input type="hidden" name="requireMfa" th:value="${requireMfa}">
-      <input type="hidden" name="user_oauth_approval" th:value="true">
-    </p>
-    <input class="govuk-button" name="authorize" value="Continue" type="submit"/>
-  </form>
+  <a class="govuk-button" th:href="@{/}" data-qa="select">Select a different service</a>
 </div>
 </body>
 </html>

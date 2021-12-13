@@ -28,25 +28,4 @@ internal class UserSelectorControllerTest {
       assertThat(forward.viewName).isEqualTo("forward:/oauth/authorize")
     }
   }
-  @Nested
-  inner class selectUserNoRoles {
-    @Test
-    fun `selectUser mfa true`() {
-      val forward = UserSelectorController().selectUserNoRoles(true)
-      assertThat(forward.viewName).isEqualTo("redirect:/service-mfa-send-challenge")
-      assertThat(forward.model).isEmpty()
-    }
-
-    @Test
-    fun `selectUserNoRoles mfa not set`() {
-      val forward = UserSelectorController().selectUserNoRoles(null)
-      assertThat(forward.viewName).isEqualTo("forward:/oauth/authorize")
-    }
-
-    @Test
-    fun `selectUserNoRoles mfa false`() {
-      val forward = UserSelectorController().selectUserNoRoles(false)
-      assertThat(forward.viewName).isEqualTo("forward:/oauth/authorize")
-    }
-  }
 }

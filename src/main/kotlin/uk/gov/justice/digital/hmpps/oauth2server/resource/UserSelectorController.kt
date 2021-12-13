@@ -18,11 +18,4 @@ class UserSelectorController {
       "redirect:/service-mfa-send-challenge", "user_oauth_approval", user_oauth_approval
     )
     else ModelAndView("forward:/oauth/authorize")
-
-  @PostMapping("/user-selector-no-roles")
-  fun selectUserNoRoles(
-    @RequestParam requireMfa: Boolean?,
-  ): ModelAndView =
-    if (requireMfa == true) ModelAndView("redirect:/service-mfa-send-challenge")
-    else ModelAndView("forward:/oauth/authorize")
 }

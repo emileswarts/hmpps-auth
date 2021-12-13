@@ -152,7 +152,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "requireMfa" to true, "service" to null))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "requireMfa" to true, "service" to "this service"))
     }
 
     @Test
@@ -187,7 +187,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = handler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to null))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to "this service"))
     }
 
     @Test
@@ -199,7 +199,7 @@ internal class UserContextApprovalHandlerTest {
       val users = listOf(createSampleUser(username = "harry"))
       whenever(userContextService.discoverUsers(any(), any(), any())).thenReturn(users)
       val map = linkAccountsEnabledHandler.getUserApprovalRequest(authorizationRequest, authentication)
-      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to null))
+      assertThat(map).containsExactlyInAnyOrderEntriesOf(mapOf("bob" to "joe", "users" to users, "service" to "this service"))
     }
 
     @Test

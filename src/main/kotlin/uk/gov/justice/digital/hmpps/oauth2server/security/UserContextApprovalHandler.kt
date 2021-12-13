@@ -89,13 +89,13 @@ class UserContextApprovalHandler(
         roles = serviceRoles
       )
       userApprovalRequest["users"] = users
-      userApprovalRequest["service"] = service?.name
+      userApprovalRequest["service"] = service?.name ?: "this service"
     } else if (!userContextService.checkUser(
         loginUser = userDetails, scopes = authorizationRequest.scope, roles = serviceRoles
       )
     ) {
       userApprovalRequest["users"] = emptyList<UserPersonDetails>()
-      userApprovalRequest["service"] = service?.name
+      userApprovalRequest["service"] = service?.name ?: "this service"
     }
 
     if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest.clientId)) {

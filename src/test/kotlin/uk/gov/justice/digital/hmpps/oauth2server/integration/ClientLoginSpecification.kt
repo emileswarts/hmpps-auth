@@ -41,10 +41,13 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   private lateinit var clientMaintenancePage: ClientMaintenancePage
 
   @Page
-  internal lateinit var selectUserPage: SelectUserPage
+  private lateinit var selectUserPage: SelectUserPage
 
   @Page
-  internal lateinit var selectUserNoRolesPage: SelectUserNoRolesPage
+  private lateinit var selectUserNoRolesPage: SelectUserNoRolesPage
+
+  @Page
+  private lateinit var homePage: HomePage
 
   @Test
   fun `I can sign in from another client`() {
@@ -147,7 +150,10 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(clientSummaryPage).editClient("elite2apiclient")
     with(clientMaintenancePage) {
       isAtPage()
-      val dateTime = LocalDateTime.parse(el("#elite2apiclient-last-accessed").text(), DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))
+      val dateTime = LocalDateTime.parse(
+        el("#elite2apiclient-last-accessed").text(),
+        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+      )
       assertThat(dateTime).isAfterOrEqualTo(now.truncatedTo(ChronoUnit.MINUTES))
     }
   }
@@ -195,19 +201,10 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   }
 
   @Test
-  fun `Sign in as azure ad user with a disabled auth account leaves user as azure but with warning`() {
+  fun `Sign in as azure ad user with a disabled auth account takes user back to select service page`() {
     // The email is mapped to AUTH_GROUP_MANAGER in the nomis database
     azureClientSignInNoPrivilegesContinue("auth_disabled@digital.justice.gov.uk")
-      .jsonPath(".user_name").isEqualTo("FE016DC1-83A6-4B39-9ACC-7CE82D2921D9")
-      .jsonPath(".user_id").isEqualTo("auth_disabled@digital.justice.gov.uk")
-      .jsonPath(".sub").isEqualTo("FE016DC1-83A6-4B39-9ACC-7CE82D2921D9")
-      .jsonPath(".auth_source").isEqualTo("azuread")
-      .jsonPath(".access_token").value<JSONArray> {
-        val claims = JWTParser.parse(it[0].toString()).jwtClaimsSet
-        assertThat(claims.getClaim("user_name")).isEqualTo("FE016DC1-83A6-4B39-9ACC-7CE82D2921D9")
-        assertThat(claims.getClaim("authorities") as List<*>)
-          .containsExactly("SCOPE_openid", "ROLE_USER", "SCOPE_email", "SCOPE_profile")
-      }
+    homePage.isAtPage()
   }
 
   @Test
@@ -225,14 +222,12 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Test
   fun `Sign in as a user with no privileges in service gives warning`() {
-    clientAccess("manage-user-accounts-ui") {
-      loginPage.isAtPage().submitLogin("AUTH_USER", "password123456")
-      selectUserNoRolesPage.isAtPage().proceed()
-    }
-      .jsonPath(".user_name").isEqualTo("AUTH_USER")
-      .jsonPath(".user_id").isEqualTo("608955ae-52ed-44cc-884c-011597a77949")
-      .jsonPath(".sub").isEqualTo("AUTH_USER")
-      .jsonPath(".auth_source").isEqualTo("auth")
+    startClientAccess("manage-user-accounts-ui")
+    loginPage.isAtPage().submitLogin("AUTH_USER", "password123456")
+    selectUserNoRolesPage.isAtPage()
+      .checkHeadingText("You do not have permission to view Manage user accounts")
+      .proceed()
+    homePage.isAtPage()
   }
 
   @Test
@@ -318,14 +313,12 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
       selectUserPage.isAtPage().selectUser("auth", username)
     }
   }
-  private fun azureClientSignInNoPrivilegesContinue(email: String): BodyContentSpec {
+
+  private fun azureClientSignInNoPrivilegesContinue(email: String) {
     AzureOIDCExtension.azureOIDC.stubToken(email)
-    return clientAccess(
-      "azure-login-client"
-    ) {
-      loginPage.clickAzureOIDCLink()
-      selectUserNoRolesPage.isAtPage().proceed()
-    }
+    startClientAccess("azure-login-client")
+    loginPage.clickAzureOIDCLink()
+    selectUserNoRolesPage.isAtPage().proceed()
   }
 }
 
@@ -341,11 +334,15 @@ class SelectUserPage : AuthPage<SelectUserPage>("HMPPS Digital Services - Select
 }
 
 @PageUrl("/oauth/authorize")
-class SelectUserNoRolesPage : AuthPage<SelectUserNoRolesPage>("HMPPS Digital Services - Missing privileges", "Missing privileges") {
-  @FindBy(css = "input[type='submit']")
+class SelectUserNoRolesPage : AuthPage<SelectUserNoRolesPage>(
+  "HMPPS Digital Services - Missing permissions",
+  "You do not have permission to view",
+  headingStartsWith = true,
+) {
+  @FindBy(css = "a[data-qa='select']")
   private lateinit var continueButton: FluentWebElement
 
   fun proceed() {
-    continueButton.submit()
+    continueButton.click()
   }
 }
