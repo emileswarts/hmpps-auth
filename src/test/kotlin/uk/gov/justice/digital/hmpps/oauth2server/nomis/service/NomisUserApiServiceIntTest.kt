@@ -632,4 +632,71 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
       assertThat(users.totalElements).isEqualTo(41900)
     }
   }
+
+  @Nested
+  inner class authenticateUser {
+
+    @Test
+    fun `authenticate succeeds`() {
+      nomisApi.stubFor(
+        post(urlEqualTo("/users/ITAG_USER/authenticate"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+          )
+      )
+
+      val result = nomisService.authenticateUser("ITAG_USER", "password")
+      assertThat(result).isTrue()
+
+      nomisApi.verify(
+        postRequestedFor(
+          urlEqualTo("/users/ITAG_USER/authenticate")
+        )
+      )
+    }
+
+    @Test
+    fun `it will return false for 401 errors`() {
+      nomisApi.stubFor(
+        post(urlEqualTo("/users/ITAG_USER/authenticate"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_UNAUTHORIZED)
+          )
+      )
+
+      val result = nomisService.authenticateUser("ITAG_USER", "password")
+      assertThat(result).isFalse()
+
+      nomisApi.verify(
+        postRequestedFor(
+          urlEqualTo("/users/ITAG_USER/authenticate")
+        )
+      )
+    }
+
+    @Test
+    fun `it will return false for 500 errors`() {
+      nomisApi.stubFor(
+        post(urlEqualTo("/users/ITAG_USER/authenticate"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_INTERNAL_ERROR)
+          )
+      )
+
+      val result = nomisService.authenticateUser("ITAG_USER", "password")
+      assertThat(result).isFalse()
+
+      nomisApi.verify(
+        postRequestedFor(
+          urlEqualTo("/users/ITAG_USER/authenticate")
+        )
+      )
+    }
+  }
 }

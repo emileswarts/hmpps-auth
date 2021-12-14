@@ -12,6 +12,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
@@ -151,6 +152,33 @@ class NomisUserApiService(
       .bodyToMono(typeReference<RestResponsePage<NomisUserSummaryDto>>())
       .block()!!
   }
+
+  fun authenticateUser(username: String, password: String): Boolean {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, returning false for {}", username)
+      return false
+    }
+
+    return webClient.post().uri("/users/{username}/authenticate", username)
+      .contentType(MediaType.APPLICATION_JSON)
+      .bodyValue(Authentication(password))
+      .retrieve()
+      .bodyToMono(Boolean::class.java)
+      .defaultIfEmpty(true)
+      .onErrorResume(WebClientResponseException.Unauthorized::class.java) {
+        log.debug("Authentication failed for user {} due to {}", username, it.message)
+        Mono.just(false)
+      }
+      .onErrorResume(WebClientResponseException::class.java) {
+        log.warn("Unable to authenticate user {}", username, it)
+        Mono.just(false)
+      }
+      .onErrorResume(Exception::class.java) {
+        log.warn("Unable to authenticate user for user {}", username, it)
+        Mono.just(false)
+      }
+      .block()!!
+  }
 }
 
 class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) constructor(
@@ -177,6 +205,8 @@ data class PrisonCaseload(
   val id: String,
   val name: String
 )
+
+data class Authentication(val password: String)
 
 fun <T> errorWhenBadRequest(
   exception: WebClientResponseException,

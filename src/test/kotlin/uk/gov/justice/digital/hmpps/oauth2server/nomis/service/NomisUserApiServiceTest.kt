@@ -68,4 +68,13 @@ class NomisUserApiServiceTest {
       verifyNoInteractions(webClient)
     }
   }
+
+  @Nested
+  inner class authenticateUser {
+    @Test
+    fun `it will do nothing when disabled`() {
+      nomisDisabledService.authenticateUser("Joe", "password")
+      verifyNoInteractions(webClient)
+    }
+  }
 }
