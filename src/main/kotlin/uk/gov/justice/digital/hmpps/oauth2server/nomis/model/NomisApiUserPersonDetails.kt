@@ -12,10 +12,12 @@ data class NomisApiUserPersonDetails(
   override val firstName: String,
   val surname: String,
   val email: String?,
-  private val enabled: Boolean = false,
   private val locked: Boolean = false,
   private val roles: Collection<GrantedAuthority?> = emptySet(),
   val accountStatus: AccountStatus,
+  private val accountNonLocked: Boolean = false,
+  private val credentialsNonExpired: Boolean = false,
+  private val enabled: Boolean = false
 ) : UserPersonDetails {
 
   override fun getUsername(): String = username
@@ -45,9 +47,9 @@ data class NomisApiUserPersonDetails(
 
   override fun isAccountNonExpired(): Boolean = true
 
-  override fun isAccountNonLocked(): Boolean = !locked
+  override fun isAccountNonLocked(): Boolean = accountNonLocked
 
-  override fun isCredentialsNonExpired(): Boolean = true
+  override fun isCredentialsNonExpired(): Boolean = credentialsNonExpired
 
   override fun isEnabled(): Boolean = enabled
 }

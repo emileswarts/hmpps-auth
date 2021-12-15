@@ -16,13 +16,15 @@
         "firstName": "Licence",
         "lastName": "Responsible Officer Demo",
         "activeCaseloadId": "BAI",
-        "active": true,
         "accountStatus": "OPEN",
         "accountType": "GENERAL",
         "primaryEmail": "ro_user@some.justice.gov.uk",
         "dpsRoleCodes": [
           "LICENCE_RO"
-        ]
+        ],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
       }
     ]
   }

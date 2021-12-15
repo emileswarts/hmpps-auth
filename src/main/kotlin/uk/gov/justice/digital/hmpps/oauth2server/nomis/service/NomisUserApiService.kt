@@ -225,9 +225,11 @@ private fun mapUserDetailsToNomisUser(userDetails: NomisApiUserDetails): NomisAp
     firstName = userDetails.firstName,
     surname = userDetails.surname,
     email = userDetails.email?.lowercase(),
-    enabled = userDetails.enabled,
     roles = userDetails.roles.map { roleCode -> SimpleGrantedAuthority(roleCode) },
     accountStatus = userDetails.accountStatus,
+    accountNonLocked = userDetails.accountNonLocked,
+    credentialsNonExpired = userDetails.credentialsNonExpired,
+    enabled = userDetails.enabled
   )
 
 inline fun <reified T> typeReference() = object : ParameterizedTypeReference<T>() {}

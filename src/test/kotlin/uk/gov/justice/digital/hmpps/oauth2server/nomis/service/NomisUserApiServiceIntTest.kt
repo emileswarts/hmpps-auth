@@ -308,11 +308,13 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "firstName": "Api",
         "lastName": "User",
         "activeCaseloadId": "MDI",
-        "active": true,
         "accountStatus": "EXPIRED",
         "accountType": "GENERAL",
         "primaryEmail": "itag_user@digital.justice.gov.uk",
-        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
     }]
                 """.trimIndent()
               )
@@ -345,10 +347,12 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "firstName": "Api",
         "lastName": "User",
         "activeCaseloadId": "MDI",
-        "active": true,
         "accountStatus": "EXPIRED",
         "accountType": "GENERAL",
-        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
     }]
                 """.trimIndent()
               )
@@ -379,11 +383,13 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "firstName": "Api",
         "lastName": "User",
         "activeCaseloadId": "MDI",
-        "active": true,
         "accountStatus": "EXPIRED",
         "accountType": "GENERAL",
         "primaryEmail": "itag_user@digital.justice.gov.uk",
-        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"]
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
     }
                 """.trimIndent()
               )
