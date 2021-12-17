@@ -167,7 +167,7 @@ open class NewPasswordPage :
 @PageUrl("/change-password-success")
 open class ChangePasswordSuccessPage : AuthPage<ChangePasswordSuccessPage>(
   "HMPPS Digital Services - Password Changed Confirmation",
-  "Your password has been changed. You can use your new password to sign in to HMPPS digital services"
+  "Your password has been changed."
 ) {
   @FindBy(css = "#continue")
   private lateinit var continueButton: FluentWebElement
