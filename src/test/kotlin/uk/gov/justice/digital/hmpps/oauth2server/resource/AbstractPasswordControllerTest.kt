@@ -47,7 +47,7 @@ class AbstractPasswordControllerTest {
     setupCheckAndGetTokenValid()
     setupGetUserCallForProfile("TAG_ADMIN")
     val modelAndView = controller.setPassword("d", "password123456", "password123456", null)
-    assertThat(modelAndView.viewName).isEqualTo("redirect:/reset-password-success")
+    assertThat(modelAndView.viewName).isEqualTo("redirect:/reset-password-success?auth-source=nomis")
   }
 
   @Test

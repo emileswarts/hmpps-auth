@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.service.NotificationClientRuntimeException
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailHelper
@@ -48,7 +49,14 @@ class ResetPasswordController(
   fun resetPasswordRequest(): String = "resetPassword"
 
   @GetMapping("/reset-password-success")
-  fun resetPasswordSuccess(): String = "resetPasswordSuccess"
+  fun resetPasswordSuccess(
+    @RequestParam(name = "auth-source", required = false) authSource: String? = "none"
+  ): ModelAndView {
+    return ModelAndView(
+      "resetPasswordSuccess",
+      mapOf("legacyIdentityProvider" to AuthSource.getSourceLegacyName(authSource))
+    )
+  }
 
   @PostMapping("/reset-password")
   fun resetPasswordRequest(
@@ -150,15 +158,16 @@ class ResetPasswordController(
     @RequestParam confirmPassword: String?,
     @RequestParam(required = false) initial: Boolean?,
   ): ModelAndView {
-    val modelAndView = processSetPassword(
+    val result = processSetPassword(
       TokenType.RESET,
       if (initial == true) "Initial" else "Reset",
       token,
       newPassword,
       confirmPassword
     )
-    return modelAndView.map { if (initial == true) it.addObject("initial", initial) else it }.orElseGet {
-      ModelAndView(if (initial == true) "redirect:/initial-password-success" else "redirect:/reset-password-success")
+    val authSource = result.second
+    return result.first.map { if (initial == true) it.addObject("initial", initial) else it }.orElseGet {
+      ModelAndView(if (initial == true) "redirect:/initial-password-success" else "redirect:/reset-password-success?auth-source=$authSource")
     }
   }
 

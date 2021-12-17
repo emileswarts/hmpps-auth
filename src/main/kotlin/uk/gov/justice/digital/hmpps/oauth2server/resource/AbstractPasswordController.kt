@@ -8,6 +8,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
@@ -46,7 +47,7 @@ open class AbstractPasswordController(
     token: String,
     newPassword: String?,
     confirmPassword: String?
-  ): Optional<ModelAndView> {
+  ): Pair<Optional<ModelAndView>, String> {
     val userTokenOptional = tokenService.checkToken(tokenType, token)
     if (userTokenOptional.isPresent) {
       val modelAndView: ModelAndView = if (startAgainViewOrUrl.startsWith("redirect")) {
@@ -54,16 +55,17 @@ open class AbstractPasswordController(
       } else {
         ModelAndView(startAgainViewOrUrl, "error", userTokenOptional.get())
       }
-      return Optional.of(modelAndView)
+      return Pair(Optional.of(modelAndView), AuthSource.none.name)
     }
     // token checked already by service, so can just get it here
     val userToken = tokenService.getToken(tokenType, token).orElseThrow()
+    val authSource = getAuthSourceFromToken(userToken)
     val username = userToken.user.username
     val validationResult = validate(username, newPassword, confirmPassword)
     if (!validationResult.isEmpty()) {
       val modelAndView = ModelAndView(failureViewName, "token", token)
       addUsernameAndIsAdminToModel(userToken, modelAndView)
-      return trackAndReturn(tokenType, username, modelAndView, validationResult)
+      return Pair(trackAndReturn(tokenType, username, modelAndView, validationResult), authSource)
     }
     try {
       passwordService.setPassword(token, newPassword)
@@ -71,13 +73,13 @@ open class AbstractPasswordController(
       val modelAndView = ModelAndView(failureViewName, "token", token)
       addUsernameAndIsAdminToModel(userToken, modelAndView)
       if (e is PasswordValidationFailureException) {
-        return trackAndReturn(tokenType, username, modelAndView, "validation")
+        return Pair(trackAndReturn(tokenType, username, modelAndView, "validation"), authSource)
       }
       if (e is ReusedPasswordException) {
-        return trackAndReturn(tokenType, username, modelAndView, "reused")
+        return Pair(trackAndReturn(tokenType, username, modelAndView, "reused"), authSource)
       }
       if (e is LockedException) {
-        return trackAndReturn(tokenType, username, modelAndView, "state")
+        return Pair(trackAndReturn(tokenType, username, modelAndView, "state"), authSource)
       }
       // let any other exception bubble up
       log.info("Failed to ${tokenType.description} due to ${e.javaClass.name}", e)
@@ -94,7 +96,11 @@ open class AbstractPasswordController(
       mapOf("username" to username),
       null
     )
-    return Optional.empty()
+    return Pair(Optional.empty(), authSource)
+  }
+
+  fun getAuthSourceFromToken(userToken: UserToken): String {
+    return userService.findMasterUserPersonDetails(userToken.user.username).orElseThrow().authSource
   }
 
   private fun validate(username: String, newPassword: String?, confirmPassword: String?): MultiValueMap<String, Any?> {

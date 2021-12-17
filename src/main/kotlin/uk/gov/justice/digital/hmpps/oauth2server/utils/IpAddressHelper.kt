@@ -13,7 +13,7 @@ object IpAddressHelper {
   @JvmStatic
   fun retrieveIpFromRemoteAddr(request: HttpServletRequest): String {
     val remoteAddr = request.remoteAddr
-    val colonCount = remoteAddr.chars().filter { ch: Int -> ch == ':'.toInt() }.count()
+    val colonCount = remoteAddr.chars().filter { ch: Int -> ch == ':'.code }.count()
     return if (colonCount == 1L) StringUtils.split(remoteAddr, ":")[0] else remoteAddr
   }
 

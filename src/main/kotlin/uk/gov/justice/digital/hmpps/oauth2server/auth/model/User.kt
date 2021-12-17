@@ -260,10 +260,10 @@ class User(
       if (StringUtils.isNotEmpty(email) && verified) preferences.add(MfaPreferenceType.EMAIL)
       findContact(ContactType.MOBILE_PHONE)
         .filter { c: Contact -> StringUtils.isNotBlank(c.value) && c.verified }
-        .ifPresent { c: Contact? -> preferences.add(MfaPreferenceType.TEXT) }
+        .ifPresent { preferences.add(MfaPreferenceType.TEXT) }
       findContact(ContactType.SECONDARY_EMAIL)
         .filter { c: Contact -> StringUtils.isNotBlank(c.value) && c.verified }
-        .ifPresent { c: Contact? -> preferences.add(MfaPreferenceType.SECONDARY_EMAIL) }
+        .ifPresent { preferences.add(MfaPreferenceType.SECONDARY_EMAIL) }
       return preferences
     }
 

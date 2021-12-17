@@ -13,5 +13,13 @@ enum class AuthSource(val description: String) {
     fun fromNullableString(source: String?): AuthSource {
       return source?.let { valueOf(source.lowercase()) } ?: none
     }
+
+    fun getSourceLegacyName(source: String?): String? {
+      return when (fromNullableString(source)) {
+        delius -> "nDelius"
+        nomis -> "NOMIS"
+        else -> null
+      }
+    }
   }
 }

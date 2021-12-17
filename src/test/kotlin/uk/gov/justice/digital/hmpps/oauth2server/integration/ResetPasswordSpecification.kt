@@ -128,7 +128,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     usernameResetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     goTo(loginPage)
       .loginAs("CA_USER_TEST", "helloworld2")
@@ -159,7 +159,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     goTo(loginPage)
       .loginAs("RESET_TEST_USER", "helloworld2")
@@ -241,7 +241,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     // can't now call attempt login as the unlock was calling the nomis api
 
@@ -270,7 +270,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider("nDelius")
 
     goTo(loginPage)
       .loginAs("DELIUS_PASSWORD_RESET", "helloworld2")
@@ -316,7 +316,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     goTo(loginPage)
       .loginAs("reset_test_user", "helloworld2")
@@ -382,7 +382,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     goTo(loginPage)
       .loginAs("NOMIS_NEVER_LOGGED_IN", "helloworld2")
@@ -469,7 +469,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider()
 
     goTo(loginPage)
       .loginAs("NOMIS_NEVER_LOGGED_IN2", "helloworld2")
@@ -500,7 +500,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
     resetPasswordPage
       .inputAndConfirmNewPassword("helloworld2")
 
-    resetPasswordSuccessPage.isAtPage()
+    resetPasswordSuccessPage.isAtPage().checkIdProvider("nDelius")
 
     goTo(loginPage)
       .loginAs("DELIUS_PASSWORD_NEW", "helloworld2")
@@ -601,4 +601,4 @@ open class ResetPasswordPageInvalidToken :
 
 @PageUrl("/reset-password-success")
 open class ResetPasswordSuccessPage :
-  AuthPage<ResetPasswordSuccessPage>("HMPPS Digital Services - Reset Password Success", "Reset password successful")
+  AuthPage<ResetPasswordSuccessPage>("HMPPS Digital Services - Reset Password Success", "Your password has changed")

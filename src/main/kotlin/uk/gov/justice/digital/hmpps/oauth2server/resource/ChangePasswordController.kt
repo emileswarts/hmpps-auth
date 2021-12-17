@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.ChangePasswordService
 import uk.gov.justice.digital.hmpps.oauth2server.security.JwtAuthenticationSuccessHandler
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
@@ -62,13 +63,15 @@ class ChangePasswordController(
   ): ModelAndView? {
 
     val userToken = tokenService.getToken(TokenType.CHANGE, token)
-    val modelAndView = processSetPassword(TokenType.CHANGE, "Change", token, newPassword, confirmPassword)
+    val passwordProcessResult = processSetPassword(TokenType.CHANGE, "Change", token, newPassword, confirmPassword)
+    val modelAndView = passwordProcessResult.first
     if (modelAndView.isPresent) {
       return modelAndView.get().addObject("expired", expired)
     }
     // if we're logged in already ad not in the expired password flow then can just continue to home page
     if (expired != true) {
-      return ModelAndView("redirect:/change-password-success")
+      val authSource = passwordProcessResult.second
+      return ModelAndView("redirect:/change-password-success?auth-source=$authSource")
     }
     // will be error if unable to get token here as set password process has been successful
     val username = userToken.orElseThrow().user.username
@@ -86,8 +89,14 @@ class ChangePasswordController(
   }
 
   @GetMapping("/change-password-success")
-  fun changePasswordSuccess(): String =
-    "changePasswordSuccess"
+  fun changePasswordSuccess(
+    @RequestParam(name = "auth-source", required = false) authSource: String? = "none"
+  ): ModelAndView {
+    return ModelAndView(
+      "changePasswordSuccess",
+      mapOf("legacyIdentityProvider" to AuthSource.getSourceLegacyName(authSource))
+    )
+  }
 
   private fun authenticate(username: String, password: String) =
     authenticationManager.authenticate(UsernamePasswordAuthenticationToken(username.uppercase(), password))

@@ -243,12 +243,12 @@ class ResetPasswordServiceImpl(
   @Throws(
     ResetPasswordException::class
   )
-  override fun moveTokenToAccount(token: String, usernameInput: String?): String {
-    if (StringUtils.isBlank(usernameInput)) {
+  override fun moveTokenToAccount(token: String, username: String?): String {
+    if (StringUtils.isBlank(username)) {
       throw ResetPasswordException("missing")
     }
-    val username = StringUtils.upperCase(StringUtils.trim(usernameInput))
-    val userOptional = userRepository.findByUsername(username)
+    val lookupUsername = StringUtils.upperCase(StringUtils.trim(username))
+    val userOptional = userRepository.findByUsername(lookupUsername)
     return userOptional.map { ue: User ->
       val userToken = userTokenRepository.findById(token).orElseThrow()
       // need to have same email address
@@ -258,7 +258,7 @@ class ResetPasswordServiceImpl(
       if (!passwordAllowedToBeReset(ue)) {
         throw ResetPasswordException("locked")
       }
-      if (userToken.user.username == username) {
+      if (userToken.user.username == lookupUsername) {
         // no work since they are the same
         return@map token
       }

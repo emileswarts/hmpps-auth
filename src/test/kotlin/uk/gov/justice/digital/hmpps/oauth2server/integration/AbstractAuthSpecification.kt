@@ -111,6 +111,9 @@ open class AuthPage<T>(
   @FindBy(css = "#principal-name")
   private lateinit var principalName: FluentWebElement
 
+  @FindBy(css = "#id-provider")
+  private lateinit var idProvider: FluentWebElement
+
   internal fun logOut() {
     logOut.click()
   }
@@ -124,6 +127,11 @@ open class AuthPage<T>(
     } else {
       checkHeadingText(heading)
     }
+  }
+
+  internal fun checkIdProvider(legacyIdProvider: String = "NOMIS"): T {
+    assertThat(idProvider.text()).isEqualTo(legacyIdProvider)
+    return this as T
   }
 
   internal fun isAtPage(): T {

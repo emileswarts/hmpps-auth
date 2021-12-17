@@ -279,7 +279,7 @@ class ChangePasswordControllerTest {
       setupCheckAndGetTokenValid()
       setupGetUserCallForProfile()
       val redirect = controller.changePassword("user", "password2", "password2", request, response, null)
-      assertThat(redirect!!.viewName).isEqualTo("redirect:/change-password-success")
+      assertThat(redirect!!.viewName).isEqualTo("redirect:/change-password-success?auth-source=nomis")
       verify(changePasswordService).setPassword("user", "password2")
       verifyNoInteractions(userStateAuthenticationFailureHandler, authenticationManager)
     }
@@ -306,7 +306,7 @@ class ChangePasswordControllerTest {
     @Test
     fun `changePasswordSuccess view`() {
       val view = controller.changePasswordSuccess()
-      assertThat(view).isEqualTo("changePasswordSuccess")
+      assertThat(view.viewName).isEqualTo("changePasswordSuccess")
     }
   }
 

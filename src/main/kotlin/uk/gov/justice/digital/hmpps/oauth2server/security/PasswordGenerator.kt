@@ -13,7 +13,7 @@ class PasswordGenerator(
   var random: SecureRandom = SecureRandom()
 
   fun generatePassword(): String = (1..passwordLength)
-    .map { i -> random.nextInt(92) }
+    .map { random.nextInt(92) }
     .map(charPool::get)
     .joinToString("")
 }
