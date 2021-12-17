@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/ITAG_USER"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "ITAG_USER",
+        "staffId": 1,
+        "firstName": "Itag",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "primaryEmail": "reset_test@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN", "ROLE_RISK_PROFILER", "ROLE_CATEGORISATION_SECURITY", "ROLE_PRISON", "ROLE_OMIC_ADMIN", "ROLE_KEYWORKER_MONITOR", "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}

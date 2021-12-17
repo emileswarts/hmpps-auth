@@ -24,8 +24,9 @@ class NomisUserPersonDetailsHelper {
       firstName: String = "Bob",
       lastName: String = "Harris",
       email: String = "b.h@somewhere.com",
-      enabled: Boolean = true,
       accountStatus: AccountStatus = OPEN,
+      enabled: Boolean = true,
+      locked: Boolean = false
     ): NomisApiUserPersonDetails = NomisApiUserPersonDetails(
       username = username,
       userId = userId,
@@ -34,6 +35,9 @@ class NomisUserPersonDetailsHelper {
       email = email,
       enabled = enabled,
       accountStatus = accountStatus,
+      accountNonLocked = true,
+      credentialsNonExpired = true,
+      locked = locked
     )
   }
 }

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/AUTH_ADM"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "AUTH_ADM",
+        "staffId": 1,
+        "firstName": "Itag",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "OPEN",
+        "accountType": "ADMIN",
+        "primaryEmail": "itag_user_adm@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_MAINTAIN_OAUTH_USERS", "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_OAUTH_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}

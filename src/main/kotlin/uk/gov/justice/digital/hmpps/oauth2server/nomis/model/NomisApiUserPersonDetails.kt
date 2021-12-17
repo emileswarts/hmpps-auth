@@ -35,7 +35,7 @@ data class NomisApiUserPersonDetails(
       username = username,
       source = AuthSource.nomis,
       email = email,
-      verified = true,
+      verified = !email.isNullOrEmpty(),
       enabled = enabled,
     )
 

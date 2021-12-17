@@ -1,17 +1,16 @@
 package uk.gov.justice.digital.hmpps.oauth2server.integration
 
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.microsoft.applicationinsights.boot.dependencies.apachecommons.lang3.RandomStringUtils
-import org.assertj.core.api.Assertions.assertThat
 import org.fluentlenium.core.annotation.Page
 import org.fluentlenium.core.annotation.PageUrl
 import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
-import org.springframework.util.MultiValueMap
-import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientMockServer.Companion.clientBaseUrl
 
@@ -67,19 +66,20 @@ class ChangeExpiredPasswordSpecification : AbstractNomisAndDeliusAuthSpecificati
     changeExpiredPasswordPage
       .isAtPage()
       .inputAndConfirmNewPassword("helloworld2", "helloworld2")
-    homePage
-      .isAtPage()
-      .logOut()
-    loginPage
-      .isAtPage()
-      .loginAs("EXPIRED_TEST2_USER", "helloworld2")
-    homePage
-      .isAtPage()
-      .assertNameDisplayedCorrectly("C. Password2")
+
+    nomisApi.verify(
+      postRequestedFor(urlEqualTo("/users/EXPIRED_TEST2_USER/authenticate"))
+        .withRequestBody(equalToJson("""{"password" : "password123456"}"""))
+    )
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/EXPIRED_TEST2_USER/change-password"))
         .withRequestBody(equalTo("helloworld2"))
+    )
+
+    nomisApi.verify(
+      postRequestedFor(urlEqualTo("/users/EXPIRED_TEST2_USER/authenticate"))
+        .withRequestBody(equalToJson("""{"password" : "helloworld2"}"""))
     )
   }
 
@@ -131,24 +131,20 @@ class ChangeExpiredPasswordSpecification : AbstractNomisAndDeliusAuthSpecificati
       .isAtPage()
       .inputAndConfirmNewPassword("dodgypass1", "dodgypass1")
 
-    val url = driver.currentUrl
-    assertThat(url).startsWith("$clientBaseUrl?code")
-    assertThat(url).contains("state=$state")
-
-    val authCode = splitQuery(url)["code"]?.first()
-    assertThat(authCode).isNotNull
-
-    getAccessToken(authCode!!)
-      .jsonPath(".user_name").isEqualTo("EXPIRED_TEST3_USER")
+    nomisApi.verify(
+      postRequestedFor(urlEqualTo("/users/EXPIRED_TEST3_USER/authenticate"))
+        .withRequestBody(equalToJson("""{"password" : "password123456"}"""))
+    )
 
     nomisApi.verify(
       putRequestedFor(urlEqualTo("/users/EXPIRED_TEST3_USER/change-password"))
         .withRequestBody(equalTo("dodgypass1"))
     )
-  }
 
-  private fun splitQuery(url: String): MultiValueMap<String, String> {
-    return UriComponentsBuilder.fromUriString(url).build().queryParams
+    nomisApi.verify(
+      postRequestedFor(urlEqualTo("/users/EXPIRED_TEST3_USER/authenticate"))
+        .withRequestBody(equalToJson("""{"password" : "dodgypass1"}"""))
+    )
   }
 }
 

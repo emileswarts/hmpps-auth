@@ -408,7 +408,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     @Test
     fun `it will return null for 404 errors`() {
       nomisApi.stubFor(
-        get(urlEqualTo("/users/ITAG_USER"))
+        get(urlEqualTo("/users/TEST_USER"))
           .willReturn(
             aResponse()
               .withHeader("Content-Type", "application/json")
@@ -416,8 +416,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
                 """
                 {
                   "status": 404,
-                  "userMessage": "User ITAG_USER not found",
-                  "developerMessage": "User ITAG_USER not found"
+                  "userMessage": "User TEST_USER not found",
+                  "developerMessage": "User TEST_USER not found"
                 }
                 """.trimIndent()
               )
@@ -425,10 +425,10 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
           )
       )
 
-      val user = nomisService.findUserByUsername("ITAG_USER")
+      val user = nomisService.findUserByUsername("TEST_USER")
       nomisApi.verify(
         getRequestedFor(
-          urlEqualTo("/users/ITAG_USER")
+          urlEqualTo("/users/TEST_USER")
         )
       )
       assertThat(user).isNull()
@@ -437,7 +437,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     @Test
     fun `it will throw an exception for 500 errors`() {
       nomisApi.stubFor(
-        get(urlEqualTo("/users/ITAG_USER"))
+        get(urlEqualTo("/users/TEST_USER"))
           .willReturn(
             aResponse()
               .withHeader("Content-Type", "application/json")
@@ -454,7 +454,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
           )
       )
 
-      assertThatThrownBy { nomisService.findUserByUsername("ITAG_USER") }
+      assertThatThrownBy { nomisService.findUserByUsername("TEST_USER") }
         .isInstanceOf(NomisUserServiceException::class.java)
     }
   }

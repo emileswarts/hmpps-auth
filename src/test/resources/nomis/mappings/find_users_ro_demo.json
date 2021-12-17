@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/RO_DEMO"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "RO_DEMO",
+        "staffId": 10,
+        "firstName": "Itag",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "primaryEmail": "phillips@bobjustice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}

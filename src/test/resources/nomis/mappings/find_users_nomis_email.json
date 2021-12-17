@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/NOMIS_EMAIL"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "NOMIS_EMAIL",
+        "staffId": 40,
+        "firstName": "Nomis",
+        "lastName": "Email",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "primaryEmail": "reset_test@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}

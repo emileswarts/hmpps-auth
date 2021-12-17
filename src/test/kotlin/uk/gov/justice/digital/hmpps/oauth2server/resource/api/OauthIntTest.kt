@@ -12,21 +12,28 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
 import org.springframework.test.web.reactive.server.expectBody
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 import java.util.Base64
 
 @Suppress("DEPRECATION")
-@ExtendWith(DeliusExtension::class)
+@ExtendWith(DeliusExtension::class, NomisExtension::class)
 class OauthIntTest : IntegrationTest() {
   @MockBean
   private lateinit var telemetryClient: TelemetryClient
   @MockBean
   private lateinit var tokenVerificationApiRestTemplate: OAuth2RestTemplate
+  @MockBean
+  private lateinit var nomisUserApiService: NomisUserApiService
 
   @BeforeEach
   internal override fun setupTokenVerification() {
@@ -232,6 +239,20 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Password Credentials Login`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     webTestClient
@@ -251,6 +272,20 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Password Credentials Login calls token verification`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     webTestClient
@@ -309,6 +344,21 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Refresh token can be obtained`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
+
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     val (accessToken, refreshToken) = getAccessAndRefreshTokens(encodedClientAndSecret, "ITAG_USER", "password")
 
@@ -369,7 +419,7 @@ class OauthIntTest : IntegrationTest() {
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     webTestClient
-      .post().uri("/oauth/token?grant_type=password&username=ITAG_USER&password=password2")
+      .post().uri("/oauth/token?grant_type=password&username=ITAG_USER_BAD_PW&password=password2")
       .header("Authorization", "Basic $encodedClientAndSecret")
       .exchange()
       .expectStatus().isBadRequest
@@ -408,6 +458,20 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Password Credentials Login with Expired Login`() {
+    whenever(nomisUserApiService.authenticateUser("EXPIRED_USER", "password123456")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("EXPIRED_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "EXPIRED_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = false,
+        enabled = true
+      )
+    )
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     webTestClient
@@ -428,6 +492,20 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Password Credentials Login with Locked Login`() {
+    whenever(nomisUserApiService.authenticateUser("LOCKED_USER", "password123456")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("LOCKED_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "LOCKED_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = false,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     webTestClient
@@ -468,6 +546,20 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Password Credentials Login can get api data`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
 
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     val token = getPasswordCredentialsToken(encodedClientAndSecret)
@@ -510,6 +602,21 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Kid header is returned`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
+
     val encodedClientAndSecret = convertToBase64("elite2apiclient", "clientsecret")
     val result = webTestClient
       .post().uri("/oauth/token?grant_type=password&username=ITAG_USER&password=password")
@@ -538,6 +645,21 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Grant type is returned in password token`() {
+    whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "47",
+        firstName = "Nomis",
+        surname = "Email Test",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
+
     val token = getPasswordCredentialsToken(convertToBase64("elite2apiclient", "clientsecret"))
 
     assertThat(JWT.decode(token).getClaim("grant_type").asString()).isEqualTo("password")

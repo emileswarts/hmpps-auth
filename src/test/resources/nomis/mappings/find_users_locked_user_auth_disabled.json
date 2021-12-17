@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/NOMIS_LOCKED_AUTH_DISABLED"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "NOMIS_LOCKED_AUTH_DISABLED",
+        "staffId": 40,
+        "firstName": "Itag",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "LOCKED",
+        "accountType": "GENERAL",
+        "primaryEmail": "reset_test@digital.justice.gov.uk",
+        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "accountNonLocked": false,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}

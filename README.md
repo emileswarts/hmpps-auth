@@ -62,7 +62,8 @@ SPRING_PROFILES_ACTIVE=dev,token-verification,delius,nomis,azure-oidc-int-test .
 ./gradlew testIntegration
 ```
 
-(Will require a matching version of chromedriver to be downloaded and available on the path - check the version of selenium in build.gradle.kts)
+* Requires a matching version of chromedriver to be downloaded and available on the path - check the version of selenium in build.gradle.kts)
+* In build.gradle.kts we have the property `fluentlenium.capabilities`, removing the `headless` arg will open Chrome while the test is running which is helpful for debugging
 
 #### Run in docker-compose
 ```bash

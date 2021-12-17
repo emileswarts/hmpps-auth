@@ -76,7 +76,9 @@ class VerifyEmailSpecification : AbstractAuthSpecification() {
   }
 
   @Test
-  fun `A user can verify an email that exists in pnomis`() {
+  fun `A user needs to be verified if they do not have an email configured in pnomis`() {
+    // Given RO_USER does not have a record in V900_0__oauth_sample_data.sql so the email needs to be verified
+    // and find_users_ro_user.json does not contain an email so NomisApiUserPersonDetails.toUser sets verified to false
     goTo(loginPage).loginAsWithUnverifiedEmail("RO_USER")
       .selectExistingEmailAs("phillips@bobjustice.gov.uk")
 
@@ -91,7 +93,18 @@ class VerifyEmailSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `user email is already verified if they have an email configured in pnomis`() {
+    // Given RO_USER_NOMIS_EMAIL does not have a record in V900_0__oauth_sample_data.sql
+    // and find_users_ro_user_with_email.json contains an email so NomisApiUserPersonDetails.toUser sets verified to true
+    // therefore the email does not need to be verified
+    goTo(loginPage).loginAs("RO_USER_WITH_EMAIL")
+
+    newInstance(HomePage::class.java).isAt()
+  }
+
+  @Test
   fun `A user can verify an email that exists in pnomis where the user has changed password in auth`() {
+    // Given RO_DEMO has verified set to false with the static V900_0__oauth_sample_data.sql
     goTo(loginPage).loginAsWithUnverifiedEmail("RO_DEMO")
       .selectExistingEmailAs("ro_user@some.justice.gov.uk")
 

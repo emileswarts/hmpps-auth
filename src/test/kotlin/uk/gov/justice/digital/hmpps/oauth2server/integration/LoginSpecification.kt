@@ -206,7 +206,7 @@ class LoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Test
   fun `Attempt login with invalid credentials`() {
-    goTo(loginPage).loginError("ITAG_USER", "wrong")
+    goTo(loginPage).loginError("ITAG_USER_BAD_PW", "wrong")
       .checkError("Enter a valid username and password. You will be locked out if you enter the wrong details 3 times.")
   }
 
@@ -243,12 +243,6 @@ class LoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   @Test
   fun `Attempt login with disabled auth user`() {
     goTo(loginPage).loginError("AUTH_DISABLED", "password123456")
-      .checkError("Enter a valid username and password. You will be locked out if you enter the wrong details 3 times.")
-  }
-
-  @Test
-  fun `Attempt login with expired user wrong password`() {
-    goTo(loginPage).loginError("EXPIRED_USER", "wrong")
       .checkError("Enter a valid username and password. You will be locked out if you enter the wrong details 3 times.")
   }
 

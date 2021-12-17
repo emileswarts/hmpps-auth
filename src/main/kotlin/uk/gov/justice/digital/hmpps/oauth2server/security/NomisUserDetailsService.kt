@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -9,37 +8,31 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 
 @Service("nomisUserDetailsService")
-@Transactional(readOnly = true, noRollbackFor = [UsernameNotFoundException::class])
 class NomisUserDetailsService(private val nomisUserService: NomisUserService) :
   UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
-  @PersistenceContext(unitName = "nomis")
-  private lateinit var nomisEntityManager: EntityManager
-
-  override fun loadUserByUsername(username: String): UserDetails {
-    val userPersonDetails =
-      nomisUserService.getNomisUserByUsername(username).orElseThrow { UsernameNotFoundException(username) }
-    // ensure that any changes to user details past this point are not persisted - e.g. by calling CredentialsContainer.eraseCredentials
-    nomisEntityManager.detach(userPersonDetails)
-    return userPersonDetails
-  }
+  override fun loadUserByUsername(username: String): UserDetails =
+    nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username)
+      ?: throw UsernameNotFoundException(username)
 
   override fun loadUserDetails(token: PreAuthenticatedAuthenticationToken): UserDetails = loadUserByUsername(token.name)
 }
 
 @Component
-@Transactional(readOnly = true, noRollbackFor = [BadCredentialsException::class])
 class NomisAuthenticationProvider(
+  private val nomisUserApiService: NomisUserApiService,
   nomisUserDetailsService: NomisUserDetailsService,
   userRetriesService: UserRetriesService,
   mfaClientNetworkService: MfaClientNetworkService,
   userService: UserService,
   telemetryClient: TelemetryClient,
 ) :
-  LockingAuthenticationProvider(nomisUserDetailsService, userRetriesService, mfaClientNetworkService, userService, telemetryClient)
+  LockingAuthenticationProvider(nomisUserDetailsService, userRetriesService, mfaClientNetworkService, userService, telemetryClient) {
+
+  override fun checkPassword(userDetails: UserDetails, password: String): Boolean =
+    nomisUserApiService.authenticateUser(userDetails.username, password)
+}

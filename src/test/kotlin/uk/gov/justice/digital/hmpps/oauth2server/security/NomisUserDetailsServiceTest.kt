@@ -2,44 +2,27 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.test.util.ReflectionTestUtils
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountDetail
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIRED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIRED_GRACE
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIRED_LOCKED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED_TIMED
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.OPEN
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Role
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.UserCaseloadRole
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.UserCaseloadRoleIdentity
-import java.util.Optional
-import javax.persistence.EntityManager
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 
 class NomisUserDetailsServiceTest {
   private val userService: NomisUserService = mock()
-  private val nomisEntityManager: EntityManager = mock()
   private val service = NomisUserDetailsService(userService)
-
-  @BeforeEach
-  fun setup() {
-    ReflectionTestUtils.setField(service, "nomisEntityManager", nomisEntityManager)
-  }
 
   @Test
   fun testHappyUserPath() {
     val user = buildStandardUser("ITAG_USER")
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -50,18 +33,9 @@ class NomisUserDetailsServiceTest {
   }
 
   @Test
-  fun testEntityDetached() {
-    val user = buildStandardUser("ITAG_USER")
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
-    val itagUser = service.loadUserByUsername(user.username)
-    Mockito.verify(nomisEntityManager).detach(user)
-    assertThat((itagUser as UserPersonDetails).name).isEqualTo("Itag User")
-  }
-
-  @Test
   fun testLockedUser() {
     val user = buildLockedUser()
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -73,7 +47,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testExpiredUser() {
     val user = buildExpiredUser()
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -84,14 +58,14 @@ class NomisUserDetailsServiceTest {
 
   @Test
   fun testUserNotFound() {
-    whenever(userService.getNomisUserByUsername(anyString())).thenReturn(Optional.empty())
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(null)
     assertThatThrownBy { service.loadUserByUsername("user") }.isInstanceOf(UsernameNotFoundException::class.java)
   }
 
   @Test
   fun testExpiredGraceUser() {
     val user = buildExpiredGraceUser()
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -103,7 +77,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testExpiredLockedUser() {
     val user = buildExpiredLockedUser()
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonLocked).isFalse()
@@ -114,7 +88,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testLockedTimedUser() {
     val user = buildLockedTimedUser()
-    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(Optional.of(user))
+    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isEnabled).isFalse()
@@ -123,43 +97,50 @@ class NomisUserDetailsServiceTest {
     assertThat(itagUser.isCredentialsNonExpired).isTrue()
   }
 
-  private fun buildStandardUser(username: String, accountDetail: AccountDetail = buildAccountDetail(username, OPEN)): NomisUserPersonDetails {
-    val staff = buildStaff()
-    val roles = listOf(
-      UserCaseloadRole(
-        id = UserCaseloadRoleIdentity(caseload = "NWEB", roleId = ROLE_ID, username = username),
-        role = Role(code = "ROLE1", id = ROLE_ID)
-      )
-    )
-    return NomisUserPersonDetails(username = username, password = "pass", type = "GENERAL", staff = staff, roles = roles, accountDetail = accountDetail, activeCaseLoadId = null)
-  }
-
-  private fun buildExpiredUser(): NomisUserPersonDetails =
-    buildStandardUser("EXPIRED_USER", buildAccountDetail("EXPIRED_USER", EXPIRED))
-
-  private fun buildLockedUser(): NomisUserPersonDetails =
-    buildStandardUser("LOCKED_USER", buildAccountDetail("LOCKED_USER", LOCKED))
-
-  private fun buildExpiredLockedUser(): NomisUserPersonDetails =
-    buildStandardUser("EXPIRED_USER", buildAccountDetail("EXPIRED_USER", EXPIRED_LOCKED))
-
-  private fun buildLockedTimedUser(): NomisUserPersonDetails =
-    buildStandardUser("LOCKED_USER", buildAccountDetail("LOCKED_USER", LOCKED_TIMED))
-
-  private fun buildExpiredGraceUser(): NomisUserPersonDetails =
-    buildStandardUser("EXPIRED_USER", buildAccountDetail("EXPIRED_USER", EXPIRED_GRACE))
-
-  private fun buildAccountDetail(username: String, status: AccountStatus): AccountDetail {
-    return AccountDetail(
+  private fun buildStandardUser(
+    username: String,
+    accountStatus: AccountStatus = AccountStatus.OPEN,
+    accountNonLocked: Boolean = true,
+    credentialsNonExpired: Boolean = true,
+    enabled: Boolean = true
+  ): NomisApiUserPersonDetails {
+    return NomisApiUserPersonDetails(
       username = username,
-      accountStatus = status.desc,
-      profile = "TAG_GENERAL"
+      accountStatus = accountStatus,
+      userId = "1",
+      firstName = "Itag",
+      surname = "User",
+      email = "b.h@somewhere.com",
+      accountNonLocked = accountNonLocked,
+      credentialsNonExpired = credentialsNonExpired,
+      enabled = enabled
     )
   }
 
-  private fun buildStaff(): Staff = Staff(firstName = "ITAG", status = "ACTIVE", lastName = "USER", staffId = 1)
+  private fun buildExpiredUser(): NomisApiUserPersonDetails =
+    buildStandardUser("EXPIRED_USER", EXPIRED, accountNonLocked = true, credentialsNonExpired = false, enabled = true)
 
-  companion object {
-    private const val ROLE_ID = 1L
-  }
+  private fun buildLockedUser(): NomisApiUserPersonDetails =
+    buildStandardUser("LOCKED_USER", LOCKED, accountNonLocked = false, credentialsNonExpired = true, enabled = false)
+
+  private fun buildExpiredLockedUser(): NomisApiUserPersonDetails =
+    buildStandardUser(
+      "EXPIRED_USER",
+      EXPIRED_LOCKED,
+      accountNonLocked = false,
+      credentialsNonExpired = false,
+      enabled = false
+    )
+
+  private fun buildLockedTimedUser(): NomisApiUserPersonDetails =
+    buildStandardUser(
+      "LOCKED_USER",
+      LOCKED_TIMED,
+      accountNonLocked = false,
+      credentialsNonExpired = true,
+      enabled = false
+    )
+
+  private fun buildExpiredGraceUser(): NomisApiUserPersonDetails =
+    buildStandardUser("EXPIRED_USER", EXPIRED_GRACE)
 }
