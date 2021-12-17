@@ -41,7 +41,14 @@ data class NomisApiUserPersonDetails(
 
   override fun eraseCredentials() {}
 
-  override fun getAuthorities(): Collection<GrantedAuthority?> = roles.plus(SimpleGrantedAuthority("ROLE_PRISON"))
+  override fun getAuthorities(): Collection<GrantedAuthority?> {
+    val rolesRoleWithPrefix = roles.map {
+      SimpleGrantedAuthority(
+        "ROLE_${it?.authority?.replace('-', '_')?.uppercase()}"
+      )
+    }
+    return rolesRoleWithPrefix.plus(SimpleGrantedAuthority("ROLE_PRISON"))
+  }
 
   override fun getPassword(): String = "password"
 

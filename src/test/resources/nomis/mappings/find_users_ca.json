@@ -19,7 +19,7 @@
         "accountStatus": "OPEN",
         "accountType": "GENERAL",
         "primaryEmail": "reset_test@digital.justice.gov.uk",
-        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN", "ROLE_LICENCE_RO", "ROLE_PRISON"],
+        "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN", "LICENCE_RO", "PRISON"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
         "enabled": true

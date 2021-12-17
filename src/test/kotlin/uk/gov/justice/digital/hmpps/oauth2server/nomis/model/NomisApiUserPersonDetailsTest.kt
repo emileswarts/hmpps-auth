@@ -33,7 +33,7 @@ internal class NomisApiUserPersonDetailsTest {
   }
 
   @Test
-  fun `getAuthorities includes ROLE_PRISON`() {
+  fun `getAuthorities appends role prefix and includes ROLE_PRISON`() {
     val account = NomisApiUserPersonDetails(
       username = "username",
       userId = "userId",
@@ -43,6 +43,6 @@ internal class NomisApiUserPersonDetailsTest {
       accountStatus = AccountStatus.OPEN,
       roles = setOf(SimpleGrantedAuthority("role1"))
     )
-    Assertions.assertThat(account.authorities).containsExactly(SimpleGrantedAuthority("role1"), SimpleGrantedAuthority("ROLE_PRISON"))
+    Assertions.assertThat(account.authorities).containsExactly(SimpleGrantedAuthority("ROLE_ROLE1"), SimpleGrantedAuthority("ROLE_PRISON"))
   }
 }

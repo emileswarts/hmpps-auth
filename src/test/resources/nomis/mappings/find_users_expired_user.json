@@ -19,7 +19,7 @@
         "accountStatus": "EXPIRED",
         "accountType": "GENERAL",
         "primaryEmail": "reset_test@digital.justice.gov.uk",
-        "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
+        "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN"],
         "accountNonLocked": true,
         "credentialsNonExpired": false,
         "enabled": true
