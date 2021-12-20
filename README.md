@@ -136,6 +136,7 @@ by auth health monitoring (e.g. pager duty) and not other systems who wish to fi
 - delius - turns on integration with delius, requires community api server running
 
 ### Get a JWT token
+Example command:
 ```bash
 curl -sX POST "http://localhost:9090/auth/oauth/token?grant_type=password&username=ITAG_USER&password=password" -H 'Authorization: Basic ZWxpdGUyYXBpY2xpZW50OmNsaWVudHNlY3JldA==' | jq .access_token
 ```
@@ -148,8 +149,8 @@ Two ways generally:-
 - Authorisation Code (where a user must be present)
 
 #### Using Client Credentials
-The token will need to be obtained by calling the HMPPS OAUTH2 server with appropriate credentials.  Here is an example using curl, in this instance the example makes use of the test OAUTH environment.
-
+The token will need to be obtained by calling the HMPPS OAUTH2 server with appropriate credentials.  
+Here is an example using curl, in this instance the example makes use of the test OAUTH environment.
 
 `curl -X POST "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/oauth/token?grant_type=client_credentials" \
 -H 'Content-Type: application/json' -H "Authorization: Basic $(echo -n {clientId}:{clientSecret} | base64)"`
@@ -168,7 +169,8 @@ The payload contains a token which lasts in this instance 1200 seconds (20 mins)
   "iss": "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/issuer"
 }
 ```
- The access_token attribute can then be used to call the appropriate API.  The access token unpacked looks like this.
+ The access_token attribute can then be used to call the appropriate API.  
+ The access token unpacked looks like this.
 
 ```json
 {
@@ -249,13 +251,36 @@ The redirect endpoint will then call:
 
 `curl -X POST "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/oauth/token?grant_type=authorization_code&code=w8Jl9Z&redirect_uri={redirect_uri}&client_id=dev" \
 -H 'Content-Type: application/json' \
--H "Authorization: Basic $(echo -n {client-id}:{client-secret} | base64)"`
+-H "Authorization: Basic $(echo -n {clientId}:{clientSecret} | base64)"`
+
+#### When do I need client credentials and how can I use them?
+
+Client credentials are a pair of clientId and clientSecret.  They exist per environment (dev, preprod, prod etc.).
+Roles to authorize access to end-points are associated with clientIds.  
+
+Client credentials are needed to authenticate e.g.
+- service to service 
+- individual to service via e.g. Swagger or Postman 
+
+Hence as a developer testing HMPPS APIs you should expect to have both a user login and your own
+individual client credentials per environment.
+
+The `access_token` property of a JWT (obtained as described above using appropriate client credentials) 
+can be used as a `Bearer token` e.g. in:
+- Postman: as the value for `request | Authorization | Bearer Token | Token`
+- Swagger: where a Swagger view offers an `Authorize` control (e.g. page top-right) then as the value for
+  `Name: Authorization` `In: header ` as `Bearer <value>`
+- curl: as the value in `--header 'Authorization: Bearer <value>`
+
+A typical valid token will look like the following and be of the order 800 characters long: `"eyJhbGciOiJSUz …… QBQeyow"`
 
 #### How do I get client credentials?
 
-Raise a Jira in the dps-tech-team slack channel and then a Jira ticket will be created to identify the requirements for your client.
+Raise a request in the #dps-tech-team Slack channel and then a Jira ticket will be created to 
+identify the requirements for your client.
 
-
+For personal client credential requests you might clone and edit 
+e.g. JIRA https://dsdmoj.atlassian.net/browse/DT-2993
 
 #### Update govuk toolkit:
 ``` ./get-govuk-frontend.bash <version>```
