@@ -123,6 +123,7 @@ class PrisonUserControllerIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = OPEN,
       )

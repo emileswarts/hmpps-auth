@@ -19,7 +19,7 @@
         "accountStatus": "OPEN",
         "accountType": "GENERAL",
         "primaryEmail": "phillips@bobjustice.gov.uk",
-        "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN"],
+        "dpsRoleCodes": ["PRISON", "LICENCE_RO"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
         "enabled": true

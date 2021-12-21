@@ -13,6 +13,7 @@ internal class NomisApiUserPersonDetailsTest {
       userId = "userId",
       firstName = "firstName",
       surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
       email = "email",
       accountStatus = AccountStatus.OPEN
     )
@@ -26,6 +27,7 @@ internal class NomisApiUserPersonDetailsTest {
       userId = "userId",
       firstName = "firstName",
       surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
       email = null,
       accountStatus = AccountStatus.OPEN
     )
@@ -39,6 +41,7 @@ internal class NomisApiUserPersonDetailsTest {
       userId = "userId",
       firstName = "firstName",
       surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
       email = "email",
       accountStatus = AccountStatus.OPEN,
       roles = setOf(SimpleGrantedAuthority("role1"))

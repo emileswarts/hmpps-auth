@@ -3,16 +3,38 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.kotlin.whenever
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
+import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 
-@ExtendWith(DeliusExtension::class)
+@ExtendWith(DeliusExtension::class, NomisExtension::class)
 class UserControllerIntTest : IntegrationTest() {
+  @MockBean
+  private lateinit var nomisUserApiService: NomisUserApiService
 
   @Test
   fun `User Me endpoint returns principal user data for client credentials grant`() {
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "1",
+        firstName = "Itag",
+        surname = "User",
+        activeCaseLoadId = "MDI",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        enabled = true
+      )
+    )
+
     webTestClient
       .get().uri("/api/user/me")
       .headers(setAuthorisation("ITAG_USER"))
@@ -80,6 +102,19 @@ class UserControllerIntTest : IntegrationTest() {
 
   @Test
   fun `User username endpoint returns user data`() {
+    whenever(nomisUserApiService.findUserByUsername("RO_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "RO_USER",
+        userId = "4",
+        firstName = "Licence Responsible",
+        surname = "Officer",
+        activeCaseLoadId = "BEL",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        enabled = true
+      )
+    )
+
     webTestClient
       .get().uri("/api/user/RO_USER")
       .headers(setAuthorisation("ITAG_USER"))
@@ -103,6 +138,19 @@ class UserControllerIntTest : IntegrationTest() {
 
   @Test
   fun `User Me endpoint returns principal user data`() {
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "1",
+        firstName = "Itag",
+        surname = "User",
+        activeCaseLoadId = "MDI",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        enabled = true
+      )
+    )
+
     webTestClient
       .get().uri("/api/user/ITAG_USER")
       .headers(setAuthorisation("ITAG_USER_ADM"))
@@ -262,6 +310,18 @@ class UserControllerIntTest : IntegrationTest() {
 
   @Test
   fun `User email endpoint returns empty for nomis user without email`() {
+    whenever(nomisUserApiService.findUserByUsername("IEP_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "IEP_USER",
+        userId = "1",
+        firstName = "Itag",
+        surname = "User",
+        activeCaseLoadId = "MDI",
+        email = null,
+        accountStatus = AccountStatus.OPEN
+      )
+    )
+
     webTestClient
       .get().uri("/api/user/IEP_USER/email?unverified=true")
       .headers(setAuthorisation("ITAG_USER"))
@@ -383,6 +443,19 @@ class UserControllerIntTest : IntegrationTest() {
 
   @Test
   fun `User Roles endpoint returns roles for nomis user`() {
+    whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "ITAG_USER",
+        userId = "1",
+        firstName = "Itag",
+        surname = "User",
+        activeCaseLoadId = "MDI",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        roles = setOf(SimpleGrantedAuthority("PRISON"), SimpleGrantedAuthority("GLOBAL_SEARCH"))
+      )
+    )
+
     webTestClient
       .get().uri("/api/user/ITAG_USER/roles")
       .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))

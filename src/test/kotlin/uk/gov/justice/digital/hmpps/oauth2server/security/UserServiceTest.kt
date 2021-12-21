@@ -68,7 +68,7 @@ class UserServiceTest {
 
     @Test
     fun `findMasterUserPersonDetails nomis user`() {
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
       val user = userService.findMasterUserPersonDetails("bob")
       assertThat(user).isPresent.get().extracting { it.username }.isEqualTo("nomisuser")
     }
@@ -208,9 +208,8 @@ class UserServiceTest {
     fun `getOrCreateUser migrate from NOMIS`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
-      whenever(nomisUserService.getNomisUserByUsername("joe")).thenReturn(
-        Optional.of(createSampleNomisUser(username = "joe"))
-      )
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService("joe"))
+        .thenReturn(createSampleNomisApiUser(username = "joe"))
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf())
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
 
@@ -224,9 +223,8 @@ class UserServiceTest {
     fun `getOrCreateUser migrate from NOMIS with email`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
-      whenever(nomisUserService.getNomisUserByUsername("joe")).thenReturn(
-        Optional.of(createSampleNomisUser(username = "joe"))
-      )
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService("joe"))
+        .thenReturn(createSampleNomisApiUser(username = "joe"))
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(
         listOf("a@b.justice.gov.uk")
       )
@@ -257,9 +255,8 @@ class UserServiceTest {
     fun `migrate from NOMIS`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
-      whenever(nomisUserService.getNomisUserByUsername("joe")).thenReturn(
-        Optional.of(createSampleNomisUser(username = "joe"))
-      )
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService("joe"))
+        .thenReturn(createSampleNomisApiUser(username = "joe"))
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf())
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
 
@@ -618,29 +615,29 @@ class UserServiceTest {
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user verified email in auth`() {
       val nomisUserInAuth =
         Optional.of(createSampleUser(username = "bob", verified = true, email = "joe@fred.com", source = nomis))
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
       whenever(verifyEmailService.getEmail(anyString())).thenReturn(nomisUserInAuth)
       val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
-      assertThat(details).isEqualTo(staffUserAccountForBob)
+      assertThat(details).isEqualTo(Optional.of(staffNomisApiUserAccountForBob))
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user not verified email in auth`() {
       val nomisUserInAuth =
         Optional.of(createSampleUser(username = "bob", verified = false, email = "joe@fred.com", source = nomis))
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
       whenever(verifyEmailService.getEmail(anyString())).thenReturn(nomisUserInAuth)
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("joe@fred.com"))
       val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
-      assertThat(details).isEqualTo(staffUserAccountForBob)
+      assertThat(details).isEqualTo(Optional.of(staffNomisApiUserAccountForBob))
     }
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user`() {
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
       whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(listOf("joe@fred.com"))
       val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
-      assertThat(details).isEqualTo(staffUserAccountForBob)
+      assertThat(details).isEqualTo(Optional.of(staffNomisApiUserAccountForBob))
     }
 
     @Test

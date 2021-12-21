@@ -110,6 +110,7 @@ class NomisUserDetailsServiceTest {
       userId = "1",
       firstName = "Itag",
       surname = "User",
+      activeCaseLoadId = "BXI",
       email = "b.h@somewhere.com",
       accountNonLocked = accountNonLocked,
       credentialsNonExpired = credentialsNonExpired,

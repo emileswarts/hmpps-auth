@@ -126,6 +126,21 @@ class OauthIntTest : IntegrationTest() {
 
   @Test
   fun `Client Credentials Login With username identifier`() {
+    // whenever(nomisUserApiService.authenticateUser("CA_USER", "password")).thenReturn(true)
+    whenever(nomisUserApiService.findUserByUsername("CA_USER")).thenReturn(
+      NomisApiUserPersonDetails(
+        username = "CA_USER",
+        userId = "47",
+        firstName = "Licence Case",
+        surname = "Admin",
+        activeCaseLoadId = "BXI",
+        email = "nomis@email",
+        accountStatus = AccountStatus.OPEN,
+        accountNonLocked = true,
+        credentialsNonExpired = true,
+        enabled = true
+      )
+    )
     val encodedClientAndSecret = convertToBase64("omicadmin", "clientsecret")
     val token = getClientCredentialsTokenWithUsername(encodedClientAndSecret, "CA_USER")
 
@@ -246,6 +261,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -279,6 +295,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -351,6 +368,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -465,6 +483,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -499,6 +518,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = false,
@@ -551,8 +571,9 @@ class OauthIntTest : IntegrationTest() {
       NomisApiUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
-        firstName = "Nomis",
-        surname = "Email Test",
+        firstName = "Itag",
+        surname = "User",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -609,6 +630,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
@@ -652,6 +674,7 @@ class OauthIntTest : IntegrationTest() {
         userId = "47",
         firstName = "Nomis",
         surname = "Email Test",
+        activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,

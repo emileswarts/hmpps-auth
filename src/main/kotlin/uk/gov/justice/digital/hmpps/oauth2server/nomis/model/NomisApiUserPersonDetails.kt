@@ -11,13 +11,15 @@ data class NomisApiUserPersonDetails(
   override val userId: String,
   override val firstName: String,
   val surname: String,
+  val activeCaseLoadId: String?,
   val email: String?,
   private val locked: Boolean = false,
   private val roles: Collection<GrantedAuthority?> = emptySet(),
   val accountStatus: AccountStatus,
   private val accountNonLocked: Boolean = false,
   private val credentialsNonExpired: Boolean = false,
-  private val enabled: Boolean = false
+  private val enabled: Boolean = false,
+  private val admin: Boolean = false
 ) : UserPersonDetails {
 
   override fun getUsername(): String = username
@@ -25,7 +27,7 @@ data class NomisApiUserPersonDetails(
   override val name: String
     get() = "$firstName $surname"
 
-  override val isAdmin: Boolean = false
+  override val isAdmin: Boolean = admin
 
   override val authSource: String
     get() = "nomis"

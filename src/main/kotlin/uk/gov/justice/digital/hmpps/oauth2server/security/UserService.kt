@@ -44,7 +44,10 @@ class UserService(
 
   fun findMasterUserPersonDetails(username: String): Optional<UserPersonDetails> =
     authUserService.getAuthUserByUsername(username).map { UserPersonDetails::class.java.cast(it) }
-      .or { nomisUserService.getNomisUserByUsername(username).map { UserPersonDetails::class.java.cast(it) } }
+      .or {
+        Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
+          .map { UserPersonDetails::class.java.cast(it) }
+      }
       .or { azureUserService.getAzureUserByUsername(username).map { UserPersonDetails::class.java.cast(it) } }
       .or { deliusUserService.getDeliusUserByUsername(username).map { UserPersonDetails::class.java.cast(it) } }
 
@@ -76,7 +79,7 @@ class UserService(
   fun getMasterUserPersonDetails(username: String, authSource: AuthSource): Optional<UserPersonDetails> =
     when (authSource) {
       auth -> authUserService.getAuthUserByUsername(username)
-      nomis -> nomisUserService.getNomisUserByUsername(username)
+      nomis -> Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
       azuread -> azureUserService.getAzureUserByUsername(username)
       delius -> deliusUserService.getDeliusUserByUsername(username)
       none -> Optional.empty()
