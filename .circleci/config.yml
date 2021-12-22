@@ -38,6 +38,7 @@ jobs:
     executor:
       name: hmpps/java
       tag: 17.0-browsers
+    parallelism: 4
     environment:
       _JAVA_OPTIONS: -Xmx512m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
     steps:
@@ -57,8 +58,12 @@ jobs:
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle.kts" }}
       - run:
+          name: Configure test name globbing
+          command: |
+            circleci tests glob "**/integration/**/*.kt" | circleci tests split | xargs -n 1 echo
+      - run:
           name: Run Fluent Integration Tests
-          command: ./gradlew testIntegration
+          command: ./gradlew testIntegration -PciTestFilter="`circleci tests glob "**/integration/**/*.kt" | circleci tests split`"
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:

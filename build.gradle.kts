@@ -88,12 +88,22 @@ tasks {
   }
 
   val testIntegration by registering(Test::class) {
+    project.logger.lifecycle("Test paths provided:")
+    project.logger.lifecycle(project.properties["ciTestFilter"].toString())
+    if (project.hasProperty("ciTestFilter")) {
+      val ciTestFilter = project.properties["ciTestFilter"].toString().split(System.lineSeparator())
+      ciTestFilter.forEach {
+        val testToRun = it.replace("src/test/kotlin/uk/gov/justice/digital/hmpps/oauth2server/integration/", "**/").replace(".kt", ".class")
+        project.logger.lifecycle("testToRun: {}", testToRun)
+        include(testToRun)
+      }
+    }
+
     systemProperty(
       "fluentlenium.capabilities",
       """{"chromeOptions": {"args": ["headless","disable-gpu","disable-extensions","no-sandbox","disable-application-cache"]}}"""
     )
     useJUnitPlatform()
-    include("uk/gov/justice/digital/hmpps/oauth2server/integration/*")
     // Note that java options set here would be overridden by _JAVA_OPTIONS in config.yml
   }
 }
