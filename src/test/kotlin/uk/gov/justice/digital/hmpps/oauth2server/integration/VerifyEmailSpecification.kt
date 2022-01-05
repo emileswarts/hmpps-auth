@@ -80,7 +80,7 @@ class VerifyEmailSpecification : AbstractAuthSpecification() {
     // Given RO_USER does not have a record in V900_0__oauth_sample_data.sql so the email needs to be verified
     // and find_users_ro_user.json does not contain an email so NomisApiUserPersonDetails.toUser sets verified to false
     goTo(loginPage).loginAsWithUnverifiedEmail("RO_USER")
-      .selectExistingEmailAs("phillips@bobjustice.gov.uk")
+      .verifyEmailAs("ro_user@some.justice.gov.uk")
 
     verifyEmailSentPage.isAt()
     val verifyLink = verifyEmailSentPage.getVerifyLink()
@@ -90,6 +90,17 @@ class VerifyEmailSpecification : AbstractAuthSpecification() {
 
     goTo(verifyLink)
     verifyEmailConfirmPage.isAt()
+  }
+
+  @Test
+  fun `A user is shown an error if they do not provide an email`() {
+    // Given RO_USER2 does not have a record in V900_0__oauth_sample_data.sql so the email needs to be verified
+    // and find_users_ro_user_2.json does not contain an email so NomisApiUserPersonDetails.toUser sets verified to false
+    goTo(loginPage).loginAsWithUnverifiedEmail("RO_USER2")
+      .verifyEmailAs("")
+
+    verifyEmailPage
+      .checkError("Enter an email address")
   }
 
   @Test
@@ -106,7 +117,7 @@ class VerifyEmailSpecification : AbstractAuthSpecification() {
   fun `A user can verify an email that exists in pnomis where the user has changed password in auth`() {
     // Given RO_DEMO has verified set to false with the static V900_0__oauth_sample_data.sql
     goTo(loginPage).loginAsWithUnverifiedEmail("RO_DEMO")
-      .selectExistingEmailAs("ro_user@some.justice.gov.uk")
+      .verifyExistingEmailAs("ro_user@some.justice.gov.uk")
 
     verifyEmailSentPage.isAt()
     val verifyLink = verifyEmailSentPage.getVerifyLink()
@@ -171,12 +182,6 @@ open class VerifyEmailPage :
   fun verifyExistingEmailAs(email: String) {
     assertThat(emailInput.value()).isEqualTo(email)
     assertThat(verifyEmailButton.value()).isEqualTo("Resend email")
-    verifyEmailButton.click()
-  }
-
-  fun selectExistingEmailAs(email: String) {
-    el("input[value='$email']").click()
-    assertThat(verifyEmailButton.value()).isEqualTo("Save")
     verifyEmailButton.click()
   }
 

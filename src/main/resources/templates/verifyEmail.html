@@ -32,40 +32,6 @@
 
   <form class="form" th:action="@{/verify-email}" method="POST" id="verifyEmailForm">
     <fieldset class="govuk-fieldset">
-      <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl" th:unless="${#lists.isEmpty(candidates)}">
-        <h2 class="govuk-fieldset__legend--m">
-          Select your email address
-        </h2>
-      </legend>
-      <div th:unless="${#lists.isEmpty(candidates)}"
-           th:class="'govuk-form-group' + (${error == 'noselection'} ? ' govuk-form-group--error' : '')">
-        <div class="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
-          <span th:if="${error}" id="selection-error" class="govuk-error-message"
-                th:text="#{${'verifyemail.' + error}}">No error</span>
-          <div th:each="candidate, iter: ${candidates}" class="govuk-radios__item">
-            <input th:id="${'candidate' + iter.index}" th:value="${candidate}" class="govuk-radios__input"
-                   name="candidate" type="radio">
-            <label th:for="${'candidate' + iter.index}" th:text="${candidate}" class="govuk-label govuk-radios__label">
-          </div>
-          <div class="govuk-radios__divider">or</div>
-          <div class="govuk-radios__item">
-            <input class="govuk-radios__input" id="candidate-other" name="candidate" type="radio" value="other"
-                   data-aria-controls="conditional-candidate-other">
-            <label class="govuk-label govuk-radios__label" for="candidate-other">
-              I'd like to provide a different email address
-            </label>
-          </div>
-          <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-candidate-other">
-            <div class="govuk-form-group">
-              <label class="govuk-label" for="email">
-                Enter email address
-              </label>
-              <input class="govuk-input" id="email" name="email" type="email" spellcheck="false" autocomplete="email">
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div th:if="${suggestion}">
         <p class="govuk-body">
           We've found an existing email address that hasn't been verified yet. Please amend the email address if
@@ -73,9 +39,8 @@
         </p>
       </div>
 
-      <div th:class="'govuk-form-group' + (${error} ? ' govuk-form-group--error' : '')"
-           th:if="${#lists.isEmpty(candidates)}">
-        <input type="hidden" id="candidate" value="other" name="candidate"/>
+      <div th:class="'govuk-form-group' + (${error} ? ' govuk-form-group--error' : '')">
+        <input type="hidden" id="changeType" value="other" name="changeType"/>
         <label class="govuk-label" for="email">
           <th:block th:text="${suggestion == null} ? 'Enter email' : 'Email'"/>
           address
@@ -96,7 +61,7 @@
                th:value="${suggestion != null ? 'Resend email' : 'Save'}">
         <a class="govuk-button" role="button" id="cancel"
            th:href="@{/verify-email-skip}"
-           th:text="${#lists.isEmpty(candidates) ? 'Skip for now' : 'Update later'}">Cancel</a>
+           th:text="${'Skip for now'}">Cancel</a>
       </div>
     </fieldset>
   </form>

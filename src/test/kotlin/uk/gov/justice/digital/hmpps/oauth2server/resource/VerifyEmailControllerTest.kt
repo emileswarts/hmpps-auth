@@ -63,11 +63,8 @@ class VerifyEmailControllerTest {
 
   @Test
   fun verifyEmailRequest() {
-    val emails = listOf("bob")
-    whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(emails)
     val modelAndView = verifyEmailController.verifyEmailRequest(principal, request, response, null)
     assertThat(modelAndView?.viewName).isEqualTo("verifyEmail")
-    assertThat(modelAndView?.model).containsExactly(entry("candidates", emails))
   }
 
   @Test
@@ -105,16 +102,6 @@ class VerifyEmailControllerTest {
   }
 
   @Test
-  fun verifyEmail_noselection() {
-    val candidates = listOf("joe", "bob")
-    whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(candidates)
-    val modelAndView = verifyEmailController.verifyEmail("", "", EmailType.PRIMARY, token, false, principal, request, response)
-    assertThat(modelAndView?.viewName).isEqualTo("verifyEmail")
-    assertThat(modelAndView?.model).containsExactly(entry("error", "noselection"), entry("candidates", candidates))
-    verify(tokenService, never()).removeToken(any(), anyString())
-  }
-
-  @Test
   fun verifyEmail_Exception() {
     whenever(request.requestURL).thenReturn(StringBuffer("http://some.url"))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(getUserPersonalDetails()))
@@ -130,7 +117,7 @@ class VerifyEmailControllerTest {
       )
     ).thenThrow(NotificationClientException("something went wrong"))
     val modelAndView =
-      verifyEmailController.verifyEmail("a@b.com", null, EmailType.PRIMARY, token, false, principal, request, response)
+      verifyEmailController.verifyEmail("other", "a@b.com", EmailType.PRIMARY, token, false, principal, request, response)
     assertThat(modelAndView?.viewName).isEqualTo("verifyEmail")
     assertThat(modelAndView?.model).containsExactly(entry("email", "a@b.com"), entry("error", "other"))
     verify(tokenService, never()).removeToken(UserToken.TokenType.ACCOUNT, token)
@@ -290,27 +277,6 @@ class VerifyEmailControllerTest {
   }
 
   @Test
-  fun verifySecondaryEmail_noselection() {
-    val candidates = listOf("joe", "bob")
-    whenever(verifyEmailService.getExistingEmailAddressesForUsername(anyString())).thenReturn(candidates)
-    val modelAndView =
-      verifyEmailController.verifyEmail(
-        "",
-        "",
-        EmailType.SECONDARY,
-        token,
-        false,
-        principal,
-        request,
-        response
-      )
-    assertThat(modelAndView?.viewName).isEqualTo("verifyEmail")
-    assertThat(modelAndView?.model).containsExactly(entry("error", "noselection"), entry("candidates", candidates))
-
-    verify(tokenService, never()).removeToken(UserToken.TokenType.ACCOUNT, token)
-  }
-
-  @Test
   fun verifySecondaryEmail_Exception() {
     whenever(request.requestURL).thenReturn(StringBuffer("http://some.url"))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(getUserPersonalDetails()))
@@ -327,8 +293,8 @@ class VerifyEmailControllerTest {
     ).thenThrow(NotificationClientException("something went wrong"))
     val modelAndView =
       verifyEmailController.verifyEmail(
+        "other",
         "a@b.com",
-        null,
         EmailType.SECONDARY,
         token,
         false,

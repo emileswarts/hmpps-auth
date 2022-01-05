@@ -40,7 +40,7 @@
       <div th:class="'govuk-form-group' + (${error} ? ' govuk-form-group--error' : '')">
         <span th:if="${error}" id="email-error" class="govuk-error-message"
               th:text="#{${'verifyemail.' + error}}">No error</span>
-        <input type="hidden" id="candidate-other" name="candidate" value="change">
+        <input type="hidden" id="changeType" name="changeType" value="change">
         <input type="hidden" id="email-type" name="emailType" value="PRIMARY">
         <input type="hidden" id="token" name="token" th:value="${param.token}">
         <input type="hidden" id="resend" name="resend" th:value="false">

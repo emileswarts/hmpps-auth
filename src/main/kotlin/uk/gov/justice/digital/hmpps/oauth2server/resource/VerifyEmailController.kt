@@ -68,10 +68,6 @@ class VerifyEmailController(
       modelAndView.addObject("suggestion", email.email)
       return modelAndView
     }
-
-    // retrieve email addresses that are currently in use
-    val existingEmailAddresses = verifyEmailService.getExistingEmailAddressesForUsername(username)
-    modelAndView.addObject("candidates", existingEmailAddresses)
     return modelAndView
   }
 
@@ -88,8 +84,8 @@ class VerifyEmailController(
 
   @PostMapping("/verify-email")
   fun verifyEmail(
-    @RequestParam(required = false) candidate: String,
-    @RequestParam email: String?,
+    @RequestParam changeType: String,
+    @RequestParam email: String,
     @RequestParam emailType: EmailType,
     @RequestParam token: String?,
     @RequestParam resend: Boolean,
@@ -107,13 +103,7 @@ class VerifyEmailController(
       }
     }
 
-    // candidate will either be an email address from the selection or 'other' meaning free text
-    if (StringUtils.isEmpty(candidate)) {
-      return verifyEmailRequest(principal, request, response, "noselection")
-    }
-    val chosenEmail =
-      StringUtils.trim(if (StringUtils.isBlank(candidate) || "other" == candidate || "change" == candidate) email else candidate)
-    return if (userService.isSameAsCurrentVerifiedEmail(username, chosenEmail, emailType)) {
+    return if (userService.isSameAsCurrentVerifiedEmail(username, email, emailType)) {
       removeAccountToken(token)
       ModelAndView("redirect:/verify-email-already", "emailType", emailType)
     } else try {
@@ -121,7 +111,7 @@ class VerifyEmailController(
       val (verifyLink, newEmail) =
         changeEmailAndRequestVerification(
           username,
-          chosenEmail,
+          email,
           request.requestURL.append(confirmUrl).toString(),
           emailType
         )
@@ -143,10 +133,10 @@ class VerifyEmailController(
     } catch (e: ValidEmailException) {
       log.info("Validation failed for email address due to {}", e.reason)
       telemetryClient.trackEvent("VerifyEmailRequestFailure", mapOf("username" to username, "reason" to e.reason), null)
-      createChangeOrVerifyEmailError(token, chosenEmail, e.reason, candidate, emailType)
+      createChangeOrVerifyEmailError(token, email, e.reason, changeType, emailType)
     } catch (e: NotificationClientException) {
       log.error("Failed to send email due to", e)
-      createChangeOrVerifyEmailError(token, chosenEmail, "other", candidate, emailType)
+      createChangeOrVerifyEmailError(token, email, "other", changeType, emailType)
     }
   }
 

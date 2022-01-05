@@ -1,0 +1,27 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPattern": "/users/RO_USER2"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody":
+      {
+        "username": "RO_USER2",
+        "staffId": 4,
+        "firstName": "Itag",
+        "lastName": "User",
+        "activeCaseloadId": "MDI",
+        "accountStatus": "OPEN",
+        "accountType": "GENERAL",
+        "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN"],
+        "accountNonLocked": true,
+        "credentialsNonExpired": true,
+        "enabled": true
+      }
+  }
+}
