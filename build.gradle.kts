@@ -10,6 +10,9 @@ dependencyCheck {
 
 // added specifically due to thymeleaf@3.0.12.RELEASE and CVE-2021-43466 - remove when update included in spring-boot
 ext["thymeleaf.version"] = "3.0.13.RELEASE"
+ext["log4j2.version"] = "2.17.1"
+ext["netty.version"] = "4.1.72.Final"
+ext["logback.version"] = "1.2.10"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
