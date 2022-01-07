@@ -22,7 +22,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testHappyUserPath() {
     val user = buildStandardUser("ITAG_USER")
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -35,7 +35,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testLockedUser() {
     val user = buildLockedUser()
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -47,7 +47,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testExpiredUser() {
     val user = buildExpiredUser()
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -58,14 +58,14 @@ class NomisUserDetailsServiceTest {
 
   @Test
   fun testUserNotFound() {
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(null)
+    whenever(userService.getNomisUserByUsername(anyString())).thenReturn(null)
     assertThatThrownBy { service.loadUserByUsername("user") }.isInstanceOf(UsernameNotFoundException::class.java)
   }
 
   @Test
   fun testExpiredGraceUser() {
     val user = buildExpiredGraceUser()
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonExpired).isTrue()
@@ -77,7 +77,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testExpiredLockedUser() {
     val user = buildExpiredLockedUser()
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isAccountNonLocked).isFalse()
@@ -88,7 +88,7 @@ class NomisUserDetailsServiceTest {
   @Test
   fun testLockedTimedUser() {
     val user = buildLockedTimedUser()
-    whenever(userService.getNomisUserByUsernameFromNomisUserApiService(user.username)).thenReturn(user)
+    whenever(userService.getNomisUserByUsername(user.username)).thenReturn(user)
     val itagUser = service.loadUserByUsername(user.username)
     assertThat(itagUser).isNotNull()
     assertThat(itagUser.isEnabled).isFalse()

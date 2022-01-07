@@ -45,7 +45,7 @@ class UserService(
   fun findMasterUserPersonDetails(username: String): Optional<UserPersonDetails> =
     authUserService.getAuthUserByUsername(username).map { UserPersonDetails::class.java.cast(it) }
       .or {
-        Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
+        Optional.ofNullable(nomisUserService.getNomisUserByUsername(username))
           .map { UserPersonDetails::class.java.cast(it) }
       }
       .or { azureUserService.getAzureUserByUsername(username).map { UserPersonDetails::class.java.cast(it) } }
@@ -54,7 +54,7 @@ class UserService(
   fun findEnabledOrNomisLockedUserPersonDetails(username: String): UserPersonDetails? =
     authUserService.getAuthUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) }
       .or {
-        Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
+        Optional.ofNullable(nomisUserService.getNomisUserByUsername(username))
           .filter { it.isEnabled || it.accountStatus == AccountStatus.LOCKED }
           .map { UserPersonDetails::class.java.cast(it) }
       }
@@ -79,7 +79,7 @@ class UserService(
   fun getMasterUserPersonDetails(username: String, authSource: AuthSource): Optional<UserPersonDetails> =
     when (authSource) {
       auth -> authUserService.getAuthUserByUsername(username)
-      nomis -> Optional.ofNullable(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username))
+      nomis -> Optional.ofNullable(nomisUserService.getNomisUserByUsername(username))
       azuread -> azureUserService.getAzureUserByUsername(username)
       delius -> deliusUserService.getDeliusUserByUsername(username)
       none -> Optional.empty()
@@ -128,7 +128,7 @@ class UserService(
     }
 
   fun getEmailAddressFromNomis(username: String): Optional<String> =
-    nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username)?.email?.let {
+    nomisUserService.getNomisUserByUsername(username)?.email?.let {
       if (isHmpsGsiEmail(it)) Optional.empty() else Optional.of(it)
     } ?: Optional.empty()
 

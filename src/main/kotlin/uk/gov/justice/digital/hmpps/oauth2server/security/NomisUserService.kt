@@ -18,7 +18,7 @@ class NomisUserService(
   private val verifyEmailService: VerifyEmailService,
   private val nomisUserApiService: NomisUserApiService,
 ) {
-  fun getNomisUserByUsernameFromNomisUserApiService(username: String): NomisApiUserPersonDetails? =
+  fun getNomisUserByUsername(username: String): NomisApiUserPersonDetails? =
     nomisUserApiService.findUserByUsername(username.uppercase())
 
   fun getNomisUsersByEmail(email: String): List<NomisApiUserPersonDetails> {
@@ -47,7 +47,7 @@ class NomisUserService(
     url: String,
     emailType: EmailType
   ): LinkEmailAndUsername =
-    getNomisUserByUsernameFromNomisUserApiService(username)?.let {
+    getNomisUserByUsername(username)?.let {
       return verifyEmailService.changeEmailAndRequestVerification(
         username = it.username,
         emailInput = emailInput,

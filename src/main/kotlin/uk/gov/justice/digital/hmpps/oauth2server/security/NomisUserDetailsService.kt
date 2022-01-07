@@ -16,7 +16,7 @@ class NomisUserDetailsService(private val nomisUserService: NomisUserService) :
   UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
   override fun loadUserByUsername(username: String): UserDetails =
-    nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username)
+    nomisUserService.getNomisUserByUsername(username)
       ?: throw UsernameNotFoundException(username)
 
   override fun loadUserDetails(token: PreAuthenticatedAuthenticationToken): UserDetails = loadUserByUsername(token.name)

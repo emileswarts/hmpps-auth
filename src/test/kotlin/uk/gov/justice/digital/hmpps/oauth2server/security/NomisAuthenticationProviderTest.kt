@@ -34,7 +34,7 @@ class NomisAuthenticationProviderTest {
 
   @Test
   fun authenticate_Success() {
-    whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(ArgumentMatchers.anyString())).thenReturn(
+    whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(
       NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "ITAG_USER")
     )
     whenever(nomisUserApiService.authenticateUser(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(true)
@@ -70,7 +70,7 @@ class NomisAuthenticationProviderTest {
 
   @Test
   fun authenticate_LockAfterThreeFailures() {
-    whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(ArgumentMatchers.anyString())).thenReturn(
+    whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(
       NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "CA_USER", locked = false)
     )
     whenever(userRetriesService.incrementRetriesAndLockAccountIfNecessary(any())).thenReturn(true)
@@ -82,7 +82,7 @@ class NomisAuthenticationProviderTest {
   @Test
   fun `authenticate ResetAfterSuccess`() {
     val nomisUser = NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "ITAG_USER")
-    whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(ArgumentMatchers.anyString())).thenReturn(nomisUser)
+    whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(nomisUser)
     whenever(nomisUserApiService.authenticateUser(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(true)
     provider.authenticate(UsernamePasswordAuthenticationToken("DELIUS_USER", "password"))
     verify(userRetriesService).resetRetriesAndRecordLogin(nomisUser)
