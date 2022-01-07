@@ -27,10 +27,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserServic
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.PrisonCaseload
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
@@ -642,7 +639,7 @@ class UserServiceTest {
 
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - nomis user not matched`() {
-      whenever(nomisUserService.getNomisUserByUsername(anyString())).thenReturn(staffUserAccountForBob)
+      whenever(nomisUserService.getNomisUserByUsernameFromNomisUserApiService(anyString())).thenReturn(staffNomisApiUserAccountForBob)
       val details = userService.getMasterUserPersonDetailsWithEmailCheck("user", nomis, loginDetails)
       assertThat(details).isEmpty
     }
@@ -709,26 +706,12 @@ class UserServiceTest {
       )
 
       verify(authUserService).findAuthUsers(
-        "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(AuthSource.auth)
+        "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(auth)
       )
     }
   }
 
   private fun createUser() = Optional.of(createSampleUser(username = "someuser"))
-
-  private val staffUserAccountForBob: Optional<NomisUserPersonDetails>
-    get() =
-      Optional.of(
-        createSampleNomisUser(
-          staff = Staff(
-            firstName = "bOb",
-            status = "ACTIVE",
-            lastName = "bloggs",
-            staffId = 5
-          ),
-          username = "nomisuser"
-        )
-      )
 
   private val staffNomisApiUserAccountForBob: NomisApiUserPersonDetails
     get() =

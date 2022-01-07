@@ -10,50 +10,27 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.jdbc.CannotGetJdbcConnectionException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.security.crypto.password.PasswordEncoder
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.repository.StaffUserAccountRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.LinkEmailAndUsername
-import javax.sql.DataSource
 
 internal class NomisUserServiceTest {
-  private val dataSource: DataSource = mock()
-  private val passwordEncoder: PasswordEncoder = mock()
-  private val staffUserAccountRepository: StaffUserAccountRepository = mock()
   private val userRepository: UserRepository = mock()
   private val verifyEmailService: VerifyEmailService = mock()
   private val nomisUserApiService: NomisUserApiService = mock()
   private val nomisUserService: NomisUserService =
-    NomisH2AlterUserService(
-      dataSource,
-      passwordEncoder,
-      staffUserAccountRepository,
-      verifyEmailService,
+    NomisUserService(
       userRepository,
-      nomisUserApiService,
-      true
-    )
-  private val disabledNomisUserService: NomisUserService =
-    NomisH2AlterUserService(
-      dataSource,
-      passwordEncoder,
-      staffUserAccountRepository,
       verifyEmailService,
-      userRepository,
-      nomisUserApiService,
-      false
+      nomisUserApiService
     )
 
   @Nested
@@ -64,7 +41,6 @@ internal class NomisUserServiceTest {
 
       verify(nomisUserApiService).findUsersByEmailAddressAndUsernames("email", setOf())
       verify(userRepository).findByEmailAndSourceOrderByUsername("email", nomis)
-      verifyNoMoreInteractions(staffUserAccountRepository)
     }
 
     @Test
@@ -104,7 +80,7 @@ internal class NomisUserServiceTest {
     @Test
     fun `success path`() {
       val lue = LinkEmailAndUsername("link", "email", "username")
-      whenever(nomisUserApiService.findUserByUsername(any())).thenReturn(getNomisApiUser("joe"))
+      whenever(nomisUserApiService.findUserByUsername(any())).thenReturn(getNomisApiUser())
       whenever(verifyEmailService.changeEmailAndRequestVerification(any(), any(), any(), any(), any(), any()))
         .thenReturn(lue)
 
@@ -112,7 +88,7 @@ internal class NomisUserServiceTest {
       assertThat(response).isSameAs(lue)
       verify(nomisUserApiService).findUserByUsername("USER")
       verify(verifyEmailService).changeEmailAndRequestVerification(
-        "joe",
+        "bob",
         "email",
         "Bob",
         "Bob Harris",
@@ -134,17 +110,8 @@ internal class NomisUserServiceTest {
   @Nested
   inner class ChangePassword {
     @Test
-    fun `changePassword disabled`() {
-      assertThatThrownBy { disabledNomisUserService.changePassword("user", "pass") }
-        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
-      verify(staffUserAccountRepository).changePassword("user", "pass")
-      verifyNoInteractions(nomisUserApiService)
-    }
-
-    @Test
-    fun `changePassword enabled`() {
-      assertThatThrownBy { nomisUserService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2") }
-        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+    fun `changePassword happy path`() {
+      nomisUserService.changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
 
       verify(nomisUserApiService).changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
     }
@@ -153,45 +120,25 @@ internal class NomisUserServiceTest {
   @Nested
   inner class ChangePasswordWithUnlock {
     @Test
-    fun `changePasswordWithUnlock disabled`() {
-      assertThatThrownBy { disabledNomisUserService.changePasswordWithUnlock("user", "pass") }
-        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
-      verify(staffUserAccountRepository).changePassword("user", "pass")
-
-      // doesn't actually call staffUserAccountRepository.unlockUser since the exception is thrown first
-
-      verifyNoInteractions(nomisUserApiService)
-    }
-
-    @Test
-    fun `changePasswordWithUnlock enabled`() {
-      assertThatThrownBy { nomisUserService.changePasswordWithUnlock("NOMIS_PASSWORD_RESET", "helloworld2") }
-        .isInstanceOf(CannotGetJdbcConnectionException::class.java)
+    fun `changePasswordWithUnlock happy path`() {
+      nomisUserService.changePasswordWithUnlock("NOMIS_PASSWORD_RESET", "helloworld2")
 
       verify(nomisUserApiService).changePassword("NOMIS_PASSWORD_RESET", "helloworld2")
-
-      // doesn't actually call nomisUserApiService.unlockAccount since the exception is thrown first
+      verify(nomisUserApiService).unlockAccount("NOMIS_PASSWORD_RESET")
     }
   }
 
   @Nested
   inner class lockAccount {
     @Test
-    fun `lockAccount disabled`() {
-      disabledNomisUserService.lockAccount("user")
-      verify(staffUserAccountRepository).lockUser("user")
-      verifyNoInteractions(nomisUserApiService)
-    }
-
-    @Test
-    fun `lockAccount enabled`() {
+    fun `lockAccount happy path`() {
       nomisUserService.lockAccount("NOMIS_PASSWORD_RESET")
       verify(nomisUserApiService).lockAccount("NOMIS_PASSWORD_RESET")
     }
   }
 
-  private fun getNomisApiUser(username: String): NomisApiUserPersonDetails =
-    createSampleNomisApiUser(username = username)
+  private fun getNomisApiUser(): NomisApiUserPersonDetails =
+    createSampleNomisApiUser()
 
   private fun getUserFromAuth(username: String) = createSampleUser(username = username, source = nomis, verified = true)
 }
