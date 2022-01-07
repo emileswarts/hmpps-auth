@@ -46,18 +46,6 @@ class VerifyEmailServiceIntTest {
   }
 
   @Test
-  fun existingEmailAddressesForUsername() {
-    val emails = verifyEmailService.getExistingEmailAddressesForUsername("RO_USER")
-    assertThat(emails).containsExactlyInAnyOrder("phillips@bobjustice.gov.uk", "phillips@fredjustice.gov.uk")
-  }
-
-  @Test
-  fun existingEmailAddresses_NotFound() {
-    val emails = verifyEmailService.getExistingEmailAddressesForUsername("CA_USER")
-    assertThat(emails).isEmpty()
-  }
-
-  @Test
   fun emailAddressSetToNotVerified() {
     val userBefore = userRepository.findByUsername("AUTH_CHANGE_EMAIL")
     assertThat(userBefore.get().verified).isTrue

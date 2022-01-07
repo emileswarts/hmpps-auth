@@ -39,10 +39,6 @@ class VerifyEmailService(
   fun isNotVerified(name: String): Boolean =
     !getEmail(name).map { obj: User -> obj.verified }.orElse(false)
 
-  fun getExistingEmailAddressesForUsername(username: String): List<String> =
-    jdbcTemplate.queryForList(EXISTING_EMAIL_SQL, mapOf("username" to username), String::class.java)
-      .map { it.lowercase() }
-
   @Transactional(transactionManager = "authTransactionManager")
   @Throws(NotificationClientException::class, ValidEmailException::class)
   fun changeEmailAndRequestVerification(
@@ -276,17 +272,7 @@ class VerifyEmailService(
 
   data class LinkEmailAndUsername(val link: String, val email: String, val username: String)
 
-  @Suppress("SqlResolve")
   companion object {
-    private const val EXISTING_EMAIL_SQL =
-      """
-      select distinct internet_address  
-        from internet_addresses i       
-             inner join STAFF_USER_ACCOUNTS s on i.owner_id = s.staff_id and owner_class = 'STF' 
-       where internet_address_class = 'EMAIL' 
-             and s.username = :username
-      """
-
     val log: Logger = LoggerFactory.getLogger(this::class.java)
     private const val MAX_LENGTH_EMAIL = 240
   }

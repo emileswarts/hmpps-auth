@@ -18,7 +18,7 @@
         "activeCaseloadId": "MDI",
         "accountStatus": "OPEN",
         "accountType": "GENERAL",
-        "primaryEmail": "phillips@bobjustice.gov.uk",
+        "primaryEmail": "ro_user@some.justice.gov.uk",
         "dpsRoleCodes": ["PRISON", "LICENCE_RO"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,

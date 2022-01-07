@@ -160,7 +160,7 @@ class ClientLoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
   @Test
   fun `I can sign in from another client as azure ad user with a nomis account`() {
-    // The email is mapped to RO_USER in the nomis database
+    // The email is mapped to RO_USER in find_users_ro_demo.json
     azureClientSignIn("ro_user@some.justice.gov.uk")
       .jsonPath(".user_name").isEqualTo("RO_DEMO")
       .jsonPath(".user_id").isEqualTo("10")

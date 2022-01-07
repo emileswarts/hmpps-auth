@@ -127,13 +127,10 @@ class UserService(
       }
     }
 
-  fun getEmailAddressFromNomis(username: String): Optional<String> {
-    val emailAddresses = verifyEmailService.getExistingEmailAddressesForUsername(username)
-    val notHmpsGsiEmails = emailAddresses
-      .filterNot { isHmpsGsiEmail(it) }
-      .toList()
-    return if (notHmpsGsiEmails.size == 1) Optional.of(notHmpsGsiEmails[0]) else Optional.empty()
-  }
+  fun getEmailAddressFromNomis(username: String): Optional<String> =
+    nomisUserService.getNomisUserByUsernameFromNomisUserApiService(username)?.email?.let {
+      if (isHmpsGsiEmail(it)) Optional.empty() else Optional.of(it)
+    } ?: Optional.empty()
 
   fun hasVerifiedMfaMethod(userDetails: UserPersonDetails): Boolean {
     val user = findUser(userDetails.username).orElseGet { userDetails.toUser() }
