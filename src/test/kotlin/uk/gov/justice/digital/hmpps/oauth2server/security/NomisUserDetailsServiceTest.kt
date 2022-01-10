@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIR
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIRED_LOCKED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED_TIMED
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 
 class NomisUserDetailsServiceTest {
   private val userService: NomisUserService = mock()
@@ -103,8 +103,8 @@ class NomisUserDetailsServiceTest {
     accountNonLocked: Boolean = true,
     credentialsNonExpired: Boolean = true,
     enabled: Boolean = true
-  ): NomisApiUserPersonDetails {
-    return NomisApiUserPersonDetails(
+  ): NomisUserPersonDetails {
+    return NomisUserPersonDetails(
       username = username,
       accountStatus = accountStatus,
       userId = "1",
@@ -118,13 +118,13 @@ class NomisUserDetailsServiceTest {
     )
   }
 
-  private fun buildExpiredUser(): NomisApiUserPersonDetails =
+  private fun buildExpiredUser(): NomisUserPersonDetails =
     buildStandardUser("EXPIRED_USER", EXPIRED, accountNonLocked = true, credentialsNonExpired = false, enabled = true)
 
-  private fun buildLockedUser(): NomisApiUserPersonDetails =
+  private fun buildLockedUser(): NomisUserPersonDetails =
     buildStandardUser("LOCKED_USER", LOCKED, accountNonLocked = false, credentialsNonExpired = true, enabled = false)
 
-  private fun buildExpiredLockedUser(): NomisApiUserPersonDetails =
+  private fun buildExpiredLockedUser(): NomisUserPersonDetails =
     buildStandardUser(
       "EXPIRED_USER",
       EXPIRED_LOCKED,
@@ -133,7 +133,7 @@ class NomisUserDetailsServiceTest {
       enabled = false
     )
 
-  private fun buildLockedTimedUser(): NomisApiUserPersonDetails =
+  private fun buildLockedTimedUser(): NomisUserPersonDetails =
     buildStandardUser(
       "LOCKED_USER",
       LOCKED_TIMED,
@@ -142,6 +142,6 @@ class NomisUserDetailsServiceTest {
       enabled = false
     )
 
-  private fun buildExpiredGraceUser(): NomisApiUserPersonDetails =
+  private fun buildExpiredGraceUser(): NomisUserPersonDetails =
     buildStandardUser("EXPIRED_USER", EXPIRED_GRACE)
 }

@@ -209,7 +209,8 @@ class ResetPasswordControllerTest {
 
     @Test
     fun resetPasswordConfirm_checkModelAdminUser() {
-      setupGetUserCallForProfile("TAG_ADMIN")
+      val user = createSampleNomisUser("TAG_ADMIN", admin = true)
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
       setupCheckAndGetTokenValid()
       val modelAndView = controller.resetPasswordConfirm("sometoken")
       assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(

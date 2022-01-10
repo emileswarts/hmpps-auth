@@ -1,154 +1,64 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.model
 
-import org.apache.commons.lang3.StringUtils
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
-import java.time.LocalDateTime
-import java.util.EnumSet
-import java.util.Objects
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
-import javax.persistence.PrimaryKeyJoinColumn
-import javax.persistence.SecondaryTable
-import javax.persistence.Table
 
-@Entity
-@Table(name = "STAFF_USER_ACCOUNTS")
-@SecondaryTable(name = "SYS.USER$", pkJoinColumns = [PrimaryKeyJoinColumn(name = "NAME")])
-class NomisUserPersonDetails(
-  @Id
-  @Column(name = "USERNAME", nullable = false)
+data class NomisUserPersonDetails(
   private val username: String,
-  @OneToOne(cascade = [CascadeType.ALL])
-  @PrimaryKeyJoinColumn
-  val accountDetail: AccountDetail,
-  @ManyToOne
-  @JoinColumn(name = "STAFF_ID")
-  val staff: Staff,
-  @OneToMany(fetch = FetchType.EAGER)
-  @JoinColumn(name = "USERNAME")
-  val roles: List<UserCaseloadRole> = listOf()
+  override val userId: String,
+  override val firstName: String,
+  val surname: String,
+  val activeCaseLoadId: String?,
+  val email: String?,
+  private val locked: Boolean = false,
+  private val roles: Collection<GrantedAuthority?> = emptySet(),
+  val accountStatus: AccountStatus,
+  private val accountNonLocked: Boolean = false,
+  private val credentialsNonExpired: Boolean = false,
+  private val enabled: Boolean = false,
+  private val admin: Boolean = false
 ) : UserPersonDetails {
 
-  @Column(name = "SPARE4", table = "SYS.USER$")
-  private var password: String? = null
-
-  @Column(name = "STAFF_USER_TYPE", nullable = false)
-  var type: String? = null
-
-  @Column(name = "WORKING_CASELOAD_ID")
-  var activeCaseLoadId: String? = null
-
-  constructor(
-    username: String,
-    password: String?,
-    staff: Staff,
-    type: String?,
-    activeCaseLoadId: String?,
-    roles: List<UserCaseloadRole>,
-    accountDetail: AccountDetail
-  ) : this(username, accountDetail, staff, roles) {
-    this.password = password
-    this.type = type
-    this.activeCaseLoadId = activeCaseLoadId
-  }
-
-  fun filterRolesByCaseload(caseload: String): List<UserCaseloadRole> = roles.stream()
-    .filter { (id) -> id.caseload == caseload }
-    .collect(Collectors.toList())
+  override fun getUsername(): String = username
 
   override val name: String
-    get() = staff.name
+    get() = "$firstName $surname"
 
-  override val firstName: String
-    get() = staff.getFirstName()
-
-  val lastName: String
-    get() = staff.lastName
-
-  override val userId: String
-    get() = staff.staffId.toString()
-
-  override val isAdmin: Boolean
-    get() = accountDetail.accountProfile === AccountProfile.TAG_ADMIN
+  override val isAdmin: Boolean = admin
 
   override val authSource: String
     get() = "nomis"
 
-  override fun toUser(): User = User(username = username, source = AuthSource.nomis)
+  override fun toUser(): User =
+    User(
+      username = username,
+      source = AuthSource.nomis,
+      email = email,
+      verified = !email.isNullOrEmpty(),
+      enabled = enabled,
+    )
+
+  override fun eraseCredentials() {}
 
   override fun getAuthorities(): Collection<GrantedAuthority?> {
-    val roles = filterRolesByCaseload("NWEB").stream()
-      .filter { obj: UserCaseloadRole? -> Objects.nonNull(obj) }
-      .map { role: UserCaseloadRole ->
-        SimpleGrantedAuthority(
-          "ROLE_" + StringUtils.upperCase(
-            role.role.code.replace(
-              '-',
-              '_'
-            )
-          )
-        )
-      }
-    return Stream.concat(roles, setOf(SimpleGrantedAuthority("ROLE_PRISON")).stream()).collect(Collectors.toSet())
+    val rolesRoleWithPrefix = roles.map {
+      SimpleGrantedAuthority(
+        "ROLE_${it?.authority?.replace('-', '_')?.uppercase()}"
+      )
+    }
+    return rolesRoleWithPrefix.plus(SimpleGrantedAuthority("ROLE_PRISON"))
   }
+
+  override fun getPassword(): String = "password"
 
   override fun isAccountNonExpired(): Boolean = true
 
-  override fun isAccountNonLocked(): Boolean =
-    EnumSet.of(AccountStatus.OPEN, AccountStatus.EXPIRED, AccountStatus.EXPIRED_GRACE)
-      .contains(accountDetail.status)
+  override fun isAccountNonLocked(): Boolean = accountNonLocked
 
-  override fun isCredentialsNonExpired(): Boolean {
-    val statusNonExpired =
-      !EnumSet.of(AccountStatus.EXPIRED, AccountStatus.EXPIRED_LOCKED, AccountStatus.EXPIRED_LOCKED_TIMED).contains(
-        accountDetail.status
-      )
-    val passwordExpiry = accountDetail.passwordExpiry
-    return statusNonExpired && (passwordExpiry == null || passwordExpiry.isAfter(LocalDateTime.now()))
-  }
+  override fun isCredentialsNonExpired(): Boolean = credentialsNonExpired
 
-  override fun isEnabled(): Boolean {
-    return EnumSet.of(AccountStatus.OPEN, AccountStatus.EXPIRED, AccountStatus.EXPIRED_GRACE)
-      .contains(accountDetail.status)
-  }
-
-  override fun eraseCredentials() {
-    password = null
-  }
-
-  override fun getUsername(): String = username
-
-  override fun getPassword(): String = password!!
-
-  fun setPassword(password: String?) {
-    this.password = password
-  }
-
-  override fun toString(): String = "NomisUserPersonDetails(username=" + getUsername() + ", type=" + type + ")"
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (javaClass != other?.javaClass) return false
-
-    other as NomisUserPersonDetails
-
-    if (username != other.username) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int = username.hashCode()
+  override fun isEnabled(): Boolean = enabled
 }

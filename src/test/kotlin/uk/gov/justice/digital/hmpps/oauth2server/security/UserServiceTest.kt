@@ -26,8 +26,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDe
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.PrisonCaseload
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
@@ -111,7 +111,7 @@ class UserServiceTest {
     @Test
     fun `findEnabledOrNomisLockedUserPersonDetails nomis user is locked`() {
       val staffUserAccountForBobLocked =
-        createSampleNomisApiUser(
+        createSampleNomisUser(
           firstName = "bOb",
           lastName = "bloggs",
           username = "nomisuser",
@@ -198,7 +198,7 @@ class UserServiceTest {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
       whenever(nomisUserService.getNomisUserByUsername("joe"))
-        .thenReturn(createSampleNomisApiUser(username = "joe"))
+        .thenReturn(createSampleNomisUser(username = "joe"))
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
 
       val newUser = userService.getOrCreateUser("joe")
@@ -212,7 +212,7 @@ class UserServiceTest {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
       whenever(nomisUserService.getNomisUserByUsername("joe"))
-        .thenReturn(createSampleNomisApiUser(username = "joe", email = "a@b.justice.gov.uk"))
+        .thenReturn(createSampleNomisUser(username = "joe", email = "a@b.justice.gov.uk"))
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
 
       val newUser = userService.getOrCreateUser("joe")
@@ -241,7 +241,7 @@ class UserServiceTest {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(authUserService.getAuthUserByUsername(anyString())).thenReturn(Optional.empty())
       whenever(nomisUserService.getNomisUserByUsername("joe"))
-        .thenReturn(createSampleNomisApiUser(username = "joe"))
+        .thenReturn(createSampleNomisUser(username = "joe"))
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
 
       val newUser = userService.getOrCreateUsers(listOf("joe"))
@@ -700,9 +700,9 @@ class UserServiceTest {
 
   private fun createUser() = Optional.of(createSampleUser(username = "someuser"))
 
-  private val staffNomisApiUserAccountForBob: NomisApiUserPersonDetails
+  private val staffNomisApiUserAccountForBob: NomisUserPersonDetails
     get() =
-      createSampleNomisApiUser(
+      createSampleNomisUser(
         firstName = "bOb",
         lastName = "bloggs",
         username = "nomisuser",

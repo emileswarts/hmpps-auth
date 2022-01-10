@@ -1,72 +1,51 @@
 package uk.gov.justice.digital.hmpps.oauth2server.nomis.model
 
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
-import java.time.LocalDateTime
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
-class NomisUserPersonDetailsTest {
+internal class NomisUserPersonDetailsTest {
+
   @Test
-  fun `isCredentialsNonExpired status expired`() {
-    val account = createStaffUserAccount("EXPIRED")
-    assertThat(account.isCredentialsNonExpired).isFalse()
+  fun `toUser verified true`() {
+    val account = NomisUserPersonDetails(
+      username = "username",
+      userId = "userId",
+      firstName = "firstName",
+      surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
+      email = "email",
+      accountStatus = AccountStatus.OPEN
+    )
+    Assertions.assertThat(account.toUser().verified).isTrue()
   }
 
   @Test
-  fun `isCredentialsNonExpired status expired Locked`() {
-    val account = createStaffUserAccount("EXPIRED & LOCKED")
-    assertThat(account.isCredentialsNonExpired).isFalse()
+  fun `toUser verified false`() {
+    val account = NomisUserPersonDetails(
+      username = "username",
+      userId = "userId",
+      firstName = "firstName",
+      surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
+      email = null,
+      accountStatus = AccountStatus.OPEN
+    )
+    Assertions.assertThat(account.toUser().verified).isFalse()
   }
 
   @Test
-  fun `isCredentialsNonExpired status expired Timed`() {
-    val account = createStaffUserAccount("EXPIRED & LOCKED(TIMED)")
-    assertThat(account.isCredentialsNonExpired).isFalse()
-  }
-
-  @Test
-  fun `isCredentialsNonExpired open status date expired`() {
-    val account = createStaffUserAccount("OPEN", LocalDateTime.now().minusMinutes(1))
-    assertThat(account.isCredentialsNonExpired).isFalse()
-  }
-
-  @Test
-  fun `isCredentialsNonExpired open status date not expired`() {
-    val account = createStaffUserAccount("OPEN")
-    assertThat(account.isCredentialsNonExpired).isTrue()
-  }
-
-  @Test
-  fun `isCredentialsNonExpired status grace expired`() {
-    val account = createStaffUserAccount("EXPIRED(GRACE)")
-    assertThat(account.isCredentialsNonExpired).isTrue()
-  }
-
-  @Test
-  fun `to user copy username`() {
-    val user = createStaffUserAccount().toUser()
-    assertThat(user.username).isEqualTo("bob")
-  }
-
-  @Test
-  fun `to user unverified email address`() {
-    val user = createStaffUserAccount().toUser()
-    assertThat(user.verified).isEqualTo(false)
-  }
-
-  @Test
-  fun `to user nomis source`() {
-    val user = createStaffUserAccount().toUser()
-    assertThat(user.source).isEqualTo(AuthSource.nomis)
-  }
-
-  private fun createStaffUserAccount(
-    status: String = "STATUS",
-    passwordExpiry: LocalDateTime? = null,
-  ): NomisUserPersonDetails {
-
-    val staff = Staff(firstName = "bOb", status = "ACTIVE", lastName = "Smith", staffId = 1)
-    val detail = AccountDetail("user", status, "TAG_GENERAL", passwordExpiry)
-    return NomisUserPersonDetails(username = "bob", staff = staff, accountDetail = detail)
+  fun `getAuthorities appends role prefix and includes ROLE_PRISON`() {
+    val account = NomisUserPersonDetails(
+      username = "username",
+      userId = "userId",
+      firstName = "firstName",
+      surname = "lastName",
+      activeCaseLoadId = "activeCaseLoadId",
+      email = "email",
+      accountStatus = AccountStatus.OPEN,
+      roles = setOf(SimpleGrantedAuthority("role1"))
+    )
+    Assertions.assertThat(account.authorities).containsExactly(SimpleGrantedAuthority("ROLE_ROLE1"), SimpleGrantedAuthority("ROLE_PRISON"))
   }
 }

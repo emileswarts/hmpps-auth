@@ -35,7 +35,7 @@ class NomisAuthenticationProviderTest {
   @Test
   fun authenticate_Success() {
     whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(
-      NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "ITAG_USER")
+      NomisUserPersonDetailsHelper.createSampleNomisUser(username = "ITAG_USER")
     )
     whenever(nomisUserApiService.authenticateUser(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(true)
     val auth = provider.authenticate(UsernamePasswordAuthenticationToken("ITAG_USER", "password"))
@@ -71,7 +71,7 @@ class NomisAuthenticationProviderTest {
   @Test
   fun authenticate_LockAfterThreeFailures() {
     whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(
-      NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "CA_USER", locked = false)
+      NomisUserPersonDetailsHelper.createSampleNomisUser(username = "CA_USER", locked = false)
     )
     whenever(userRetriesService.incrementRetriesAndLockAccountIfNecessary(any())).thenReturn(true)
     assertThatThrownBy { provider.authenticate(UsernamePasswordAuthenticationToken("CA_USER", "wrong")) }.isInstanceOf(
@@ -81,7 +81,7 @@ class NomisAuthenticationProviderTest {
 
   @Test
   fun `authenticate ResetAfterSuccess`() {
-    val nomisUser = NomisUserPersonDetailsHelper.createSampleNomisApiUser(username = "ITAG_USER")
+    val nomisUser = NomisUserPersonDetailsHelper.createSampleNomisUser(username = "ITAG_USER")
     whenever(nomisUserService.getNomisUserByUsername(ArgumentMatchers.anyString())).thenReturn(nomisUser)
     whenever(nomisUserApiService.authenticateUser(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(true)
     provider.authenticate(UsernamePasswordAuthenticationToken("DELIUS_USER", "password"))

@@ -18,7 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.OAuth2RestTemplate
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
@@ -128,7 +128,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Client Credentials Login With username identifier`() {
     // whenever(nomisUserApiService.authenticateUser("CA_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("CA_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "CA_USER",
         userId = "47",
         firstName = "Licence Case",
@@ -256,7 +256,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Password Credentials Login`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Nomis",
@@ -290,7 +290,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Password Credentials Login calls token verification`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Nomis",
@@ -363,7 +363,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Refresh token can be obtained`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Nomis",
@@ -478,7 +478,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Password Credentials Login with Expired Login`() {
     whenever(nomisUserApiService.authenticateUser("EXPIRED_USER", "password123456")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("EXPIRED_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "EXPIRED_USER",
         userId = "47",
         firstName = "Nomis",
@@ -513,7 +513,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Password Credentials Login with Locked Login`() {
     whenever(nomisUserApiService.authenticateUser("LOCKED_USER", "password123456")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("LOCKED_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "LOCKED_USER",
         userId = "47",
         firstName = "Nomis",
@@ -568,7 +568,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Password Credentials Login can get api data`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Itag",
@@ -625,7 +625,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Kid header is returned`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Nomis",
@@ -669,7 +669,7 @@ class OauthIntTest : IntegrationTest() {
   fun `Grant type is returned in password token`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "47",
         firstName = "Nomis",

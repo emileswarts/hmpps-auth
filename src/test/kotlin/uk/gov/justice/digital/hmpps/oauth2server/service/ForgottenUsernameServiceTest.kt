@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.service.notify.NotificationClientApi
 
@@ -106,7 +106,7 @@ class ForgottenUsernameServiceTest {
 
   @Test
   fun `one username found for nomis user`() {
-    val nomisUser = createSampleNomisApiUser(
+    val nomisUser = createSampleNomisUser(
       username = "username1",
       firstName = "Bob",
       lastName = "Smith",
@@ -274,7 +274,7 @@ class ForgottenUsernameServiceTest {
         )
       )
 
-    val nomisUser = createSampleNomisApiUser(
+    val nomisUser = createSampleNomisUser(
       username = "username1",
       userId = "",
       firstName = "Bob",

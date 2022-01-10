@@ -13,9 +13,9 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.service.DelegatingUserService
 import java.util.Optional
@@ -113,15 +113,15 @@ class ChangePasswordServiceTest {
 
   private val staffUserAccountForBob: UserPersonDetails
     get() {
-      return nomisUserPersonDetails("OPEN")
+      return nomisUserPersonDetails(AccountStatus.OPEN)
     }
 
   private val staffUserAccountLockedForBob: UserPersonDetails
     get() {
-      return nomisUserPersonDetails("LOCKED")
+      return nomisUserPersonDetails(AccountStatus.LOCKED)
     }
-  private fun nomisUserPersonDetails(accountStatus: String): NomisUserPersonDetails =
-    createSampleNomisUser(staff = Staff(firstName = "bOb", status = "ACTIVE", lastName = "bloggs", staffId = 5), accountStatus = accountStatus)
+  private fun nomisUserPersonDetails(accountStatus: AccountStatus): NomisUserPersonDetails =
+    createSampleNomisUser(firstName = "bOb", lastName = "bloggs", userId = "5", accountStatus = accountStatus)
 
   private val staffUserAccountForBobOptional = Optional.of(staffUserAccountForBob)
   private val staffUserAccountLockedForBobOptional = Optional.of(staffUserAccountLockedForBob)

@@ -16,8 +16,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserRetries
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRetriesRepository
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.service.DelegatingUserService
 import java.time.LocalDateTime
 import java.util.Optional
@@ -134,7 +134,8 @@ class UserRetriesServiceTest {
     @Test
     fun resetRetriesAndRecordLogin_SaveNewNomisUserNoEmailAsNotJusticeEmail() {
       whenever(userService.getEmailAddressFromNomis(anyString())).thenReturn(Optional.empty())
-      service.resetRetriesAndRecordLogin(userPersonDetailsForBob)
+      val userPersonDetailsNotVerified = createSampleNomisUser(username = "bob", firstName = "Bob", lastName = "bloggs", accountStatus = AccountStatus.OPEN, email = "")
+      service.resetRetriesAndRecordLogin(userPersonDetailsNotVerified)
       verify(userRepository).save<User>(
         check {
           assertThat(it.username).isEqualTo("bob")
@@ -147,7 +148,8 @@ class UserRetriesServiceTest {
     @Test
     fun resetRetriesAndRecordLogin_SaveNewNomisUserWithFirstAndLastNames() {
       whenever(userService.getEmailAddressFromNomis(anyString())).thenReturn(Optional.empty())
-      service.resetRetriesAndRecordLogin(userPersonDetailsForBob)
+      val userPersonDetailsNotVerified = createSampleNomisUser(username = "bob", firstName = "Bob", lastName = "bloggs", accountStatus = AccountStatus.OPEN, email = "")
+      service.resetRetriesAndRecordLogin(userPersonDetailsNotVerified)
       verify(userRepository).save<User>(
         check {
           assertThat(it.username).isEqualTo("bob")
@@ -242,5 +244,5 @@ class UserRetriesServiceTest {
   }
 
   private val userPersonDetailsForBob: UserPersonDetails
-    get() = createSampleNomisUser(staff = Staff(firstName = "bOb", status = "ACTIVE", lastName = "bloggs", staffId = 5))
+    get() = createSampleNomisUser(username = "bob", firstName = "Bob", lastName = "bloggs", accountStatus = AccountStatus.OPEN)
 }

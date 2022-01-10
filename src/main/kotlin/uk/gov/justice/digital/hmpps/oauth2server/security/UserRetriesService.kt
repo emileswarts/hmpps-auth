@@ -54,8 +54,8 @@ class UserRetriesService(
         user.person = Person(userPersonDetails.firstName, userPersonDetails.surname)
       }
       is NomisUserPersonDetails -> {
-        // Copy the staff first name and last name for Nomis users (don't overwrite email address)
-        user.person = Person(userPersonDetails.staff.getFirstName(), userPersonDetails.staff.lastName)
+        // Copy first name and surname for Nomis users (don't overwrite email address)
+        user.person = Person(userPersonDetails.firstName, userPersonDetails.surname)
       }
     }
 

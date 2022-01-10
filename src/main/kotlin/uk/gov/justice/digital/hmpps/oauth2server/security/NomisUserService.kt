@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType.PRIMARY
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
@@ -18,10 +18,10 @@ class NomisUserService(
   private val verifyEmailService: VerifyEmailService,
   private val nomisUserApiService: NomisUserApiService,
 ) {
-  fun getNomisUserByUsername(username: String): NomisApiUserPersonDetails? =
+  fun getNomisUserByUsername(username: String): NomisUserPersonDetails? =
     nomisUserApiService.findUserByUsername(username.uppercase())
 
-  fun getNomisUsersByEmail(email: String): List<NomisApiUserPersonDetails> {
+  fun getNomisUsersByEmail(email: String): List<NomisUserPersonDetails> {
     val emailLowered = email.lowercase()
 
     // Find all users in auth with the specified email address

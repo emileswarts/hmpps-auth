@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
@@ -79,7 +79,7 @@ class NomisUserApiService(
       .block()
   }
 
-  fun findUsersByEmailAddressAndUsernames(emailAddress: String, usernames: Set<String>): List<NomisApiUserPersonDetails> {
+  fun findUsersByEmailAddressAndUsernames(emailAddress: String, usernames: Set<String>): List<NomisUserPersonDetails> {
     if (!nomisEnabled) {
       log.debug("Nomis integration disabled, returning empty for {}", emailAddress)
       return listOf()
@@ -91,7 +91,7 @@ class NomisUserApiService(
     }
       .bodyValue(usernames)
       .retrieve()
-      .bodyToMono(object : ParameterizedTypeReference<List<NomisApiUserDetails>>() {})
+      .bodyToMono(object : ParameterizedTypeReference<List<NomisUserDetails>>() {})
       .block()!!
     return userDetails.map(::mapUserDetailsToNomisUser)
   }
@@ -112,14 +112,14 @@ class NomisUserApiService(
       .block()!!
   }
 
-  fun findUserByUsername(username: String): NomisApiUserPersonDetails? {
+  fun findUserByUsername(username: String): NomisUserPersonDetails? {
     if (!nomisEnabled) {
       log.debug("Nomis integration disabled, returning empty for {}", username)
       return null
     }
     val userDetails = webClient.get().uri("/users/{username}", username)
       .retrieve()
-      .bodyToMono(NomisApiUserDetails::class.java)
+      .bodyToMono(NomisUserDetails::class.java)
       .onErrorResume(
         WebClientResponseException.NotFound::class.java
       ) {
@@ -218,8 +218,8 @@ fun <T> errorWhenBadRequest(
 
 data class PasswordChangeError(val errorCode: Int? = 0)
 
-private fun mapUserDetailsToNomisUser(userDetails: NomisApiUserDetails): NomisApiUserPersonDetails =
-  NomisApiUserPersonDetails(
+private fun mapUserDetailsToNomisUser(userDetails: NomisUserDetails): NomisUserPersonDetails =
+  NomisUserPersonDetails(
     username = userDetails.username.uppercase(),
     userId = userDetails.staffId,
     firstName = userDetails.firstName,

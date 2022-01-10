@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.nomis.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class NomisApiUserDetails @JsonCreator constructor(
+data class NomisUserDetails @JsonCreator constructor(
   @JsonProperty("staffId") val staffId: String,
   @JsonProperty("username") val username: String,
   @JsonProperty("lastName") val surname: String,

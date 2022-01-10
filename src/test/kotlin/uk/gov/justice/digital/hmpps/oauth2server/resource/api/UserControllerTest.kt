@@ -23,9 +23,9 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.EmailAddress
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.model.UserDetail
 import uk.gov.justice.digital.hmpps.oauth2server.model.UserRole
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
@@ -39,7 +39,7 @@ class UserControllerTest {
 
   @Test
   fun user_nomisUserNoCaseload() {
-    setupFindUserCallForNomis()
+    setupFindUserCallForNomis(activeCaseLoadId = null, enabled = false)
     val user = userController.user("joe")
     assertThat(user).usingRecursiveComparison().isEqualTo(
       UserDetail(
@@ -57,8 +57,7 @@ class UserControllerTest {
 
   @Test
   fun user_nomisUser() {
-    val staffUserAccount = setupFindUserCallForNomis()
-    staffUserAccount.activeCaseLoadId = "somecase"
+    setupFindUserCallForNomis(enabled = false)
     val user = userController.user("joe")
     assertThat(user).usingRecursiveComparison().isEqualTo(
       UserDetail(
@@ -100,7 +99,7 @@ class UserControllerTest {
 
   @Test
   fun me_nomisUserNoCaseload() {
-    setupFindUserCallForNomis()
+    setupFindUserCallForNomis(activeCaseLoadId = null, enabled = false)
     val principal = TestingAuthenticationToken("principal", "credentials")
     assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(
       UserDetail(
@@ -118,8 +117,7 @@ class UserControllerTest {
 
   @Test
   fun me_nomisUser() {
-    val staffUserAccount = setupFindUserCallForNomis()
-    staffUserAccount.activeCaseLoadId = "somecase"
+    setupFindUserCallForNomis(enabled = false)
     val principal = TestingAuthenticationToken("principal", "credentials")
     assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(
       UserDetail(
@@ -343,11 +341,15 @@ class UserControllerTest {
     )
   }
 
-  private fun setupFindUserCallForNomis(): NomisUserPersonDetails {
+  private fun setupFindUserCallForNomis(activeCaseLoadId: String? = "somecase", enabled: Boolean = true): NomisUserPersonDetails {
     val user = createSampleNomisUser(
-      staff = Staff(firstName = "JOE", status = "INACTIVE", lastName = "bloggs", staffId = 5),
+      firstName = "Joe",
+      lastName = "Bloggs",
+      userId = "5",
       username = "principal",
-      accountStatus = "EXPIRED & LOCKED"
+      accountStatus = AccountStatus.EXPIRED_LOCKED,
+      activeCaseLoadId = activeCaseLoadId,
+      enabled = enabled
     )
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
     whenever(userService.getOrCreateUser(anyString())).thenReturn(Optional.of(createSampleUser()))

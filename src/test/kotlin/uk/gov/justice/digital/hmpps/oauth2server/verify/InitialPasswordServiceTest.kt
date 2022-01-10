@@ -16,7 +16,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
@@ -96,7 +95,7 @@ class InitialPasswordServiceTest {
   }
 
   private val staffUserAccountForBob: UserPersonDetails
-    get() = createSampleNomisUser(staff = Staff(firstName = "bOb", status = "ACTIVE", lastName = "Smith", staffId = 5))
+    get() = createSampleNomisUser(firstName = "bOb", lastName = "Smith", userId = "5")
 
   private val staffUserAccountForBobOptional: Optional<UserPersonDetails> = Optional.of(staffUserAccountForBob)
 }

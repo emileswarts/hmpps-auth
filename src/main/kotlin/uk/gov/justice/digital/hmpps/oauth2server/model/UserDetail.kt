@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.Companion.fromNullableString
@@ -111,16 +110,9 @@ data class UserDetail(
       val staffId: Long?
       val activeCaseLoadId: String?
       if (authSource === AuthSource.nomis) {
-        // same workaround as ResetPasswordServiceImpl.passwordAllowedToBeReset
-        // can be removed once we drop NomisUserPersonDetails
-        if (upd is NomisUserPersonDetails) {
-          staffId = upd.staff.staffId
-          activeCaseLoadId = upd.activeCaseLoadId
-        } else {
-          val staffUserAccount = upd as NomisApiUserPersonDetails
-          staffId = staffUserAccount.userId.toLong()
-          activeCaseLoadId = staffUserAccount.activeCaseLoadId
-        }
+        val staffUserAccount = upd as NomisUserPersonDetails
+        staffId = staffUserAccount.userId.toLong()
+        activeCaseLoadId = staffUserAccount.activeCaseLoadId
       } else {
         staffId = null
         activeCaseLoadId = null

@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.Staff
 import uk.gov.justice.digital.hmpps.oauth2server.security.JwtAuthenticationSuccessHandler
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
@@ -417,12 +416,8 @@ class VerifyEmailControllerTest {
 
   private fun getUserPersonalDetails(): NomisUserPersonDetails =
     NomisUserPersonDetailsHelper.createSampleNomisUser(
-      staff = Staff(
-        firstName = "bob",
-        status = "INACTIVE",
-        lastName = "last",
-        staffId = 1
-      )
+      firstName = "Bob",
+      lastName = "Last",
     )
 
   @Test

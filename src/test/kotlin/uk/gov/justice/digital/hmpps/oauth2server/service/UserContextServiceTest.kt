@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
@@ -97,7 +97,7 @@ internal class UserContextServiceTest {
     @Test
     fun `discoverUsers can map from azureAD to nomis`() {
       val loginUser = UserDetailsImpl("username", "name", listOf(), "azuread", "emailid@email.com", "jwtId")
-      val nomisUser = createSampleNomisApiUser(
+      val nomisUser = createSampleNomisUser(
         username = "username",
         userId = "",
         firstName = "Bob",

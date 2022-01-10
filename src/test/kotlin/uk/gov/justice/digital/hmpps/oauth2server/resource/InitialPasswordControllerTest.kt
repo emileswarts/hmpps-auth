@@ -82,7 +82,8 @@ class InitialPasswordControllerTest {
 
     @Test
     fun initialPassword_checkModelAdminUser() {
-      setupGetUserCallForProfile("TAG_ADMIN")
+      val user = createSampleNomisUser("TAG_ADMIN", admin = true)
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
       setupCheckAndGetTokenValid()
       val modelAndView = controller.initialPassword("sometoken", request)
       assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(

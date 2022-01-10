@@ -15,8 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisApiUser
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
@@ -50,15 +50,15 @@ internal class NomisUserServiceTest {
       )
       whenever(nomisUserApiService.findUsersByEmailAddressAndUsernames(anyString(), any())).thenReturn(
         listOf(
-          createSampleNomisApiUser("JOE"),
-          createSampleNomisApiUser("FRED"),
-          createSampleNomisApiUser("HARRY"),
+          createSampleNomisUser("JOE"),
+          createSampleNomisUser("FRED"),
+          createSampleNomisUser("HARRY"),
         )
       )
       assertThat(nomisUserService.getNomisUsersByEmail("email@address")).containsExactlyInAnyOrder(
-        createSampleNomisApiUser("JOE", email = "email@address"),
-        createSampleNomisApiUser("FRED", email = "email@address"),
-        createSampleNomisApiUser("HARRY", email = "email@address"),
+        createSampleNomisUser("JOE", email = "email@address"),
+        createSampleNomisUser("FRED", email = "email@address"),
+        createSampleNomisUser("HARRY", email = "email@address"),
       )
       verify(nomisUserApiService).findUsersByEmailAddressAndUsernames("email@address", setOf("JOE", "BOB"))
     }
@@ -137,8 +137,8 @@ internal class NomisUserServiceTest {
     }
   }
 
-  private fun getNomisApiUser(): NomisApiUserPersonDetails =
-    createSampleNomisApiUser()
+  private fun getNomisApiUser(): NomisUserPersonDetails =
+    createSampleNomisUser()
 
   private fun getUserFromAuth(username: String) = createSampleUser(username = username, source = nomis, verified = true)
 }

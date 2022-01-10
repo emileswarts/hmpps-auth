@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
@@ -116,7 +115,7 @@ class ResetPasswordServiceImpl(
     return if (!passwordAllowedToBeReset(user, userPersonDetails)) {
       Optional.empty()
     } else {
-      val email = if (userPersonDetails is NomisApiUserPersonDetails) Optional.ofNullable(userPersonDetails.email)
+      val email = if (userPersonDetails is NomisUserPersonDetails) Optional.ofNullable(userPersonDetails.email)
       else userService.getEmailAddressFromNomis(user.username)
       email.map {
         user.email = it
@@ -182,13 +181,9 @@ class ResetPasswordServiceImpl(
       // for non nomis users they must be enabled (so can be locked)
       return userPersonDetails.isEnabled
     }
-    val (status, active) = if (userPersonDetails is NomisUserPersonDetails) {
-      userPersonDetails.accountDetail.status to userPersonDetails.staff.isActive
-    } else {
-      val nomisApiUser = userPersonDetails as NomisApiUserPersonDetails
-      nomisApiUser.accountStatus to nomisApiUser.isEnabled
-    }
-    return active && (!status.isLocked || status.isUserLocked || user.locked)
+    val nomisApiUser = userPersonDetails as NomisUserPersonDetails
+    val status = nomisApiUser.accountStatus
+    return nomisApiUser.isEnabled && (!status.isLocked || status.isUserLocked || user.locked)
   }
 
   @Transactional(transactionManager = "authTransactionManager")
@@ -273,9 +268,6 @@ class ResetPasswordServiceImpl(
     internal val template: String,
     internal val parameters: Map<String, Any>,
   ) {
-    constructor(template: String, firstName: String, fullName: String) :
-      this(template, mapOf("firstName" to firstName, "fullName" to fullName))
-
     constructor(template: String, firstName: String, fullName: String, authSource: String) :
       this(
         template,

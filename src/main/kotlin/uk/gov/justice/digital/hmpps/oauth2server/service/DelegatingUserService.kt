@@ -9,13 +9,13 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 
 @Service
-open class DelegatingUserService(
+class DelegatingUserService(
   private val nomisUserService: NomisUserService,
   private val authUserService: AuthUserService,
   private val deliusUserService: DeliusUserService,
 ) {
 
-  open fun lockAccount(userPersonDetails: UserPersonDetails) {
+  fun lockAccount(userPersonDetails: UserPersonDetails) {
     // need to lock the user in auth too
     authUserService.lockUser(userPersonDetails)
 
@@ -25,7 +25,7 @@ open class DelegatingUserService(
     }
   }
 
-  open fun changePasswordWithUnlock(userPersonDetails: UserPersonDetails, password: String) {
+  fun changePasswordWithUnlock(userPersonDetails: UserPersonDetails, password: String) {
     // need to unlock the user in auth too
     authUserService.unlockUser(userPersonDetails)
 
@@ -36,7 +36,7 @@ open class DelegatingUserService(
     }
   }
 
-  open fun changePassword(userPersonDetails: UserPersonDetails, password: String) {
+  fun changePassword(userPersonDetails: UserPersonDetails, password: String) {
     when (userPersonDetails.authSource) {
       "auth" -> authUserService.changePassword(userPersonDetails as User, password)
       "nomis" -> nomisUserService.changePassword(userPersonDetails.username, password)

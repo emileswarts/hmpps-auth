@@ -172,7 +172,8 @@ class AbstractPasswordControllerTest {
   @Test
   fun setPassword_LengthAdmin() {
     setupCheckAndGetTokenValid()
-    setupGetUserCallForProfile("TAG_ADMIN")
+    val user = createSampleNomisUser("TAG_ADMIN", admin = true)
+    whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
     val modelAndView = controller.setPassword("d", "qwerqwerqwe12", "qwerqwerqwe12", null)
     assertThat(modelAndView.viewName).isEqualTo("setPassword")
     assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(

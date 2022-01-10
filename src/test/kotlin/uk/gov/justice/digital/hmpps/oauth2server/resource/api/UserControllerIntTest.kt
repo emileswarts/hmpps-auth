@@ -9,7 +9,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisApiUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
@@ -23,7 +23,7 @@ class UserControllerIntTest : IntegrationTest() {
   @Test
   fun `User Me endpoint returns principal user data for client credentials grant`() {
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "1",
         firstName = "Itag",
@@ -103,7 +103,7 @@ class UserControllerIntTest : IntegrationTest() {
   @Test
   fun `User username endpoint returns user data`() {
     whenever(nomisUserApiService.findUserByUsername("RO_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "RO_USER",
         userId = "4",
         firstName = "Licence Responsible",
@@ -139,7 +139,7 @@ class UserControllerIntTest : IntegrationTest() {
   @Test
   fun `User Me endpoint returns principal user data`() {
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "1",
         firstName = "Itag",
@@ -311,7 +311,7 @@ class UserControllerIntTest : IntegrationTest() {
   @Test
   fun `User email endpoint returns empty for nomis user without email`() {
     whenever(nomisUserApiService.findUserByUsername("IEP_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "IEP_USER",
         userId = "1",
         firstName = "Itag",
@@ -444,7 +444,7 @@ class UserControllerIntTest : IntegrationTest() {
   @Test
   fun `User Roles endpoint returns roles for nomis user`() {
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
-      NomisApiUserPersonDetails(
+      NomisUserPersonDetails(
         username = "ITAG_USER",
         userId = "1",
         firstName = "Itag",

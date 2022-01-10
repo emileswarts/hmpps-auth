@@ -94,8 +94,8 @@ class ChangePasswordControllerTest {
     @Test
     fun changePasswordRequest_adminUser() {
       setupCheckAndGetTokenValid()
-      setupGetUserCallForProfile()
-      setupGetUserCallForProfile("TAG_ADMIN")
+      val user = NomisUserPersonDetailsHelper.createSampleNomisUser("TAG_ADMIN", admin = true)
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
       val model = controller.changePasswordRequest("token")
       assertThat(model.model["isAdmin"]).isEqualTo(true)
     }
