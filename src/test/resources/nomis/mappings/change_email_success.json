@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "PUT",
+    "urlPattern": "/users/.*/change-email"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

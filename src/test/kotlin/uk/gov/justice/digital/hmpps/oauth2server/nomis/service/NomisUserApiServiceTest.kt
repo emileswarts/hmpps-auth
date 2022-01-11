@@ -25,6 +25,15 @@ class NomisUserApiServiceTest {
   }
 
   @Nested
+  inner class changeEmail {
+    @Test
+    fun `it will do nothing when disabled`() {
+      nomisDisabledService.changeEmail("NOMIS_CHANGE_EMAIL", "changing@justice.gov.uk")
+      verifyNoInteractions(webClient)
+    }
+  }
+
+  @Nested
   inner class lockAccount {
     @Test
     fun `it will do nothing when disabled`() {

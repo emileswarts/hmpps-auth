@@ -170,6 +170,15 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
   }
 
   @Test
+  fun changeEmail() {
+    nomisService.changeEmail("NOMIS_CHANGE_EMAIL", "changing@justice.gov.uk")
+    nomisApi.verify(
+      putRequestedFor(urlEqualTo("/users/NOMIS_CHANGE_EMAIL/change-email"))
+        .withRequestBody(equalTo("changing@justice.gov.uk"))
+    )
+  }
+
+  @Test
   fun lockAccount() {
     nomisService.lockAccount("NOMIS_PASSWORD_RESET")
     nomisApi.verify(

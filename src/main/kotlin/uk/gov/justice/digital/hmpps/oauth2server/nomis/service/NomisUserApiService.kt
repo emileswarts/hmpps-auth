@@ -57,6 +57,18 @@ class NomisUserApiService(
       .block()
   }
 
+  fun changeEmail(username: String, email: String) {
+    if (!nomisEnabled) {
+      log.debug("Nomis integration disabled, not changing email for {}", username)
+      return
+    }
+    webClient.put().uri("/users/{username}/change-email", username)
+      .bodyValue(email)
+      .retrieve()
+      .toBodilessEntity()
+      .block()
+  }
+
   fun lockAccount(username: String) {
     if (!nomisEnabled) {
       log.debug("Nomis integration disabled, not locking account for {}", username)
