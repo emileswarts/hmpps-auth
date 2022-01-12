@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.service.notify.NotificationClientApi
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -29,6 +30,9 @@ class VerifyEmailServiceIntTest {
   private lateinit var referenceCodesService: EmailDomainService
 
   @Autowired
+  private lateinit var nomisUserApiService: NomisUserApiService
+
+  @Autowired
   private lateinit var userRepository: UserRepository
 
   @BeforeEach
@@ -41,6 +45,7 @@ class VerifyEmailServiceIntTest {
       telemetryClient,
       notificationClient,
       referenceCodesService,
+      nomisUserApiService,
       "templateId"
     )
   }

@@ -15,6 +15,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailHelper
 import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
@@ -30,6 +32,7 @@ class VerifyEmailService(
   private val telemetryClient: TelemetryClient,
   private val notificationClient: NotificationClientApi,
   private val emailDomainService: EmailDomainService,
+  private val nomisUserApiService: NomisUserApiService,
   @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 ) {
 
@@ -74,6 +77,10 @@ class VerifyEmailService(
         }
         user.email = email
         user.verified = false
+
+        if (AuthSource.fromNullableString(user.authSource) == AuthSource.nomis) {
+          nomisUserApiService.changeEmail(user.username, email!!)
+        }
       }
       EmailType.SECONDARY -> user.addContact(ContactType.SECONDARY_EMAIL, email)
     }

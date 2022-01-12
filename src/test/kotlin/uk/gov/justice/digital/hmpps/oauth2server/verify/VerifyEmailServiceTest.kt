@@ -13,6 +13,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
@@ -20,6 +21,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 import uk.gov.service.notify.NotificationClientApi
 import uk.gov.service.notify.NotificationClientException
@@ -34,6 +37,7 @@ class VerifyEmailServiceTest {
   private val telemetryClient: TelemetryClient = mock()
   private val notificationClient: NotificationClientApi = mock()
   private val referenceCodesService: EmailDomainService = mock()
+  private val nomisUserApiService: NomisUserApiService = mock()
   private val verifyEmailService = VerifyEmailService(
     userRepository,
     userTokenRepository,
@@ -41,6 +45,7 @@ class VerifyEmailServiceTest {
     telemetryClient,
     notificationClient,
     referenceCodesService,
+    nomisUserApiService,
     "templateId"
   )
 
@@ -153,7 +158,7 @@ class VerifyEmailServiceTest {
     }
 
     @Test
-    fun saveEmail() {
+    fun saveEmailForAuthUser() {
       val user = createSampleUser(username = "someuser")
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       whenever(referenceCodesService.isValidEmailDomain(anyString())).thenReturn(true)
@@ -168,6 +173,26 @@ class VerifyEmailServiceTest {
       verify(userRepository).save(user)
       assertThat(user.email).isEqualTo("email@john.com")
       assertThat(user.verified).isFalse
+      verifyNoInteractions(nomisUserApiService)
+    }
+
+    @Test
+    fun saveEmailForNomisUser() {
+      val user = createSampleUser(username = "someuser", source = AuthSource.nomis)
+      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
+      whenever(referenceCodesService.isValidEmailDomain(anyString())).thenReturn(true)
+      verifyEmailService.changeEmailAndRequestVerification(
+        "user",
+        "eMail@john.COM",
+        "firstname",
+        "full name",
+        "url",
+        User.EmailType.PRIMARY
+      )
+      verify(userRepository).save(user)
+      assertThat(user.email).isEqualTo("email@john.com")
+      assertThat(user.verified).isFalse
+      verify(nomisUserApiService).changeEmail("someuser", "email@john.com")
     }
 
     @Test
