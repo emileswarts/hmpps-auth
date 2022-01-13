@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
 import org.flywaydb.core.Flyway
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.flyway.FlywayDataSource
 import org.springframework.boot.jdbc.DatabaseDriver
@@ -14,10 +13,10 @@ import javax.sql.DataSource
 
 @Configuration
 class FlywayConfig {
-  @Bean(name = ["authFlyway"], initMethod = "migrate")
+  @Bean(initMethod = "migrate")
   @FlywayDataSource
   fun authFlyway(
-    @Qualifier("authDataSource") authDataSource: DataSource,
+    authDataSource: DataSource,
     @Value("\${auth.flyway.locations}") flywayLocations: List<String>,
   ): Flyway {
     val flyway = Flyway.configure()

@@ -39,7 +39,7 @@ class ResetPasswordServiceImpl(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientRuntimeException::class)
   override fun requestResetPassword(usernameOrEmailAddress: String, url: String): Optional<String> {
     val optionalUser: Optional<User>
@@ -186,7 +186,7 @@ class ResetPasswordServiceImpl(
     return nomisApiUser.active && (!status.isLocked || status.isUserLocked || user.locked)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun setPassword(token: String, password: String?) {
     val userToken = userTokenRepository.findById(token).orElseThrow()
     val user = userToken.user
@@ -234,7 +234,7 @@ class ResetPasswordServiceImpl(
     return userPersonDetailsOptional.map { upd: UserPersonDetails -> passwordAllowedToBeReset(ue, upd) }.orElse(false)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     ResetPasswordException::class
   )

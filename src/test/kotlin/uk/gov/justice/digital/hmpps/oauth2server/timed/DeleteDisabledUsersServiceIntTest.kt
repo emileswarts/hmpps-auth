@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
@@ -25,7 +24,7 @@ import javax.sql.DataSource
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class DeleteDisabledUsersServiceIntTest {
   @Autowired
   private lateinit var userRepository: UserRepository
@@ -34,7 +33,6 @@ class DeleteDisabledUsersServiceIntTest {
   private lateinit var userRetriesRepository: UserRetriesRepository
 
   @Autowired
-  @Qualifier("authDataSource")
   private lateinit var dataSource: DataSource
 
   @Mock

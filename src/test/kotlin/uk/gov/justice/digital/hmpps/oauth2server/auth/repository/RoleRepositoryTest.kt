@@ -21,7 +21,7 @@ import java.util.UUID
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class RoleRepositoryTest {
   @Autowired
   private lateinit var repository: RoleRepository

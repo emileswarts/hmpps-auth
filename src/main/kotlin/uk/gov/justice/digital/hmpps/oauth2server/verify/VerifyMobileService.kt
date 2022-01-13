@@ -16,7 +16,7 @@ import uk.gov.service.notify.NotificationClientException
 import java.util.Optional
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class VerifyMobileService(
   private val userRepository: UserRepository,
   private val userTokenRepository: UserTokenRepository,
@@ -33,7 +33,7 @@ class VerifyMobileService(
 
   fun isNotVerified(name: String?): Boolean = !getMobile(name).map { it.verified }.orElse(false)
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(VerifyMobileException::class, NotificationClientException::class)
   fun changeMobileAndRequestVerification(username: String, mobile: String?): String {
     val user = userRepository.findByUsername(username).orElseThrow()
@@ -79,7 +79,7 @@ class VerifyMobileService(
     }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientException::class)
   fun confirmMobile(token: String): Optional<Map<String, String>> {
     val userTokenOptional = userTokenRepository.findById(token)
@@ -134,7 +134,7 @@ class VerifyMobileService(
     return Optional.of(mapOf("error" to "expired", "verifyCode" to verifyCode))
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientException::class, VerifyMobileException::class)
   fun resendVerificationCode(username: String): Optional<String> {
     val user = userRepository.findByUsername(username).orElseThrow()

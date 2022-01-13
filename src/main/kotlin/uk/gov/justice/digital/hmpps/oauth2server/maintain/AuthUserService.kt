@@ -37,7 +37,7 @@ import java.util.UUID
 import javax.persistence.EntityNotFoundException
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class AuthUserService(
   private val userRepository: UserRepository,
   private val notificationClient: NotificationClientApi,
@@ -52,7 +52,7 @@ class AuthUserService(
   @Value("\${application.authentication.password-age}") private val passwordAge: Long,
   @Value("\${application.notify.enable-user.template}") private val enableUserTemplateId: String,
 ) {
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(CreateUserException::class, NotificationClientException::class, ValidEmailException::class)
   fun createUserByEmail(
     emailInput: String?,
@@ -188,7 +188,7 @@ class AuthUserService(
     return Pair(setPasswordLink, savedUser.id)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(ValidEmailException::class, NotificationClientException::class, AuthUserGroupRelationshipException::class, UsernameNotFoundException::class)
   fun amendUserEmailByUserId(
     userId: String,
@@ -230,7 +230,7 @@ class AuthUserService(
     return resetLink
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(ValidEmailException::class, NotificationClientException::class, AuthUserGroupRelationshipException::class)
   fun amendUserEmail(
     usernameInput: String,
@@ -285,7 +285,7 @@ class AuthUserService(
       maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, it)
     }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupRelationshipException::class)
   fun enableUser(username: String, admin: String, requestUrl: String, authorities: Collection<GrantedAuthority>) {
     val user = userRepository.findByUsernameAndMasterIsTrue(username)
@@ -302,7 +302,7 @@ class AuthUserService(
     telemetryClient.trackEvent("AuthUserEnabled", mapOf("username" to user.username, "admin" to admin), null)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupRelationshipException::class)
   fun enableUserByUserId(userId: String, admin: String, requestUrl: String, authorities: Collection<GrantedAuthority>) {
     userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
@@ -343,7 +343,7 @@ class AuthUserService(
     }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupRelationshipException::class)
   fun disableUser(
     username: String,
@@ -360,7 +360,7 @@ class AuthUserService(
     telemetryClient.trackEvent("AuthUserDisabled", mapOf("username" to user.username, "admin" to admin), null)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupRelationshipException::class)
   fun disableUserByUserId(userId: String, admin: String, inactiveReason: String, authorities: Collection<GrantedAuthority>) {
     userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
@@ -396,7 +396,7 @@ class AuthUserService(
     }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun lockUser(userPersonDetails: UserPersonDetails) {
     val username = userPersonDetails.username
     val userOptional = userRepository.findByUsername(username)
@@ -405,7 +405,7 @@ class AuthUserService(
     userRepository.save(user)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun unlockUser(userPersonDetails: UserPersonDetails) {
     val username = userPersonDetails.username
     val userOptional = userRepository.findByUsername(username)
@@ -416,7 +416,7 @@ class AuthUserService(
     userRepository.save(user)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun changePassword(user: User, password: String) {
     // check user not setting password to existing password
     if (passwordEncoder.matches(password, user.password)) {
@@ -426,7 +426,7 @@ class AuthUserService(
     user.passwordExpiry = LocalDateTime.now().plusDays(passwordAge)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(CreateUserException::class)
   fun amendUser(username: String, firstName: String?, lastName: String?) {
     validate(firstName, lastName)
@@ -437,7 +437,7 @@ class AuthUserService(
     userRepository.save(user)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun useEmailAsUsername(username: String?): String? {
     val user = userRepository.findByUsernameAndMasterIsTrue(username).orElseThrow()
 

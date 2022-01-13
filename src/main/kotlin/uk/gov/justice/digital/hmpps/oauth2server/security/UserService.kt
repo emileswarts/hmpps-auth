@@ -112,7 +112,7 @@ class UserService(
     }
     .orElseThrow { UsernameNotFoundException("User with username $username not found") }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun getOrCreateUser(username: String): Optional<User> =
     findUser(username).or {
       findMasterUserPersonDetails(username).map {
@@ -194,7 +194,7 @@ class UserService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun getOrCreateUsers(usernames: List<String>): List<User> = usernames.mapNotNull {
     getOrCreateUser(it).orElse(null)
   }

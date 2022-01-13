@@ -17,13 +17,13 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleDescriptionAme
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.RoleNameAmendment
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class RolesService(
   private val roleRepository: RoleRepository,
   private val telemetryClient: TelemetryClient,
 ) {
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(RoleExistsException::class)
   fun createRole(username: String, createRole: CreateRole) {
     val roleCode = createRole.roleCode.trim().uppercase()
@@ -84,7 +84,7 @@ class RolesService(
     return role
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(RoleNotFoundException::class)
   fun updateRoleName(username: String, roleCode: String, roleAmendment: RoleNameAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
@@ -99,7 +99,7 @@ class RolesService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(RoleNotFoundException::class)
   fun updateRoleDescription(username: String, roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
@@ -114,7 +114,7 @@ class RolesService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(username: String, roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")

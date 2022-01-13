@@ -18,7 +18,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class UserRetriesRepositoryTest {
   @Autowired
   private lateinit var repository: UserRetriesRepository

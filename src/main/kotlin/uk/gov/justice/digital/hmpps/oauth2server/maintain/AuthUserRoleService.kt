@@ -21,7 +21,7 @@ import java.util.function.Consumer
 
 @Service
 
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class AuthUserRoleService(
   private val userRepository: UserRepository,
   private val roleRepository: RoleRepository,
@@ -36,7 +36,7 @@ class AuthUserRoleService(
       .any { "ROLE_OAUTH_ADMIN" == it }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserRoleException::class,
     AuthUserGroupRelationshipException::class
@@ -78,7 +78,7 @@ class AuthUserRoleService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserRoleException::class,
     AuthUserGroupRelationshipException::class
@@ -121,7 +121,7 @@ class AuthUserRoleService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserRoleException::class,
     AuthUserGroupRelationshipException::class
@@ -151,7 +151,7 @@ class AuthUserRoleService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserRoleException::class,
     AuthUserGroupRelationshipException::class

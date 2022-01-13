@@ -15,7 +15,7 @@ import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class TokenService(
   private val userTokenRepository: UserTokenRepository,
   private val userService: UserService,
@@ -64,7 +64,7 @@ class TokenService(
     return Optional.empty()
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun createToken(tokenType: TokenType, username: String): String {
     log.info("Requesting {} for {}", tokenType.description, username)
     val user = userService.getOrCreateUser(username).orElseThrow()
@@ -77,7 +77,7 @@ class TokenService(
     return userToken.token
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun removeToken(tokenType: TokenType, token: String) =
     getToken(tokenType, token).ifPresent { userTokenRepository.delete(it) }
 }

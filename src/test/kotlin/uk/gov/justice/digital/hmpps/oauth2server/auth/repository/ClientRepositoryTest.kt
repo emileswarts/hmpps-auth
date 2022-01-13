@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class ClientRepositoryTest {
   @Autowired
   private lateinit var repository: ClientRepository

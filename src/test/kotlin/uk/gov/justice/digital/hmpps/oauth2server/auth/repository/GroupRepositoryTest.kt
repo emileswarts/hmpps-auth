@@ -21,7 +21,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.Au
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional("authTransactionManager")
+@Transactional
 class GroupRepositoryTest {
   @Autowired
   private lateinit var repository: GroupRepository

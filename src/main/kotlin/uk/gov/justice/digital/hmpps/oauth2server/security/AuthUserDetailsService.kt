@@ -17,7 +17,6 @@ import javax.persistence.PersistenceContext
 
 @Service("authUserDetailsService")
 @Transactional(
-  transactionManager = "authTransactionManager",
   readOnly = true,
   noRollbackFor = [UsernameNotFoundException::class]
 )
@@ -40,7 +39,6 @@ open class AuthUserDetailsService(private val authUserService: AuthUserService) 
 
 @Component
 @Transactional(
-  transactionManager = "authTransactionManager",
   readOnly = true,
   noRollbackFor = [BadCredentialsException::class]
 )

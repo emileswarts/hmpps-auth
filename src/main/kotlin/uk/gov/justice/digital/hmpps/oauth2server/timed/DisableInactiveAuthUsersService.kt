@@ -21,7 +21,7 @@ class DisableInactiveAuthUsersService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun processInBatches(): Int {
     val usersToDisable = repository.findTop10ByLastLoggedInBeforeAndEnabledIsTrueAndMasterIsTrueOrderByLastLoggedIn(
       LocalDateTime.now().minusDays(loginDays.toLong())

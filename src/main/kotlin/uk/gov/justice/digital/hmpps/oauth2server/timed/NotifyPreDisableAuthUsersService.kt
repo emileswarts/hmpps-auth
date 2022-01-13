@@ -28,7 +28,7 @@ class NotifyPreDisableAuthUsersService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun processInBatches(): Int {
     val usersToNotifyPreDisable =
       repository.findTop10ByLastLoggedInBeforeAndEnabledIsTrueAndPreDisableWarningIsFalseAndVerifiedIsTrueAndSourceOrderByUsername(

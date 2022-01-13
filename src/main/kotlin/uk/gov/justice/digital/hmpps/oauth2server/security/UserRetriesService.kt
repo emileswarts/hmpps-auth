@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.DelegatingUserService
 import java.time.LocalDateTime
 
 @Service
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class UserRetriesService(
   private val userRetriesRepository: UserRetriesRepository,
   private val userRepository: UserRepository,

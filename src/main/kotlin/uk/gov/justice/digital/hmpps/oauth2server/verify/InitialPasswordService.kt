@@ -19,7 +19,7 @@ import uk.gov.service.notify.NotificationClientException
 import javax.persistence.EntityNotFoundException
 
 @Service
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class InitialPasswordService(
   private val userRepository: UserRepository,
   private val oauthServiceRepository: OauthServiceRepository,
@@ -33,7 +33,7 @@ class InitialPasswordService(
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun resendInitialPasswordLink(username: String, url: String): String {
     val user: User = userRepository.findByUsername(username.uppercase())
       .orElseThrow { EntityNotFoundException(String.format("User not found with username %s", username)) }

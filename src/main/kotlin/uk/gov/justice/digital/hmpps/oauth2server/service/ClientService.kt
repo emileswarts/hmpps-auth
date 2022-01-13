@@ -145,12 +145,12 @@ class ClientService(
     return Pair(clientDeploymentRepository.findByIdOrNull(baseClientId), baseClientId)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun saveClientDeploymentDetails(clientDeployment: ClientDeployment) {
     clientDeploymentRepository.save(clientDeployment)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NoSuchClientException::class)
   fun removeClient(clientId: String) {
     val clients = find(clientId)

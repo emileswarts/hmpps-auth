@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.oauth2server.auth.repository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -25,7 +24,7 @@ import javax.sql.DataSource
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class UserTokenRepositoryTest {
   @Autowired
   private lateinit var repository: UserTokenRepository
@@ -34,7 +33,6 @@ class UserTokenRepositoryTest {
   private lateinit var userRepository: UserRepository
 
   @Autowired
-  @Qualifier("authDataSource")
   private lateinit var dataSource: DataSource
 
   @Test

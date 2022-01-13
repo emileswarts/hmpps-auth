@@ -19,7 +19,7 @@ class ChangePasswordService(
   private val delegatingUserService: DelegatingUserService,
 ) : PasswordService {
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun setPassword(token: String, password: String?) {
     val userToken = userTokenRepository.findById(token).orElseThrow()
     val user = userToken.user

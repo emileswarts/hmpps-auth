@@ -28,7 +28,7 @@ open class TrackingTokenServices(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun createAccessToken(authentication: OAuth2Authentication): OAuth2AccessToken {
     val token = super.createAccessToken(authentication)
     val username = retrieveUsernameFromToken(token)

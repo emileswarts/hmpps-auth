@@ -58,7 +58,7 @@ class OAuth2AuthorizationServerConfig(
   @Value("\${jwt.keystore.password}") private val keystorePassword: String,
   @Value("\${jwt.keystore.alias:elite2api}") private val keystoreAlias: String,
   @Value("\${jwt.jwk.key.id}") private val keyId: String,
-  @Qualifier("authDataSource") private val dataSource: DataSource,
+  private val dataSource: DataSource,
   @Lazy private val redirectResolver: RedirectResolver,
   private val passwordEncoder: PasswordEncoder,
   private val telemetryClient: TelemetryClient,

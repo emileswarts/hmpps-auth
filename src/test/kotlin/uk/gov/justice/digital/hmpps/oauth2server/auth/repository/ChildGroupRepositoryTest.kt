@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Transactional("authTransactionManager")
+@Transactional
 class ChildGroupRepositoryTest {
 
   @Autowired

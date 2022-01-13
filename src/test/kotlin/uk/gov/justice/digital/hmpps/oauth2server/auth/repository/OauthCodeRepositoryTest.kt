@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class OauthCodeRepositoryTest {
   @Autowired
   private lateinit var repository: OauthCodeRepository

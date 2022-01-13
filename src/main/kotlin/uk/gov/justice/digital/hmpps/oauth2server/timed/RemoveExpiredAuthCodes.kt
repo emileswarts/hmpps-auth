@@ -35,7 +35,7 @@ class RemoveExpiredAuthCodes(private val service: RemoveExpiredAuthCodesService)
 
 @Service
 class RemoveExpiredAuthCodesService(private val repository: OauthCodeRepository) {
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun removeExpiredAuthCodes() {
     val oneDayAgo = LocalDateTime.now().minusDays(1)
     repository.deleteByCreatedDateBefore(oneDayAgo)

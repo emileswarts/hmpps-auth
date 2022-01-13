@@ -7,7 +7,6 @@ import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -38,7 +37,7 @@ import java.time.LocalDateTime
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class UserRepositoryTest {
   @Autowired
   private lateinit var repository: UserRepository
@@ -50,7 +49,6 @@ class UserRepositoryTest {
   private lateinit var roleRepository: RoleRepository
 
   @Autowired
-  @Qualifier("authFlyway")
   private lateinit var flyway: Flyway
 
   @BeforeEach

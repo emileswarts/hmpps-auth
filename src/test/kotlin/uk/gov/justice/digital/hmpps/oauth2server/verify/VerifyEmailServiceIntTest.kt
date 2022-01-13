@@ -18,7 +18,7 @@ import uk.gov.service.notify.NotificationClientApi
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-@Transactional(transactionManager = "authTransactionManager")
+@Transactional
 class VerifyEmailServiceIntTest {
   @Autowired
   private lateinit var jdbcTemplate: NamedParameterJdbcTemplate

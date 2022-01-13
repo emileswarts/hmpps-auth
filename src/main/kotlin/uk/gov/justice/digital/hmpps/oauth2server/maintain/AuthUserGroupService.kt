@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.Comp
 import java.util.UUID
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class AuthUserGroupService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
@@ -29,7 +29,7 @@ class AuthUserGroupService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserGroupException::class,
     AuthUserGroupManagerException::class,
@@ -63,7 +63,7 @@ class AuthUserGroupService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(
     AuthUserGroupException::class,
     AuthUserGroupManagerException::class,
@@ -97,7 +97,7 @@ class AuthUserGroupService(
     }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupException::class, AuthUserGroupManagerException::class, AuthUserLastGroupException::class)
   fun removeGroup(username: String, groupCode: String, modifier: String, authorities: Collection<GrantedAuthority>) {
     val groupFormatted = formatGroup(groupCode)
@@ -124,7 +124,7 @@ class AuthUserGroupService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(AuthUserGroupException::class, AuthUserGroupManagerException::class, AuthUserLastGroupException::class)
   fun removeGroupByUserId(
     userId: String,

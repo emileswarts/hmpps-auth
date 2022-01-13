@@ -19,7 +19,7 @@ import uk.gov.service.notify.NotificationClientApi
 
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class MfaService(
   @Value("\${application.notify.mfa.template}") private val mfaEmailTemplateId: String,
   @Value("\${application.notify.mfa-text.template}") private val mfaTextTemplateId: String,
@@ -32,7 +32,7 @@ class MfaService(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(MfaUnavailableException::class)
   fun createTokenAndSendMfaCode(username: String): MfaData {
     log.info("Creating token and sending email for {}", username)
@@ -55,7 +55,6 @@ class MfaService(
   }
 
   @Transactional(
-    transactionManager = "authTransactionManager",
     noRollbackFor = [LoginFlowException::class, MfaFlowException::class]
   )
   fun validateAndRemoveMfaCode(token: String, code: String?) {
@@ -81,7 +80,7 @@ class MfaService(
     userRetriesService.resetRetries(userPersonDetails.username)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun updateUserMfaPreference(pref: MfaPreferenceType, username: String) {
     val user = userService.findUser(username).orElseThrow { UsernameNotFoundException(username) }
     user.mfaPreference = pref

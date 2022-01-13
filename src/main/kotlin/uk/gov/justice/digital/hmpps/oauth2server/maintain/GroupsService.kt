@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.api.GroupAmendment
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class GroupsService(
   private val groupRepository: GroupRepository,
   private val childGroupRepository: ChildGroupRepository,
@@ -48,7 +48,7 @@ class GroupsService(
     GroupNotFoundException("get", groupCode, "notfound")
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(GroupNotFoundException::class)
   fun updateGroup(username: String, groupCode: String, groupAmendment: GroupAmendment) {
     val groupToUpdate = groupRepository.findByGroupCode(groupCode) ?: throw
@@ -64,7 +64,7 @@ class GroupsService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
   fun deleteGroup(username: String, groupCode: String, authorities: Collection<GrantedAuthority>) {
     val group = groupRepository.findByGroupCode(groupCode) ?: throw
@@ -92,7 +92,7 @@ class GroupsService(
     usersWithGroup.forEach { authUserGroupService.removeGroup(it.username, groupCode, username, authorities) }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(ChildGroupNotFoundException::class)
   fun updateChildGroup(username: String, groupCode: String, groupAmendment: GroupAmendment) {
     val groupToUpdate = childGroupRepository.findByGroupCode(groupCode) ?: throw
@@ -108,7 +108,7 @@ class GroupsService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
   fun createChildGroup(username: String, createChildGroup: CreateChildGroup) {
     val groupCode = createChildGroup.groupCode.trim().uppercase()
@@ -138,7 +138,7 @@ class GroupsService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(ChildGroupNotFoundException::class)
   fun deleteChildGroup(username: String, groupCode: String) {
     childGroupRepository.deleteByGroupCode(groupCode)
@@ -150,7 +150,7 @@ class GroupsService(
     )
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(GroupExistsException::class)
   fun createGroup(username: String, createGroup: CreateGroup) {
     val groupCode = createGroup.groupCode.trim().uppercase()

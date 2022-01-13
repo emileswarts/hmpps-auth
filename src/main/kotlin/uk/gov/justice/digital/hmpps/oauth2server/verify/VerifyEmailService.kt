@@ -24,7 +24,7 @@ import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
 @Service
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(readOnly = true)
 class VerifyEmailService(
   private val userRepository: UserRepository,
   private val userTokenRepository: UserTokenRepository,
@@ -42,7 +42,7 @@ class VerifyEmailService(
   fun isNotVerified(name: String): Boolean =
     !getEmail(name).map { obj: User -> obj.verified }.orElse(false)
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientException::class, ValidEmailException::class)
   fun changeEmailAndRequestVerification(
     username: String,
@@ -107,7 +107,7 @@ class VerifyEmailService(
     return LinkEmailAndUsername(verifyLink, email!!, user.username)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientException::class, ValidEmailException::class)
   fun resendVerificationCodeEmail(username: String, url: String): Optional<String> {
     val user = userRepository.findByUsername(username).orElseThrow()
@@ -129,7 +129,7 @@ class VerifyEmailService(
     return Optional.of(verifyLink)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   @Throws(NotificationClientException::class, ValidEmailException::class)
   fun resendVerificationCodeSecondaryEmail(username: String, url: String): Optional<String> {
     val user = userRepository.findByUsername(username).orElseThrow()
@@ -193,7 +193,7 @@ class VerifyEmailService(
     }
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun confirmEmail(token: String): Optional<String> {
     val userTokenOptional = userTokenRepository.findById(token)
     if (userTokenOptional.isEmpty) {
@@ -218,7 +218,7 @@ class VerifyEmailService(
     return Optional.empty()
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   fun confirmSecondaryEmail(token: String): Optional<String> {
     val userTokenOptional = userTokenRepository.findById(token)
     if (userTokenOptional.isEmpty) {

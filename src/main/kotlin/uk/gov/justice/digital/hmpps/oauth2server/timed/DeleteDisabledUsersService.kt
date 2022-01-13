@@ -22,7 +22,7 @@ class DeleteDisabledUsersService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @Transactional(transactionManager = "authTransactionManager")
+  @Transactional
   override fun processInBatches(): Int {
     val usersToDelete = repository.findTop10ByLastLoggedInBeforeAndEnabledIsFalseOrderByLastLoggedIn(
       LocalDateTime.now().minusYears(1)

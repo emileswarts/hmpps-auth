@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder
@@ -18,8 +17,6 @@ import javax.sql.DataSource
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-  entityManagerFactoryRef = "authEntityManagerFactory",
-  transactionManagerRef = "authTransactionManager",
   basePackages = ["uk.gov.justice.digital.hmpps.oauth2server.auth.repository"]
 )
 @ConfigurationProperties(prefix = "auth")
@@ -27,7 +24,7 @@ class AuthDbConfig {
   lateinit var jpa: Map<String, String>
   lateinit var datasource: Map<String, String>
 
-  @Bean(name = ["authDataSource"])
+  @Bean
   @SpringSessionDataSource
   fun authDataSource(): DataSource = DataSourceBuilder.create()
     .url(datasource["url"])
@@ -35,10 +32,10 @@ class AuthDbConfig {
     .password(datasource["password"])
     .build()
 
-  @Bean(name = ["authEntityManagerFactory"])
+  @Bean
   fun entityManagerFactory(
     builder: EntityManagerFactoryBuilder,
-    @Qualifier("authDataSource") dataSource: DataSource,
+    dataSource: DataSource,
   ): LocalContainerEntityManagerFactoryBean = builder
     .dataSource(dataSource)
     .packages("uk.gov.justice.digital.hmpps.oauth2server.auth.model")
@@ -46,8 +43,8 @@ class AuthDbConfig {
     .properties(jpa)
     .build()
 
-  @Bean(name = ["authTransactionManager"])
+  @Bean
   fun transactionManager(
-    @Qualifier("authEntityManagerFactory") entityManagerFactory: EntityManagerFactory,
+    entityManagerFactory: EntityManagerFactory,
   ): PlatformTransactionManager = JpaTransactionManager(entityManagerFactory)
 }
