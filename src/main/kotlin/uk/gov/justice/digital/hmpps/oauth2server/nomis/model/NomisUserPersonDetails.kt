@@ -19,7 +19,8 @@ data class NomisUserPersonDetails(
   private val accountNonLocked: Boolean = false,
   private val credentialsNonExpired: Boolean = false,
   private val enabled: Boolean = false,
-  private val admin: Boolean = false
+  private val admin: Boolean = false,
+  val active: Boolean = false,
 ) : UserPersonDetails {
 
   override fun getUsername(): String = username

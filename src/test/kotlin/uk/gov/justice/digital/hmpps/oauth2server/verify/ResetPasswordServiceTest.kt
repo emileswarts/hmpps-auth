@@ -168,7 +168,7 @@ class ResetPasswordServiceTest {
       val user = createSampleUser(username = "someuser", email = "email", source = nomis, verified = true)
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       val staffUserAccount =
-        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false)
+        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false, active = false)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
       val optional = resetPasswordService.requestResetPassword("user", "url")
       verify(notificationClient).sendEmail(
@@ -632,8 +632,8 @@ class ResetPasswordServiceTest {
       return nomisUserPersonDetails(AccountStatus.EXPIRED_LOCKED_TIMED)
     }
 
-  private fun nomisUserPersonDetails(accountStatus: AccountStatus, enabled: Boolean = true, locked: Boolean = false): NomisUserPersonDetails =
-    createSampleNomisUser(accountStatus = accountStatus, firstName = "Bob", lastName = "Smith", enabled = enabled, locked = locked)
+  private fun nomisUserPersonDetails(accountStatus: AccountStatus, enabled: Boolean = true, locked: Boolean = false, active: Boolean = true): NomisUserPersonDetails =
+    createSampleNomisUser(accountStatus = accountStatus, firstName = "Bob", lastName = "Smith", enabled = enabled, locked = locked, active = active)
 
   private val staffUserAccountForBobOptional: Optional<UserPersonDetails> = Optional.of(staffUserAccountForBob)
 
@@ -735,7 +735,7 @@ class ResetPasswordServiceTest {
     @Test
     fun resetPasswordLockedAccount() {
       val staffUserAccount =
-        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false, locked = true)
+        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false, locked = true, active = false)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
       val user = createSampleUser(username = "user", source = nomis, locked = true)
       val userToken = user.createToken(UserToken.TokenType.RESET)
@@ -868,7 +868,8 @@ class ResetPasswordServiceTest {
       email = "Bob.smith@justice.gov.uk",
       accountNonLocked = accountNonLocked,
       credentialsNonExpired = credentialsNonExpired,
-      enabled = enabled
+      enabled = enabled,
+      active = true
     )
   }
 }

@@ -22,7 +22,8 @@
         "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN", "RISK_PROFILER", "CATEGORISATION_SECURITY", "PRISON", "OMIC_ADMIN", "KEYWORKER_MONITOR", "MAINTAIN_ACCESS_ROLES_ADMIN"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "active": true
       }
   }
 }

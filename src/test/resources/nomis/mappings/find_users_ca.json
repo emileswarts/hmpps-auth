@@ -22,7 +22,8 @@
         "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN", "LICENCE_RO", "PRISON"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "active": true
       }
   }
 }

@@ -15,5 +15,6 @@ data class NomisUserDetails @JsonCreator constructor(
   @JsonProperty("accountNonLocked") val accountNonLocked: Boolean,
   @JsonProperty("credentialsNonExpired") val credentialsNonExpired: Boolean,
   @JsonProperty("enabled") val enabled: Boolean,
-  @JsonProperty("admin") val admin: Boolean
+  @JsonProperty("admin") val admin: Boolean,
+  @JsonProperty("active") val active: Boolean,
 )

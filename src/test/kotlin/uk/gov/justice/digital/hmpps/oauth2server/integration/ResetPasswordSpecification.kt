@@ -102,7 +102,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
-                  "enabled": true
+                  "enabled": true,
+                  "active": true
             }
               """.trimIndent()
             )
@@ -220,7 +221,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
-                  "enabled": true
+                  "enabled": true,
+                  "active": true
             }
               """.trimIndent()
             )
@@ -421,7 +423,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                 "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
                 "accountNonLocked": true,
                 "credentialsNonExpired": true,
-                "enabled": true
+                "enabled": true,
+                "active": true
             }]
               """.trimIndent()
             )
@@ -448,7 +451,8 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
-                  "enabled": true
+                  "enabled": true,
+                  "active": true
             }
               """.trimIndent()
             )

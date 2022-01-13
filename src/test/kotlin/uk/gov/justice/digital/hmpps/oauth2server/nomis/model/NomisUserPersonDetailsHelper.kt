@@ -16,6 +16,7 @@ class NomisUserPersonDetailsHelper {
       enabled: Boolean = true,
       locked: Boolean = false,
       admin: Boolean = false,
+      active: Boolean = true,
     ): NomisUserPersonDetails = NomisUserPersonDetails(
       username = username,
       userId = userId,
@@ -29,6 +30,7 @@ class NomisUserPersonDetailsHelper {
       credentialsNonExpired = true,
       locked = locked,
       admin = admin,
+      active = active,
     )
   }
 }

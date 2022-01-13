@@ -22,7 +22,8 @@
         "dpsRoleCodes": ["GLOBAL_SEARCH", "ROLES_ADMIN"],
         "accountNonLocked": true,
         "credentialsNonExpired": false,
-        "enabled": true
+        "enabled": true,
+        "active": true
       }
   }
 }
