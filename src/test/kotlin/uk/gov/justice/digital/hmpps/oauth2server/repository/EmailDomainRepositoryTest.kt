@@ -13,11 +13,10 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, NomisDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 class EmailDomainRepositoryTest {
   @Autowired

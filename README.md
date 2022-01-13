@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-auth/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-auth)
 [![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs)
 
-Spring Boot 2.1, Java 11 OAUTH2 Server integrating with NOMIS database, DELIUS (via community api) and an auth database for storing external users.
+Spring Boot 2.1, Java 11 OAUTH2 Server integrating with NOMIS users, DELIUS (via community api) and an auth database for storing external users.
 
 Ministry of Justice users - please raise any questions on the server on the #dps_tech_team channel in the MoJ slack channel - https://mojdt.slack.com/archives/CK0QLCQ1G.
 
@@ -109,7 +109,6 @@ When running locally with the SPRING_ACTIVE_PROFILES=dev the seeded H2 database 
 
 | Database | JDBC connection     |  username | password |
 |----------|---------------------|-----------|----------|
-| NOMIS    | jdbc:h2:mem:nomisdb  |  `<blank>`  | `<blank>`  |
 | AUTH     | jdbc:h2:mem:authdb |  `<blank>`  | `<blank>`  |
 
 #### API Documentation
@@ -127,11 +126,9 @@ by auth health monitoring (e.g. pager duty) and not other systems who wish to fi
 - `/info`: provides information about the version of deployed application.
 
 ### Profiles:
-- dev - development configuration plus seeding of both databases
+- dev - development configuration plus seeding of database
 - dev-config - development configuration
 - auth-seed - seed auth database with api clients and sample users
-- nomis-seed - create tables and seed nomis database with sample users
-- oracle - oracle DB integration with NOMIS DB, specify datasource url, username and password
 - token-verification - turns on token verification, requires the token verification api server running
 - delius - turns on integration with delius, requires community api server running
 

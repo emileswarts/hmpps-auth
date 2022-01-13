@@ -50,8 +50,8 @@ class HealthIntTest : IntegrationTest() {
     webTestClient.get().uri("/health/db")
       .exchange()
       .expectStatus().isOk
-      .expectBody().jsonPath("components.authDataSource.details.database").isEqualTo("H2")
-      .jsonPath("components.authDataSource.details.validationQuery").isEqualTo("isValid()")
+      .expectBody().jsonPath("details.database").isEqualTo("H2")
+      .jsonPath("details.validationQuery").isEqualTo("isValid()")
   }
 
   @Test

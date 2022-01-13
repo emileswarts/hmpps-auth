@@ -12,7 +12,6 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountProfile
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
@@ -154,11 +153,7 @@ class InitialPasswordControllerTest {
   }
 
   private fun setupGetUserCallForProfile(): NomisUserPersonDetails {
-    return setupGetUserCallForProfile(AccountProfile.TAG_GENERAL.name)
-  }
-
-  private fun setupGetUserCallForProfile(profile: String): NomisUserPersonDetails {
-    val user = createSampleNomisUser(profile)
+    val user = createSampleNomisUser("TAG_GENERAL")
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
     return user
   }

@@ -8,8 +8,6 @@ import org.springframework.boot.jdbc.DatabaseDriver
 import org.springframework.boot.jdbc.DatabaseDriver.UNKNOWN
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.support.JdbcUtils
 import org.springframework.jdbc.support.MetaDataAccessException
 import javax.sql.DataSource
@@ -49,22 +47,5 @@ class FlywayConfig {
     }
     val vendor = databaseDriver.id
     return locations.map { location: String -> location.replace("{vendor}", vendor) }
-  }
-
-  @Bean(name = ["nomisFlyway"], initMethod = "migrate")
-  @FlywayDataSource
-  @Primary
-  @Profile("nomis-seed")
-  fun nomisFlyway(
-    @Qualifier("dataSource") dataSource: DataSource,
-    @Value("\${nomis.flyway.locations}") flywayLocations: List<String>,
-  ): Flyway {
-    val flyway = Flyway.configure()
-      .dataSource(dataSource)
-      .locations(*flywayLocations.toTypedArray())
-      .installedBy("nomis-seed")
-      .load()
-    flyway.migrate()
-    return flyway
   }
 }

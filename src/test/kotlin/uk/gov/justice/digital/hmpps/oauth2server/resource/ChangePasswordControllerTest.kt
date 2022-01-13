@@ -20,7 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
-import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountProfile
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper
 import uk.gov.justice.digital.hmpps.oauth2server.security.ChangePasswordService
@@ -311,11 +310,7 @@ class ChangePasswordControllerTest {
   }
 
   private fun setupGetUserCallForProfile(): NomisUserPersonDetails {
-    return setupGetUserCallForProfile(AccountProfile.TAG_GENERAL.name)
-  }
-
-  private fun setupGetUserCallForProfile(profile: String): NomisUserPersonDetails {
-    val user = NomisUserPersonDetailsHelper.createSampleNomisUser(profile)
+    val user = NomisUserPersonDetailsHelper.createSampleNomisUser("TAG_GENERAL")
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(user))
     return user
   }

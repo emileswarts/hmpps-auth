@@ -1,3 +1,0 @@
-nomis:
-  flyway:
-    locations: db/nomis,db/dev/data/nomis

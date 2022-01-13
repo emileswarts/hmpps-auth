@@ -15,12 +15,11 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Group
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, NomisDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 @Transactional("authTransactionManager")
 class GroupRepositoryTest {

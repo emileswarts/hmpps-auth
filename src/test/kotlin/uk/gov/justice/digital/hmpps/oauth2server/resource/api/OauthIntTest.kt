@@ -360,7 +360,7 @@ class OauthIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Refresh token can be obtained`() {
+  fun `Refresh token can be obtained for a nomis user`() {
     whenever(nomisUserApiService.authenticateUser("ITAG_USER", "password")).thenReturn(true)
     whenever(nomisUserApiService.findUserByUsername("ITAG_USER")).thenReturn(
       NomisUserPersonDetails(

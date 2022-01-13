@@ -18,13 +18,12 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRetriesRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
 import javax.sql.DataSource
 
 @Suppress("SqlResolve")
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, NomisDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional(transactionManager = "authTransactionManager")
 class DeleteDisabledUsersServiceIntTest {

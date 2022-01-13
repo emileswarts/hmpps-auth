@@ -17,14 +17,13 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.RESET
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.NomisDbConfig
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, NomisDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class, FlywayConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 @Transactional(transactionManager = "authTransactionManager")
 class UserTokenRepositoryTest {

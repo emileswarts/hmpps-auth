@@ -16,7 +16,11 @@ import javax.persistence.EntityManager
 import javax.persistence.PersistenceContext
 
 @Service("authUserDetailsService")
-@Transactional(transactionManager = "authTransactionManager", readOnly = true)
+@Transactional(
+  transactionManager = "authTransactionManager",
+  readOnly = true,
+  noRollbackFor = [UsernameNotFoundException::class]
+)
 open class AuthUserDetailsService(private val authUserService: AuthUserService) :
   UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
