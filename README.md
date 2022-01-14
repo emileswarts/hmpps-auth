@@ -113,8 +113,8 @@ When running locally with the SPRING_ACTIVE_PROFILES=dev the seeded H2 database 
 
 #### API Documentation
 
-Is available on a running local server at http://localhost:9090/auth/swagger-ui.html.  Alternatively production
-documentation can be found at https://sign-in.hmpps.service.justice.gov.uk/auth/swagger-ui.html.  Don't forget to
+Is available on a running local server at http://localhost:9090/auth/swagger-ui/?configUrl=/v2/api-docs.  Alternatively production
+documentation can be found at https://sign-in.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs.  Don't forget to
 include /auth in the requests if calling an api endpoint.`
 
 #### Health
