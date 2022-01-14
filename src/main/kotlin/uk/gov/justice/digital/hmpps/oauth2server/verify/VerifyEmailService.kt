@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Contact
@@ -28,7 +27,6 @@ import javax.persistence.EntityNotFoundException
 class VerifyEmailService(
   private val userRepository: UserRepository,
   private val userTokenRepository: UserTokenRepository,
-  private val jdbcTemplate: NamedParameterJdbcTemplate,
   private val telemetryClient: TelemetryClient,
   private val notificationClient: NotificationClientApi,
   private val emailDomainService: EmailDomainService,
@@ -77,10 +75,6 @@ class VerifyEmailService(
         }
         user.email = email
         user.verified = false
-
-        if (AuthSource.fromNullableString(user.authSource) == AuthSource.nomis) {
-          nomisUserApiService.changeEmail(user.username, email!!)
-        }
       }
       EmailType.SECONDARY -> user.addContact(ContactType.SECONDARY_EMAIL, email)
     }
@@ -247,6 +241,11 @@ class VerifyEmailService(
     // verification token match
     user.verified = true
     userRepository.save(user)
+
+    if (AuthSource.fromNullableString(user.authSource) == AuthSource.nomis) {
+      nomisUserApiService.changeEmail(user.username, user.email!!)
+    }
+
     log.info("Verify email succeeded for {}", user.username)
     telemetryClient.trackEvent("VerifyEmailConfirmSuccess", mapOf("username" to user.username), null)
   }

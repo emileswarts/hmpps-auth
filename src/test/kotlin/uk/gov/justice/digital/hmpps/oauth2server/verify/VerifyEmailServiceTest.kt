@@ -15,7 +15,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
@@ -33,7 +32,6 @@ import javax.persistence.EntityNotFoundException
 class VerifyEmailServiceTest {
   private val userRepository: UserRepository = mock()
   private val userTokenRepository: UserTokenRepository = mock()
-  private val jdbcTemplate: NamedParameterJdbcTemplate = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val notificationClient: NotificationClientApi = mock()
   private val referenceCodesService: EmailDomainService = mock()
@@ -41,7 +39,6 @@ class VerifyEmailServiceTest {
   private val verifyEmailService = VerifyEmailService(
     userRepository,
     userTokenRepository,
-    jdbcTemplate,
     telemetryClient,
     notificationClient,
     referenceCodesService,
@@ -158,7 +155,7 @@ class VerifyEmailServiceTest {
     }
 
     @Test
-    fun saveEmailForAuthUser() {
+    fun saveEmail() {
       val user = createSampleUser(username = "someuser")
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       whenever(referenceCodesService.isValidEmailDomain(anyString())).thenReturn(true)
@@ -173,26 +170,6 @@ class VerifyEmailServiceTest {
       verify(userRepository).save(user)
       assertThat(user.email).isEqualTo("email@john.com")
       assertThat(user.verified).isFalse
-      verifyNoInteractions(nomisUserApiService)
-    }
-
-    @Test
-    fun saveEmailForNomisUser() {
-      val user = createSampleUser(username = "someuser", source = AuthSource.nomis)
-      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
-      whenever(referenceCodesService.isValidEmailDomain(anyString())).thenReturn(true)
-      verifyEmailService.changeEmailAndRequestVerification(
-        "user",
-        "eMail@john.COM",
-        "firstname",
-        "full name",
-        "url",
-        User.EmailType.PRIMARY
-      )
-      verify(userRepository).save(user)
-      assertThat(user.email).isEqualTo("email@john.com")
-      assertThat(user.verified).isFalse
-      verify(nomisUserApiService).changeEmail("someuser", "email@john.com")
     }
 
     @Test
@@ -470,13 +447,26 @@ class VerifyEmailServiceTest {
   }
 
   @Test
-  fun confirmEmail_happyPath() {
+  fun confirmEmail_happyPath_AuthUser() {
     val user = createSampleUser(username = "bob")
     val userToken = user.createToken(TokenType.VERIFIED)
     whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
     val result = verifyEmailService.confirmEmail("token")
     assertThat(result).isEmpty
     verify(userRepository).save(user)
+    verifyNoInteractions(nomisUserApiService)
+    assertThat(user.verified).isTrue
+  }
+
+  @Test
+  fun confirmEmail_happyPath_NomisUser() {
+    val user = createSampleUser(username = "bob", source = AuthSource.nomis, email = "email@john.com")
+    val userToken = user.createToken(TokenType.VERIFIED)
+    whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
+    val result = verifyEmailService.confirmEmail("token")
+    assertThat(result).isEmpty
+    verify(userRepository).save(user)
+    verify(nomisUserApiService).changeEmail("bob", "email@john.com")
     assertThat(user.verified).isTrue
   }
 
@@ -488,6 +478,7 @@ class VerifyEmailServiceTest {
     val result = verifyEmailService.confirmEmail("token")
     assertThat(result).isEmpty
     verify(userRepository).save(user)
+    verifyNoInteractions(nomisUserApiService)
     assertThat(user.verified).isTrue
   }
 
@@ -495,6 +486,7 @@ class VerifyEmailServiceTest {
   fun confirmEmail_invalid() {
     val result = verifyEmailService.confirmEmail("bob")
     assertThat(result).get().isEqualTo("invalid")
+    verifyNoInteractions(nomisUserApiService)
   }
 
   @Test
@@ -505,6 +497,7 @@ class VerifyEmailServiceTest {
     whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
     val result = verifyEmailService.confirmEmail("token")
     assertThat(result).get().isEqualTo("expired")
+    verifyNoInteractions(nomisUserApiService)
   }
 
   @Test

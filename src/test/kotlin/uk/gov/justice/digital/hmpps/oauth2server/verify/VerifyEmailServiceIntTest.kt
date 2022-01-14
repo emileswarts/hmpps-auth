@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
@@ -20,8 +19,6 @@ import uk.gov.service.notify.NotificationClientApi
 @ActiveProfiles("test")
 @Transactional
 class VerifyEmailServiceIntTest {
-  @Autowired
-  private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
   private lateinit var verifyEmailService: VerifyEmailService
   private val telemetryClient: TelemetryClient = mock()
   private val notificationClient: NotificationClientApi = mock()
@@ -41,7 +38,6 @@ class VerifyEmailServiceIntTest {
     verifyEmailService = VerifyEmailService(
       userRepository,
       userTokenRepository,
-      jdbcTemplate,
       telemetryClient,
       notificationClient,
       referenceCodesService,
