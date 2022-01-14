@@ -19,14 +19,14 @@ import javax.sql.DataSource
 @EnableJpaRepositories(
   basePackages = ["uk.gov.justice.digital.hmpps.oauth2server.auth.repository"]
 )
-@ConfigurationProperties(prefix = "auth")
+@ConfigurationProperties(prefix = "spring")
 class AuthDbConfig {
   lateinit var jpa: Map<String, String>
   lateinit var datasource: Map<String, String>
 
   @Bean
   @SpringSessionDataSource
-  fun authDataSource(): DataSource = DataSourceBuilder.create()
+  fun dataSource(): DataSource = DataSourceBuilder.create()
     .url(datasource["url"])
     .username(datasource["username"])
     .password(datasource["password"])

@@ -25,17 +25,6 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
-  session:
-    store-type=jdbc
-  data:
-    web:
-      pageable:
-        max-page-size: 20000
-
-  thymeleaf.render-hidden-markers-before-checkboxes: true
-
-# SQL Server DB - "auth"
-auth:
   datasource:
     url: 'jdbc:h2:mem:authdb;MODE=MSSQLServer'
   flyway:
@@ -46,6 +35,16 @@ auth:
       show_sql: false
       hbm2ddl:
         auto: none
+  session:
+    store-type=jdbc
+  data:
+    web:
+      pageable:
+        max-page-size: 20000
+
+  thymeleaf.render-hidden-markers-before-checkboxes: true
+
+auth:
   endpoint.url: http://localhost:${server.port:8080}/auth
   token.url: ${auth.endpoint.url}/oauth/token
 

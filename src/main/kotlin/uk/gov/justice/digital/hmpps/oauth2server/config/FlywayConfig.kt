@@ -15,13 +15,13 @@ import javax.sql.DataSource
 class FlywayConfig {
   @Bean(initMethod = "migrate")
   @FlywayDataSource
-  fun authFlyway(
-    authDataSource: DataSource,
-    @Value("\${auth.flyway.locations}") flywayLocations: List<String>,
+  fun flyway(
+    dataSource: DataSource,
+    @Value("\${spring.flyway.locations}") flywayLocations: List<String>,
   ): Flyway {
     val flyway = Flyway.configure()
-      .dataSource(authDataSource)
-      .locations(*replaceVendorLocations(flywayLocations, authDataSource).toTypedArray())
+      .dataSource(dataSource)
+      .locations(*replaceVendorLocations(flywayLocations, dataSource).toTypedArray())
       .load()
     flyway.migrate()
     return flyway

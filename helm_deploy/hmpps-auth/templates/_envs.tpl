@@ -46,17 +46,17 @@ env:
   - name: APPLICATION_SMOKETEST_ENABLED
     value: "false"
 
-  - name: AUTH_DATASOURCE_PASSWORD
+  - name: SPRING_DATASOURCE_PASSWORD
     valueFrom:
       secretKeyRef:
         key: AUTH_DATASOURCE_PASSWORD
         name: {{ template "app.name" . }}
-  - name: AUTH_DATASOURCE_URL
+  - name: SPRING_DATASOURCE_URL
     valueFrom:
       secretKeyRef:
         key: AUTH_DATASOURCE_URL
         name: {{ template "app.name" . }}
-  - name: AUTH_DATASOURCE_USERNAME
+  - name: SPRING_DATASOURCE_USERNAME
     valueFrom:
       secretKeyRef:
         key: AUTH_DATASOURCE_USERNAME
@@ -146,21 +146,6 @@ env:
     valueFrom:
       secretKeyRef:
         key: JWT_SIGNING_KEY_PAIR
-        name: {{ template "app.name" . }}
-  - name: SPRING_DATASOURCE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_DATASOURCE_PASSWORD
-        name: {{ template "app.name" . }}
-  - name: SPRING_DATASOURCE_URL
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_DATASOURCE_URL
-        name: {{ template "app.name" . }}
-  - name: SPRING_DATASOURCE_USERNAME
-    valueFrom:
-      secretKeyRef:
-        key: SPRING_DATASOURCE_USERNAME
         name: {{ template "app.name" . }}
 
   - name: SPRING_PROFILES_ACTIVE
