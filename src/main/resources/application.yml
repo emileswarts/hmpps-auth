@@ -29,18 +29,21 @@ spring:
     url: 'jdbc:h2:mem:authdb;MODE=MSSQLServer'
   flyway:
     locations: db/auth,db/auth_{vendor}
-  jpa:
-    hibernate:
-      dialect: org.hibernate.dialect.H2Dialect
-      show_sql: false
-      hbm2ddl:
-        auto: none
   session:
     store-type=jdbc
   data:
     web:
       pageable:
         max-page-size: 20000
+
+  jpa:
+    hibernate:
+      hbm2ddl:
+        auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        show_sql: false
 
   thymeleaf.render-hidden-markers-before-checkboxes: true
 
