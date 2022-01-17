@@ -62,7 +62,7 @@ env:
         key: AUTH_DATASOURCE_USERNAME
         name: {{ template "app.name" . }}
 
-  - name: AUTH_JPA_HIBERNATE_DIALECT
+  - name: SPRING_JPA_HIBERNATE_DIALECT
     value: "org.hibernate.dialect.SQLServer2012Dialect"
 
   - name: DELIUS_CLIENT_CLIENT_ID
