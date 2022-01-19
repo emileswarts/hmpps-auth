@@ -85,6 +85,8 @@ class UserService(
       none -> Optional.empty()
     }.map { UserPersonDetails::class.java.cast(it) }
 
+  fun findUsersBySource(source: AuthSource): List<User> = userRepository.findBySourceOrderByUsername(source)
+
   fun getEmail(userPersonDetails: UserPersonDetails): String? {
     // special case where the authentication is passed through - we won't have the email address in that case
     val email = if (userPersonDetails is UserDetailsImpl || userPersonDetails.authSource == nomis.source) {

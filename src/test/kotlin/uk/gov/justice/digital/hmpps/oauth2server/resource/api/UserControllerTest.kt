@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
@@ -46,7 +47,7 @@ class UserControllerTest {
         "principal",
         false,
         "Joe Bloggs",
-        AuthSource.nomis,
+        nomis,
         5L,
         null,
         "5",
@@ -64,7 +65,7 @@ class UserControllerTest {
         "principal",
         false,
         "Joe Bloggs",
-        AuthSource.nomis,
+        nomis,
         5L,
         "somecase",
         "5",
@@ -106,7 +107,7 @@ class UserControllerTest {
         "principal",
         false,
         "Joe Bloggs",
-        AuthSource.nomis,
+        nomis,
         5L,
         null,
         "5",
@@ -124,7 +125,7 @@ class UserControllerTest {
         "principal",
         false,
         "Joe Bloggs",
-        AuthSource.nomis,
+        nomis,
         5L,
         "somecase",
         "5",
@@ -251,6 +252,14 @@ class UserControllerTest {
     assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", null, false))
   }
 
+  @Test
+  fun findAllUserEmails() {
+    whenever(userService.findUsersBySource(any())).thenReturn(listOf(createSampleUser("JOE", verified = true)))
+    val listOfUserEmails = userController.getAllUserEmails(nomis)
+    verify(userService).findUsersBySource(nomis)
+    assertThat(listOfUserEmails.size).isEqualTo(1)
+  }
+
   private val fakeUser: User
     get() = createSampleUser(
       id = UUID.fromString(USER_ID),
@@ -272,7 +281,7 @@ class UserControllerTest {
     val pageOfUsers = userController.searchForUsersInMultipleSourceSystems(
       "somename",
       UserFilter.Status.ALL,
-      listOf(AuthSource.auth, AuthSource.nomis),
+      listOf(AuthSource.auth, nomis),
       unpaged,
       authentication
     )
@@ -285,7 +294,7 @@ class UserControllerTest {
       "bob",
       emptyList(),
       UserFilter.Status.ALL,
-      listOf(AuthSource.auth, AuthSource.nomis),
+      listOf(AuthSource.auth, nomis),
     )
   }
 
@@ -324,7 +333,7 @@ class UserControllerTest {
     val pageOfUsers = userController.searchForUsersInMultipleSourceSystems(
       "somename",
       UserFilter.Status.ACTIVE,
-      listOf(AuthSource.auth, AuthSource.nomis, AuthSource.delius),
+      listOf(AuthSource.auth, nomis, AuthSource.delius),
       unpaged,
       authentication
     )
@@ -337,7 +346,7 @@ class UserControllerTest {
       "bob",
       emptyList(),
       UserFilter.Status.ACTIVE,
-      listOf(AuthSource.auth, AuthSource.nomis, AuthSource.delius),
+      listOf(AuthSource.auth, nomis, AuthSource.delius),
     )
   }
 

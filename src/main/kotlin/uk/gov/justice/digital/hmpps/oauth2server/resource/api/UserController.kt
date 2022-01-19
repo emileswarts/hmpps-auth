@@ -199,6 +199,32 @@ class UserController(private val userService: UserService) {
   private fun notFoundResponse(username: String): ResponseEntity<Any?> = ResponseEntity.status(HttpStatus.NOT_FOUND)
     .body(ErrorDetail("Not Found", "Account for username $username not found", "username"))
 
+  @GetMapping("/api/users/email")
+  @ApiOperation(
+    value = "Email address for all users",
+    notes = "Primary email address for all users.",
+    nickname = "getAllEmails",
+    consumes = "application/json",
+    produces = "application/json"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 200, message = "OK", response = EmailAddress::class, responseContainer = "List"),
+      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
+      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+    ]
+  )
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  fun getAllUserEmails(
+    @ApiParam(value = "A single auth source to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.")
+    @RequestParam(
+      required = false
+    ) authSource: AuthSource?
+  ): List<EmailAddress> = userService
+    .findUsersBySource(authSource ?: AuthSource.auth)
+    .filter { it.verified }
+    .map { EmailAddress(it) }
+
   @GetMapping("/api/user/search")
   @ApiOperation(
     value = """

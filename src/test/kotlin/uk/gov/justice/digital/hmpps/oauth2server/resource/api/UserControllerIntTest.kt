@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.kotlin.whenever
@@ -582,5 +583,55 @@ class UserControllerIntTest : IntegrationTest() {
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
       .json("auth_user_search_multiple_source_inactive.json".readFile())
+  }
+
+  @Nested
+  inner class GetAuthUsersAndEmails {
+    @Test
+    fun `User emails endpoint returns user data forbidden`() {
+      webTestClient
+        .get().uri("/api/users/email")
+        .headers(setAuthorisation("ITAG_USER"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Find all user emails endpoint returns auth users by default`() {
+      webTestClient
+        .get().uri("/api/users/email")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsAnyElementsOf(
+            listOf("auth_user@digital.justice.gov.uk")
+          )
+          assertThat(it).doesNotContainAnyElementsOf(
+            listOf("itag_user@digital.justice.gov.uk")
+          )
+        }
+    }
+
+    @Test
+    fun `Find all User emails endpoint returns nomis users`() {
+      webTestClient
+        .get().uri("/api/users/email?authSource=nomis")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsAnyElementsOf(
+            listOf(
+              "itag_user@digital.justice.gov.uk"
+            )
+          )
+          assertThat(it).doesNotContainAnyElementsOf(
+            listOf("auth_user@digital.justice.gov.uk")
+          )
+        }
+    }
   }
 }
