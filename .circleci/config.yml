@@ -117,17 +117,17 @@ workflows:
             - deploy_dev
       - hmpps/deploy_env:
           name: deploy_stage
-          env: "t2"
+          env: "stage"
           context:
             - hmpps-common-vars
-            - hmpps-auth-t2
+            - hmpps-auth-stage
           requires:
             - request-stage-approval
 
       - request-preprod-approval:
           type: approval
           requires:
-            - deploy_stage
+            - deploy_dev
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"

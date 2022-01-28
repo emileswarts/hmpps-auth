@@ -1,0 +1,48 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+image:
+  repository: quay.io/hmpps/hmpps-auth
+  tag: latest
+  pullPolicy: IfNotPresent
+  port: 8080
+  livenessProbePath: /auth/health/liveness
+  readinessProbePath: /auth/health/readiness
+
+ingress:
+  enabled: true
+  tlsSecretName: hmpps-auth-cert
+  host: sign-in-stage.hmpps.service.justice.gov.uk
+
+mfa_allowlist:
+  office: "217.33.148.210/32"
+  mojvpn: "81.134.202.29/32"
+
+env:
+  SPRING_PROFILES_ACTIVE: "nomis,delius,azure-oidc,postgres"
+  APPLICATION_SIGNIN_URL: "https://sign-in-stage.hmpps.service.justice.gov.uk/auth/"
+  APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
+  APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
+  APPLICATION_AUTHENTICATION_UI_ALLOWLIST: "81.134.202.29,217.33.148.210"
+  APPLICATION_LINK_ACCOUNTS: "false"
+  APPLICATION_NON_PROD_WARNING_ENABLED: "true"
+  APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
+  APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
+  DELIUS_ENDPOINT_URL: "https://community-api-secure.stage.delius.probation.hmpps.dsd.io"
+  NOMIS_ENDPOINT_URL: "https://nomis-user-stage.aks-dev-1.studio-hosting.service.justice.gov.uk"
+  JWT_COOKIE_EXPIRY_TIME: "12h"
+  JWT_JWK_KEY_ID: "dev-jwk-kid"
+  TOKENVERIFICATION_ENDPOINT_URL: ""
+  APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+  # Override _envs.tpl
+  SPRING_JPA_HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQL10Dialect"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}?sslmode=verify-full"
+
+  namespace_secrets:
+    dps-rds-instance-output:
+      SPRING_DATASOURCE_NAME: "database_name"
+      SPRING_DATASOURCE_ENDPOINT: "rds_instance_endpoint"
+      SPRING_DATASOURCE_USERNAME: "database_username"
+      SPRING_DATASOURCE_PASSWORD: "database_password"
