@@ -100,7 +100,7 @@ context=${contextAndNamespace//:*/}
 namespace=${contextAndNamespace//*:/}
 if [[ $context == $contextAndNamespace ]]; then
   # Run against cloudplatforms k8s cluster by default, otherwise set KUBE_CONTEXT
-  kubectl config use-context "${KUBE_CONTEXT:-live-1.cloud-platform.service.justice.gov.uk}"
+  kubectl config use-context "${KUBE_CONTEXT:-live.cloud-platform.service.justice.gov.uk}"
 else
   if [[ "$context" == "live" || "$context" == "live-1" ]]; then
     kubectl config use-context "${context}.cloud-platform.service.justice.gov.uk"
