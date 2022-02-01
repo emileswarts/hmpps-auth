@@ -36,7 +36,7 @@ env:
   JWT_JWK_KEY_ID: "dev-jwk-kid"
   TOKENVERIFICATION_ENDPOINT_URL: ""
   APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
-  # Override _envs.tpl
+  # Once all envs are using Postgres we can move the config for these properties back into _envs.tpl
   SPRING_JPA_HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQL10Dialect"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}?sslmode=verify-full"
 
