@@ -47,14 +47,23 @@ env:
     value: "false"
 
   - name: SPRING_DATASOURCE_PASSWORD
-    value: {{ .Values.env.SPRING_DATASOURCE_PASSWORD | quote }}
+    valueFrom:
+      secretKeyRef:
+        key: AUTH_DATASOURCE_PASSWORD
+        name: {{ template "app.name" . }}
   - name: SPRING_DATASOURCE_URL
-    value: {{ .Values.env.SPRING_DATASOURCE_URL | quote }}
+    valueFrom:
+      secretKeyRef:
+        key: AUTH_DATASOURCE_URL
+        name: {{ template "app.name" . }}
   - name: SPRING_DATASOURCE_USERNAME
-    value: {{ .Values.env.SPRING_DATASOURCE_USERNAME | quote }}
+    valueFrom:
+      secretKeyRef:
+        key: AUTH_DATASOURCE_USERNAME
+        name: {{ template "app.name" . }}
 
   - name: SPRING_JPA_HIBERNATE_DIALECT
-    value: {{ .Values.env.SPRING_JPA_HIBERNATE_DIALECT | quote }}
+    value: "org.hibernate.dialect.SQLServer2012Dialect"
 
   - name: DELIUS_CLIENT_CLIENT_ID
     valueFrom:

@@ -36,13 +36,13 @@ env:
   JWT_JWK_KEY_ID: "dev-jwk-kid"
   TOKENVERIFICATION_ENDPOINT_URL: ""
   APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
-  # Once all envs are using Postgres we can move the config for these properties back into _envs.tpl
+  # Override _envs.tpl
   SPRING_JPA_HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQL10Dialect"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}?sslmode=verify-full"
 
-namespace_secrets:
-  dps-rds-instance-output:
-    SPRING_DATASOURCE_NAME: "database_name"
-    SPRING_DATASOURCE_ENDPOINT: "rds_instance_endpoint"
-    SPRING_DATASOURCE_USERNAME: "database_username"
-    SPRING_DATASOURCE_PASSWORD: "database_password"
+  namespace_secrets:
+    dps-rds-instance-output:
+      SPRING_DATASOURCE_NAME: "database_name"
+      SPRING_DATASOURCE_ENDPOINT: "rds_instance_endpoint"
+      SPRING_DATASOURCE_USERNAME: "database_username"
+      SPRING_DATASOURCE_PASSWORD: "database_password"
