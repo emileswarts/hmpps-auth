@@ -27,13 +27,23 @@ class ServicesController(
 
   @GetMapping("/form")
   @PreAuthorize("hasRole('ROLE_OAUTH_ADMIN')")
-  fun showEditForm(@RequestParam(value = "code", required = false) code: String?): ModelAndView {
-    val service = if (code != null) {
+  fun showEditForm(
+    @RequestParam(value = "code", required = false) code: String?,
+    @RequestParam(value = "newService", required = false) newService: Boolean?,
+  ): ModelAndView {
+    val isService: String
+    val service = if (code != null && newService == true) {
+      isService = "client"
+      Service(code = code, name = "", description = "", url = "")
+    } else if (code != null) {
+      isService = "existing"
       authServicesService.getService(code)
     } else {
+      isService = "new"
       Service(code = "", name = "", description = "", url = "")
     }
     return ModelAndView("ui/service", "service", service)
+      .addObject("newService", isService)
   }
 
   @PostMapping("/edit")
@@ -42,7 +52,8 @@ class ServicesController(
     authentication: Authentication,
     @ModelAttribute service: Service,
     @RequestParam(value = "newService", required = false) newService: Boolean = false,
-  ): String? {
+    @RequestParam(value = "fromClient", required = false) fromClient: Boolean = false,
+  ): ModelAndView {
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "code" to service.code)
     if (newService) {
@@ -52,7 +63,11 @@ class ServicesController(
       authServicesService.updateService(service)
       telemetryClient.trackEvent("AuthServiceDetailsUpdate", telemetryMap, null)
     }
-    return "redirect:/ui/services"
+    return if (fromClient) {
+      ModelAndView("redirect:/ui/clients/form", "client", service.code)
+    } else {
+      ModelAndView("redirect:/ui/services")
+    }
   }
 
   @GetMapping("/{code}/delete")

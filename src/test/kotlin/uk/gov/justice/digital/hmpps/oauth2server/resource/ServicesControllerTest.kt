@@ -39,10 +39,10 @@ class ServicesControllerTest {
   inner class EditFormRequest {
     @Test
     fun `show edit form request view add service`() {
-      val view = controller.showEditForm(null)
+      val view = controller.showEditForm(null, true)
 
       assertThat(view.viewName).isEqualTo("ui/service")
-      assertThat(view.model).containsExactlyEntriesOf(mapOf("service" to Service(code = "", name = "", description = "", url = "")))
+      assertThat(view.model).containsExactlyEntriesOf(mapOf("service" to Service(code = "", name = "", description = "", url = ""), "newService" to "new"))
 
       verifyNoInteractions(authServicesService)
     }
@@ -51,10 +51,10 @@ class ServicesControllerTest {
     fun `show edit form request view edit service`() {
       val service = Service(code = "somecode", name = "", description = "", url = "")
       whenever(authServicesService.getService(anyString())).thenReturn(service)
-      val view = controller.showEditForm("code")
+      val view = controller.showEditForm("code", false)
 
       assertThat(view.viewName).isEqualTo("ui/service")
-      assertThat(view.model).containsExactlyEntriesOf(mapOf("service" to service))
+      assertThat(view.model).containsExactlyEntriesOf(mapOf("service" to service, "newService" to "existing"))
 
       verify(authServicesService).getService("code")
     }
@@ -66,7 +66,8 @@ class ServicesControllerTest {
     fun `edit service - add service`() {
       val service = Service(code = "newcode", name = "", description = "", url = "")
       val url = controller.editService(authentication, service, true)
-      assertThat(url).isEqualTo("redirect:/ui/services")
+      assertThat(url.viewName).isEqualTo("redirect:/ui/services")
+      assertThat(url.model).isEmpty()
       verify(authServicesService).addService(service)
       verify(telemetryClient).trackEvent(
         "AuthServiceDetailsAdd",
@@ -79,7 +80,8 @@ class ServicesControllerTest {
     fun `edit service - edit service`() {
       val service = Service(code = "editcode", name = "", description = "", url = "")
       val url = controller.editService(authentication, service)
-      assertThat(url).isEqualTo("redirect:/ui/services")
+      assertThat(url.viewName).isEqualTo("redirect:/ui/services")
+      assertThat(url.model).isEmpty()
       verify(authServicesService).updateService(service)
       verify(telemetryClient).trackEvent(
         "AuthServiceDetailsUpdate",

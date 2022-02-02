@@ -88,7 +88,9 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('hmpps-allocations','3600','{}','ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY,ROLE_HMPPS_TIER','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('manage-a-workforce-ui','3600','{}',null,'authorization_code','read,write','$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('send-legal-mail-to-prisons','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
-       ('send-legal-mail-to-prisons-client','3600','{}','ROLE_SLM_CREATE_BARCODE,ROLE_SLM_SCAN_BARCODE','client_credentials','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write',null);
+       ('send-legal-mail-to-prisons-client','3600','{}','ROLE_SLM_CREATE_BARCODE,ROLE_SLM_SCAN_BARCODE','client_credentials','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write',null),
+       ('service-add-test-client','1200','{}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:3001/,http://localhost:3001/sign-in/callback'),
+       ('service-edit-test-client','1200','{}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:3001/,http://localhost:3001/sign-in/callback');
 
 
 INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri, last_accessed, created, secret_updated)
@@ -119,6 +121,7 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('manage-soc-cases-client', 'Manage SOC cases', 'View and manage SOC cases', 'ROLE_SOC_CUSTODY,ROLE_SOC_COMMUNITY', 'http://localhost:3000', 1, null),
        ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER', 'http://localhost:3001/', 1, null),
        ('DETAILS', 'Manage account details', null, null, '/auth/account-details?redirect_uri=/', 1, null),
+       ('service-edit-test-client', 'test service', 'test service for testing', 'ROLE_FRED_ROLE', '/auth/account-details?redirect_uri=/', 0, null),
        ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', 1, null);
 
 

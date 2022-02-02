@@ -9,13 +9,14 @@
 <body>
 
 <div layout:fragment="content" class="govuk-grid-column-two-thirds">
-  <h1 th:if="${param.code}" class="govuk-heading-l">Edit service '<span th:text="${param.code[0]}"></span>'</h1>
-  <h1 th:unless="${param.code}" class="govuk-heading-l">Add service</h1>
+  <h1 th:if="${newService == 'existing'}" class="govuk-heading-l">Edit service '<span th:text="${param.code[0]}"></span>'</h1>
+  <h1 th:unless="${newService == 'existing'}" class="govuk-heading-l">Add service</h1>
 
   <form th:action="@{/ui/services/edit}" method="post">
     <!-- signalize new service -->
-    <input type="hidden" th:if="${param.code}" id="code" name="code" th:value="${service.code}"/>
-    <input type="hidden" th:unless="${param.code}" name="newService" value="true"/>
+    <input type="hidden" th:unless="${newService == 'existing'}" name="newService" value="true"/>
+    <input type="hidden" th:unless="${newService == 'new'}" id="code" name="code" th:value="${service.code}"/>
+    <input type="hidden" th:if="${param.fromClient}" id="from" name="fromClient" th:value="true"/>
 
     <div class="govuk-form-group">
       <div class="govuk-form-group" th:unless="${param.code}">

@@ -33,7 +33,15 @@ class ServicesSpecification : AbstractAuthSpecification() {
 
     goTo(servicesSummaryPage).editService(service = "HDC")
     servicesMaintenancePage.isAtPage()
-      .checkDetails()
+      .checkDetails(
+        code = "HDC",
+        name = "Home Detention Curfew",
+        description = "Service for HDC Licences Creation and Approval",
+        authorisedRoles = "ROLE_LICENCE_CA\nROLE_LICENCE_RO\nROLE_LICENCE_DM",
+        url = "http://localhost:3003",
+        email = "hdcdigitalservice@digital.justice.gov.uk",
+        enabled = "true"
+      )
       .editEnabled(false)
       .editRoles("ROLE_BOB\nROLE_JOE")
       .save()
@@ -63,7 +71,16 @@ class ServicesSpecification : AbstractAuthSpecification() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
     goTo(servicesSummaryPage).editService()
-    servicesMaintenancePage.isAtPage().checkDetails().save()
+    servicesMaintenancePage.isAtPage()
+      .checkDetails(
+        code = "HDC",
+        name = "Home Detention Curfew",
+        description = "Service for HDC Licences Creation and Approval",
+        authorisedRoles = "ROLE_LICENCE_CA\nROLE_LICENCE_RO\nROLE_LICENCE_DM",
+        url = "http://localhost:3003",
+        email = "hdcdigitalservice@digital.justice.gov.uk",
+        enabled = "true"
+      ).save()
     servicesSummaryPage.isAtPage()
   }
 
@@ -140,14 +157,41 @@ open class ServicesMaintenancePage(heading: String = "Edit service", headingStar
     heading,
     headingStartsWith
   ) {
-  fun checkDetails(): ServicesMaintenancePage {
-    assertThat(el("#code").value()).isEqualTo("HDC")
-    assertThat(el("#name").value()).isEqualTo("Home Detention Curfew")
-    assertThat(el("#description").value()).isEqualTo("Service for HDC Licences Creation and Approval")
-    assertThat(el("#authorisedRoles").value()).isEqualTo("ROLE_LICENCE_CA\nROLE_LICENCE_RO\nROLE_LICENCE_DM")
-    assertThat(el("#url").value()).isEqualTo("http://localhost:3003")
-    assertThat(el("#email").value()).isEqualTo("hdcdigitalservice@digital.justice.gov.uk")
-    assertThat(el("#enabled").value()).isEqualTo("true")
+  fun checkDetails(
+    code: String,
+    name: String,
+    description: String,
+    authorisedRoles: String,
+    url: String,
+    email: String,
+    enabled: String,
+  ): ServicesMaintenancePage {
+    assertThat(el("#code").value()).isEqualTo(code)
+    assertThat(el("#name").value()).isEqualTo(name)
+    assertThat(el("#description").value()).isEqualTo(description)
+    assertThat(el("#authorisedRoles").value()).isEqualTo(authorisedRoles)
+    assertThat(el("#url").value()).isEqualTo(url)
+    assertThat(el("#email").value()).isEqualTo(email)
+    assertThat(el("#enabled").value()).isEqualTo(enabled)
+    return this
+  }
+
+  fun addClientServiceDetails(
+    code: String,
+    name: String,
+    description: String,
+    authorisedRoles: String,
+    url: String,
+    email: String,
+    enabled: Boolean,
+  ): ServicesMaintenancePage {
+    assertThat(el("#code").value()).isEqualTo(code)
+    el("#name").fill().with(name)
+    el("#description").fill().with(description)
+    el("#authorisedRoles").fill().with(authorisedRoles)
+    el("#url").fill().with(url)
+    el("#email").fill().with(email)
+    editEnabled(enabled)
     return this
   }
 

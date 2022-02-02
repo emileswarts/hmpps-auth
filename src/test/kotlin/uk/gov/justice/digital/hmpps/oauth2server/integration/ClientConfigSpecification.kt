@@ -354,7 +354,14 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
 
     goTo(clientSummaryPage).editClient("manage-user-accounts-ui")
     clientMaintenancePage.isAtPage()
-      .checkServiceDetails()
+      .checkServiceDetails(
+        name = "Manage user accounts",
+        description = "",
+        authorisedRoles = "AUTH_GROUP_MANAGER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS",
+        url = "http://localhost:3001/",
+        email = "",
+        enabled = "Yes"
+      )
   }
 
   @Test
@@ -563,13 +570,20 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
     return this
   }
 
-  fun checkServiceDetails(): ClientMaintenancePage {
-    assertThat(el("#serviceName").text()).isEqualTo("Manage user accounts")
-    assertThat(el("#serviceDescription").text()).isEmpty()
-    assertThat(el("#serviceAuthorisedRoles").text()).isEqualTo("AUTH_GROUP_MANAGER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS")
-    assertThat(el("#serviceUrl").text()).isEqualTo("http://localhost:3001/")
-    assertThat(el("#serviceEmail").text()).isEmpty()
-    assertThat(el("#serviceEnabled").text()).isEqualTo("Yes")
+  fun checkServiceDetails(
+    name: String = "service add test client",
+    description: String = "test client",
+    authorisedRoles: String = "SOME THING",
+    url: String = "service-deployment",
+    email: String = "some@email.com",
+    enabled: String = "Yes",
+  ): ClientMaintenancePage {
+    assertThat(el("#serviceName").text()).isEqualTo(name)
+    assertThat(el("#serviceDescription").text()).isEqualTo(description)
+    assertThat(el("#serviceAuthorisedRoles").text()).isEqualTo(authorisedRoles)
+    assertThat(el("#serviceUrl").text()).isEqualTo(url)
+    assertThat(el("#serviceEmail").text()).isEqualTo(email)
+    assertThat(el("#serviceEnabled").text()).isEqualTo(enabled)
     return this
   }
 
@@ -614,6 +628,10 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
 
   fun deploymentChange() {
     el("#deploymentChange").click()
+  }
+
+  fun serviceChange() {
+    el("#serviceChange").click()
   }
 
   fun generateClientSecret(client: String) {

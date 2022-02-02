@@ -170,17 +170,24 @@
         </dd>
       </div>
     </dl>
-
-    <div class="govuk-form-group" th:if="${#lists.contains(clientDetails.authorizedGrantTypes, 'authorization_code') }">
+  </div>
+  <div class="govuk-form-group" th:if="${#lists.contains(clientDetails.authorizedGrantTypes, 'authorization_code') }">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-m">Service details</h2>
       </div>
-<!--      <div class="govuk-grid-column-one-third">-->
-<!--        <a class="govuk-link govuk-link&#45;&#45;no-visited-state" id="serviceChange" name="serviceChange"-->
-<!--           th:href="@{/ui/services/form?code=__${clients[0].id}__}">Change service details</a>-->
-<!--      </div>-->
+      <div class="govuk-grid-column-one-third">
+        <a class="govuk-link govuk-link--no-visited-state" id="serviceChange" name="serviceChange"
+           th:if="${#strings.isEmpty(service.name) == true}"
+           th:href="@{/ui/services/form?code=__${clients[0].id}__&newService=true&fromClient=true}">Add service
+          details</a>
+        <a class="govuk-link govuk-link--no-visited-state" id="serviceChange" name="serviceChange"
+           th:if="${#strings.isEmpty(service.name) == false}"
+           th:href="@{/ui/services/form?code=__${clients[0].id}__&newService=false&fromClient=true}">Change service
+          details</a>
+      </div>
     </div>
+
     <dl class="govuk-summary-list">
 
       <div class="govuk-summary-list__row">
@@ -238,7 +245,6 @@
         </dd>
       </div>
     </dl>
-  </div>
   </div>
 
   <form th:with="clientType=${param.client != null} ? 'edit' : 'add'" th:action="@{'/ui/clients/'+ ${clientType}}"
