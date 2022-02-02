@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.11
-  browser-tools: circleci/browser-tools@1.2.1
+  hmpps: ministryofjustice/hmpps@3.12
+  browser-tools: circleci/browser-tools@1.2.4
 
 jobs:
   validate:
@@ -118,6 +118,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_stage
           env: "stage"
+          helm_dir: "helm_deploy_cp"
           context:
             - hmpps-common-vars
             - hmpps-auth-stage

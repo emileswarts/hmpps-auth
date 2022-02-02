@@ -1,0 +1,92 @@
+---
+# Values here are the same across all environments
+generic-service:
+  nameOverride: hmpps-auth
+
+  image:
+    repository: quay.io/hmpps/hmpps-auth
+    tag: app_version    # override at deployment time
+    port: 8080
+
+  ingress:
+    enabled: true
+    host: app-hostname.local    # override per environment
+    tlsSecretName: hmpps-auth-cert
+    path: /
+    contextColour: green
+
+  livenessProbe:
+    httpGet:
+      path: /auth/health/liveness
+    periodSeconds: 30
+    initialDelaySeconds: 90
+    timeoutSeconds: 20
+    failureThreshold: 10
+
+  readinessProbe:
+    httpGet:
+      path: /auth/health/readiness
+    periodSeconds: 20
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 15
+
+  env:
+    JAVA_OPTS: "-Xmx512m"
+    SERVER_PORT: "8080"
+    APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
+    JWT_COOKIE_EXPIRY_TIME: "12h"
+    APPLICATION_SMOKETEST_ENABLED: "false"
+    SPRING_JPA_HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQL10Dialect"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}?sslmode=verify-full"
+    DELIUS_ROLES_MAPPINGS_CTRBT001: "ROLE_PF_STD_PROBATION,ROLE_GLOBAL_SEARCH"
+    DELIUS_ROLES_MAPPINGS_CTRBT002: "ROLE_PF_APPROVAL"
+    DELIUS_ROLES_MAPPINGS_CTRBT003: "ROLE_PF_NATIONAL_READER"
+    DELIUS_ROLES_MAPPINGS_CTRBT004: "ROLE_PF_HQ"
+    DELIUS_ROLES_MAPPINGS_CWBT200: "ROLE_PREPARE_A_CASE"
+    DELIUS_ROLES_MAPPINGS_LHDCBT001: "ROLE_LICENCE_RO,ROLE_LICENCE_RO_READ_ONLY,ROLE_GLOBAL_SEARCH"
+    DELIUS_ROLES_MAPPINGS_LHDCBT002: "ROLE_LICENCE_RO,ROLE_GLOBAL_SEARCH"
+    DELIUS_ROLES_MAPPINGS_LHDCBT003: "ROLE_LICENCE_RO,ROLE_LICENCE_VARY,ROLE_GLOBAL_SEARCH"
+    DELIUS_ROLES_MAPPINGS_SOCBT001: "ROLE_SOC_COMMUNITY"
+    DELIUS_ROLES_MAPPINGS_MAWBT001: "ROLE_WORKLOAD_MEASUREMENT"
+    DELIUS_ROLES_MAPPINGS_MAABT001: "ROLE_MANAGE_A_WORKFORCE_ALLOCATE"
+    DELIUS_ROLES_MAPPINGS_MASBT001: "ROLE_MANAGE_SUPERVISIONS_RO"
+    DELIUS_ROLES_MAPPINGS_MASBT002: "ROLE_MANAGE_SUPERVISIONS_RO,ROLE_MANAGE_SUPERVISIONS"
+    APPLICATION_AUTHENTICATION_MFA_ROLES: "ROLE_MFA,ROLE_PECS_COURT,ROLE_PECS_SUPPLIER"
+
+  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
+  # namespace_secrets:
+  #   [name of kubernetes secret]:
+  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
+
+  namespace_secrets:
+    hmpps-auth:
+      APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
+      APPLICATION_GOOGLE_TAG_ID: "APPLICATION_GOOGLE_TAG_ID"
+      APPLICATION_NOTIFY_KEY: "APPLICATION_NOTIFY_KEY"
+      DELIUS_CLIENT_CLIENT_ID: "DELIUS_CLIENT_CLIENT_ID"
+      DELIUS_CLIENT_CLIENT_SECRET: "DELIUS_CLIENT_CLIENT_SECRET"
+      NOMIS_CLIENT_CLIENT_ID: "NOMIS_CLIENT_CLIENT_ID"
+      NOMIS_CLIENT_CLIENT_SECRET: "NOMIS_CLIENT_CLIENT_SECRET"
+      JWT_KEYSTORE_PASSWORD: "JWT_KEYSTORE_PASSWORD"
+      JWT_SIGNING_KEY_PAIR: "JWT_SIGNING_KEY_PAIR"
+      TOKENVERIFICATION_CLIENT_CLIENT_ID: "TOKENVERIFICATION_CLIENT_CLIENT_ID"
+      TOKENVERIFICATION_CLIENT_CLIENT_SECRET: "TOKENVERIFICATION_CLIENT_CLIENT_SECRET"
+      AUTH_AZUREOIDC_CLIENT_ID: "AUTH_AZUREOIDC_CLIENT_ID"
+      AUTH_AZUREOIDC_CLIENT_SECRET: "AUTH_AZUREOIDC_CLIENT_SECRET"
+      AUTH_AZUREOIDC_TENANT_ID: "AUTH_AZUREOIDC_TENANT_ID"
+
+    dps-rds-instance-output:
+      SPRING_DATASOURCE_NAME: "database_name"
+      SPRING_DATASOURCE_ENDPOINT: "rds_instance_endpoint"
+      SPRING_DATASOURCE_USERNAME: "database_username"
+      SPRING_DATASOURCE_PASSWORD: "database_password"
+
+  env_comma_joined_from_list:
+    APPLICATION_AUTHENTICATION_UI_ALLOWLIST:
+      mojvpn: "81.134.202.29"
+      office: "217.33.148.210"
+
+generic-prometheus-alerts:
+  targetApplication: hmpps-auth
