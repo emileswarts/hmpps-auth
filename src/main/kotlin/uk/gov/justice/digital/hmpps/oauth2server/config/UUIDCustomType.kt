@@ -19,7 +19,7 @@ class UUIDCustomType : AbstractSingleColumnStandardBasicType<UUID>(SQL_DESCRIPTO
     private val log = LoggerFactory.getLogger(UUIDCustomType::class.java)
     private val SQL_DESCRIPTOR: SqlTypeDescriptor
       get() {
-        val hibernateDialect: String? = System.getenv("spring.jpa.hibernate.dialect")
+        val hibernateDialect: String? = System.getenv("SPRING_JPA_HIBERNATE_DIALECT")
         if (hibernateDialect == "org.hibernate.dialect.PostgreSQL10Dialect") {
           log.info("Database dialect is Postgres so using pg-uuid type for User.id")
           return PostgresUUIDType.PostgresUUIDSqlTypeDescriptor.INSTANCE
