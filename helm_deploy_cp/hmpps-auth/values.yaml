@@ -17,7 +17,6 @@ generic-service:
     modsecurity_enabled: true  # enable OWASP core rules then handle false positives by removing or tweaking rules to not block specific args or cookies
     modsecurity_audit_enabled: false
     modsecurity_snippet: |
-      Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
       SecRuleEngine On
       SecRuleRemoveById 920320
       SecRuleRemoveById 920300
