@@ -95,7 +95,7 @@ Steps are:
 ```
 docker stop sql1 && docker rm sql1 && docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrong!Passw0rd' -p 1433:1433 --name sql1 -d mcr.microsoft.com/mssql/server:2017-latest
 ```
-* Within Intellij set the active profile to `dev` and override the following parameters
+* Within Intellij set the active profile to `dev, auth-seed-postgres` and override the following parameters
 ```
 spring.datasource.url=jdbc:sqlserver://localhost\sql1:1433
 spring.datasource.username=sa

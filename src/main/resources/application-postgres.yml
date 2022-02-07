@@ -1,3 +1,3 @@
 spring:
   flyway:
-    locations: db/auth_postgresql,db/dev/data/auth-postgresql
+    locations: db/auth_postgresql
