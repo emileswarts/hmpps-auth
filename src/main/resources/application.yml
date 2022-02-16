@@ -47,6 +47,10 @@ spring:
 
   thymeleaf.render-hidden-markers-before-checkboxes: true
 
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
 auth:
   endpoint.url: http://localhost:${server.port:8080}/auth
   token.url: ${auth.endpoint.url}/oauth/token

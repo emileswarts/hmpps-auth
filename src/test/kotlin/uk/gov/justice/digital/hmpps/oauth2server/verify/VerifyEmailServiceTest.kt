@@ -99,7 +99,7 @@ class VerifyEmailServiceTest {
         "url",
         User.EmailType.PRIMARY
       )
-      assertThat(user.tokens).hasSize(1).extracting<String> { it.token }.containsExactly(existingUserToken.token)
+      assertThat(user.tokens).extracting<String> { it.token }.containsExactly(existingUserToken.token)
     }
 
     @Test
@@ -116,7 +116,7 @@ class VerifyEmailServiceTest {
         "url",
         User.EmailType.SECONDARY
       )
-      assertThat(user.tokens).hasSize(1).extracting<String> { it.token }.containsExactly(existingUserToken.token)
+      assertThat(user.tokens).extracting<String> { it.token }.containsExactly(existingUserToken.token)
     }
 
     @Test

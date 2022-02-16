@@ -12,7 +12,7 @@ class SavedRequestCookieHelper(properties: SavedRequestCookieConfigurationProper
 
   fun removeCookie(request: HttpServletRequest, response: HttpServletResponse) {
     val removeSavedRequestCookie = Cookie(name, "")
-    removeSavedRequestCookie.path = request.contextPath + "/"
+    removeSavedRequestCookie.path = request.contextPath
     removeSavedRequestCookie.maxAge = 0
     removeSavedRequestCookie.secure = request.isSecure
     removeSavedRequestCookie.isHttpOnly = true

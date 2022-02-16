@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.16"
-  kotlin("plugin.spring") version "1.5.31"
-  kotlin("plugin.jpa") version "1.5.31"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
+  kotlin("plugin.spring") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.10"
 }
 
 dependencyCheck {
@@ -10,15 +10,12 @@ dependencyCheck {
 
 // added specifically due to thymeleaf@3.0.12.RELEASE and CVE-2021-43466 - remove when update included in spring-boot
 ext["thymeleaf.version"] = "3.0.13.RELEASE"
-ext["log4j2.version"] = "2.17.1"
-ext["netty.version"] = "4.1.72.Final"
-ext["logback.version"] = "1.2.10"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   implementation("org.springframework.security:spring-security-jwt:1.1.1.RELEASE")
-  implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+  implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
 
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("io.jsonwebtoken:jjwt:0.9.1")
@@ -38,7 +35,8 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
-  implementation("io.swagger:swagger-core:1.6.2")
+  implementation("io.swagger:swagger-core:1.6.5")
+  implementation("io.swagger.core.v3:swagger-core:2.1.13")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
@@ -53,7 +51,7 @@ dependencies {
   runtimeOnly("com.h2database:h2:1.4.200")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.12.0.0")
-  runtimeOnly("org.postgresql:postgresql:42.3.0")
+  runtimeOnly("org.postgresql:postgresql:42.3.2")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -64,13 +62,13 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.slf4j:slf4j-api:1.7.32")
-  testImplementation("com.auth0:java-jwt:3.18.2")
+  testImplementation("org.slf4j:slf4j-api:1.7.36")
+  testImplementation("com.auth0:java-jwt:3.18.3")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v2-converter:2.0.27")
+  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.30")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 

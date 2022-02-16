@@ -13,7 +13,7 @@ open class CookieHelper(protected val name: String, private val expiryTime: Dura
     val sessionCookie = Cookie(name, value)
 
     // path has to match exactly the path defined in spring's CookieClearingLogoutHandler
-    sessionCookie.path = request.contextPath + "/"
+    sessionCookie.path = request.contextPath
 
     // expiry time of 0 means that cookie never expires
     if (expiryTime.toSeconds() != 0L) {

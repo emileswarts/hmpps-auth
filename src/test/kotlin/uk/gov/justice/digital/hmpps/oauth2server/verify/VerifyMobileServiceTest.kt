@@ -72,7 +72,7 @@ class VerifyMobileServiceTest {
     val existingUserToken = user.createToken(TokenType.MOBILE)
     whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
     verifyMobileService.changeMobileAndRequestVerification("user", "07700900321")
-    assertThat(user.tokens).hasSize(1).extracting<String> { it.token }.containsExactly(existingUserToken.token)
+    assertThat(user.tokens).extracting<String> { it.token }.containsExactly(existingUserToken.token)
   }
 
   @Test
