@@ -28,6 +28,7 @@ class DuplicateClientController(
 
   @GetMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
+  @ApiIgnore
   // @ApiOperation(
   //   value = "get Client",
   //   nickname = "GetClient"
@@ -49,6 +50,7 @@ class DuplicateClientController(
 
   @PutMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
+  @ApiIgnore
   // @ApiOperation(
   //   value = "Duplicate Client",
   //   nickname = "DuplicateClient",
@@ -75,6 +77,7 @@ class DuplicateClientController(
 
   @DeleteMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
+  @ApiIgnore
   // @ApiOperation(
   //   value = "Delete Client",
   //   nickname = "Delete"
@@ -99,6 +102,7 @@ class DuplicateClientController(
 }
 
 // @ApiModel(description = "Duplicate Client Details")
+@ApiIgnore
 data class DuplicateClientDetail(
   // @ApiModelProperty(required = true, value = "Client ID", example = "SERVICE-NAME-CLIENT")
   val clientId: String,
