@@ -1,7 +1,11 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.5-beta"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
+}
+
+configurations {
+  testImplementation { exclude(group = "org.junit.vintage") }
 }
 
 dependencyCheck {
@@ -28,8 +32,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:2.3.3")
-  implementation("com.sun.xml.bind:jaxb-core:2.3.0.1")
+  implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
+  implementation("com.sun.xml.bind:jaxb-core:3.0.2")
   implementation("javax.activation:activation:1.1.1")
 
   implementation("javax.transaction:javax.transaction-api:1.3")
@@ -51,7 +55,7 @@ dependencies {
   runtimeOnly("com.h2database:h2:1.4.200")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.12.0.0")
-  runtimeOnly("org.postgresql:postgresql:42.3.2")
+  runtimeOnly("org.postgresql:postgresql:42.3.3")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -65,7 +69,7 @@ dependencies {
   testImplementation("org.slf4j:slf4j-api:1.7.36")
   testImplementation("com.auth0:java-jwt:3.18.3")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.31.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
   testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.30")
@@ -73,14 +77,14 @@ dependencies {
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+  toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
       freeCompilerArgs = listOf("-Xjvm-default=all")
-      jvmTarget = "16"
+      jvmTarget = "17"
     }
   }
   test {
