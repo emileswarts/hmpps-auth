@@ -17,6 +17,7 @@ mfa_allowlist:
   global_protect_vpn: "35.176.93.186/32"
 
 env:
+  JAVA_OPTS: "-Xmx768m"
   SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc"
   APPLICATION_SIGNIN_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/"
   APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"

@@ -50,6 +50,7 @@ mfa_allowlist:
 
 
 env:
+  JAVA_OPTS: "-Xmx768m"
   SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc"
   APPLICATION_SIGNIN_URL: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/"
   APPLICATION_SUPPORT_URL: "https://support-preprod.hmpps.service.justice.gov.uk/feedback-and-support"

@@ -4,6 +4,9 @@ Environment variables for web and worker containers
 */}}
 {{- define "deployment.envs" }}
 env:
+  - name: JAVA_OPTS
+    value: {{ .Values.env.JAVA_OPTS | quote }}
+
   - name: APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS
     value: {{ .Values.env.APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS | quote }}
 
