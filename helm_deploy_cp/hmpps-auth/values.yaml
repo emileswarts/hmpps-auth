@@ -75,13 +75,13 @@ generic-service:
     timeoutSeconds: 30
     failureThreshold: 15
 
-    resources:
-      requests:
-        cpu: 100m
-        memory: 640Mi
-      limits:
-        cpu: 2000m
-        memory: 1536Mi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 640Mi
+    limits:
+      cpu: 2000m
+      memory: 1536Mi
 
   env:
     JAVA_OPTS: "-Xmx768m"
