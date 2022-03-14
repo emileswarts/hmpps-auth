@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthorityPropertyEditor
@@ -52,10 +53,12 @@ class ClientsController(
       val baseClientId = ClientService.baseClientId(clientId)
       val (clientDetails, clients) = clientService.loadClientWithCopies(baseClientId)
       val clientDeployment = clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
+      val clientAllowedIps = clientService.loadClientAllowedIps(baseClientId) ?: ClientAllowedIps(baseClientId = baseClientId)
       val serviceDetails = authServicesService.loadServiceDetails(baseClientId) ?: Service(code = baseClientId, name = "", description = "", url = "")
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
+        .addObject("allowedIps", clientAllowedIps)
         .addObject("baseClientId", baseClientId)
         .addObject("service", serviceDetails)
     } else {
@@ -113,12 +116,14 @@ class ClientsController(
   fun editClient(
     authentication: Authentication,
     @ModelAttribute clientDetails: AuthClientDetails,
+    @ModelAttribute clientAllowedIps: ClientAllowedIps,
     @RequestParam(value = "newClient", required = false) newClient: String?,
   ): ModelAndView {
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
     clientRegistrationService.updateClientDetails(clientDetails)
+    clientService.saveClientAllowedIps(clientAllowedIps)
     telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
     clientService.findAndUpdateDuplicates(clientDetails.clientId)
 

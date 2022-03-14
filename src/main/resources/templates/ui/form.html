@@ -352,6 +352,16 @@
     </div>
 
     <div class="govuk-form-group">
+      <input type="hidden" id="baseClientId" name="baseClientId" th:value="${baseClientId}"/>
+      <label class="govuk-label" for="ips">Allowed IPs</label>
+      <span class="govuk-hint">
+          One IP address per line
+        </span>
+        <textarea class="govuk-textarea" id="ips" type="text" name="ips" rows="6"
+                  th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">allowed ip</textarea>
+    </div>
+
+    <div class="govuk-form-group">
       <div class="govuk-form-group">
         <label class="govuk-label" for="jwtFields">JWT Fields Configuration</label>
         <span class="govuk-hint">

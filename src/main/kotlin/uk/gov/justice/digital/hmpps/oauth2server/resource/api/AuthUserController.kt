@@ -439,8 +439,10 @@ class AuthUserController(
   @PostMapping("/api/authuser/email")
   @ApiOperation(
     value = "Email address for users",
-    notes = """Verified email address for users.  Post version that accepts multiple email addresses.
-        Requires ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN.""",
+    notes =
+    """Verified email address for users.  Post version that accepts multiple email addresses.
+        Requires ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN.
+    """,
     nickname = "getAuthUserEmails",
     consumes = "application/json",
     produces = "application/json"

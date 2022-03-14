@@ -567,6 +567,10 @@ VALUES ('service-client','SERVICE','A Team', 'A Team contact', 'A team slack', '
 INSERT INTO oauth_client_deployment_details (base_client_id,client_type, team, team_contact, team_slack, hosting)
 VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob slack', 'OTHER');
 
+INSERT INTO oauth_client_allowed_ips (base_client_id, allowed_ips)
+VALUES ('another-test-client', '127.0.0.1'),
+       ('service-client', '127.0.0.1');
+
 update roles set role_description = 'Allow user to search globally for a user' where role_code = 'GLOBAL_SEARCH';
 update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';
 

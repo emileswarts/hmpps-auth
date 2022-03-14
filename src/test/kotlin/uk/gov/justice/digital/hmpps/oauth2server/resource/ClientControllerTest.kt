@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
@@ -39,7 +40,8 @@ class ClientControllerTest {
   private val clientRegistrationService: ClientRegistrationService = mock()
   private val clientService: ClientService = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val controller = ClientsController(authServiceServices, clientRegistrationService, clientService, telemetryClient)
+  private val controller =
+    ClientsController(authServiceServices, clientRegistrationService, clientService, telemetryClient)
   private val authentication = TestingAuthenticationToken(
     UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId"),
     "pass"
@@ -64,6 +66,9 @@ class ClientControllerTest {
       whenever(clientService.loadClientDeploymentDetails(anyString())).thenReturn(
         ClientDeployment(baseClientId = "client-id")
       )
+      whenever(clientService.loadClientAllowedIps(anyString())).thenReturn(
+        ClientAllowedIps(baseClientId = "client-id", ips = listOf("127.0.0.1"))
+      )
       val modelAndView = controller.showEditForm("client-id")
 
       assertThat(modelAndView.viewName).isEqualTo("ui/form")
@@ -72,6 +77,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
+      assertThat(modelAndView.model["allowedIps"] as ClientAllowedIps).isNotNull
       assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
@@ -139,8 +145,10 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update existing client`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val modelAndView = controller.editClient(authentication, authClientDetails, null)
+      val clientAllowedIps = ClientAllowedIps("client", listOf("127.0.0.1"))
+      val modelAndView = controller.editClient(authentication, authClientDetails, clientAllowedIps, null)
       verify(clientRegistrationService).updateClientDetails(authClientDetails)
+      verify(clientService).saveClientAllowedIps(clientAllowedIps)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsUpdate",
         mapOf("username" to "user", "clientId" to "client"),
@@ -152,10 +160,13 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update client throws NoSuchClientException`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
+      val clientAllowedIps = ClientAllowedIps("client", listOf("127.0.0.1"))
       val exception = NoSuchClientException("No client found with id = ")
       doThrow(exception).whenever(clientRegistrationService).updateClientDetails(authClientDetails)
 
-      assertThatThrownBy { controller.editClient(authentication, authClientDetails, null) }.isEqualTo(exception)
+      assertThatThrownBy { controller.editClient(authentication, authClientDetails, clientAllowedIps, null) }.isEqualTo(
+        exception
+      )
 
       verifyNoInteractions(telemetryClient)
     }
@@ -226,6 +237,7 @@ class ClientControllerTest {
     @Test
     fun `delete Client Request view`() {
       val view = controller.deleteClient(authentication, "client")
+      verify(clientService).removeClient("client")
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsDeleted",
         mapOf("username" to "user", "clientId" to "client"),
@@ -313,7 +325,11 @@ class ClientControllerTest {
       authClientDetails.authoritiesWithNewlines = "joe ROLE_fred\n\n  harry "
       assertThat(authClientDetails.authoritiesWithNewlines).isEqualTo("JOE\nFRED\nHARRY")
       assertThat(authClientDetails.authorities).isEqualTo(
-        listOf(SimpleGrantedAuthority("ROLE_JOE"), SimpleGrantedAuthority("ROLE_FRED"), SimpleGrantedAuthority("ROLE_HARRY"))
+        listOf(
+          SimpleGrantedAuthority("ROLE_JOE"),
+          SimpleGrantedAuthority("ROLE_FRED"),
+          SimpleGrantedAuthority("ROLE_HARRY")
+        )
       )
     }
 

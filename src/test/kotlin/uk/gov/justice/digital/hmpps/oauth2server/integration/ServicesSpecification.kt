@@ -50,12 +50,12 @@ class ServicesSpecification : AbstractAuthSpecification() {
         service = "HDC",
         text =
         """
-      Home Detention Curfew 
-      Service for HDC Licences Creation and Approval 
-      [ROLE_BOB, ROLE_JOE] 
-      http://localhost:3003 / hdcdigitalservice@digital.justice.gov.uk 
-      false Edit
-      """
+        Home Detention Curfew 
+        Service for HDC Licences Creation and Approval 
+        [ROLE_BOB, ROLE_JOE] 
+        http://localhost:3003 / hdcdigitalservice@digital.justice.gov.uk 
+        false Edit
+        """
       )
       .editService()
 
@@ -101,13 +101,13 @@ class ServicesSpecification : AbstractAuthSpecification() {
         service = "NEW",
         text =
         """
-      A new service 
-      With a description 
-      [ROLE_SOME, ROLE_THING] 
-      http://a_url:3003 / no email set 
-      false 
-      Edit
-      """
+        A new service 
+        With a description 
+        [ROLE_SOME, ROLE_THING] 
+        http://a_url:3003 / no email set 
+        false 
+        Edit
+        """
       )
 
     // now remove so test is re-runnable
@@ -134,7 +134,7 @@ class ServicesSummaryPage :
       https://moic.service.justice.gov.uk / https://moic.service.justice.gov.uk/help 
       true 
       Edit
- """,
+      """,
   ): ServicesSummaryPage {
     assertThat(rows).hasSizeGreaterThan(10)
     assertThat(el("tr[data-qa='$service']").text()).isEqualTo(text.replaceIndent().replace("\n", ""))

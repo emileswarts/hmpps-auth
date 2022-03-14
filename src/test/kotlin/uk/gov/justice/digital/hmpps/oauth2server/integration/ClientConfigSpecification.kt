@@ -46,6 +46,15 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `I can edit a client credential with allowed Ips`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+
+    goTo(clientSummaryPage).editClient("another-test-client")
+    clientMaintenancePage.isAtPage()
+    assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
+  }
+
+  @Test
   fun `I can edit a client credential with extra jwt field`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
 
@@ -105,6 +114,17 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `I can edit a client credential and set the allowed ips field`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+    goTo(clientSummaryPage).editClient("v1-client")
+    clientMaintenancePage.isAtPage()
+      .edit("ips", "127.0.0.1")
+      .save()
+    clientSummaryPage.isAtPage().editClient("v1-client")
+    assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
+  }
+
+  @Test
   fun `I can edit a client credential as an auth user`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -122,6 +142,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       .edit("registeredRedirectUri", "http://a_url:3003")
       .edit("accessTokenValiditySeconds", "1234")
       .edit("scopes", "read,bob")
+      .edit("ips", "127.0.0.1")
       .save()
     clientSummaryPage.isAtPage()
     goTo(clientSummaryPage).editClient("rotation-test-client-1")
@@ -130,12 +151,14 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       assertThat(el("#registeredRedirectUri").value()).isEqualTo("http://a_url:3003")
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
+      assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
     }
     goTo("/ui/clients/form?client=rotation-test-client-2")
     with(clientMaintenancePage) {
       assertThat(el("#registeredRedirectUri").value()).isEqualTo("http://a_url:3003")
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
+      assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
     }
   }
 
@@ -179,6 +202,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       .selectCheckboxOption("client_credentials")
       .edit("jwtFields", "-name")
       .edit("jiraNo", "DT-2264")
+      .edit("ips", "127.0.0.1")
       .selectCheckboxOption("mfa-3")
       .save()
     clientCreatedSuccessPage.isAtPage()
@@ -194,7 +218,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
           new-client 
           client_credentials 
           BOB FRED 
-      """
+        """
       )
 
     // now remove so test is re-runnable
@@ -216,6 +240,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       .edit("scopes", "read")
       .edit("authorities", "  BOB\n\n, role_fred \n")
       .selectCheckboxOption("client_credentials")
+      .edit("ips", "127.0.0.1")
       .edit("jwtFields", "-name")
       .selectCheckboxOption("mfa-3")
       .save()
@@ -232,7 +257,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
           new-client 
           client_credentials 
           BOB FRED 
-      """
+        """
       )
 
     // now remove so test is re-runnable
@@ -317,12 +342,13 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
-  fun `Client deployment detail are not deleted when duplicate client is delete but duplicated exist`() {
+  fun `Client deployment detail and allowed ips are not deleted when duplicate client is delete but duplicated exist`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
     goTo(clientSummaryPage).editClient("service-client")
     clientMaintenancePage.isAtPage()
       .checkDeploymentDetailsCloudPlatform()
+      .checkAllowedIps()
       .duplicate()
 
     goTo("/ui/clients/service-client-1/delete")
@@ -330,15 +356,17 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
     goTo(clientSummaryPage).editClient("service-client")
     clientMaintenancePage.isAtPage()
       .checkDeploymentDetailsCloudPlatform()
+      .checkAllowedIps()
   }
 
   @Test
-  fun `Client deployment detail are not deleted when original client is delete but duplicated exist`() {
+  fun `Client deployment detail and allowed ips  are not deleted when original client is delete but duplicated exist`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
     goTo(clientSummaryPage).editClient("service-client")
     clientMaintenancePage.isAtPage()
       .checkDeploymentDetailsCloudPlatform()
+      .checkAllowedIps()
       .duplicate()
 
     goTo("/ui/clients/service-client/delete")
@@ -346,6 +374,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
     goTo(clientSummaryPage).editClient("service-client")
     clientMaintenancePage.isAtPage()
       .checkDeploymentDetailsCloudPlatform()
+      .checkAllowedIps()
   }
 
   @Test
@@ -470,7 +499,8 @@ class ClientSummaryPage : AuthPage<ClientSummaryPage>(
       """
       apireporting 
       client_credentials 
-      REPORTING""",
+      REPORTING
+      """,
     rowsMin: Int = 10,
     rowsMax: Int = 200,
   ): ClientSummaryPage {
@@ -552,6 +582,11 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
     assertThat(el("#secretName").text()).isEqualTo("service-secret")
     assertThat(el("#clientIdKey").text()).isEqualTo("API_CLIENT_ID")
     assertThat(el("#secretKey").text()).isEqualTo("API_CLIENT_SECRET")
+    return this
+  }
+
+  fun checkAllowedIps(): ClientMaintenancePage {
+    assertThat(el("#ips").text()).isEqualTo("127.0.0.1")
     return this
   }
 
