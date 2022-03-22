@@ -355,9 +355,9 @@
       <input type="hidden" id="baseClientId" name="baseClientId" th:value="${baseClientId}"/>
       <label class="govuk-label" for="ips">Allowed IPs</label>
       <span class="govuk-hint">
-          One IP address per line
+          One IP address per line (CIDR notation allowed - 127.0.0.0/24)
         </span>
-        <textarea class="govuk-textarea" id="ips" type="text" name="ips" rows="6"
+        <textarea class="govuk-textarea" id="ips" type="text" name="allowedIpsWithNewlines" rows="6"
                   th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">allowed ip</textarea>
     </div>
 

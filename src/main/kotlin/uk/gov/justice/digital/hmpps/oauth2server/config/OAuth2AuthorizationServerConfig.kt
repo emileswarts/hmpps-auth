@@ -40,7 +40,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory
 import org.springframework.web.client.RestTemplate
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserContextApprovalHandler
 import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
@@ -68,6 +70,8 @@ class OAuth2AuthorizationServerConfig(
   private val userContextService: UserContextService,
   private val mfaClientNetworkService: MfaClientNetworkService,
   private val clientRepository: ClientRepository,
+  private val authIpSecurity: AuthIpSecurity,
+  private val clientAllowedIpsRepository: ClientAllowedIpsRepository,
   private val authServicesService: AuthServicesService,
   @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) : AuthorizationServerConfigurerAdapter() {
@@ -167,7 +171,7 @@ class OAuth2AuthorizationServerConfig(
   @Primary
   fun tokenServices(): DefaultTokenServices {
     val tokenServices =
-      TrackingTokenServices(telemetryClient, restTemplate, clientRepository, tokenVerificationClientCredentials, tokenVerificationEnabled)
+      TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientAllowedIpsRepository, tokenVerificationClientCredentials, tokenVerificationEnabled)
     tokenServices.setTokenEnhancer(tokenEnhancerChain())
     tokenServices.setTokenStore(tokenStore())
     tokenServices.setReuseRefreshToken(true)

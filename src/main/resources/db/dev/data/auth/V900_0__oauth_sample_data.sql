@@ -569,7 +569,10 @@ VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob
 
 INSERT INTO oauth_client_allowed_ips (base_client_id, allowed_ips)
 VALUES ('another-test-client', '127.0.0.1'),
-       ('service-client', '127.0.0.1');
+       ('service-client', '127.0.0.1'),
+       ('max-duplicate-client', '127.0.0.1/32'),
+       ('max-duplicate-client-1', '35.176.93.186'),
+       ('max-duplicate-client-2', '35.176.0.0/16');
 
 update roles set role_description = 'Allow user to search globally for a user' where role_code = 'GLOBAL_SEARCH';
 update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';

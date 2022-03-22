@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.web.util.matcher.IpAddressMatcher
 import org.springframework.stereotype.Component
+import uk.gov.justice.digital.hmpps.oauth2server.config.AllowedIpException
 import uk.gov.justice.digital.hmpps.oauth2server.utils.IpAddressHelper.retrieveIpFromRemoteAddr
 import javax.servlet.http.HttpServletRequest
 
@@ -18,6 +19,16 @@ class AuthIpSecurity(@Value("\${application.authentication.ui.allowlist}") priva
     val matchIp = allowlist.any { ip: String? -> IpAddressMatcher(ip).matches(remoteIp) }
     if (!matchIp) {
       log.warn("Client IP {}, is not in allowlist {}", remoteIp, allowlist)
+    }
+    return matchIp
+  }
+
+  @Throws(AllowedIpException::class)
+  fun validateClientIpAllowed(remoteIp: String?, clientAllowList: List<String>): Boolean {
+    val matchIp = clientAllowList.any { ip: String? -> IpAddressMatcher(ip).matches(remoteIp) }
+    if (!matchIp) {
+      log.warn("Client IP {}, is not in client allowlist {}", remoteIp, clientAllowList)
+      throw AllowedIpException()
     }
     return matchIp
   }

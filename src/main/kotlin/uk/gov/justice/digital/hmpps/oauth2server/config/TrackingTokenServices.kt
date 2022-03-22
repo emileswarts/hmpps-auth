@@ -6,20 +6,25 @@ import com.microsoft.applicationinsights.TelemetryClient
 import com.nimbusds.jwt.JWTParser
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException
 import org.springframework.security.oauth2.common.OAuth2AccessToken
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.TokenRequest
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.utils.IpAddressHelper
 
 open class TrackingTokenServices(
+  private val authIpSecurity: AuthIpSecurity,
   private val telemetryClient: TelemetryClient,
   private val restTemplate: RestTemplate,
   private val clientRepository: ClientRepository,
+  private val clientAllowedIpsRepository: ClientAllowedIpsRepository,
   private val tokenVerificationClientCredentials: TokenVerificationClientCredentials,
   private val tokenVerificationEnabled: Boolean,
 ) : DefaultTokenServices() {
@@ -30,15 +35,22 @@ open class TrackingTokenServices(
 
   @Transactional
   override fun createAccessToken(authentication: OAuth2Authentication): OAuth2AccessToken {
+    val clientId = authentication.oAuth2Request.clientId
+    val allowedIps = clientAllowedIpsRepository.findByIdOrNull(clientId)?.ips
+    val clientIpAddress = IpAddressHelper.retrieveIpFromRequest()
+
+    if (!allowedIps.isNullOrEmpty()) {
+      authIpSecurity.validateClientIpAllowed(clientIpAddress, allowedIps)
+    }
+
     val token = super.createAccessToken(authentication)
     val username = retrieveUsernameFromToken(token)
-    val clientId = authentication.oAuth2Request.clientId
 
     val name = if (authentication.isClientOnly) "CreateSystemAccessToken" else "CreateAccessToken"
     telemetryClient.trackEvent(
       name,
       mapOf(
-        "username" to username, "clientId" to clientId, "clientIpAddress" to IpAddressHelper.retrieveIpFromRequest()
+        "username" to username, "clientId" to clientId, "clientIpAddress" to clientIpAddress
       ),
       null
     )
@@ -104,3 +116,5 @@ open class TrackingTokenServices(
     return if (username.isNullOrEmpty()) "none" else username
   }
 }
+
+class AllowedIpException : OAuth2AccessDeniedException("Unable to issue token as request is not from ip within allowed list")

@@ -3,6 +3,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
 import com.microsoft.applicationinsights.TelemetryClient
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -30,7 +32,10 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.JwtAuthHelper
@@ -39,17 +44,20 @@ import java.time.LocalDateTime
 import java.util.Optional
 
 internal class TrackingTokenServicesTest {
+
+  private val authIpSecurity: AuthIpSecurity = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val tokenStore: TokenStore = mock()
   private val clientDetailsService: ClientDetailsService = mock()
   private val userService: UserService = mock()
   private val clientRepository: ClientRepository = mock()
+  private val clientAllowedIpsRepository: ClientAllowedIpsRepository = mock()
   private val restTemplate: RestTemplate = mock()
   private val tokenVerificationClientCredentials = TokenVerificationClientCredentials()
   private val tokenServices =
-    TrackingTokenServices(telemetryClient, restTemplate, clientRepository, tokenVerificationClientCredentials, true)
+    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientAllowedIpsRepository, tokenVerificationClientCredentials, true)
   private val tokenServicesVerificationDisabled =
-    TrackingTokenServices(telemetryClient, restTemplate, clientRepository, tokenVerificationClientCredentials, false)
+    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientAllowedIpsRepository, tokenVerificationClientCredentials, false)
   private val request = MockHttpServletRequest()
 
   @BeforeEach
@@ -125,6 +133,31 @@ internal class TrackingTokenServicesTest {
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_SCOPE_REQUEST, null))
       // then assert has been updated
       assertThat(client.lastAccessed).isAfter(LocalDateTime.now().minusMinutes(5))
+    }
+
+    @Test
+    fun `createAccessToken request from allowed ip`() {
+      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(ClientAllowedIps("client", listOf("12.21.23.24"))))
+      whenever(authIpSecurity.validateClientIpAllowed(anyString(), any())).thenReturn(true)
+      whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
+      verify(telemetryClient).trackEvent(
+        "CreateAccessToken",
+        mapOf("username" to "authenticateduser", "clientId" to "client", "clientIpAddress" to "12.21.23.24"),
+        null
+      )
+    }
+
+    @Test
+    fun `createAccessToken throw error when request not from allowed IP`() {
+      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(ClientAllowedIps("client", listOf("12.21.23.24"))))
+      doThrow(AllowedIpException()).whenever(authIpSecurity).validateClientIpAllowed(anyString(), any())
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      Assertions.assertThatThrownBy { tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication)) }
+        .isInstanceOf(
+          AllowedIpException::class.java
+        ).hasMessage("Unable to issue token as request is not from ip within allowed list")
     }
   }
 
