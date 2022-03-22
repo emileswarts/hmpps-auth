@@ -138,7 +138,6 @@ internal class TrackingTokenServicesTest {
     @Test
     fun `createAccessToken request from allowed ip`() {
       whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(ClientAllowedIps("client", listOf("12.21.23.24"))))
-      whenever(authIpSecurity.validateClientIpAllowed(anyString(), any())).thenReturn(true)
       whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))

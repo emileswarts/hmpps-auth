@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -52,8 +53,9 @@ class AuthIpSecurityTest {
     @Test
     fun testStandardV4IP() {
       val testClass = AuthIpSecurity(setOf("0.0.0.0/0"))
-      val check = testClass.validateClientIpAllowed("127.0.0.1", listOf("127.0.0.1"))
-      assertThat(check).isTrue
+      assertThatCode {
+        testClass.validateClientIpAllowed("127.0.0.1", listOf("127.0.0.1"))
+      }.doesNotThrowAnyException()
     }
 
     @Test
@@ -74,7 +76,23 @@ class AuthIpSecurityTest {
     fun testIpV6Address() {
       val testClass = AuthIpSecurity(setOf("0.0.0.0/0"))
       val check = testClass.validateClientIpAllowed("0:0:0:0:0:0:0:1", listOf("0:0:0:0:0:0:0:1", "127.0.0.1/32"))
-      assertThat(check).isTrue
+      assertThatCode {
+        testClass.validateClientIpAllowed("0:0:0:0:0:0:0:1", listOf("0:0:0:0:0:0:0:1", "127.0.0.1/32"))
+      }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun testRemoteIpV6AddressNotInAllowlist() {
+      val testClass = AuthIpSecurity(setOf("0.0.0.0/0"))
+      assertThatThrownBy {
+        testClass.validateClientIpAllowed(
+          "0:0:0:0:0:0:0:1",
+          listOf("0:0:0:0:0:0:0:2", "82.34.12.10/32", "82.34.12.12/32")
+        )
+      }
+        .isInstanceOf(
+          AllowedIpException::class.java
+        ).hasMessage("Unable to issue token as request is not from ip within allowed list")
     }
   }
 }

@@ -92,7 +92,10 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('service-add-test-client','1200','{}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:3001/,http://localhost:3001/sign-in/callback'),
        ('service-edit-test-client','1200','{}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:3001/,http://localhost:3001/sign-in/callback'),
        ('prison-register-api-client','3600','{}','ROLE_AUDIT','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
-       ('book-a-prison-visit-client','3600','{}','ROLE_SYSTEM_USER,ROLE_VISIT_SCHEDULER,ROLE_PRISONER_CONTACT_REGISTRY','client_credentials','read,write','$2a$12$30bYVFItHZD5RpzwDiczdOPPgbvzHkMlb5bbX3Ev7CnlRmhaYyPsm',43200,null,'read,write',null);
+       ('book-a-prison-visit-client','3600','{}','ROLE_SYSTEM_USER,ROLE_VISIT_SCHEDULER,ROLE_PRISONER_CONTACT_REGISTRY','client_credentials','read,write','$2a$12$30bYVFItHZD5RpzwDiczdOPPgbvzHkMlb5bbX3Ev7CnlRmhaYyPsm',43200,null,'read,write',null),
+       ('ip-allow-a-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('ip-allow-b-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('ip-allow-c-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null);
 
 
 INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri, last_accessed, created, secret_updated)
@@ -570,9 +573,9 @@ VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob
 INSERT INTO oauth_client_allowed_ips (base_client_id, allowed_ips)
 VALUES ('another-test-client', '127.0.0.1'),
        ('service-client', '127.0.0.1'),
-       ('max-duplicate-client', '127.0.0.1/32'),
-       ('max-duplicate-client-1', '35.176.93.186'),
-       ('max-duplicate-client-2', '35.176.0.0/16');
+       ('ip-allow-a-client', '127.0.0.1/32'),
+       ('ip-allow-b-client', '35.176.93.186'),
+       ('ip-allow-c-client', '35.176.0.0/16');
 
 update roles set role_description = 'Allow user to search globally for a user' where role_code = 'GLOBAL_SEARCH';
 update roles set role_description = 'Enforces MFA/2FA on an individual user' where role_code = 'MFA';

@@ -24,12 +24,11 @@ class AuthIpSecurity(@Value("\${application.authentication.ui.allowlist}") priva
   }
 
   @Throws(AllowedIpException::class)
-  fun validateClientIpAllowed(remoteIp: String?, clientAllowList: List<String>): Boolean {
+  fun validateClientIpAllowed(remoteIp: String?, clientAllowList: List<String>) {
     val matchIp = clientAllowList.any { ip: String? -> IpAddressMatcher(ip).matches(remoteIp) }
     if (!matchIp) {
       log.warn("Client IP {}, is not in client allowlist {}", remoteIp, clientAllowList)
       throw AllowedIpException()
     }
-    return matchIp
   }
 }

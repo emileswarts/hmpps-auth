@@ -22,7 +22,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - localhost ip in allow list token return`() {
-    val username = "max-duplicate-client"
+    val username = "ip-allow-a-client"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -32,7 +32,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - ip in allow list token returned`() {
-    val username = "max-duplicate-client-1"
+    val username = "ip-allow-b-client"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -43,7 +43,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - localhost ip not in allow list forbidden`() {
-    val username = "max-duplicate-client-1"
+    val username = "ip-allow-b-client"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -55,7 +55,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - ip not in allow list receives forbidden`() {
-    val username = "max-duplicate-client-1"
+    val username = "ip-allow-b-client"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -68,7 +68,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - IP address using CIDR notation in allow list token returned`() {
-    val username = "max-duplicate-client-2"
+    val username = "ip-allow-c-client"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
