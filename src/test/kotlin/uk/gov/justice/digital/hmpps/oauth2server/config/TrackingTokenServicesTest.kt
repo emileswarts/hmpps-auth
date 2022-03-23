@@ -14,6 +14,7 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -86,7 +87,7 @@ internal class TrackingTokenServicesTest {
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
       verify(telemetryClient).trackEvent(
         "CreateAccessToken",
-        mapOf("username" to "authenticateduser", "clientId" to "client", "clientIpAddress" to "12.21.23.24"),
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
     }
@@ -119,7 +120,7 @@ internal class TrackingTokenServicesTest {
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, null))
       verify(telemetryClient).trackEvent(
         "CreateSystemAccessToken",
-        mapOf("username" to "client", "clientId" to "client", "clientIpAddress" to "12.21.23.24"),
+        mapOf("username" to "client-1", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
     }
@@ -143,9 +144,10 @@ internal class TrackingTokenServicesTest {
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
       verify(telemetryClient).trackEvent(
         "CreateAccessToken",
-        mapOf("username" to "authenticateduser", "clientId" to "client", "clientIpAddress" to "12.21.23.24"),
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
+      verify(clientAllowedIpsRepository, times(1)).findById("client")
     }
 
     @Test
@@ -157,6 +159,7 @@ internal class TrackingTokenServicesTest {
         .isInstanceOf(
           AllowedIpException::class.java
         ).hasMessage("Unable to issue token as request is not from ip within allowed list")
+      verify(clientAllowedIpsRepository, times(1)).findById("client")
     }
   }
 
@@ -174,10 +177,10 @@ internal class TrackingTokenServicesTest {
           UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
         )
       )
-      tokenServices.refreshAccessToken(refreshToken, TokenRequest(emptyMap(), "client", emptySet(), "refresh"))
+      tokenServices.refreshAccessToken(refreshToken, TokenRequest(emptyMap(), "client-1", emptySet(), "refresh"))
       verify(telemetryClient).trackEvent(
         "RefreshAccessToken",
-        mapOf("username" to "authenticateduser", "clientId" to "client", "clientIpAddress" to "12.21.23.24"),
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
     }
@@ -191,7 +194,7 @@ internal class TrackingTokenServicesTest {
           UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
         )
       )
-      tokenServices.refreshAccessToken(refreshToken, TokenRequest(emptyMap(), "client", emptySet(), "refresh"))
+      tokenServices.refreshAccessToken(refreshToken, TokenRequest(emptyMap(), "client-1", emptySet(), "refresh"))
       verify(restTemplate).postForLocation(
         eq("/token/refresh?accessJwtId={accessJwtId}"),
         check {
@@ -212,7 +215,7 @@ internal class TrackingTokenServicesTest {
       )
       tokenServicesVerificationDisabled.refreshAccessToken(
         refreshToken,
-        TokenRequest(emptyMap(), "client", emptySet(), "refresh")
+        TokenRequest(emptyMap(), "client-1", emptySet(), "refresh")
       )
       verifyNoInteractions(restTemplate)
     }
@@ -248,7 +251,7 @@ internal class TrackingTokenServicesTest {
 
   companion object {
     private val OAUTH_2_REQUEST =
-      OAuth2Request(emptyMap(), "client", emptySet(), true, emptySet(), emptySet(), "redirect", null, null)
+      OAuth2Request(emptyMap(), "client-1", emptySet(), true, emptySet(), emptySet(), "redirect", null, null)
     private val USER_DETAILS = UserDetailsImpl("authenticateduser", "name", emptySet(), "none", "userid", "jwtId")
     private val OAUTH_2_SCOPE_REQUEST = OAuth2Request(
       emptyMap(),

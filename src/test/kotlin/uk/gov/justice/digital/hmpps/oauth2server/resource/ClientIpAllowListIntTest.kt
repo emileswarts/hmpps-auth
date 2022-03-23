@@ -22,7 +22,7 @@ class ClientIpAllowListIntTest : IntegrationTest() {
 
   @Test
   fun `get token - localhost ip in allow list token return`() {
-    val username = "ip-allow-a-client"
+    val username = "ip-allow-a-client-1"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -31,8 +31,19 @@ class ClientIpAllowListIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `get token - ip in allow list token returned`() {
+  fun `get token - ip in allow list token returned - base client id`() {
     val username = "ip-allow-b-client"
+    val token = "clientsecret"
+    webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
+      .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
+      .header("x-forwarded-for", "35.176.93.186")
+      .exchange()
+      .expectStatus().isOk
+  }
+
+  @Test
+  fun `get token - ip in allow list token returned - incremented client id`() {
+    val username = "ip-allow-b-client-8"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
@@ -54,8 +65,21 @@ class ClientIpAllowListIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `get token - ip not in allow list receives forbidden`() {
+  fun `get token - ip not in allow list receives forbidden - base client id`() {
     val username = "ip-allow-b-client"
+    val token = "clientsecret"
+    webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
+      .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))
+      .header("x-forwarded-for", "235.177.93.186")
+      .exchange()
+      .expectStatus().isForbidden
+      .expectBody()
+      .json("""{"error": "access_denied", "error_description": "Unable to issue token as request is not from ip within allowed list"}""")
+  }
+
+  @Test
+  fun `get token - ip not in allow list receives forbidden - incremented client id`() {
+    val username = "ip-allow-b-client-8"
     val token = "clientsecret"
     webTestClient.post().uri("/oauth/token?grant_type=client_credentials")
       .header("Authorization", "Basic " + Base64Utils.encodeToString(("$username:$token").toByteArray()))

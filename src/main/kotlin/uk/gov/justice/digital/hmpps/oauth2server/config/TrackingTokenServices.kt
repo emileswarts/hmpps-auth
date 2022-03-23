@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIp
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
+import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.IpAddressHelper
 
 open class TrackingTokenServices(
@@ -36,7 +37,8 @@ open class TrackingTokenServices(
   @Transactional
   override fun createAccessToken(authentication: OAuth2Authentication): OAuth2AccessToken {
     val clientId = authentication.oAuth2Request.clientId
-    val allowedIps = clientAllowedIpsRepository.findByIdOrNull(clientId)?.ips
+    val baseClientId = ClientService.baseClientId(clientId)
+    val allowedIps = clientAllowedIpsRepository.findByIdOrNull(baseClientId)?.ips
     val clientIpAddress = IpAddressHelper.retrieveIpFromRequest()
 
     if (!allowedIps.isNullOrEmpty()) {

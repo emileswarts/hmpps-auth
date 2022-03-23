@@ -93,8 +93,9 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('service-edit-test-client','1200','{}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:3001/,http://localhost:3001/sign-in/callback'),
        ('prison-register-api-client','3600','{}','ROLE_AUDIT','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('book-a-prison-visit-client','3600','{}','ROLE_SYSTEM_USER,ROLE_VISIT_SCHEDULER,ROLE_PRISONER_CONTACT_REGISTRY','client_credentials','read,write','$2a$12$30bYVFItHZD5RpzwDiczdOPPgbvzHkMlb5bbX3Ev7CnlRmhaYyPsm',43200,null,'read,write',null),
-       ('ip-allow-a-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('ip-allow-a-client-1','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('ip-allow-b-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('ip-allow-b-client-8','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('ip-allow-c-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null);
 
 
