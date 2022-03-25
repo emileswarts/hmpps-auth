@@ -1,0 +1,33 @@
+---
+# Per environment values which override defaults in hmpps-auth/values.yaml
+generic-service:
+  replicaCount: 2
+
+  ingress:
+    host: sign-in-dev-alt.hmpps.service.justice.gov.uk
+
+  env:
+    SPRING_PROFILES_ACTIVE: "nomis,delius,azure-oidc,postgres"
+    APPLICATION_SIGNIN_URL: "https://sign-in-dev-alt.hmpps.service.justice.gov.uk/auth/"
+    APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
+    APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
+    APPLICATION_LINK_ACCOUNTS: "false"
+    APPLICATION_NON_PROD_WARNING_ENABLED: "true"
+    APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
+    APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
+    DELIUS_ENDPOINT_URL: "https://community-api-secure.test.delius.probation.hmpps.dsd.io"
+    NOMIS_ENDPOINT_URL: "https://nomis-user-dev.aks-dev-1.studio-hosting.service.justice.gov.uk"
+    JWT_JWK_KEY_ID: "dev-jwk-kid"
+    TOKENVERIFICATION_ENDPOINT_URL: ""
+    APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+
+  env_comma_joined_from_list:
+    APPLICATION_AUTHENTICATION_MFA_ALLOWLIST:
+      office: "217.33.148.210/32"
+      mojvpn: "81.134.202.29/32"
+      global-protect: "35.176.93.186/32"
+
+# CloudPlatform AlertManager receiver to route Prometheus alerts to slack
+# See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
+generic-prometheus-alerts:
+  alertSeverity: hmpps_tech_non_prod

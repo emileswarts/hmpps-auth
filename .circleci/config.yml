@@ -112,6 +112,24 @@ workflows:
             - build_docker
             - helm_lint
             - integration_tests
+
+      - hmpps/deploy_env:
+          name: deploy_dev_cp
+          env: "dev"
+          jira_update: true
+          jira_env_type: testing
+          helm_dir: "helm_deploy_cp"
+          filters:
+            branches:
+              only:
+                - main
+          context:
+            - hmpps-common-vars
+          requires:
+            - build_docker
+            - helm_lint
+            - integration_tests
+
       - request-stage-approval:
           type: approval
           requires:
