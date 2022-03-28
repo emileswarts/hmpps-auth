@@ -125,6 +125,7 @@ workflows:
                 - main
           context:
             - hmpps-common-vars
+            - hmpps-auth-devcp
           requires:
             - build_docker
             - helm_lint
