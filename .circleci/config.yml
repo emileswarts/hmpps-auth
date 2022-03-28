@@ -127,9 +127,7 @@ workflows:
             - hmpps-common-vars
             - hmpps-auth-devcp
           requires:
-            - build_docker
-            - helm_lint
-            - integration_tests
+            - deploy_dev
 
       - request-stage-approval:
           type: approval
