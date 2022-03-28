@@ -115,7 +115,7 @@ workflows:
 
       - hmpps/deploy_env:
           name: deploy_dev_cp
-          env: "dev"
+          env: "devcp"
           jira_update: true
           jira_env_type: testing
           helm_dir: "helm_deploy_cp"
