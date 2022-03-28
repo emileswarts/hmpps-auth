@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html" lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head lang="en">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>View Client Configuration</title>
+</head>
+<body>
+<div layout:fragment="content" class="govuk-form-group">
+
+  <h1 class="govuk-heading-l">View client - <span th:text="${baseClientId}"></span> </h1>
+  <h2 class="govuk-heading-m" data-qa="other-clients">Client versions</h2>
+
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header">Client ID</th>
+      <th scope="col" class="govuk-table__header">Created</th>
+      <th scope="col" class="govuk-table__header">Secret updated</th>
+      <th scope="col" class="govuk-table__header">Last accessed</th>
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    <tr class="govuk-table__row" th:each="client: ${clients}">
+      <td class="govuk-table__cell" th:id="${client.id}" th:text="${client.id}">
+        clientId
+      </td>
+      <td class="govuk-table__cell" th:text="${#temporals.format(client.created,'dd-MM-yyyy HH:mm')}"
+          th:id="${client.id + '-created'}">
+        a date
+      </td>
+      <td class="govuk-table__cell" th:text="${#temporals.format(client.secretUpdated,'dd-MM-yyyy HH:mm')}"
+          th:id="${client.id + '-secret-updated'}">
+        a date
+      </td>
+      <td class="govuk-table__cell" th:text="${#temporals.format(client.lastAccessed,'dd-MM-yyyy HH:mm')}"
+          th:id="${client.id + '-last-accessed'}">
+        a date
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2 class="govuk-heading-m">Client details</h2>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        JIRA number
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="jiraNo" name="jiraNo"
+          th:text="${clientDetails.jiraNo != null} ? ${clientDetails.jiraNo} : ''">
+        JIRA number
+      </dd>
+    </div>
+    <br>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Registered redirect URIs
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="redirectUri" name="redirectUri"
+          th:text="${clientDetails.registeredRedirectUriWithNewlines != null} ? ${clientDetails.registeredRedirectUriWithNewlines} : ''">
+        Registered redirect URIs
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Access token validity
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="accessTokenValiditySeconds" name="accessTokenValiditySeconds"
+          th:text="${clientDetails.accessTokenValiditySeconds != null} ? ${clientDetails.accessTokenValiditySeconds} : ''">
+        Access token validity
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Refresh token validity
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="refreshTokenValiditySeconds" name="refreshTokenValiditySeconds"
+          th:text="${clientDetails.refreshTokenValiditySeconds != null} ? ${clientDetails.refreshTokenValiditySeconds} : ''">
+        Refresh token validity
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Resource IDs
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="resourceIds" name="resourceIds"
+          th:text="${clientDetails.resourceIds != null} ? ${#strings.setJoin(clientDetails.resourceIds, ',')} : ''">
+        Resource IDs
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Approved Scopes
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="scopes" name="scopes"
+          th:text="${clientDetails.scope != null} ? ${#strings.setJoin(clientDetails.scope, ',')} : ''">
+        Approved Scopes
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Authorities
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="authorities" name="authoritiesWithNewlines"
+          th:text="${clientDetails.authoritiesWithNewlines != null} ? *{clientDetails.authoritiesWithNewlines} : ''">
+        Authorities
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Authorised Grant Type(s)
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="authorizedGrantTypes" name="authorizedGrantTypes"
+          th:text="${clientDetails.authorizedGrantTypes != null} ? *{clientDetails.authorizedGrantTypes}: ''">
+        Authorised Grant Type(s)
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Allowed IPs
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="ips" name="ips"
+          th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">
+        Allowed IPs
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        JWT Fields Configuration
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="jwtFields" name="jwtFields"
+          th:text="*{clientDetails.jwtFields != null} ? *{clientDetails.jwtFields} : ''">
+        JWT Fields Configuration
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Azure Ad Login Flow
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="jwtFields" name="jwtFields"
+          th:text="*{clientDetails.skipToAzureField != null} ? *{clientDetails.skipToAzureField} : ''">
+        Azure Ad Login Flow
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Multi Factor Authentication
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="mfa" name="mfa"
+          th:text="*{clientDetails.mfa != null} ? *{clientDetails.mfa} : ''">
+        Multi Factor Authentication
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Database Username
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="databaseUsernameField" name="databaseUsernameField"
+          th:text="*{clientDetails.databaseUsernameField != null} ? *{clientDetails.databaseUsernameField} : ''">
+        Database Username
+      </dd>
+    </div>
+  </dl>
+  <div th:if="${#lists.contains(clientDetails.authorizedGrantTypes, 'authorization_code') }">
+  <h2 class="govuk-heading-m">Service details</h2>
+  <dl class="govuk-summary-list">
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Name
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceName" name="serviceName"
+          th:text="${service.name != null} ? ${service.name} : ''">
+        Name
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Description
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceDescription" name="serviceDescription"
+          th:text="${service.description != null} ? ${service.description} : ''">
+        Description
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Authorised roles
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceAuthorisedRoles" name="serviceAuthorisedRoles"
+          th:text="${service.authorisedRoles != null} ? ${service.authorisedRoles} : ''">
+        Authorised roles
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        URL
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceUrl" name="serviceUrl"
+          th:text="${service.url != null} ? ${service.url} : ''">
+        URL
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Contact us URL or email
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceEmail" name="serviceEmail"
+          th:text="${service.email != null} ? ${service.email} : ''">
+        Contact us URL or email
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Tile on homepage
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="serviceEnabled" name="serviceEnabled"
+          th:text="${service.enabled} ? 'Yes' : 'No'">
+        Tile on homepage
+      </dd>
+    </div>
+  </dl>
+  </div>
+  <h2 class="govuk-heading-m">Deployment details</h2>
+  <dl class="govuk-summary-list">
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Client type
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="clientType" name="clientType"
+          th:text="${deployment.type != null} ? ${deployment.type} : ''">
+        Client type
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Team
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="team" name="team"
+          th:text="${deployment.team != null} ? ${deployment.team} : ''">
+        Team
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Team contact
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="teamContact" name="teamContact"
+          th:text="${deployment.teamContact != null} ? ${deployment.teamContact} : ''">
+        Team
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Team slack channel
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="teamSlack" name="teamSlack"
+          th:text="${deployment.teamSlack != null} ? ${deployment.teamSlack} : ''">
+        Team slack
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Hosting
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="hosting" name="hosting"
+          th:text="${deployment.hosting != null} ? ${deployment.hosting} : ''">
+        hosting
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row" th:if="${#strings.equals(deployment.hosting, 'CLOUDPLATFORM')}">
+      <dt class="govuk-summary-list__key">
+        Namespace
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="namespace" name="namespace"
+          th:text="${deployment.namespace != null} ? ${deployment.namespace} : ''">
+        namespace
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row" th:if="${#strings.equals(deployment.hosting, 'CLOUDPLATFORM')}">
+      <dt class="govuk-summary-list__key">
+        Deployment
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="deployment" name="deployment"
+          th:text="${deployment.deployment != null} ? ${deployment.deployment} : ''">
+        deployment
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row" th:if="${#strings.equals(deployment.hosting, 'CLOUDPLATFORM')}">
+      <dt class="govuk-summary-list__key">
+        Secret name
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="secretName" name="secretName"
+          th:text="${deployment.secretName != null} ? ${deployment.secretName} : ''">
+        Secret name
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row" th:if="${#strings.equals(deployment.hosting, 'CLOUDPLATFORM')}">
+      <dt class="govuk-summary-list__key">
+        Client id key
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="clientIdKey" name="clientIdKey"
+          th:text="${deployment.clientIdKey != null} ? ${deployment.clientIdKey} : ''">
+        Client id key
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row" th:if="${#strings.equals(deployment.hosting, 'CLOUDPLATFORM')}">
+      <dt class="govuk-summary-list__key">
+        Secret key
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="secretKey" name="secretKey"
+          th:text="${deployment.secretKey != null} ? ${deployment.secretKey} : ''">
+        Secret key
+      </dd>
+    </div>
+  </dl>
+  <br>
+  <a class="govuk-button" role="button" id="continue" th:href="@{/ui/view}">Continue</a>
+</div>
+
+</body>
+</html>

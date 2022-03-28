@@ -83,6 +83,32 @@ class ClientControllerTest {
   }
 
   @Nested
+  inner class ViewOnlyClient {
+    @Test
+    fun `show view only version of client`() {
+      whenever(clientService.loadClientWithCopies(anyString())).thenReturn(
+        ClientDetailsWithCopies(BaseClientDetails(), listOf(Client("client-1")))
+      )
+      whenever(clientService.loadClientDeploymentDetails(anyString())).thenReturn(
+        ClientDeployment(baseClientId = "client-id")
+      )
+      whenever(clientService.loadClientAllowedIps(anyString())).thenReturn(
+        ClientAllowedIps(baseClientId = "client-id", ips = listOf("127.0.0.1"))
+      )
+      val modelAndView = controller.showViewOnlyForm("client-id")
+
+      assertThat(modelAndView.viewName).isEqualTo("ui/viewOnlyForm")
+      assertThat(modelAndView.model["clients"] as List<*>).extracting("id").containsOnly("client-1")
+      val client = (modelAndView.model["clients"] as List<*>)[0] as Client
+      assertThat(client.baseClientId).isEqualTo("client")
+      assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
+      assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
+      assertThat(modelAndView.model["allowedIps"] as ClientAllowedIps).isNotNull
+      assertThat(modelAndView.model["service"] as Service).isNotNull
+    }
+  }
+
+  @Nested
   inner class AddClient {
     @Test
     fun `add client request - add client`() {

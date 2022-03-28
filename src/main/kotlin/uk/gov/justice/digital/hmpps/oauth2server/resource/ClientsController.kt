@@ -52,9 +52,16 @@ class ClientsController(
     return if (clientId != null) {
       val baseClientId = ClientService.baseClientId(clientId)
       val (clientDetails, clients) = clientService.loadClientWithCopies(baseClientId)
-      val clientDeployment = clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
-      val clientAllowedIps = clientService.loadClientAllowedIps(baseClientId) ?: ClientAllowedIps(baseClientId = baseClientId)
-      val serviceDetails = authServicesService.loadServiceDetails(baseClientId) ?: Service(code = baseClientId, name = "", description = "", url = "")
+      val clientDeployment =
+        clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
+      val clientAllowedIps =
+        clientService.loadClientAllowedIps(baseClientId) ?: ClientAllowedIps(baseClientId = baseClientId)
+      val serviceDetails = authServicesService.loadServiceDetails(baseClientId) ?: Service(
+        code = baseClientId,
+        name = "",
+        description = "",
+        url = ""
+      )
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
@@ -66,6 +73,29 @@ class ClientsController(
       ModelAndView("ui/form", "clientDetails", clientDetails)
         .addObject("clients", clients)
     }
+  }
+
+  @GetMapping("/view-client")
+  @PreAuthorize("hasAnyRole('ROLE_OAUTH_ADMIN','ROLE_OAUTH_VIEW_ONLY_CLIENT')")
+  fun showViewOnlyForm(@RequestParam(value = "client", required = true) clientId: String): ModelAndView {
+    val baseClientId = ClientService.baseClientId(clientId)
+    val (clientDetails, clients) = clientService.loadClientWithCopies(baseClientId)
+    val clientDeployment =
+      clientService.loadClientDeploymentDetails(baseClientId) ?: ClientDeployment(baseClientId = baseClientId)
+    val clientAllowedIps =
+      clientService.loadClientAllowedIps(baseClientId) ?: ClientAllowedIps(baseClientId = baseClientId)
+    val serviceDetails = authServicesService.loadServiceDetails(baseClientId) ?: Service(
+      code = baseClientId,
+      name = "",
+      description = "",
+      url = ""
+    )
+    return ModelAndView("ui/viewOnlyForm", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
+      .addObject("clients", clients)
+      .addObject("deployment", clientDeployment)
+      .addObject("allowedIps", clientAllowedIps)
+      .addObject("baseClientId", baseClientId)
+      .addObject("service", serviceDetails)
   }
 
   @GetMapping("deployment")

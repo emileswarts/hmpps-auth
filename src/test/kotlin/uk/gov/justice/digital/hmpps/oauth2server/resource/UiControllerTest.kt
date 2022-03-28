@@ -41,4 +41,30 @@ internal class UiControllerTest {
 
     verify(clientService).listUniqueClients(count, filterBy)
   }
+
+  @Test
+  internal fun `view only test`() {
+    val clients = listOf(
+      ClientSummary(
+        baseClientId = "client-1",
+        grantTypes = "bob",
+        roles = "role",
+        count = 5,
+        clientType = ClientType.PERSONAL,
+        service = "Some service",
+        teamName = "name",
+        lastAccessed = null,
+        lastAccessedTime = null,
+        secretUpdated = null,
+        secretUpdatedTime = null,
+      )
+    )
+    val filterBy = ClientFilter(role = "bob")
+    whenever(clientService.listUniqueClients(any(), any())).thenReturn(clients)
+    val modelAndView = controller.userIndexViewOnly(count, role = "bob")
+    assertThat(modelAndView.viewName).isEqualTo("ui/viewOnlyIndex")
+    assertThat(modelAndView.model["clientDetails"]).isEqualTo(clients)
+
+    verify(clientService).listUniqueClients(count, filterBy)
+  }
 }

@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.1"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -11,9 +11,6 @@ configurations {
 dependencyCheck {
   suppressionFiles.add("auth-suppressions.xml")
 }
-
-// added specifically due to thymeleaf@3.0.12.RELEASE and CVE-2021-43466 - remove when update included in spring-boot
-ext["thymeleaf.version"] = "3.0.13.RELEASE"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -44,13 +41,13 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
-  implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0")
-  implementation("uk.gov.service.notify:notifications-java-client:3.17.2-RELEASE")
+  implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
+  implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
   implementation("org.flywaydb:flyway-core:7.15.0")
   implementation("com.zaxxer:HikariCP:4.0.3")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre16")
+  implementation("com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre16")
 
   runtimeOnly("com.h2database:h2:1.4.200")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -67,12 +64,12 @@ dependencies {
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:3.18.3")
+  testImplementation("com.auth0:java-jwt:3.19.0")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.30")
+  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.31")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 

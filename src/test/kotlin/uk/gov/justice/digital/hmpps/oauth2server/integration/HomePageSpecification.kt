@@ -44,7 +44,7 @@ class HomePageSpecification : AbstractNomisAndDeliusAuthSpecification() {
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
 
-    homePage.checkLinks("DETAILS", "manage-user-accounts-ui", "OAUTHADMIN")
+    homePage.checkLinks("DETAILS", "manage-user-accounts-ui", "OAUTHADMIN", "VIEWCLIENT")
   }
 
   @Test

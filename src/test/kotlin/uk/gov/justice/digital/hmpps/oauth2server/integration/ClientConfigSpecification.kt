@@ -632,11 +632,6 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
     return this
   }
 
-  fun editClient(client: String = "apireporting"): ClientMaintenancePage {
-    el("#edit-$client").click()
-    return this
-  }
-
   fun edit(field: String, text: String): ClientMaintenancePage {
     el("#$field").click().fill().with(text)
     return this
@@ -667,10 +662,6 @@ open class ClientMaintenancePage(heading: String = "Edit client", headingStartsW
 
   fun serviceChange() {
     el("#serviceChange").click()
-  }
-
-  fun generateClientSecret(client: String) {
-    el("#generate-secret-$client").click()
   }
 }
 
