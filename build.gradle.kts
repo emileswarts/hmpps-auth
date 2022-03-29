@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2-beta-3"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
 }
@@ -21,7 +21,14 @@ dependencies {
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.1.RELEASE")
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
-  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
+    // excluded hibernate-core as it brings in 5.6.7.Final which was causing issue with 'startingWith'
+    // https://github.com/spring-projects/spring-data-jpa/issues/2472
+    // https://hibernate.atlassian.net/browse/HHH-15142
+    // reverted to 5.6.5.FINAL
+    exclude(group = "org.hibernate", module = "hibernate-core")
+  }
+  implementation("org.hibernate:hibernate-core:5.6.5.Final")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
