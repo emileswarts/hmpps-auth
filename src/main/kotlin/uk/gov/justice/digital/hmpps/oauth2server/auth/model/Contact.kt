@@ -15,7 +15,7 @@ data class Contact(
     this.value = value
     this.verified = verified
   }
-
+  @Column(name = "details")
   var value: String? = null
   var verified: Boolean = false
 }

@@ -195,7 +195,7 @@ create table user_contact
 		constraint user_contact_user_id_fk
 			references users,
 	type varchar(20) not null,
-	value varchar(240) not null,
+	details varchar(240) not null,
 	verified boolean default false not null,
 	constraint user_contact_type_uk
 		unique (user_id, type)
@@ -268,4 +268,13 @@ create table email_domain
         constraint email_domain_pk primary key,
     name            varchar(100) not null,
     description     varchar(200)
+);
+
+create table oauth_client_allowed_ips
+(
+    base_client_id varchar(64) not null
+        constraint oauth_client_allowed_ips_pk
+            primary key,
+    allowed_ips varchar(1000)
+
 );
