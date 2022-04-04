@@ -119,10 +119,6 @@ workflows:
           jira_update: true
           jira_env_type: testing
           helm_dir: "helm_deploy_cp"
-          filters:
-            branches:
-              only:
-                - main
           context:
             - hmpps-common-vars
             - hmpps-auth-devcp
@@ -159,6 +155,18 @@ workflows:
             - hmpps-auth-preprod
           requires:
             - request-preprod-approval
+
+      - hmpps/deploy_env:
+          name: deploy_preprod_cp
+          env: "preprodcp"
+          jira_update: true
+          jira_env_type: staging
+          helm_dir: "helm_deploy_cp"
+          context:
+            - hmpps-common-vars
+            - hmpps-auth-preprodcp
+          requires:
+            - deploy_preprod
 
       - request-prod-approval:
           type: approval
