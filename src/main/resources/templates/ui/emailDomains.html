@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <title>Email Domains</title>
+</head>
+
+<body class="extra-wide">
+<div layout:fragment="content" class="govuk-grid-column-full">
+  <h1 class="govuk-heading-l">Email Domain List - view only</h1>
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col" aria-sort="ascending">Domain</th>
+      </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+      <tr th:each="emailDomain : ${emailDomains}" class="govuk-table__row" th:attr="data-qa=${emailDomain.id}">
+        <td th:text="${emailDomain.domain}" class="govuk-table__cell" data-test="domain"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

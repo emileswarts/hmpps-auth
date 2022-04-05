@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -41,6 +42,14 @@ class EmailDomainRepositoryTest {
   fun givenAnExistingUserTheyCanBeRetrieved() {
     val retrievedEntity = repository.findAll().first()
     assertThat(retrievedEntity.name).isEqualTo("%advancecharity.org.uk")
+  }
+
+  @Test
+  fun shouldRetrieveAllDomainsOrderedByName() {
+    val allDomains = repository.findAllByOrderByName()
+
+    assertTrue(allDomains.isNotEmpty())
+    assertTrue(allDomains.asSequence().zipWithNext { a, b -> a.name.compareTo(b.name) }.all { true })
   }
 
   private fun transientEntity() = EmailDomain(id = null, name = "gov.uk", description = "some description")

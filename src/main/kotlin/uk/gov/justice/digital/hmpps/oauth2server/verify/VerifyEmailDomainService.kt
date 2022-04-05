@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 @Service
 @Transactional(readOnly = true)
-class EmailDomainService(emailDomainRepository: EmailDomainRepository) {
+class VerifyEmailDomainService(emailDomainRepository: EmailDomainRepository) {
 
   private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

@@ -29,7 +29,7 @@ class VerifyEmailService(
   private val userTokenRepository: UserTokenRepository,
   private val telemetryClient: TelemetryClient,
   private val notificationClient: NotificationClientApi,
-  private val emailDomainService: EmailDomainService,
+  private val verifyEmailDomainService: VerifyEmailDomainService,
   private val nomisUserApiService: NomisUserApiService,
   @Value("\${application.notify.verify.template}") private val notifyTemplateId: String,
 ) {
@@ -182,7 +182,7 @@ class VerifyEmailService(
     if (!email.matches(Regex("[0-9A-Za-z@.'_\\-+]*"))) {
       throw ValidEmailException("characters")
     }
-    if (emailType == EmailType.PRIMARY && !emailDomainService.isValidEmailDomain(email.substring(atIndex + 1))) {
+    if (emailType == EmailType.PRIMARY && !verifyEmailDomainService.isValidEmailDomain(email.substring(atIndex + 1))) {
       throw ValidEmailException("domain")
     }
   }

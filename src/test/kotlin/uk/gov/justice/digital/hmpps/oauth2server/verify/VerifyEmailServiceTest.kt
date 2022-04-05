@@ -34,7 +34,7 @@ class VerifyEmailServiceTest {
   private val userTokenRepository: UserTokenRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val notificationClient: NotificationClientApi = mock()
-  private val referenceCodesService: EmailDomainService = mock()
+  private val referenceCodesService: VerifyEmailDomainService = mock()
   private val nomisUserApiService: NomisUserApiService = mock()
   private val verifyEmailService = VerifyEmailService(
     userRepository,
