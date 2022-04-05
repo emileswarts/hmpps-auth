@@ -142,6 +142,7 @@ generic-service:
     APPLICATION_AUTHENTICATION_UI_ALLOWLIST:
       mojvpn: "81.134.202.29"
       office: "217.33.148.210"
+      global-protect: "35.176.93.186"
 
 generic-prometheus-alerts:
   targetApplication: hmpps-auth
