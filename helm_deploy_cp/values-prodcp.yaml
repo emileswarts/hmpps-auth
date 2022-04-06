@@ -1,7 +1,7 @@
 ---
 # Per environment values which override defaults in hmpps-auth/values.yaml
 generic-service:
-  replicaCount: 8
+  replicaCount: 4
 
   ingress:
     host: sign-in-alt.hmpps.service.justice.gov.uk
