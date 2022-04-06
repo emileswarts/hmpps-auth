@@ -1,27 +1,27 @@
 ---
 # Per environment values which override defaults in hmpps-auth/values.yaml
 generic-service:
-  replicaCount: 4
+  replicaCount: 8
 
   ingress:
-    host: sign-in-preprod-alt.hmpps.service.justice.gov.uk
+    host: sign-in-alt.hmpps.service.justice.gov.uk
 
   env:
     SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
     SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 1000
     SPRING_DATASOURCE_HIKARI_VALIDATION_TIMEOUT: 500
     SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
-    APPLICATION_SIGNIN_URL: "https://sign-in-preprod-alt.hmpps.service.justice.gov.uk/auth/"
-    APPLICATION_SUPPORT_URL: "https://support-preprod.hmpps.service.justice.gov.uk/feedback-and-support"
+    APPLICATION_SIGNIN_URL: "https://sign-in-alt.hmpps.service.justice.gov.uk/auth/"
+    APPLICATION_SUPPORT_URL: "https://support.hmpps.service.justice.gov.uk/feedback-and-support"
     APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "false"
     APPLICATION_LINK_ACCOUNTS: "false"
-    APPLICATION_NON_PROD_WARNING_ENABLED: "true"
+    APPLICATION_NON_PROD_WARNING_ENABLED: "false"
     APPLICATION_NON_PROD_WARNING_PROD_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
-    APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "false"
-    DELIUS_ENDPOINT_URL: "https://community-api-secure.pre-prod.delius.probation.hmpps.dsd.io"
-    NOMIS_ENDPOINT_URL: "https://nomis-user-pp.aks-live-1.studio-hosting.service.justice.gov.uk"
-    JWT_JWK_KEY_ID: "preprod-jwk-kid"
-    TOKENVERIFICATION_ENDPOINT_URL: "https://token-verification-api-preprod.prison.service.justice.gov.uk"
+    APPLICATION_AUTHENTICATION_NOTIFY_PRE_DISABLE_ENABLED: "true"
+    DELIUS_ENDPOINT_URL: "https://community-api-secure.probation.service.justice.gov.uk"
+    NOMIS_ENDPOINT_URL: "https://nomis-user.aks-live-1.studio-hosting.service.justice.gov.uk"
+    JWT_JWK_KEY_ID: "prod-jwk-kid"
+    TOKENVERIFICATION_ENDPOINT_URL: "https://token-verification-api.prison.service.justice.gov.uk"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
 
   env_comma_joined_from_list:
@@ -29,7 +29,6 @@ generic-service:
       office: "217.33.148.210/32"
       petty-france-wifi: "213.121.161.112/28"
       moj-official-tgw-prod: "51.149.250.0/24"
-      moj-official-tgw-preprod: "51.149.251.0/24"
       global-protect: "35.176.93.186/32"
       quantum: "62.25.109.197/32"
       quantum_alt: "212.137.36.230/32"
@@ -65,4 +64,4 @@ generic-service:
 # CloudPlatform AlertManager receiver to route Prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
 generic-prometheus-alerts:
-  alertSeverity: hmpps_tech_non_prod
+  alertSeverity: hmpps_tech

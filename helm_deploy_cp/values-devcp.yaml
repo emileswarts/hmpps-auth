@@ -7,7 +7,7 @@ generic-service:
     host: sign-in-dev-alt.hmpps.service.justice.gov.uk
 
   env:
-    SPRING_PROFILES_ACTIVE: "nomis,delius,azure-oidc,postgres"
+    SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
     APPLICATION_SIGNIN_URL: "https://sign-in-dev-alt.hmpps.service.justice.gov.uk/auth/"
     APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
     APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
@@ -20,6 +20,12 @@ generic-service:
     JWT_JWK_KEY_ID: "dev-jwk-kid"
     TOKENVERIFICATION_ENDPOINT_URL: "https://token-verification-api-dev.prison.service.justice.gov.uk"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+
+  env_comma_joined_from_list:
+    APPLICATION_AUTHENTICATION_MFA_ALLOWLIST:
+      office: "217.33.148.210/32"
+      mojvpn: "81.134.202.29/32"
+      global_protect_vpn: "35.176.93.186/32"
 
 # CloudPlatform AlertManager receiver to route Prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
