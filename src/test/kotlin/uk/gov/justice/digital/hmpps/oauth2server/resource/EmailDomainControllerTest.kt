@@ -1,37 +1,96 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.Authentication
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import java.util.UUID
 
 class EmailDomainControllerTest {
   private val emailDomainService: EmailDomainService = mock()
+  private val telemetryClient: TelemetryClient = mock()
+  private val authentication: Authentication = mock()
+  private val principal: UserPersonDetails = mock()
 
-  private val controller = EmailDomainController(emailDomainService)
+  private val id1 = UUID.randomUUID().toString()
+  private val id2 = UUID.randomUUID().toString()
+
+  private val controller = EmailDomainController(emailDomainService, telemetryClient)
 
   @Test
   fun shouldRespondWithEmailDomainsRetrieved() {
-    val id1 = UUID.randomUUID().toString()
-    val id2 = UUID.randomUUID().toString()
-
     whenever(emailDomainService.domainList()).thenReturn(
       listOf(
-        buildEmailDomain(id1, "hotmail.com"),
-        buildEmailDomain(id2, "yahoo.co.uk"),
+        buildEmailDomain(id1, "%advancecharity.org.uk"),
+        buildEmailDomain(id2, "%123.co.uk"),
       )
     )
 
     val expectedEmailDomainList = listOf(
-      EmailDomainDto(id1, "hotmail.com"),
-      EmailDomainDto(id2, "yahoo.co.uk"),
+      EmailDomainDto(id1, "%advancecharity.org.uk"),
+      EmailDomainDto(id2, "%123.co.uk"),
     )
 
     val modelAndView = controller.domainList()
+
+    assertTrue(modelAndView.hasView())
+    assertEquals(modelAndView.viewName, "ui/emailDomains")
+    assertEquals(modelAndView.model["emailDomains"], expectedEmailDomainList)
+  }
+
+  @Test
+  fun shouldAddEmailDomain() {
+    whenever(authentication.principal).thenReturn(principal)
+    whenever(principal.username).thenReturn("Fred")
+    val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
+
+    controller.addEmailDomain(authentication, newEmailDomain)
+
+    verify(emailDomainService).addDomain(newEmailDomain)
+  }
+
+  @Test
+  fun shouldRecordEmailDomainCreateSuccessEvent() {
+    whenever(authentication.principal).thenReturn(principal)
+    whenever(principal.username).thenReturn("Fred")
+    val eventDetails = argumentCaptor<Map<String, String>>()
+    val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
+
+    controller.addEmailDomain(authentication, newEmailDomain)
+
+    verify(telemetryClient).trackEvent(eq("EmailDomainCreateSuccess"), eventDetails.capture(), anyOrNull())
+  }
+
+  @Test
+  fun shouldRespondWithDomainListOnSuccessfulAdd() {
+    whenever(authentication.principal).thenReturn(principal)
+    whenever(principal.username).thenReturn("Fred")
+
+    val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
+
+    whenever(emailDomainService.addDomain(newEmailDomain)).thenReturn(
+      listOf(
+        buildEmailDomain(id1, "%advancecharity.org.uk"),
+        buildEmailDomain(id2, "%123.co.uk"),
+      )
+    )
+
+    val expectedEmailDomainList = listOf(
+      EmailDomainDto(id1, "%advancecharity.org.uk"),
+      EmailDomainDto(id2, "%123.co.uk"),
+    )
+
+    val modelAndView = controller.addEmailDomain(authentication, newEmailDomain)
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/emailDomains")

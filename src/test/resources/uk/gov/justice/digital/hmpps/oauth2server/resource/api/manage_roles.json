@@ -147,9 +147,9 @@
     "paged": true,
     "unpaged": false
   },
-  "last": false,
   "totalPages": 7,
-  "totalElements": 67,
+  "totalElements": 68,
+  "last": false,
   "size": 10,
   "number": 0,
   "sort": {
@@ -157,7 +157,7 @@
     "sorted": true,
     "unsorted": false
   },
-  "first": true,
   "numberOfElements": 10,
+  "first": true,
   "empty": false
 }

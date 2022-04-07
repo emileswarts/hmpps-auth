@@ -16,7 +16,7 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
 
   @Test
   fun `I can access email domains view page`() {
-    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+    goTo(loginPage).loginAs("AUTH_DEVELOPER", "password123456")
     goTo(emailDomainsPage).isAt()
 
     emailDomainsPage.confirmContent()

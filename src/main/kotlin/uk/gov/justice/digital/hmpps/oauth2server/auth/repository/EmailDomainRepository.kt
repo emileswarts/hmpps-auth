@@ -7,4 +7,6 @@ import java.util.UUID
 interface EmailDomainRepository : CrudRepository<EmailDomain, UUID> {
 
   fun findAllByOrderByName(): List<EmailDomain>
+
+  fun findByName(name: String): EmailDomain?
 }

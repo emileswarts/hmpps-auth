@@ -123,6 +123,7 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('prison-staff-hub', 'Digital Prison Service', 'View and Manage Offenders in Prison (Old name was NEW NOMIS)', 'ROLE_PRISON', 'http://localhost:3000', 1, 'feedback@digital.justice.gov.uk'),
        ('OAUTHADMIN', 'Oauth Client Management', 'Manage Client Credentials for OAUTH2 Clients', 'ROLE_OAUTH_ADMIN', 'http://localhost:8080/auth/ui/', 1, null),
        ('VIEWCLIENT', 'Oauth Client View Only', 'View Client Credentials for OAUTH2 Clients', 'ROLE_OAUTH_ADMIN,ROLE_OAUTH_VIEW_ONLY_CLIENT', 'http://localhost:9090/auth/ui/view', 1, null),
+       ('maintain-email-domains', 'Maintain Email Domains', 'Maintain Email Domains within HMPPS Auth', 'ROLE_MAINTAIN_EMAIL_DOMAIN', 'http://localhost:9090/auth/email-domains', 1, null),
        ('POM', 'Allocate a POM Service', 'Allocate the appropriate offender manager to a prisoner', 'ROLE_ALLOC_MGR', 'https://moic.service.justice.gov.uk', 1, 'https://moic.service.justice.gov.uk/help'),
        ('pathfinder-client', 'Pathfinder Service', 'View and Manage Pathfinder nominals', 'ROLE_PF_STD_PRISON,ROLE_PF_APPROVAL,ROLE_PF_POLICE', 'http://localhost:3000', 1, null),
        ('manage-soc-cases-client', 'Manage SOC cases', 'View and manage SOC cases', 'ROLE_SOC_CUSTODY,ROLE_SOC_COMMUNITY', 'http://localhost:3000', 1, null),
@@ -417,7 +418,8 @@ INSERT INTO user_token (token, token_type, token_expiry, user_id) SELECT 'mfa_to
 INSERT INTO user_token (token, token_type, token_expiry, user_id) SELECT 'mfa_code', 'MFA_CODE', '3031-12-10 08:55:45.0000000', user_id from users where username = 'AUTH_MFA_TOKEN_USER';
 
 INSERT INTO roles (role_id, role_code, role_name, role_description, admin_Type)
-VALUES (newid(), 'OAUTH_VIEW_ONLY_CLIENT', 'View Clients', 'View Client details', 'EXT_ADM');
+VALUES (newid(), 'OAUTH_VIEW_ONLY_CLIENT', 'View Clients', 'View Client details', 'EXT_ADM'),
+       (newid(), 'MAINTAIN_EMAIL_DOMAINS', 'Maintain Email Domains', 'Maintain Email Domains for HMPPS Auth', 'EXT_ADM');
 
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'OAUTH_ADMIN';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'MAINTAIN_ACCESS_ROLES';
@@ -438,6 +440,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_RO_USER_TEST6' and role_code = 'GLOBAL_SEARCH';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_GROUP_MANAGER' and role_code = 'AUTH_GROUP_MANAGER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DEVELOPER' and role_code = 'OAUTH_VIEW_ONLY_CLIENT';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DEVELOPER' and role_code = 'MAINTAIN_EMAIL_DOMAINS';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_GROUP_MANAGER2' and role_code = 'AUTH_GROUP_MANAGER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';

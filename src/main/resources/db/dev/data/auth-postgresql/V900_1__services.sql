@@ -10,4 +10,6 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('manage-soc-cases-client', 'Manage SOC cases', 'View and manage SOC cases', 'ROLE_SOC_CUSTODY,ROLE_SOC_COMMUNITY', 'http://localhost:3000', true, null),
        ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER', 'http://localhost:3001/', true, null),
        ('DETAILS', 'Manage account details', null, null, '/auth/account-details?redirect_uri=/', true,  null),
-       ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', true, null);
+       ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', true, null),
+       ('VIEWCLIENT', 'Oauth Client View Only', 'View Client Credentials for OAUTH2 Clients', 'ROLE_OAUTH_ADMIN,ROLE_OAUTH_VIEW_ONLY_CLIENT', 'http://localhost:9090/auth/ui/view', true, null),
+       ('EMAILDOMAIN', 'Email Domains', 'View and update Email Domains', 'ROLE_OAUTH_ADMIN', 'http://localhost:9090/auth/email-domains/', true, null),;

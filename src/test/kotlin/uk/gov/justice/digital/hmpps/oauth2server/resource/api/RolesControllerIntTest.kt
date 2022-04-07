@@ -353,7 +353,7 @@ class RolesControllerIntTest : IntegrationTest() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.[*].roleName").value<List<String>> {
-          assertThat(it).hasSize(67)
+          assertThat(it).hasSize(68)
         }
     }
 
@@ -544,7 +544,7 @@ class RolesControllerIntTest : IntegrationTest() {
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(67)
+        .jsonPath("$.totalElements").isEqualTo(68)
         .jsonPath("$.totalPages").isEqualTo(23)
         .jsonPath("$.last").isEqualTo(false)
   }

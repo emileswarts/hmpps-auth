@@ -52,5 +52,13 @@ class EmailDomainRepositoryTest {
     assertTrue(allDomains.asSequence().zipWithNext { a, b -> a.name.compareTo(b.name) }.all { true })
   }
 
+  @Test
+  fun shouldRetrieveDomainByName() {
+    val retrievedEntity = repository.findByName("%advancecharity.org.uk")
+
+    assertTrue(retrievedEntity != null)
+    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+  }
+
   private fun transientEntity() = EmailDomain(id = null, name = "gov.uk", description = "some description")
 }

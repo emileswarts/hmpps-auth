@@ -1,0 +1,1 @@
+ALTER TABLE email_domain ADD CONSTRAINT email_domain_name_unique UNIQUE (name);
