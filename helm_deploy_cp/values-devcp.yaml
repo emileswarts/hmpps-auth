@@ -4,11 +4,11 @@ generic-service:
   replicaCount: 2
 
   ingress:
-    host: sign-in-dev-alt.hmpps.service.justice.gov.uk
+    host: sign-in-dev.hmpps.service.justice.gov.uk
 
   env:
     SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
-    APPLICATION_SIGNIN_URL: "https://sign-in-dev-alt.hmpps.service.justice.gov.uk/auth/"
+    APPLICATION_SIGNIN_URL: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/"
     APPLICATION_SUPPORT_URL: "https://support-dev.hmpps.service.justice.gov.uk/feedback-and-support"
     APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "true"
     APPLICATION_LINK_ACCOUNTS: "false"

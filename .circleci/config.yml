@@ -4,6 +4,11 @@ orbs:
   hmpps: ministryofjustice/hmpps@3.14
   browser-tools: circleci/browser-tools@1.2.4
 
+parameters:
+  alerts-slack-channel:
+    type: string
+    default: hmpps_tech_alerts_security
+
 jobs:
   validate:
     executor:
@@ -91,7 +96,8 @@ workflows:
             - validate
       - hmpps/helm_lint:
           name: helm_lint
-          env: "t3"
+          env: "devcp"
+          helm_dir: "helm_deploy_cp"
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -99,36 +105,26 @@ workflows:
               only:
                 - main
       - hmpps/deploy_env:
-          name: deploy_dev
-          env: "t3"
+          name: deploy_dev_cp
+          env: "devcp"
           jira_update: true
+          helm_dir: "helm_deploy_cp"
           filters:
             branches:
               only:
                 - main
           context:
             - hmpps-common-vars
+            - hmpps-auth-devcp
           requires:
             - build_docker
             - helm_lint
             - integration_tests
 
-      - hmpps/deploy_env:
-          name: deploy_dev_cp
-          env: "devcp"
-          jira_update: true
-          jira_env_type: testing
-          helm_dir: "helm_deploy_cp"
-          context:
-            - hmpps-common-vars
-            - hmpps-auth-devcp
-          requires:
-            - deploy_dev
-
       - request-stage-approval:
           type: approval
           requires:
-            - deploy_dev
+            - deploy_dev_cp
       - hmpps/deploy_env:
           name: deploy_stage
           env: "stage"
@@ -207,15 +203,15 @@ workflows:
                 - main
     jobs:
       - hmpps/gradle_owasp_dependency_check:
-          slack_channel: hmpps_tech_alerts_security
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
           context:
             - hmpps-common-vars
       - hmpps/trivy_latest_scan:
-          slack_channel: hmpps_tech_alerts_security
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
           context:
             - hmpps-common-vars
       - hmpps/veracode_pipeline_scan:
-          slack_channel: hmpps_tech_alerts_security
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
           context:
             - hmpps-common-vars
             - veracode-credentials
@@ -229,7 +225,7 @@ workflows:
                 - main
     jobs:
       - hmpps/veracode_policy_scan:
-          slack_channel: hmpps_tech_alerts_security
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
           context:
             - veracode-credentials
             - hmpps-common-vars
