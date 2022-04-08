@@ -51,7 +51,6 @@ class EmailDomainControllerTest {
   @Test
   fun shouldAddEmailDomain() {
     whenever(authentication.principal).thenReturn(principal)
-    whenever(principal.username).thenReturn("Fred")
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
     controller.addEmailDomain(authentication, newEmailDomain)
@@ -60,21 +59,46 @@ class EmailDomainControllerTest {
   }
 
   @Test
+  fun shouldDeleteEmailDomain() {
+    whenever(authentication.principal).thenReturn(principal)
+    val id = UUID.randomUUID().toString()
+
+    controller.deleteEmailDomain(authentication, id)
+
+    verify(emailDomainService).removeDomain(id)
+  }
+
+  @Test
   fun shouldRecordEmailDomainCreateSuccessEvent() {
     whenever(authentication.principal).thenReturn(principal)
-    whenever(principal.username).thenReturn("Fred")
+    whenever(principal.name).thenReturn("Fred")
     val eventDetails = argumentCaptor<Map<String, String>>()
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
     controller.addEmailDomain(authentication, newEmailDomain)
 
     verify(telemetryClient).trackEvent(eq("EmailDomainCreateSuccess"), eventDetails.capture(), anyOrNull())
+    assertEquals("Fred", eventDetails.firstValue.getValue("username"))
+    assertEquals("%123.co.uk", eventDetails.firstValue.getValue("domain"))
+  }
+
+  @Test
+  fun shouldRecordEmailDomainDeleteSuccessEvent() {
+    whenever(authentication.principal).thenReturn(principal)
+    whenever(principal.name).thenReturn("Fred")
+    val eventDetails = argumentCaptor<Map<String, String>>()
+    val id = UUID.randomUUID().toString()
+
+    controller.deleteEmailDomain(authentication, id)
+
+    verify(telemetryClient).trackEvent(eq("EmailDomainDeleteSuccess"), eventDetails.capture(), anyOrNull())
+    assertEquals("Fred", eventDetails.firstValue.getValue("username"))
+    assertEquals(id, eventDetails.firstValue.getValue("id"))
   }
 
   @Test
   fun shouldRespondWithDomainListOnSuccessfulAdd() {
     whenever(authentication.principal).thenReturn(principal)
-    whenever(principal.username).thenReturn("Fred")
 
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
@@ -91,6 +115,30 @@ class EmailDomainControllerTest {
     )
 
     val modelAndView = controller.addEmailDomain(authentication, newEmailDomain)
+
+    assertTrue(modelAndView.hasView())
+    assertEquals(modelAndView.viewName, "ui/emailDomains")
+    assertEquals(modelAndView.model["emailDomains"], expectedEmailDomainList)
+  }
+
+  @Test
+  fun shouldRespondWithDomainListOnSuccessfulDelete() {
+    whenever(authentication.principal).thenReturn(principal)
+    val id = UUID.randomUUID().toString()
+
+    whenever(emailDomainService.removeDomain(id)).thenReturn(
+      listOf(
+        buildEmailDomain(id1, "%advancecharity.org.uk"),
+        buildEmailDomain(id2, "%123.co.uk"),
+      )
+    )
+
+    val expectedEmailDomainList = listOf(
+      EmailDomainDto(id1, "%advancecharity.org.uk"),
+      EmailDomainDto(id2, "%123.co.uk"),
+    )
+
+    val modelAndView = controller.deleteEmailDomain(authentication, id)
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/emailDomains")

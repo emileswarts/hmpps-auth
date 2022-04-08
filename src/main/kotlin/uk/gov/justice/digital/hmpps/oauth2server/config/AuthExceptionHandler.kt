@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.Auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainExcludedException
+import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 
 @RestControllerAdvice
@@ -182,6 +183,14 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "domain"))
+  }
+
+  @ExceptionHandler(EmailDomainNotFoundException::class)
+  fun emailDomainNotFoundException(e: EmailDomainNotFoundException): ResponseEntity<ErrorDetail> {
+    log.debug("Email Domain not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.NOT_FOUND)
+      .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "id"))
   }
 
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)

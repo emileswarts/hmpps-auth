@@ -4,7 +4,9 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.servlet.ModelAndView
@@ -32,12 +34,26 @@ class EmailDomainController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun addEmailDomain(authentication: Authentication, @Valid @RequestBody emailDomain: CreateEmailDomainDto): ModelAndView {
     val allEmailDomains = emailDomainService.addDomain(emailDomain)
-    recordDomainCreationSuccessEvent(authentication.principal as UserPersonDetails, emailDomain.name)
+    recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", authentication, "domain", emailDomain.name)
     return toDomainListView(allEmailDomains)
   }
 
-  private fun recordDomainCreationSuccessEvent(user: UserPersonDetails, domain: String) {
-    telemetryClient.trackEvent("EmailDomainCreateSuccess", mapOf("username" to user.username, "domain" to domain), null)
+  @DeleteMapping("/email-domains/{id}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
+  fun deleteEmailDomain(authentication: Authentication, @PathVariable id: String): ModelAndView {
+    val allEmailDomains = emailDomainService.removeDomain(id)
+    recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess", authentication, "id", id)
+    return toDomainListView(allEmailDomains)
+  }
+
+  private fun recordEmailDomainStateChangeEvent(
+    eventName: String,
+    authentication: Authentication,
+    identifierName: String,
+    identifierValue: String
+  ) {
+    val data = mapOf("username" to (authentication.principal as UserPersonDetails).name, identifierName to identifierValue)
+    telemetryClient.trackEvent(eventName, data, null)
   }
 
   private fun toDomainListView(emailDomains: List<EmailDomain>): ModelAndView {
