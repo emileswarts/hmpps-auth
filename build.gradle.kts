@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.3-beta"
-  kotlin("plugin.spring") version "1.6.10"
-  kotlin("plugin.jpa") version "1.6.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.4-beta"
+  kotlin("plugin.spring") version "1.6.20"
+  kotlin("plugin.jpa") version "1.6.20"
 }
 
 configurations {
@@ -43,8 +43,8 @@ dependencies {
   implementation("javax.transaction:javax.transaction-api:1.3")
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
-  implementation("io.swagger:swagger-core:1.6.5")
-  implementation("io.swagger.core.v3:swagger-core:2.1.13")
+  implementation("io.swagger:swagger-core:1.6.6")
+  implementation("io.swagger.core.v3:swagger-core:2.2.0")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
@@ -71,12 +71,12 @@ dependencies {
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:3.19.0")
+  testImplementation("com.auth0:java-jwt:3.19.1")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.32.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.33.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.31")
+  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.32")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 
