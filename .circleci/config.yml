@@ -142,17 +142,6 @@ workflows:
           requires:
             - deploy_stage
       - hmpps/deploy_env:
-          name: deploy_preprod
-          env: "preprod"
-          jira_update: true
-          jira_env_type: staging
-          context:
-            - hmpps-common-vars
-            - hmpps-auth-preprod
-          requires:
-            - request-preprod-approval
-
-      - hmpps/deploy_env:
           name: deploy_preprod_cp
           env: "preprodcp"
           jira_update: true
@@ -162,12 +151,12 @@ workflows:
             - hmpps-common-vars
             - hmpps-auth-preprodcp
           requires:
-            - deploy_preprod
+            - request-preprod-approval
 
       - request-prod-approval:
           type: approval
           requires:
-            - deploy_preprod
+            - deploy_preprod_cp
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
