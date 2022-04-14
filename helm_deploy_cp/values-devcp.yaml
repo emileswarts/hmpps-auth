@@ -5,6 +5,50 @@ generic-service:
 
   ingress:
     host: sign-in-dev.hmpps.service.justice.gov.uk
+    modsecurity_audit_enabled: true
+    modsecurity_snippet: |
+      SecRuleEngine On
+      SecRuleRemoveById 920320
+      SecRuleRemoveById 920300
+      SecRuleRemoveById 920440
+      SecRuleRemoveById 942110
+      SecRuleRemoveById 913101
+      SecRuleUpdateTargetById 931130 "!ARGS:/redirect_uri/"
+      SecRuleUpdateTargetById 942440 "!REQUEST_COOKIES:/jwtSession/"
+      SecRuleUpdateTargetById 942450 "!REQUEST_COOKIES:/jwtSession/"
+      SecRuleUpdateTargetById 930120 "!REQUEST_COOKIES:/jwtSession/"
+      SecRuleUpdateTargetById 942210 "!REQUEST_COOKIES:/jwtSession/"
+      SecRuleUpdateTargetById 942450 "!REQUEST_COOKIES:/savedrequest/"
+      SecRuleUpdateTargetById 942200 "!ARGS:/query/"
+      SecRuleUpdateTargetById 942430 "!ARGS:/query/"
+      SecRuleUpdateTargetById 942480 "!ARGS:/query/"
+      SecRuleUpdateTargetById 942450 "!ARGS:/state/"
+      SecRuleUpdateTargetById 931130 "!ARGS:/registeredRedirectUriWithNewlines/"
+      SecRuleUpdateTargetById 942430 "!ARGS:/registeredRedirectUriWithNewlines/"
+      SecRuleUpdateTargetById 931130 "!ARGS:/url/"
+      SecRuleUpdateTargetById 942440 "!ARGS:/refresh_token/"
+      SecRuleUpdateTargetById 942430 "!ARGS:/code/"
+      SecRuleUpdateTargetById 942440 "!ARGS:/code/"
+      SecRuleUpdateTargetById 942260 "!ARGS:/newPassword/"
+      SecRuleUpdateTargetById 942340 "!ARGS:/newPassword/"
+      SecRuleUpdateTargetById 942260 "!ARGS:/confirmPassword/"
+      SecRuleUpdateTargetById 942340 "!ARGS:/confirmPassword/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/clientSecret/"
+      SecRuleUpdateTargetById 920230 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942130 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942440 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942450 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942190 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942330 "!ARGS:/password/"
+      SecRuleUpdateTargetById 942440 "!REQUEST_COOKIES:/returnTo/"
+      SecRuleUpdateTargetById 942450 "!REQUEST_COOKIES:/returnTo/"
+      SecRuleUpdateTargetById 930120 "!REQUEST_COOKIES:/returnTo/"
+      SecRuleUpdateTargetById 942210 "!REQUEST_COOKIES:/returnTo/"
+      SecRuleUpdateTargetById 942120 "!ARGS:/client_secret/"
+      SecRuleUpdateTargetById 942300 "!ARGS:/client_secret/"
+      SecRuleUpdateTargetById 942430 "!ARGS:/client_secret/"
+      SecRuleUpdateTargetById 941340 "!ARGS:/client_secret/"
+      SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT DELETE"
 
   env:
     SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
