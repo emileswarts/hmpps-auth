@@ -355,10 +355,15 @@
       <input type="hidden" id="baseClientId" name="baseClientId" th:value="${baseClientId}"/>
       <label class="govuk-label" for="ips">Allowed IPs</label>
       <span class="govuk-hint">
-          One IP address per line (CIDR notation allowed - 127.0.0.0/24)
+          One IP address/CIDR notation per line<br>
+          81.134.202.29/32 - mojvpn <br>
+          35.176.93.186/32 - global-protect <br>
+          35.178.209.113/32 - cloudplatform-1 <br>
+          3.8.51.207/32 - cloudplatform-2 <br>
+          35.177.252.54/32 - cloudplatform-3
         </span>
-        <textarea class="govuk-textarea" id="ips" type="text" name="allowedIpsWithNewlines" rows="6"
-                  th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">allowed ip</textarea>
+      <textarea class="govuk-textarea" id="ips" type="text" name="allowedIpsWithNewlines" rows="6"
+                th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">allowed ip</textarea>
     </div>
 
     <div class="govuk-form-group">
