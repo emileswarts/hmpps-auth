@@ -58,6 +58,7 @@ generic-service:
       SecRuleUpdateTargetById 942300 "!ARGS:/client_secret/"
       SecRuleUpdateTargetById 942430 "!ARGS:/client_secret/"
       SecRuleUpdateTargetById 941340 "!ARGS:/client_secret/"
+      SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT DELETE"
 
   livenessProbe:
     httpGet:
