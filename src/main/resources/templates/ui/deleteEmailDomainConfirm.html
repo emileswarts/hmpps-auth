@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <title>Delete Email Domain</title>
+</head>
+
+<body class="extra-wide">
+  <div layout:fragment="content" class="govuk-grid-column-full">
+    <h1 class="govuk-heading-l">Delete Email Domain</h1>
+    <p class="govuk-body"> Do you want to delete the email domain: <span class="govuk-body govuk-!-font-weight-bold" th:text="${emailDomain.domain}"></span></p>
+    <h2 class="govuk-body">This action cannot be undone</h2>
+    </br>
+
+    <form action="#" th:action="@{'/email-domains/{id}'(id=${emailDomain.id})}" th:method="delete" >
+      <button type="submit" id="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+        Delete Email Domain
+      </button>
+      <a class="govuk-button govuk-button--secondary" id="cancel" href="/auth/email-domains">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>

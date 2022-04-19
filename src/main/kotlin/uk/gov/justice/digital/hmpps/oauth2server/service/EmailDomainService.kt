@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
@@ -18,8 +19,13 @@ class EmailDomainService(
   @Transactional(readOnly = true)
   fun domainList(): List<EmailDomain> = emailDomainRepository.findAllByOrderByName()
 
+  @Throws(EmailDomainNotFoundException::class)
+  fun domain(id: String): EmailDomain {
+    return retrieveDomain(id, "retrieve")
+  }
+
   @Throws(EmailDomainExcludedException::class)
-  fun addDomain(newDomain: CreateEmailDomainDto): List<EmailDomain> {
+  fun addDomain(newDomain: CreateEmailDomainDto) {
     val existingDomain = emailDomainRepository.findByName(newDomain.name)
 
     existingDomain ?: run {
@@ -28,19 +34,17 @@ class EmailDomainService(
       }
       emailDomainRepository.save(EmailDomain(name = newDomain.name, description = newDomain.description))
     }
-
-    return domainList()
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun removeDomain(id: String): List<EmailDomain> {
-    val uuid: UUID = UUID.fromString(id)
-    if (emailDomainRepository.existsById(uuid).not()) {
-      throw EmailDomainNotFoundException("delete", id, "notfound")
-    }
+  fun removeDomain(id: String) {
+    val emailDomain = retrieveDomain(id, "delete")
+    emailDomainRepository.delete(emailDomain)
+  }
 
-    emailDomainRepository.deleteById(uuid)
-    return domainList()
+  private fun retrieveDomain(id: String, action: String): EmailDomain {
+    val uuid: UUID = UUID.fromString(id)
+    return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, id, "notfound")
   }
 }
 

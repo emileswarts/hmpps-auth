@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <title>New Email Domain Form</title>
+</head>
+
+<body>
+
+<div layout:fragment="content" class="govuk-grid-column-two-thirds">
+  <h1 class="govuk-heading-l">Add new Email Domain</h1>
+  <form class="form" th:action="@{/email-domains}" method="POST" th:object="${createEmailDomainDto}" id="addEmailDomain">
+    <div th:if="${#fields.hasAnyErrors()}" class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary">There is a problem</h2>
+      <div class="govuk-error-summary__body" id="error-detail">
+        <ul class="govuk-list govuk-error-summary__list">
+          <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+        </ul>
+      </div>
+    </div>
+
+    <div th:class="'govuk-form-group' + (${#fields.hasAnyErrors()} ? ' govuk-form-group--error' : '')">
+      <label class="govuk-label" for="name">Domain name</label>
+      <span class="govuk-hint">
+        Domain must start with % e.g. %digital.justice.gov.uk
+      </span>
+      <span th:if="${#fields.hasErrors('name')}" class="govuk-error-message">
+        <p th:each="err : ${#fields.errors('name')}" th:text="${err}"></p>
+      </span>
+      <input class="govuk-input" id="name" name="name" type="text" th:value="${createEmailDomainDto.name}"></div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="description">Description</label>
+      <span th:if="${#fields.hasErrors('description')}" class="govuk-error-message">
+        <p th:each="err : ${#fields.errors('description')}" th:text="${err}"></p>
+      </span>
+      <input class="govuk-input"
+             id="description" name="description" type="text" th:value="${createEmailDomainDto.description}">
+    </div>
+    <div class="govuk-form-group">
+      <input class="govuk-button" id="submit" type="submit" role="button"
+             data-element-id="continue-button" value="Add Email Domain">
+      <a class="govuk-button govuk-button--secondary" id="cancel" href="/auth/email-domains">Cancel</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>

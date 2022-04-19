@@ -50,6 +50,9 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+    hiddenmethod:
+      filter:
+        enabled: true
 
 auth:
   endpoint.url: http://localhost:${server.port:8080}/auth

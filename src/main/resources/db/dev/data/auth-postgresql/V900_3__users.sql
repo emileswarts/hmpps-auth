@@ -207,6 +207,8 @@ insert into group_assignable_role (role_id, group_id, automatic) values ((select
 
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'TEST_PF_POLICE_1' and role_code = 'PF_POLICE';
 
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DEVELOPER' and role_code = 'MAINTAIN_EMAIL_DOMAINS';
+
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'TEST_PF_POLICE_1' and group_code = 'PF_LONDON';
 
 

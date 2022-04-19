@@ -11,6 +11,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
+import org.springframework.validation.BindingResult
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
@@ -21,6 +22,7 @@ class EmailDomainControllerTest {
   private val telemetryClient: TelemetryClient = mock()
   private val authentication: Authentication = mock()
   private val principal: UserPersonDetails = mock()
+  private val result: BindingResult = mock()
 
   private val id1 = UUID.randomUUID().toString()
   private val id2 = UUID.randomUUID().toString()
@@ -53,7 +55,7 @@ class EmailDomainControllerTest {
     whenever(authentication.principal).thenReturn(principal)
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
-    controller.addEmailDomain(authentication, newEmailDomain)
+    controller.addEmailDomain(authentication, newEmailDomain, result)
 
     verify(emailDomainService).addDomain(newEmailDomain)
   }
@@ -75,7 +77,7 @@ class EmailDomainControllerTest {
     val eventDetails = argumentCaptor<Map<String, String>>()
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
-    controller.addEmailDomain(authentication, newEmailDomain)
+    controller.addEmailDomain(authentication, newEmailDomain, result)
 
     verify(telemetryClient).trackEvent(eq("EmailDomainCreateSuccess"), eventDetails.capture(), anyOrNull())
     assertEquals("Fred", eventDetails.firstValue.getValue("username"))
@@ -97,52 +99,51 @@ class EmailDomainControllerTest {
   }
 
   @Test
-  fun shouldRespondWithDomainListOnSuccessfulAdd() {
+  fun shouldRedirectToDomainListOnSuccessfulAdd() {
     whenever(authentication.principal).thenReturn(principal)
 
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
 
-    whenever(emailDomainService.addDomain(newEmailDomain)).thenReturn(
-      listOf(
-        buildEmailDomain(id1, "%advancecharity.org.uk"),
-        buildEmailDomain(id2, "%123.co.uk"),
-      )
-    )
-
-    val expectedEmailDomainList = listOf(
-      EmailDomainDto(id1, "%advancecharity.org.uk"),
-      EmailDomainDto(id2, "%123.co.uk"),
-    )
-
-    val modelAndView = controller.addEmailDomain(authentication, newEmailDomain)
+    val modelAndView = controller.addEmailDomain(authentication, newEmailDomain, result)
 
     assertTrue(modelAndView.hasView())
-    assertEquals(modelAndView.viewName, "ui/emailDomains")
-    assertEquals(modelAndView.model["emailDomains"], expectedEmailDomainList)
+    assertEquals(modelAndView.viewName, "redirect:/email-domains")
   }
 
   @Test
-  fun shouldRespondWithDomainListOnSuccessfulDelete() {
+  fun shouldReturnToAddEmailDomainFormOnValidationErrors() {
+    whenever(authentication.principal).thenReturn(principal)
+    whenever(result.hasErrors()).thenReturn(true)
+
+    val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
+
+    val modelAndView = controller.addEmailDomain(authentication, newEmailDomain, result)
+
+    assertTrue(modelAndView.hasView())
+    assertEquals(modelAndView.viewName, "ui/newEmailDomainForm")
+    assertEquals(modelAndView.model["createEmailDomainDto"], newEmailDomain)
+  }
+
+  @Test
+  fun shouldRedirectToDomainListOnSuccessfulDelete() {
     whenever(authentication.principal).thenReturn(principal)
     val id = UUID.randomUUID().toString()
-
-    whenever(emailDomainService.removeDomain(id)).thenReturn(
-      listOf(
-        buildEmailDomain(id1, "%advancecharity.org.uk"),
-        buildEmailDomain(id2, "%123.co.uk"),
-      )
-    )
-
-    val expectedEmailDomainList = listOf(
-      EmailDomainDto(id1, "%advancecharity.org.uk"),
-      EmailDomainDto(id2, "%123.co.uk"),
-    )
 
     val modelAndView = controller.deleteEmailDomain(authentication, id)
 
     assertTrue(modelAndView.hasView())
-    assertEquals(modelAndView.viewName, "ui/emailDomains")
-    assertEquals(modelAndView.model["emailDomains"], expectedEmailDomainList)
+    assertEquals(modelAndView.viewName, "redirect:/email-domains")
+  }
+
+  @Test
+  fun shouldRouteToDeleteConfirm() {
+    whenever(emailDomainService.domain(id1)).thenReturn(buildEmailDomain(id1, "%advancecharity.org.uk"))
+
+    val modelAndView = controller.deleteConfirm(authentication, id1)
+
+    assertTrue(modelAndView.hasView())
+    assertEquals(modelAndView.viewName, "ui/deleteEmailDomainConfirm")
+    assertEquals(EmailDomainDto(id1, "%advancecharity.org.uk"), modelAndView.model["emailDomain"])
   }
 
   private fun buildEmailDomain(id: String, domain: String) = EmailDomain(UUID.fromString(id), domain)
