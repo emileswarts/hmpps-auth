@@ -22,9 +22,6 @@
 
     <div th:class="'govuk-form-group' + (${#fields.hasAnyErrors()} ? ' govuk-form-group--error' : '')">
       <label class="govuk-label" for="name">Domain name</label>
-      <span class="govuk-hint">
-        Domain must start with % e.g. %digital.justice.gov.uk
-      </span>
       <span th:if="${#fields.hasErrors('name')}" class="govuk-error-message">
         <p th:each="err : ${#fields.errors('name')}" th:text="${err}"></p>
       </span>

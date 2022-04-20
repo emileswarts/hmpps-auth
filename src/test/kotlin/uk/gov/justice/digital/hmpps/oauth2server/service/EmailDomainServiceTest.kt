@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.EmailDomainExclusions
 import uk.gov.justice.digital.hmpps.oauth2server.resource.CreateEmailDomainDto
+import uk.gov.justice.digital.hmpps.oauth2server.resource.EmailDomainDto
 import java.util.Optional
 import java.util.UUID
 
@@ -21,24 +22,38 @@ class EmailDomainServiceTest {
 
   private val emailDomainRepository: EmailDomainRepository = mock()
   private val emailDomainExclusions: EmailDomainExclusions = mock()
-  private val emailDomains: List<EmailDomain> = mock()
-  private val newDomain = CreateEmailDomainDto("%123.co.uk", "test")
+  private val newDomain = CreateEmailDomainDto("123.co.uk", "test")
 
   private val service = EmailDomainService(emailDomainRepository, emailDomainExclusions)
 
   @Test
   fun shouldRetrieveEmailDomainList() {
-    whenever(emailDomainRepository.findAllByOrderByName()).thenReturn(emailDomains)
+    val randomUUID = UUID.randomUUID()
+    val randomUUID2 = UUID.randomUUID()
+    val randomUUID3 = UUID.randomUUID()
+
+    whenever(emailDomainRepository.findAll()).thenReturn(
+      listOf(
+        EmailDomain(id = randomUUID, name = "acc.com"),
+        EmailDomain(id = randomUUID2, name = "%adc.com"),
+        EmailDomain(id = randomUUID3, name = "%.abc.com"),
+      )
+    )
 
     val actualEmailDomainList = service.domainList()
 
-    assertEquals(actualEmailDomainList, emailDomains)
-    verifyNoInteractions(emailDomains)
+    val expectedDomainList = listOf(
+      EmailDomainDto(randomUUID3.toString(), "abc.com"),
+      EmailDomainDto(randomUUID.toString(), "acc.com"),
+      EmailDomainDto(randomUUID2.toString(), "adc.com"),
+    )
+
+    assertEquals(expectedDomainList, actualEmailDomainList)
   }
 
   @Test
   fun shouldNotAddDomainWhenAlreadyPresent() {
-    whenever(emailDomainRepository.findByName(newDomain.name)).thenReturn(EmailDomain(name = newDomain.name, description = newDomain.description))
+    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(EmailDomain(name = newDomain.name, description = newDomain.description))
 
     service.addDomain(newDomain)
 
@@ -57,7 +72,7 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldAddDomainWhenNotAlreadyPresentOrExcluded() {
+  fun shouldPersistDomainWithAddedPercentPrefixWhenDomainNotAlreadyPresentOrExcluded() {
 
     service.addDomain(newDomain)
 
@@ -65,8 +80,22 @@ class EmailDomainServiceTest {
     verify(emailDomainRepository).save(emailDomainCaptor.capture())
     val actualEmailDomain = emailDomainCaptor.firstValue
 
-    assertEquals(actualEmailDomain.name, newDomain.name)
-    assertEquals(actualEmailDomain.description, newDomain.description)
+    assertEquals("%" + newDomain.name, actualEmailDomain.name)
+    assertEquals(newDomain.description, actualEmailDomain.description)
+  }
+
+  @Test
+  fun shouldNotAddPercentPrefixWhenDomainNameAlreadyHasPercentPrefix() {
+
+    val domain = CreateEmailDomainDto("%123.co.uk", "test")
+    service.addDomain(domain)
+
+    val emailDomainCaptor = argumentCaptor<EmailDomain>()
+    verify(emailDomainRepository).save(emailDomainCaptor.capture())
+    val actualEmailDomain = emailDomainCaptor.firstValue
+
+    assertEquals(domain.name, actualEmailDomain.name)
+    assertEquals(domain.description, actualEmailDomain.description)
   }
 
   @Test
@@ -98,12 +127,13 @@ class EmailDomainServiceTest {
   fun shouldRetrieveDomain() {
     val randomUUID = UUID.randomUUID()
     val id = randomUUID.toString()
-    val emailDomain = EmailDomain(randomUUID, "abc.com")
+    val emailDomain = EmailDomain(randomUUID, "%.abc.com")
     whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
 
     val actualDomain = service.domain(id)
+    val expectedDomain = EmailDomainDto(id, "abc.com")
 
-    assertEquals(emailDomain, actualDomain)
+    assertEquals(expectedDomain, actualDomain)
   }
 
   @Test

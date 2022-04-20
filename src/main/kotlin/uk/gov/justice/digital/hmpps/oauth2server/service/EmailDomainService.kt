@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.EmailDomainExclusions
 import uk.gov.justice.digital.hmpps.oauth2server.resource.CreateEmailDomainDto
+import uk.gov.justice.digital.hmpps.oauth2server.resource.EmailDomainDto
 import java.util.UUID
 
 @Service
@@ -15,24 +16,42 @@ class EmailDomainService(
   private val emailDomainRepository: EmailDomainRepository,
   private val emailDomainExclusions: EmailDomainExclusions,
 ) {
+  private companion object {
+    private const val PERCENT = "%"
+  }
 
   @Transactional(readOnly = true)
-  fun domainList(): List<EmailDomain> = emailDomainRepository.findAllByOrderByName()
+  fun domainList(): List<EmailDomainDto> {
+    val allEmailDomains = emailDomainRepository.findAll()
+    val emailDomainDtoList = allEmailDomains.map { emailDomain ->
+      EmailDomainDto(
+        emailDomain.id.toString(),
+        cleanDomainNameForDisplay(emailDomain.name)
+      )
+    }
+
+    return emailDomainDtoList.sortedWith(compareBy { it.domain })
+  }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun domain(id: String): EmailDomain {
-    return retrieveDomain(id, "retrieve")
+  fun domain(id: String): EmailDomainDto {
+    val emailDomain = retrieveDomain(id, "retrieve")
+    return EmailDomainDto(
+      emailDomain.id.toString(),
+      cleanDomainNameForDisplay(emailDomain.name)
+    )
   }
 
   @Throws(EmailDomainExcludedException::class)
   fun addDomain(newDomain: CreateEmailDomainDto) {
-    val existingDomain = emailDomainRepository.findByName(newDomain.name)
+    val domainNameInternal = if (newDomain.name.startsWith(PERCENT)) newDomain.name else PERCENT + newDomain.name
+    val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
     existingDomain ?: run {
       if (emailDomainExclusions.contains(newDomain.name)) {
         throw EmailDomainExcludedException(newDomain.name, "domain present in excluded list")
       }
-      emailDomainRepository.save(EmailDomain(name = newDomain.name, description = newDomain.description))
+      emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
     }
   }
 
@@ -45,6 +64,10 @@ class EmailDomainService(
   private fun retrieveDomain(id: String, action: String): EmailDomain {
     val uuid: UUID = UUID.fromString(id)
     return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, id, "notfound")
+  }
+
+  private fun cleanDomainNameForDisplay(persistedDomainName: String): String {
+    return persistedDomainName.removePrefix(PERCENT).removePrefix(".")
   }
 }
 

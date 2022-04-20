@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.ModelAndView
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
 
 @Controller
@@ -41,7 +39,7 @@ class EmailDomainController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun deleteConfirm(authentication: Authentication, @PathVariable id: String): ModelAndView {
     val emailDomain = emailDomainService.domain(id)
-    return ModelAndView("ui/deleteEmailDomainConfirm", mapOf("emailDomain" to EmailDomainDto(emailDomain.id.toString(), emailDomain.name)))
+    return ModelAndView("ui/deleteEmailDomainConfirm", mapOf("emailDomain" to emailDomain))
   }
 
   @PostMapping("/email-domains")
@@ -82,9 +80,8 @@ class EmailDomainController(
     return ModelAndView("redirect:/email-domains")
   }
 
-  private fun toDomainListView(emailDomains: List<EmailDomain>): ModelAndView {
-    val domainDtoList = emailDomains.map { emailDomain -> EmailDomainDto(emailDomain.id.toString(), emailDomain.name) }
-    return ModelAndView("ui/emailDomains", mapOf("emailDomains" to domainDtoList))
+  private fun toDomainListView(emailDomains: List<EmailDomainDto>): ModelAndView {
+    return ModelAndView("ui/emailDomains", mapOf("emailDomains" to emailDomains))
   }
 }
 
@@ -92,7 +89,6 @@ data class EmailDomainDto(val id: String, val domain: String)
 
 data class CreateEmailDomainDto(
   @field:NotBlank(message = "email domain name must be supplied")
-  @field:Pattern(regexp = "^%.*$", message = "email domain name must start with %")
   @field:Size(min = 6, max = 100, message = "email domain name must be between 6 and 100 characters in length (inclusive)")
   val name: String = "",
 

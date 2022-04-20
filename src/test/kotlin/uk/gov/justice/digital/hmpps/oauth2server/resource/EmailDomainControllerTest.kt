@@ -9,10 +9,10 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.validation.BindingResult
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import java.util.UUID
@@ -23,31 +23,22 @@ class EmailDomainControllerTest {
   private val authentication: Authentication = mock()
   private val principal: UserPersonDetails = mock()
   private val result: BindingResult = mock()
+  private val emailDomains: List<EmailDomainDto> = mock()
 
   private val id1 = UUID.randomUUID().toString()
-  private val id2 = UUID.randomUUID().toString()
 
   private val controller = EmailDomainController(emailDomainService, telemetryClient)
 
   @Test
   fun shouldRespondWithEmailDomainsRetrieved() {
-    whenever(emailDomainService.domainList()).thenReturn(
-      listOf(
-        buildEmailDomain(id1, "%advancecharity.org.uk"),
-        buildEmailDomain(id2, "%123.co.uk"),
-      )
-    )
-
-    val expectedEmailDomainList = listOf(
-      EmailDomainDto(id1, "%advancecharity.org.uk"),
-      EmailDomainDto(id2, "%123.co.uk"),
-    )
+    whenever(emailDomainService.domainList()).thenReturn(emailDomains)
 
     val modelAndView = controller.domainList()
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/emailDomains")
-    assertEquals(modelAndView.model["emailDomains"], expectedEmailDomainList)
+    assertEquals(modelAndView.model["emailDomains"], emailDomains)
+    verifyNoInteractions(emailDomains)
   }
 
   @Test
@@ -137,14 +128,12 @@ class EmailDomainControllerTest {
 
   @Test
   fun shouldRouteToDeleteConfirm() {
-    whenever(emailDomainService.domain(id1)).thenReturn(buildEmailDomain(id1, "%advancecharity.org.uk"))
+    whenever(emailDomainService.domain(id1)).thenReturn(EmailDomainDto(id1, "advancecharity.org.uk"))
 
     val modelAndView = controller.deleteConfirm(authentication, id1)
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/deleteEmailDomainConfirm")
-    assertEquals(EmailDomainDto(id1, "%advancecharity.org.uk"), modelAndView.model["emailDomain"])
+    assertEquals(EmailDomainDto(id1, "advancecharity.org.uk"), modelAndView.model["emailDomain"])
   }
-
-  private fun buildEmailDomain(id: String, domain: String) = EmailDomain(UUID.fromString(id), domain)
 }

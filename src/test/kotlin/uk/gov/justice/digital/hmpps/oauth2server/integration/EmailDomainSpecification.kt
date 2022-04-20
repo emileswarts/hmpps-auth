@@ -33,7 +33,7 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
 
   @Test
   fun `I can add and remove an email domain`() {
-    val domainName = "%.aaa.com"
+    val domainName = "aaa.com"
     goTo(loginPage).loginAs("AUTH_DEVELOPER", "password123456")
     goTo(emailDomainsPage).isAt()
 
@@ -62,7 +62,6 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
     emailDomainsPage.navigateToAddEmailDomain()
     addEmailDomainPage.addEmailDomain("", "")
     addEmailDomainPage.confirmErrorsPresent(
-      "email domain name must start with %",
       "email domain name must be supplied",
       "email domain name must be between 6 and 100 characters in length (inclusive)",
     )

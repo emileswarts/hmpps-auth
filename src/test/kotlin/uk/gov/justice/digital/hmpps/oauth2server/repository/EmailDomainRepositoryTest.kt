@@ -45,14 +45,6 @@ class EmailDomainRepositoryTest {
   }
 
   @Test
-  fun shouldRetrieveAllDomainsOrderedByName() {
-    val allDomains = repository.findAllByOrderByName()
-
-    assertTrue(allDomains.isNotEmpty())
-    assertTrue(allDomains.asSequence().zipWithNext { a, b -> a.name.compareTo(b.name) }.all { true })
-  }
-
-  @Test
   fun shouldRetrieveDomainByName() {
     val retrievedEntity = repository.findByName("%advancecharity.org.uk")
 

@@ -5,8 +5,5 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import java.util.UUID
 
 interface EmailDomainRepository : CrudRepository<EmailDomain, UUID> {
-
-  fun findAllByOrderByName(): List<EmailDomain>
-
   fun findByName(name: String): EmailDomain?
 }
