@@ -66,6 +66,18 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
       "email domain name must be between 6 and 100 characters in length (inclusive)",
     )
   }
+
+  @Test
+  fun `I am advised of error when adding excluded email domain`() {
+    goTo(loginPage).loginAs("AUTH_DEVELOPER", "password123456")
+    goTo(emailDomainsPage).isAt()
+
+    emailDomainsPage.navigateToAddEmailDomain()
+    addEmailDomainPage.addEmailDomain("virgin.net", "")
+    addEmailDomainPage.confirmErrorsPresent(
+      "Unable to add email domain: virgin.net to allowed list with reason: domain present in excluded list",
+    )
+  }
 }
 
 @PageUrl("/email-domains/{id}")

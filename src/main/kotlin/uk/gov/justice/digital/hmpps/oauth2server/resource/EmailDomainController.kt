@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainExcludedException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -49,9 +50,13 @@ class EmailDomainController(
       return newEmailDomainView(emailDomain)
     }
 
-    emailDomainService.addDomain(emailDomain)
-    recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", authentication, "domain", emailDomain.name)
-    return redirectToDomainListView()
+    return try {
+      emailDomainService.addDomain(emailDomain)
+      recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", authentication, "domain", emailDomain.name)
+      redirectToDomainListView()
+    } catch (e: EmailDomainExcludedException) {
+      newEmailDomainView(emailDomain).addObject("error", e.message)
+    }
   }
 
   @DeleteMapping("/email-domains/{id}")
