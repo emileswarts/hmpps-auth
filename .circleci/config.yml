@@ -158,29 +158,17 @@ workflows:
           requires:
             - deploy_preprod_cp
       - hmpps/deploy_env:
-          name: deploy_prod
-          env: "prod"
+          name: deploy_prodcp
+          env: "prodcp"
           jira_update: true
           jira_env_type: production
           slack_notification: true
-          context:
-            - hmpps-common-vars
-            - hmpps-auth-prod
-          requires:
-            - request-prod-approval
-
-      - hmpps/deploy_env:
-          name: deploy_prodcp
-          env: "prodcp"
-          # jira_update: true
-          # jira_env_type: production
-          # slack_notification: true
           helm_dir: "helm_deploy_cp"
           context:
             - hmpps-common-vars
             - hmpps-auth-prodcp
           requires:
-            - deploy_prod
+            - request-prod-approval
 
   security:
     triggers:
