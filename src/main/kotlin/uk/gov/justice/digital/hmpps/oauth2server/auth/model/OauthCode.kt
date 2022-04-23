@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.auth.model
 
+import org.hibernate.annotations.Type
 import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -16,6 +17,7 @@ data class OauthCode(
 ) {
 
   @Lob
+  @Type(type = "org.hibernate.type.BinaryType")
   @Column(nullable = false)
   var authentication: ByteArray? = null
 
