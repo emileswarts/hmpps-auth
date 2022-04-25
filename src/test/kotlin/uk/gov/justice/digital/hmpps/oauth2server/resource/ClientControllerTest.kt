@@ -308,6 +308,27 @@ class ClientControllerTest {
     }
 
     @Test
+    fun `set mfa remember me`() {
+      val authClientDetails = AuthClientDetails()
+      authClientDetails.mfaRememberMe = true
+      assertThat(authClientDetails.additionalInformation).containsExactlyEntriesOf(mapOf("mfaRememberMe" to true))
+      assertThat(authClientDetails.mfaRememberMe).isEqualTo(true)
+    }
+
+    @Test
+    fun `get mfa remember me`() {
+      val authClientDetails = AuthClientDetails()
+      authClientDetails.addAdditionalInformation("mfaRememberMe", true)
+      assertThat(authClientDetails.mfaRememberMe).isEqualTo(true)
+    }
+
+    @Test
+    fun `get mfa remember me not set`() {
+      val authClientDetails = AuthClientDetails()
+      assertThat(authClientDetails.mfaRememberMe).isNull()
+    }
+
+    @Test
     fun `set Jira`() {
       val authClientDetails = AuthClientDetails()
       authClientDetails.jiraNo = "DT-2264"

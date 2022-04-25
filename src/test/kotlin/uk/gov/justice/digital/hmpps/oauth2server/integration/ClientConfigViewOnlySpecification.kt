@@ -62,6 +62,15 @@ class ClientConfigViewOnlySpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `view only Client deployment details are displayed for mfa enabled clients`() {
+    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+
+    goTo(clientViewOnlySummaryPage).viewClient("service-mfa-test-client")
+    clientViewOnlyPage.isAtPage()
+      .checkMfaDetails()
+  }
+
+  @Test
   fun `Display last accessed, created and secret updated`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -310,6 +319,12 @@ open class ClientViewOnlyPage(heading: String = "View client", headingStartsWith
     assertThat(el("[data-qa='secretName']").displayed()).isFalse
     assertThat(el("[data-qa='clientIdKey']").displayed()).isFalse
     assertThat(el("[data-qa='secretKey']").displayed()).isFalse
+    return this
+  }
+
+  fun checkMfaDetails(): ClientViewOnlyPage {
+    assertThat(el("[data-qa='mfa']").text()).isEqualTo("all")
+    assertThat(el("[data-qa='mfaRememberMe']").text()).isEqualTo("true")
     return this
   }
 

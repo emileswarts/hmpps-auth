@@ -114,6 +114,28 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `I can edit a client credential with an mfa remember me field`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+
+    goTo(clientSummaryPage).editClient("service-mfa-test-client")
+    clientMaintenancePage.isAtPage()
+    assertThat(el("#mfaRememberMe").selected()).isTrue
+  }
+
+  @Test
+  fun `I can edit a client credential and set an mfa remember me field`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+
+    goTo(clientSummaryPage).editClient("v1-client")
+    clientMaintenancePage.isAtPage()
+    assertThat(el("#mfaRememberMe").selected()).isFalse
+    clientMaintenancePage.selectCheckboxOption("mfaRememberMe").save()
+    clientSummaryPage.isAtPage().editClient("v1-client")
+    assertThat(el("#mfaRememberMe").selected()).isTrue
+    clientMaintenancePage.selectCheckboxOption("mfaRememberMe").save()
+  }
+
+  @Test
   fun `I can edit a client credential and set the allowed ips field`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
     goTo(clientSummaryPage).editClient("v1-client")

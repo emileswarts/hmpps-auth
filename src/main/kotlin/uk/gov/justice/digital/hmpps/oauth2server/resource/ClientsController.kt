@@ -287,6 +287,11 @@ class ClientsController(
       set(mfa) {
         addAdditionalInformation("mfa", mfa)
       }
+    var mfaRememberMe: Boolean?
+      get() = additionalInformation["mfaRememberMe"] as Boolean?
+      set(mfaRememberMe) {
+        addAdditionalInformation("mfaRememberMe", mfaRememberMe)
+      }
   }
 }
 

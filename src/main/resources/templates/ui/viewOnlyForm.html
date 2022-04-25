@@ -167,11 +167,21 @@
 
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
-        Database Username
+        MFA remember me
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="mfaRememberMe" name="mfaRememberMe"
+          th:text="*{clientDetails.mfaRememberMe != null} ? *{clientDetails.mfaRememberMe} : ''">
+        MFA remember me
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Database username
       </dt>
       <dd class="govuk-summary-list__value" data-qa="databaseUsernameField" name="databaseUsernameField"
           th:text="*{clientDetails.databaseUsernameField != null} ? *{clientDetails.databaseUsernameField} : ''">
-        Database Username
+        Database username
       </dd>
     </div>
   </dl>
