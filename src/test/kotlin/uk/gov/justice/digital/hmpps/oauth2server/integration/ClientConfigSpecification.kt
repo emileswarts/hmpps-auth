@@ -117,7 +117,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   fun `I can edit a client credential with an mfa remember me field`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
 
-    goTo(clientSummaryPage).editClient("service-mfa-test-client")
+    goTo(clientSummaryPage).editClient("service-mfa-remember-test-client")
     clientMaintenancePage.isAtPage()
     assertThat(el("#mfaRememberMe").selected()).isTrue
   }

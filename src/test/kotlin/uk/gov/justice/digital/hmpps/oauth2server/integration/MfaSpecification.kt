@@ -581,6 +581,9 @@ open class MfaEmailPage : AuthPage<MfaEmailPage>("HMPPS Digital Services - Email
   @FindBy(css = "input[name='code']")
   private lateinit var code: FluentWebElement
 
+  @FindBy(css = "input[name='rememberMe']")
+  private lateinit var rememberMe: FluentWebElement
+
   @FindBy(linkText = "Not received an email?")
   private lateinit var resend: FluentWebElement
 
@@ -591,20 +594,20 @@ open class MfaEmailPage : AuthPage<MfaEmailPage>("HMPPS Digital Services - Email
     return el("[data-qa='mfa-code']").text()
   }
 
-  fun submitCode() {
-    val mfaCode = el("[data-qa='mfa-code']").text()
+  fun submitCode(code: String? = null): MfaEmailPage {
+    val mfaCode = code ?: el("[data-qa='mfa-code']").text()
     this.code.fill().withText(mfaCode)
-    continueButton.submit()
-  }
-
-  fun submitCode(code: String): MfaEmailPage {
-    this.code.fill().withText(code)
     continueButton.submit()
     return this
   }
 
   fun submitWithoutCode(): MfaEmailPage {
     continueButton.submit()
+    return this
+  }
+
+  fun rememberMe(): MfaEmailPage {
+    rememberMe.click()
     return this
   }
 
@@ -636,6 +639,9 @@ open class MfaTextPage : AuthPage<MfaTextPage>("HMPPS Digital Services - Text Me
   @FindBy(css = "input[name='code']")
   private lateinit var code: FluentWebElement
 
+  @FindBy(css = "input[name='rememberMe']")
+  private lateinit var rememberMe: FluentWebElement
+
   @FindBy(linkText = "Not received a text message?")
   private lateinit var resend: FluentWebElement
 
@@ -655,6 +661,11 @@ open class MfaTextPage : AuthPage<MfaTextPage>("HMPPS Digital Services - Text Me
   fun submitCode(code: String): MfaTextPage {
     this.code.fill().withText(code)
     continueButton.submit()
+    return this
+  }
+
+  fun rememberMe(): MfaTextPage {
+    rememberMe.click()
     return this
   }
 

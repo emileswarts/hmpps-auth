@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientExtension
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * Verify clients can login, be redirected back to their system and then logout again.
@@ -66,6 +68,24 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
       .jsonPath(".user_id").isEqualTo("1")
       .jsonPath(".sub").isEqualTo("ITAG_USER")
       .jsonPath(".auth_source").isEqualTo("nomis")
+  }
+
+  @Test
+  fun `Sign in and remember me`() {
+    clientMfaServiceAccess("service-mfa-remember-test-client") {
+      loginPage.isAtPage().submitLogin("ITAG_USER", "password")
+      mfaEmailPage.isAtPage()
+        .assertEmailCodeDestination("itag******@******.gov.uk")
+        .rememberMe()
+        .submitCode()
+    }
+      .jsonPath(".user_name").isEqualTo("ITAG_USER")
+
+    goTo(loginPage)
+    val cookie = driver.manage().getCookieNamed("mfa_remember_me")
+    assertThat(cookie).isNotNull
+    assertThat(cookie.value).isNotBlank.hasSize(36)
+    assertThat(cookie.expiry).isCloseTo(Instant.now().plus(7, ChronoUnit.DAYS), 1000 * 60)
   }
 
   @Test
@@ -139,6 +159,19 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
   }
 
   @Test
+  fun `MFA code is required - remember me shown`() {
+    goTo(loginPage).loginAs("AUTH_PREF_TEXT")
+    startClientAccess("service-mfa-remember-test-client")
+    mfaTextPage.isAtPage()
+      .rememberMe()
+      .submitCode(" ")
+    mfaTextPage.checkError("Enter the code received in the text message")
+      .rememberMe()
+      .submitCode("123")
+      .checkTextCodeIsIncorrectError()
+  }
+
+  @Test
   fun `MFA code is required - email`() {
     goTo(loginPage).loginAs("AUTH_PREF_2ND_EMAIL")
     startClientAccess("service-mfa-test-client")
@@ -195,8 +228,8 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
       .jsonPath(".user_name").isEqualTo("AUTH_MFA_USER")
   }
 
-  private fun clientMfaServiceAccess(doWithinAuth: () -> Unit = {}): WebTestClient.BodyContentSpec =
-    clientAccess("service-mfa-test-client", doWithinAuth)
+  private fun clientMfaServiceAccess(clientId: String = "service-mfa-test-client", doWithinAuth: () -> Unit = {}): WebTestClient.BodyContentSpec =
+    clientAccess(clientId, doWithinAuth)
 }
 
 @PageUrl("/service-mfa-challenge")

@@ -1,8 +1,11 @@
+@file:Suppress("DEPRECATION")
+
 package uk.gov.justice.digital.hmpps.oauth2server.resource
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -10,10 +13,14 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.oauth2.provider.AuthorizationRequest
+import org.springframework.security.oauth2.provider.ClientDetails
+import org.springframework.security.oauth2.provider.ClientDetailsService
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.MfaPreferenceType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
@@ -38,11 +45,37 @@ class MfaServiceBasedControllerTest {
   private val mfaService: MfaService = mock()
   private val request: HttpServletRequest = MockHttpServletRequest()
   private val response: HttpServletResponse = MockHttpServletResponse()
+  private val mfaRememberMeCookieHelper: MfaRememberMeCookieHelper = mock()
+  private val clientsDetailsService: ClientDetailsService = mock()
+
   private val controller =
-    MfaServiceBasedController(jwtAuthenticationSuccessHandler, tokenService, telemetryClient, mfaService, false)
+    MfaServiceBasedController(
+      jwtAuthenticationSuccessHandler,
+      tokenService,
+      mfaRememberMeCookieHelper,
+      clientsDetailsService,
+      telemetryClient,
+      mfaService,
+      false
+    )
   private val controllerSmokeTestEnabled =
-    MfaServiceBasedController(jwtAuthenticationSuccessHandler, tokenService, telemetryClient, mfaService, true)
+    MfaServiceBasedController(
+      jwtAuthenticationSuccessHandler,
+      tokenService,
+      mfaRememberMeCookieHelper,
+      clientsDetailsService,
+      telemetryClient,
+      mfaService,
+      true
+    )
   private val authentication = UsernamePasswordAuthenticationToken("bob", "pass")
+  private val authorizationRequest = AuthorizationRequest()
+  private val clientDetails: ClientDetails = mock()
+
+  @BeforeEach
+  fun setup() {
+    authorizationRequest.clientId = "some-client"
+  }
 
   @Nested
   inner class mfaSendChallengeServiceBased {
@@ -100,14 +133,22 @@ class MfaServiceBasedControllerTest {
 
   @Nested
   inner class mfaChallengeRequestServiceBased {
+    @BeforeEach
+    fun setup() {
+      whenever(clientsDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
+    }
+
     @Test
     fun `mfaChallengeRequest check model contains when error when error in param`() {
       whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.EMAIL))).thenReturn("auth******@******.gov.uk")
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf())
+
       val modelAndView = controller.mfaChallengeRequestServiceBased(
         "invalid",
         "some token",
         MfaPreferenceType.EMAIL,
         "bob/user",
+        authorizationRequest,
       )
       assertThat(modelAndView.viewName).isEqualTo("mfaChallengeServiceBased")
       assertThat(modelAndView.model).containsOnly(
@@ -116,23 +157,55 @@ class MfaServiceBasedControllerTest {
         entry("error", "invalid"),
         entry("token", "some token"),
         entry("user_oauth_approval", "bob/user"),
+        entry("mfaRememberMe", null),
+      )
+    }
+
+    @Test
+    fun `mfaChallengeRequest sets mfaRememberMe parameter`() {
+      whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.EMAIL))).thenReturn("auth******@******.gov.uk")
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfaRememberMe" to true))
+
+      val modelAndView = controller.mfaChallengeRequestServiceBased(
+        "invalid",
+        "some token",
+        MfaPreferenceType.EMAIL,
+        "bob/user",
+        authorizationRequest,
+      )
+      assertThat(modelAndView.viewName).isEqualTo("mfaChallengeServiceBased")
+      assertThat(modelAndView.model).containsOnly(
+        entry("mfaPreference", MfaPreferenceType.EMAIL),
+        entry("codeDestination", "auth******@******.gov.uk"),
+        entry("error", "invalid"),
+        entry("token", "some token"),
+        entry("user_oauth_approval", "bob/user"),
+        entry("mfaRememberMe", true),
       )
     }
   }
 
   @Nested
-  inner class MfaChallenge {
+  inner class mfaChallengeServiceBased {
+    @BeforeEach
+    fun setup() {
+      whenever(clientsDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf())
+    }
+
     @Test
     fun `mfaChallenge token invalid`() {
       whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.EMAIL,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("redirect:/", "error", "mfainvalid")
     }
@@ -153,13 +226,15 @@ class MfaServiceBasedControllerTest {
       whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(MfaFlowException("invalid"))
       whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.EMAIL))).thenReturn("auth******@******.gov.uk")
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.EMAIL,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("mfaChallengeServiceBased")
       assertThat(modelAndView.model).containsOnly(
@@ -168,6 +243,7 @@ class MfaServiceBasedControllerTest {
         entry("mfaPreference", MfaPreferenceType.EMAIL),
         entry("user_oauth_approval", "bob/user"),
         entry("codeDestination", "auth******@******.gov.uk"),
+        entry("mfaRememberMe", null),
       )
     }
 
@@ -187,13 +263,15 @@ class MfaServiceBasedControllerTest {
       whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(MfaFlowException("invalid"))
       whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.TEXT))).thenReturn("*******0321")
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.TEXT,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.TEXT,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("mfaChallengeServiceBased")
       assertThat(modelAndView.model).containsOnly(
@@ -202,6 +280,45 @@ class MfaServiceBasedControllerTest {
         entry("mfaPreference", MfaPreferenceType.TEXT),
         entry("user_oauth_approval", "bob/user"),
         entry("codeDestination", "*******0321"),
+        entry("mfaRememberMe", null),
+      )
+    }
+
+    @Test
+    fun `code invalid causes remember me to still be set`() {
+      val user = createSampleUser(username = "someuser")
+      whenever(tokenService.getToken(any(), anyString())).thenReturn(
+        Optional.of(
+          UserToken(
+            "otken",
+            TokenType.MFA,
+            LocalDateTime.now().plusHours(1L),
+            user
+          )
+        )
+      )
+      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(MfaFlowException("invalid"))
+      whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.TEXT))).thenReturn("*******0321")
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfaRememberMe" to true))
+      val modelAndView = controller.mfaChallengeServiceBased(
+        token = "some token",
+        mfaPreference = MfaPreferenceType.TEXT,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
+      )
+      assertThat(modelAndView!!.viewName).isEqualTo("mfaChallengeServiceBased")
+      assertThat(modelAndView.model).containsOnly(
+        entry("token", "some token"),
+        entry("error", "invalid"),
+        entry("mfaPreference", MfaPreferenceType.TEXT),
+        entry("user_oauth_approval", "bob/user"),
+        entry("codeDestination", "*******0321"),
+        entry("mfaRememberMe", true),
       )
     }
 
@@ -220,13 +337,15 @@ class MfaServiceBasedControllerTest {
       )
       whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(LoginFlowException("locked"))
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.EMAIL,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("redirect:/sign-out")
       assertThat(modelAndView.model).containsOnly(entry("error", "locked"))
@@ -247,13 +366,15 @@ class MfaServiceBasedControllerTest {
       )
       whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(LoginFlowException("locked"))
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.TEXT,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.TEXT,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("redirect:/sign-out")
       assertThat(modelAndView.model).containsOnly(entry("error", "locked"))
@@ -274,16 +395,48 @@ class MfaServiceBasedControllerTest {
       )
       whenever(tokenService.createToken(any(), anyString())).thenReturn("a token")
       val modelAndView = controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.EMAIL,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
       assertThat(modelAndView!!.viewName).isEqualTo("forward:/oauth/authorize")
       verify(jwtAuthenticationSuccessHandler).updateMfaInRequest(request, response, authentication)
+      verifyNoInteractions(mfaRememberMeCookieHelper)
+    }
+
+    @Test
+    fun `remember me adds cookie to request`() {
+      val user = createSampleUser(username = "someuser")
+      whenever(tokenService.getToken(any(), anyString())).thenReturn(
+        Optional.of(
+          UserToken(
+            "otken",
+            TokenType.MFA,
+            LocalDateTime.now().plusHours(1L),
+            user
+          )
+        )
+      )
+      whenever(tokenService.createToken(any(), anyString())).thenReturn("mfa remember value")
+      controller.mfaChallengeServiceBased(
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = true,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
+      )
+
+      verify(mfaRememberMeCookieHelper).addCookieToResponse(request, response, "mfa remember value")
     }
 
     @Test
@@ -300,15 +453,21 @@ class MfaServiceBasedControllerTest {
         )
       )
       controller.mfaChallengeServiceBased(
-        "some token",
-        MfaPreferenceType.EMAIL,
-        "some code",
-        "bob/user",
-        request,
-        response,
-        authentication,
+        token = "some token",
+        mfaPreference = MfaPreferenceType.EMAIL,
+        code = "some code",
+        rememberMe = false,
+        user_oauth_approval = "bob/user",
+        request = request,
+        response = response,
+        authentication = authentication,
+        authorizationRequest = authorizationRequest,
       )
-      verify(telemetryClient).trackEvent("MFAAuthenticateSuccess", mapOf("username" to "someuser", "authSource" to "auth"), null)
+      verify(telemetryClient).trackEvent(
+        "MFAAuthenticateSuccess",
+        mapOf("username" to "someuser", "authSource" to "auth"),
+        null
+      )
     }
   }
 

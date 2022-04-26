@@ -16,6 +16,7 @@ open class MfaClientService(
     val client = clientDetailsService.loadClientByClientId(request?.clientId)
     val baseClientId = ClientService.baseClientId(client.clientId)
 
+    // Special case for migration of check my diary users - ignore 2fa if they don't have the migrated role
     if (baseClientId == "my-diary" &&
       request?.authorities?.none { it.authority == "ROLE_CMD_MIGRATED_MFA" } == true
     ) {
@@ -23,9 +24,6 @@ open class MfaClientService(
     }
 
     val mfa = client.additionalInformation["mfa"] as? String?
-    val requiresMfa = (mfa == untrusted.name && mfaClientNetworkService.outsideApprovedNetwork()) || mfa == all.name
-
-    // Special case for migration of check my diary users - ignore 2fa if they don't have the migrated role
-    return requiresMfa
+    return (mfa == untrusted.name && mfaClientNetworkService.outsideApprovedNetwork()) || mfa == all.name
   }
 }

@@ -65,7 +65,7 @@ class ClientConfigViewOnlySpecification : AbstractAuthSpecification() {
   fun `view only Client deployment details are displayed for mfa enabled clients`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
-    goTo(clientViewOnlySummaryPage).viewClient("service-mfa-test-client")
+    goTo(clientViewOnlySummaryPage).viewClient("service-mfa-remember-test-client")
     clientViewOnlyPage.isAtPage()
       .checkMfaDetails()
   }
