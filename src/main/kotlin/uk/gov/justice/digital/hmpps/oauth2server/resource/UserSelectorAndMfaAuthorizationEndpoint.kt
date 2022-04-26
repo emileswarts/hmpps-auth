@@ -89,7 +89,7 @@ class UserSelectorAndMfaAuthorizationEndpoint(
     val user = authentication?.principal as UserDetailsImpl?
     val authorizationRequest = model["authorizationRequest"] as AuthorizationRequest?
 
-    val clientNeedsMfa = mfaClientService.clientNeedsMfa(authorizationRequest)
+    val clientNeedsMfa = mfaClientService.clientNeedsMfa(authorizationRequest, user)
     val mfaPassed = user?.passedMfa == true
 
     val replacedAuthentication = if ((clientNeedsMfa && mfaPassed) || !clientNeedsMfa) {

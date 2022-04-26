@@ -26,7 +26,7 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('use-of-force-client','3600','{}',null,'authorization_code,refresh_token','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('prepare-a-case-for-court','1200','{}',null,'authorization_code','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('court-case-service','1200', '{}','ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY','client_credentials', null,'{bcrypt}$2a$10$OPvgbwhWDQ/yysDHfhzClO0ud2Q11fAIGt6n.dIW.v0wFFNW1Rnm.', null, null,'read', null),
-       ('my-diary','1200','{}',null,'authorization_code,refresh_token','read,write','{bcrypt}$2a$10$NATyxrjfisAqVua3E7xe/u1C4gr1527esDOAE23ouCwpO2ne6JHR.',43200,null,'read,write','http://localhost:3005/login/callback,http://localhost:3005'),
+       ('my-diary','1200','{"mfa":"all"}',null,'authorization_code,refresh_token','read,write','{bcrypt}$2a$10$NATyxrjfisAqVua3E7xe/u1C4gr1527esDOAE23ouCwpO2ne6JHR.',43200,null,'read,write','http://localhost:3005/login/callback,http://localhost:3005,http://localhost:8081/login'),
        ('use-of-force-system','3600','{}','ROLE_SYSTEM_READ_ONLY,ROLE_USE_OF_FORCE','client_credentials','read,write','$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
        ('whereabouts-api-client','3600','{}','ROLE_PAY, ROLE_CASE_NOTE_ADMIN,GLOBAL_SEARCH','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read,write',null),
        ('pathfinder-client','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/login/callback,http://localhost:3000'),
@@ -110,7 +110,7 @@ VALUES ('rotation-test-client-1','3600','{"mfa":"all"}',null,'authorization_code
 
 UPDATE oauth_client_details
 SET additional_information = '{"jwtFields":"-name"}'
-WHERE client_id != 'omicuser' and client_id != 'service-mfa-test-client' and client_id != 'service-mfa-remember-test-client' and authorized_grant_types != 'client_credentials';
+WHERE client_id != 'omicuser' and client_id != 'service-mfa-test-client' and client_id != 'service-mfa-remember-test-client' and client_id != 'my-diary' and authorized_grant_types != 'client_credentials';
 
 UPDATE oauth_client_details
 SET autoapprove = scope;
@@ -249,6 +249,8 @@ INSERT INTO users (user_id, username, password, password_expiry, email, first_na
         ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D41', 'AUTH_CHANGE_MOBILE2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', 1, 1, 0, 'auth'),
         ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D42', 'AUTH_CHANGE_MOBILE_ADD', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', 1, 1, 0, 'auth'),
         ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D43', 'AUTH_CHANGE_MOBILE3', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', 1, 1, 0, 'auth'),
+        ('2E285CCD-DCFC-4497-9E22-D6E8E10A2A3F', 'AUTH_CMD_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'cmd_user@digital.justice.gov.uk', 'Cmd', 'User', 1, 1, 0, 'auth'),
+        ('2E285CCD-DCFB-4497-9E22-D6E8E10A2A3F', 'AUTH_CMD_MIGRATED_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'cmd_user@digital.justice.gov.uk', 'Cmd', 'User', 1, 1, 0, 'auth'),
         ('67A789DE-7D29-4863-B9C2-F2CE715DC4BC', 'AUTH_NEW_USER', null, '3013-01-28 13:23:19.0000000', 'a@b.com', 'Auth', 'New-User', 0, 1, 0, 'auth'),
         ('2E285CCD-DCFD-4497-9E22-D6E8E10A2A3F', 'AUTH_MFA_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'mfa_user@digital.justice.gov.uk', 'Mfa', 'User', 1, 1, 0, 'auth'),
         ('2E285CCF-DCFD-4497-9E22-D6E8E10A2A3F', 'AUTH_MFA_NOEMAIL_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', null, 'Mfa No Email', 'User', 1, 1, 0, 'auth'),
@@ -421,7 +423,8 @@ INSERT INTO user_token (token, token_type, token_expiry, user_id) SELECT 'mfa_co
 
 INSERT INTO roles (role_id, role_code, role_name, role_description, admin_Type)
 VALUES (newid(), 'OAUTH_VIEW_ONLY_CLIENT', 'View Clients', 'View Client details', 'EXT_ADM'),
-       (newid(), 'MAINTAIN_EMAIL_DOMAINS', 'Maintain Email Domains', 'Maintain Email Domains for HMPPS Auth', 'EXT_ADM');
+       (newid(), 'MAINTAIN_EMAIL_DOMAINS', 'Maintain Email Domains', 'Maintain Email Domains for HMPPS Auth', 'EXT_ADM'),
+       (newid(), 'CMD_MIGRATED_MFA', 'Check my diary', null, 'DPS_ADM,EXT_ADM');
 
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'OAUTH_ADMIN';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'MAINTAIN_ACCESS_ROLES';
@@ -446,6 +449,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_GROUP_MANAGER2' and role_code = 'AUTH_GROUP_MANAGER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_CMD_MIGRATED_USER' and role_code = 'CMD_MIGRATED_MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_USER' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_NOEMAIL_USER' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_NOTEXT_USER' and role_code = 'MFA';

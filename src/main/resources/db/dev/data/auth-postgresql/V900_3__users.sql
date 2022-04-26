@@ -86,6 +86,8 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2C3F', 'AUTH_CHANGE2_TEST', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_test@digital.justice.gov.uk', 'Auth', 'Test', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D3F', 'AUTH_CHANGE_EMAIL', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_test@digital.justice.gov.uk', 'Auth', 'Test', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E23-D6E8E10A2D3F', 'AUTH_CHANGE_EMAIL@JUSTICE.GOV.UK', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_change_email@justice.gov.uk', 'User', 'Email Test', true, true, false, 'auth'),
+       ('2E285CCD-DCFC-4497-9E22-D6E8E10A2A3F', 'AUTH_CMD_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'cmd_user@digital.justice.gov.uk', 'Cmd', 'User', true, true, false, 'auth'),
+       ('2E285CCD-DCFB-4497-9E22-D6E8E10A2A3F', 'AUTH_CMD_MIGRATED_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'cmd_user@digital.justice.gov.uk', 'Cmd', 'User', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4597-9E23-D6E8E10A2D3F', 'AUTH_VERIFY_EMAIL@JUSTICE.GOV.UK', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_verify_email@justice.gov.uk', 'Verify', 'Email Test', false, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E24-D6E8E10A2D3F', 'AUTH_USER_EMAIL@JUSTICE.GOV.UK', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_user_email@justice.gov.uk', 'User', 'Email Test', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E25-D6E8E10A2D3F', 'AUTH_USER_EMAIL_TEST@JUSTICE.GOV.UK', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_user_email_test@justice.gov.uk', 'User', 'Email Test', true, true, false, 'auth'),
@@ -283,6 +285,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_GROUP_MANAGER2' and role_code = 'AUTH_GROUP_MANAGER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_DELETEALL' and role_code = 'LICENCE_RO';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_CMD_MIGRATED_USER' and role_code = 'CMD_MIGRATED_MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_USER' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_NOEMAIL_USER' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_NOTEXT_USER' and role_code = 'MFA';

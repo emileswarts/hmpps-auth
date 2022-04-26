@@ -98,6 +98,21 @@
       ]
     },
     {
+      "roleCode": "CMD_MIGRATED_MFA",
+      "roleName": "Check my diary",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
       "roleCode": "CRS_PROVIDER",
       "roleName": "Commissioned rehabilitative services (CRS) provider",
       "roleDescription": null,
@@ -122,17 +137,6 @@
           "adminTypeName": "DPS Local System Administrator"
         }
       ]
-    },
-    {
-      "roleCode": "GLOBAL_APPOINTMENT",
-      "roleName": "Global Appointment",
-      "roleDescription": null,
-      "adminType": [
-        {
-          "adminTypeCode": "EXT_ADM",
-          "adminTypeName": "External Administrator"
-        }
-      ]
     }
   ],
   "pageable": {
@@ -147,9 +151,8 @@
     "paged": true,
     "unpaged": false
   },
-  "totalPages": 7,
-  "totalElements": 68,
   "last": false,
+  "totalPages": 7,
   "size": 10,
   "number": 0,
   "sort": {
@@ -157,7 +160,7 @@
     "sorted": true,
     "unsorted": false
   },
-  "numberOfElements": 10,
   "first": true,
+  "numberOfElements": 10,
   "empty": false
 }

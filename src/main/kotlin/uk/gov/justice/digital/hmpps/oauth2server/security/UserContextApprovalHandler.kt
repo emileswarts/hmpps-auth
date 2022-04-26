@@ -41,7 +41,7 @@ class UserContextApprovalHandler(
     // based on unapproved scopes we do not currently have a way to explicitly approve it.
 
     val userDetails = userAuthentication.principal as UserDetailsImpl
-    if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest)) {
+    if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest, userDetails)) {
       authorizationRequest.isApproved = false
       return authorizationRequest
     }
@@ -98,7 +98,7 @@ class UserContextApprovalHandler(
       userApprovalRequest["service"] = service?.name ?: "this service"
     }
 
-    if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest)) {
+    if (!userDetails.passedMfa && mfaClientService.clientNeedsMfa(authorizationRequest, userDetails)) {
       // found a client that requires mfa
       userApprovalRequest["requireMfa"] = true
     }

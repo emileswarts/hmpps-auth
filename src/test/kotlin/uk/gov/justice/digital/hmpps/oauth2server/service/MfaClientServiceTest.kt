@@ -10,6 +10,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetails
 import org.springframework.security.oauth2.provider.ClientDetailsService
@@ -21,6 +22,7 @@ internal class MfaClientServiceTest {
   private val mfaClientNetworkService: MfaClientNetworkService = mock()
   private val service = MfaClientService(clientDetailsService, mfaClientNetworkService)
   private val request: AuthorizationRequest = AuthorizationRequest()
+  private val userDetails: UserDetails = mock()
 
   @BeforeEach
   fun setup() {
@@ -36,7 +38,7 @@ internal class MfaClientServiceTest {
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.untrusted.name))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isFalse
+      assertThat(service.clientNeedsMfa(request, null)).isFalse
     }
 
     @Test
@@ -45,7 +47,7 @@ internal class MfaClientServiceTest {
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.untrusted.name))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isTrue
+      assertThat(service.clientNeedsMfa(request, null)).isTrue
     }
 
     @Test
@@ -53,14 +55,14 @@ internal class MfaClientServiceTest {
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isTrue
+      assertThat(service.clientNeedsMfa(request, null)).isTrue
     }
 
     @Test
     fun `client doesn't need mfa`() {
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isFalse
+      assertThat(service.clientNeedsMfa(request, null)).isFalse
     }
 
     @Test
@@ -68,36 +70,36 @@ internal class MfaClientServiceTest {
       whenever(clientDetails.clientId).thenReturn("my-diary")
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isFalse
+      assertThat(service.clientNeedsMfa(request, null)).isFalse
     }
 
     @Test
     fun `check my diary client incorrect role`() {
       whenever(clientDetails.clientId).thenReturn("my-diary")
-      request.authorities = mutableListOf(SimpleGrantedAuthority("ROLE_JOE"))
+      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_JOE")))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isFalse
+      assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
     }
 
     @Test
     fun `check my diary client with role but mfa disabled for my-diary`() {
-      request.authorities = mutableListOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE"))
+      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE")))
       whenever(clientDetails.clientId).thenReturn("my-diary-5")
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isFalse
+      assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
     }
 
     @Test
     fun `check my diary client with role and mfa enabled for my-diary`() {
-      request.authorities = mutableListOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE"))
+      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE")))
       whenever(clientDetails.clientId).thenReturn("my-diary-5")
       whenever(mfaClientNetworkService.outsideApprovedNetwork()).thenReturn(true)
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.untrusted.name))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
-      assertThat(service.clientNeedsMfa(request)).isTrue
+      assertThat(service.clientNeedsMfa(request, userDetails)).isTrue
     }
   }
 }

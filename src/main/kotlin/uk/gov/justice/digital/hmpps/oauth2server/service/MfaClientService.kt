@@ -2,6 +2,7 @@
 
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetailsService
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess.all
@@ -12,13 +13,13 @@ open class MfaClientService(
   private val mfaClientNetworkService: MfaClientNetworkService,
 ) {
 
-  open fun clientNeedsMfa(request: AuthorizationRequest?): Boolean {
+  open fun clientNeedsMfa(request: AuthorizationRequest?, user: UserDetails?): Boolean {
     val client = clientDetailsService.loadClientByClientId(request?.clientId)
     val baseClientId = ClientService.baseClientId(client.clientId)
 
     // Special case for migration of check my diary users - ignore 2fa if they don't have the migrated role
     if (baseClientId == "my-diary" &&
-      request?.authorities?.none { it.authority == "ROLE_CMD_MIGRATED_MFA" } == true
+      user?.authorities?.none { it.authority == "ROLE_CMD_MIGRATED_MFA" } == true
     ) {
       return false
     }
