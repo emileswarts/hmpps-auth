@@ -48,6 +48,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
+import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 import java.security.interfaces.RSAPublicKey
 import javax.sql.DataSource
 
@@ -73,6 +74,7 @@ class OAuth2AuthorizationServerConfig(
   private val authIpSecurity: AuthIpSecurity,
   private val clientAllowedIpsRepository: ClientAllowedIpsRepository,
   private val authServicesService: AuthServicesService,
+  private val tokenService: TokenService,
   @Value("\${application.link.accounts}") private val linkAccounts: Boolean,
 ) : AuthorizationServerConfigurerAdapter() {
 
@@ -140,7 +142,7 @@ class OAuth2AuthorizationServerConfig(
   @Bean
   fun mfaClientService(): MfaClientService {
     if (mfaClientService == null) {
-      mfaClientService = MfaClientService(jdbcClientDetailsService(), mfaClientNetworkService)
+      mfaClientService = MfaClientService(jdbcClientDetailsService(), mfaClientNetworkService, tokenService)
     }
     return mfaClientService!!
   }

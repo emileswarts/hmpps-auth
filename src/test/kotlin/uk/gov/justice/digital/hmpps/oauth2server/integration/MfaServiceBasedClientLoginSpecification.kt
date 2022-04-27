@@ -86,6 +86,13 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
     assertThat(cookie).isNotNull
     assertThat(cookie.value).isNotBlank.hasSize(36)
     assertThat(cookie.expiry).isCloseTo(Instant.now().plus(7, ChronoUnit.DAYS), 1000 * 60)
+
+    loginPage.logOut()
+
+    clientMfaServiceAccess("service-mfa-remember-test-client") {
+      loginPage.isAtPage().submitLogin("ITAG_USER", "password")
+    }
+      .jsonPath(".user_name").isEqualTo("ITAG_USER")
   }
 
   @Test

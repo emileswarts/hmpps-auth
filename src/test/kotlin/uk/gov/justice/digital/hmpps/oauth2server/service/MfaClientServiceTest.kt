@@ -8,19 +8,24 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetails
 import org.springframework.security.oauth2.provider.ClientDetailsService
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess
+import uk.gov.justice.digital.hmpps.oauth2server.utils.MfaRememberMeContext
+import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 
 internal class MfaClientServiceTest {
   private val clientDetailsService: ClientDetailsService = mock()
   private val clientDetails: ClientDetails = mock()
   private val mfaClientNetworkService: MfaClientNetworkService = mock()
-  private val service = MfaClientService(clientDetailsService, mfaClientNetworkService)
+  private val tokenService: TokenService = mock()
+  private val service = MfaClientService(clientDetailsService, mfaClientNetworkService, tokenService)
   private val request: AuthorizationRequest = AuthorizationRequest()
   private val userDetails: UserDetails = mock()
 
@@ -28,6 +33,7 @@ internal class MfaClientServiceTest {
   fun setup() {
     request.clientId = "bob"
     whenever(clientDetails.clientId).thenReturn("fred")
+    MfaRememberMeContext.token = null
   }
 
   @Nested
@@ -100,6 +106,35 @@ internal class MfaClientServiceTest {
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
       assertThat(service.clientNeedsMfa(request, userDetails)).isTrue
+    }
+
+    @Test
+    fun `client has remember me set to false`() {
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name, "mfaRememberMe" to false))
+      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
+
+      assertThat(service.clientNeedsMfa(request, null)).isTrue
+    }
+
+    @Test
+    fun `client has remember me set to true and no token`() {
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name, "mfaRememberMe" to true))
+      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
+
+      assertThat(service.clientNeedsMfa(request, null)).isTrue
+    }
+
+    @Test
+    fun `client has remember me set to true and a valid token`() {
+      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name, "mfaRememberMe" to true))
+      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
+      whenever(tokenService.checkToken(any(), any(), any())).thenReturn(true)
+      whenever(userDetails.username).thenReturn("user")
+      MfaRememberMeContext.token = "some token"
+
+      assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
+
+      verify(tokenService).checkToken(UserToken.TokenType.MFA_RMBR, "some token", "user")
     }
   }
 }

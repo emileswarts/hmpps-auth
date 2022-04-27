@@ -39,8 +39,10 @@ class TokenService(
     return userToken.user
   }
 
-  fun checkToken(tokenType: TokenType, token: String): Optional<String> {
-    val userTokenOptional = getToken(tokenType, token)
+  fun checkToken(tokenType: TokenType, token: String): Optional<String> =
+    checkToken(tokenType, getToken(tokenType, token))
+
+  private fun checkToken(tokenType: TokenType, userTokenOptional: Optional<UserToken>): Optional<String> {
     if (userTokenOptional.isEmpty) {
       log.info("Failed to {} due to invalid token", tokenType.description)
       telemetryClient.trackEvent(
@@ -80,4 +82,18 @@ class TokenService(
   @Transactional
   fun removeToken(tokenType: TokenType, token: String) =
     getToken(tokenType, token).ifPresent { userTokenRepository.delete(it) }
+
+  @Transactional
+  fun checkToken(tokenType: TokenType, token: String?, username: String?): Boolean {
+    if (token.isNullOrBlank()) return false
+    val userTokenOptional = getToken(tokenType, token)
+
+    val errors = checkToken(tokenType, userTokenOptional)
+    val success = errors.map { false }.orElseGet { userTokenOptional.orElseThrow().user.username == username }
+
+    // delete token if something went wrong e.g. token expired
+    if (!success && userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())
+
+    return success
+  }
 }

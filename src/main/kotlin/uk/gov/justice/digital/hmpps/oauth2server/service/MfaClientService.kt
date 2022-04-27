@@ -5,12 +5,16 @@ package uk.gov.justice.digital.hmpps.oauth2server.service
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetailsService
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess.all
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess.untrusted
+import uk.gov.justice.digital.hmpps.oauth2server.utils.MfaRememberMeContext
+import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 
 open class MfaClientService(
   private val clientDetailsService: ClientDetailsService,
   private val mfaClientNetworkService: MfaClientNetworkService,
+  private val tokenService: TokenService,
 ) {
 
   open fun clientNeedsMfa(request: AuthorizationRequest?, user: UserDetails?): Boolean {
@@ -25,6 +29,12 @@ open class MfaClientService(
     }
 
     val mfa = client.additionalInformation["mfa"] as? String?
-    return (mfa == untrusted.name && mfaClientNetworkService.outsideApprovedNetwork()) || mfa == all.name
+    val requireMfa = (mfa == untrusted.name && mfaClientNetworkService.outsideApprovedNetwork()) || mfa == all.name
+    if (!requireMfa) return false
+
+    // now check if they are allowed to use a remember me token (from the mfa_remember_me cookie) for that client
+    // and if it is still valid
+    val rememberMe = client.additionalInformation["mfaRememberMe"] as? Boolean? == true
+    return !(rememberMe && tokenService.checkToken(TokenType.MFA_RMBR, MfaRememberMeContext.token, user?.username))
   }
 }
