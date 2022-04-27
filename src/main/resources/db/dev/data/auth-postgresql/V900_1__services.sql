@@ -5,6 +5,7 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('EMAILDOMAIN', 'Email Domains', 'View and update Email Domains', 'ROLE_MAINTAIN_EMAIL_DOMAINS', 'http://localhost:9090/auth/email-domains/', true, null),
        ('HDC', 'Home Detention Curfew', 'Service for HDC Licences Creation and Approval', 'ROLE_LICENCE_CA,ROLE_LICENCE_RO,ROLE_LICENCE_DM', 'http://localhost:3003', true,  'hdcdigitalservice@digital.justice.gov.uk'),
        ('KW', 'Keyworker Management Service', 'Service to allow viewing and allocation of Key workers to prisoners and viewing of prison and staff level statistics.', 'ROLE_OMIC_ADMIN,ROLE_KEYWORKER_MONITOR', 'http://localhost:3001/manage-key-workers', true,  null),
+       ('hmpps-registers-ui', 'HMPPS Registers', 'This service allows users to manage registers related to HMPPS data', 'ROLE_HMPPS_REGISTERS_MAINTAINER', 'http://localhost:3000', true, null),
        ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', true, null),
        ('manage-soc-cases-client', 'Manage SOC cases', 'View and manage SOC cases', 'ROLE_SOC_CUSTODY,ROLE_SOC_COMMUNITY', 'http://localhost:3000', true, null),
        ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER', 'http://localhost:3001/', true, null),
