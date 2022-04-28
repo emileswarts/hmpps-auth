@@ -1,0 +1,66 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: hmpps-auth
+  title: HMPPS Auth
+  description: HMPPS single sign-on and authorisation supporting services
+spec:
+  owner: group:dps-tech
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hmpps-auth
+  title: HMPPS Auth
+  description: |
+    The HMPPS Authentication (HMPPS Auth) product for accessing HMPPS digital services
+    which includes Digital Prison Services (DPS) and probation services.
+  tags:
+    - kotlin
+    - spring-boot
+  links:
+    - url: https://sign-in.hmpps.service.justice.gov.uk/auth/health
+      title: Health endpoint
+      icon: LocalHospital
+    - url: https://github.com/ministryofjustice/nomis-api-terraform-azure/
+      title: Infra code
+      icon: Build
+spec:
+  type: service
+  lifecycle: production
+  system: system:hmpps-auth
+  owner: group:dps-tech
+  providesApis:
+    - api:hmpps-auth
+  consumesApis:
+    - api:hmpps-community
+  dependsOn:
+    - resource:hmpps-auth-database
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: hmpps-auth-database
+  title: HMPPS Auth database
+  description: Holds explicit credentials, roles, multi-factor settings and banning data
+spec:
+  type: database
+  system: system:hmpps-auth
+  owner: group:dps-tech
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: hmpps-auth
+  title: HMPPS Auth API
+  description: OAuth2 and authentication/authorisation API integrating with identity providers
+spec:
+  type: openapi
+  lifecycle: production
+  system: system:hmpps-auth
+  owner: group:dps-tech
+  definition:
+    $text: https://sign-in.hmpps.service.justice.gov.uk/auth/v3/api-docs
