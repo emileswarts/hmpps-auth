@@ -86,7 +86,7 @@ VALUES ('a7f59e44-cbf0-4913-ba11-0764f39c06c2', 'ADD_SENSITIVE_CASE_NOTES', 'Add
        ('d1ac4fec-be51-4302-aa52-31c095fd2d14', 'AUTH_GROUP_MANAGER', 'Auth Group Manager', '2021-10-15 21:35:48.406667', null, 'EXT_ADM'),
        ('fb0ffd90-01ad-4248-9800-2067ef5580ea', 'CATEGORISATION_SECURITY', 'Security Cat tool role', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
        ('5a5d8fbe-9159-45e6-9758-5df571293587', 'CENTRAL_ADMIN', 'All Powerful Admin', '2021-10-15 21:35:52.056667', null, 'DPS_ADM'),
-       ('5a5d8fbe-9159-45e6-9758-5df571293587', 'CMD_MIGRATED_MFA', 'Check my diary', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,EXT_ADM'),
+       ('6bade6d6-c705-11ec-9d64-0242ac120002', 'CMD_MIGRATED_MFA', 'Check my diary', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,EXT_ADM'),
        ('0688e81d-60fd-4002-85bc-f3ebc677ccd2', 'CREATE_CATEGORISATION', 'Create Category assessments', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
        ('8b48546c-82a6-4553-9957-0f7d58625431', 'CRS_PROVIDER', 'Commissioned rehabilitative services (CRS) provider', '2021-10-15 21:35:51.173333', null, 'EXT_ADM'),
        ('3e2f0d25-948f-4591-a78a-a58f07982cb5', 'GLOBAL_APPOINTMENT', 'Global Appointment', '2021-10-15 21:35:48.940000', null, 'EXT_ADM'),
