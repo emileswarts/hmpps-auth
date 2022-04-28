@@ -59,6 +59,19 @@ class PrisonUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Prison user end-point returns results when using STAFF_SEARCH role`() {
+    whenever(nomisUserApiService.findUsers("ryAn", "OrtoN")).thenReturn(
+      emptyList()
+    )
+
+    webTestClient
+      .get().uri("/api/prisonuser?firstName=ryAn&lastName=OrtoN")
+      .headers(setAuthorisation("UOF_REVIEWER_USER", listOf("ROLE_STAFF_SEARCH")))
+      .exchange()
+      .expectStatus().isOk
+  }
+
+  @Test
   fun `Prison user end-point rejects invalid query`() {
     webTestClient
       .get().uri("/api/prisonuser")

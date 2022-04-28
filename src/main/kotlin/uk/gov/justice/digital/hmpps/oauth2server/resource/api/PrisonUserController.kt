@@ -39,7 +39,7 @@ class PrisonUserController(
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
   @GetMapping
-  @PreAuthorize("hasRole('ROLE_USE_OF_FORCE')")
+  @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
   @ApiOperation(
     value = "Find prison users by first and last names.",
     notes = "Find prison users by first and last names.",
