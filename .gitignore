@@ -31,5 +31,3 @@ moj-sortable-table
 
 helm_deploy/*/Chart.lock
 helm_deploy/*/charts/
-helm_deploy_cp/*/Chart.lock
-helm_deploy_cp/*/charts/

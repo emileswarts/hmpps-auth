@@ -96,8 +96,8 @@ workflows:
             - validate
       - hmpps/helm_lint:
           name: helm_lint
-          env: "devcp"
-          helm_dir: "helm_deploy_cp"
+          env: "dev"
+          helm_dir: "helm_deploy"
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -105,17 +105,17 @@ workflows:
               only:
                 - main
       - hmpps/deploy_env:
-          name: deploy_dev_cp
-          env: "devcp"
+          name: deploy_dev
+          env: "dev"
           jira_update: true
-          helm_dir: "helm_deploy_cp"
+          helm_dir: "helm_deploy"
           filters:
             branches:
               only:
                 - main
           context:
             - hmpps-common-vars
-            - hmpps-auth-devcp
+            - hmpps-auth-dev
           requires:
             - build_docker
             - helm_lint
@@ -124,13 +124,13 @@ workflows:
       - request-stage-approval:
           type: approval
           requires:
-            - deploy_dev_cp
+            - deploy_dev
       - hmpps/deploy_env:
           name: deploy_stage
           env: "stage"
           jira_update: true
           jira_env_type: testing
-          helm_dir: "helm_deploy_cp"
+          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
             - hmpps-auth-stage
@@ -142,31 +142,31 @@ workflows:
           requires:
             - deploy_stage
       - hmpps/deploy_env:
-          name: deploy_preprod_cp
-          env: "preprodcp"
+          name: deploy_preprod
+          env: "preprod"
           jira_update: true
           jira_env_type: staging
-          helm_dir: "helm_deploy_cp"
+          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
-            - hmpps-auth-preprodcp
+            - hmpps-auth-preprod
           requires:
             - request-preprod-approval
 
       - request-prod-approval:
           type: approval
           requires:
-            - deploy_preprod_cp
+            - deploy_preprod
       - hmpps/deploy_env:
-          name: deploy_prodcp
-          env: "prodcp"
+          name: deploy_prod
+          env: "prod"
           jira_update: true
           jira_env_type: production
           slack_notification: true
-          helm_dir: "helm_deploy_cp"
+          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
-            - hmpps-auth-prodcp
+            - hmpps-auth-prod
           requires:
             - request-prod-approval
 
