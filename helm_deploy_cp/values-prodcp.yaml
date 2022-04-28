@@ -7,9 +7,7 @@ generic-service:
     host: sign-in.hmpps.service.justice.gov.uk
 
   env:
-    SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
-    SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 1000
-    SPRING_DATASOURCE_HIKARI_VALIDATION_TIMEOUT: 500
+    SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 50
     SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
     APPLICATION_SIGNIN_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
     APPLICATION_SUPPORT_URL: "https://support.hmpps.service.justice.gov.uk/feedback-and-support"
