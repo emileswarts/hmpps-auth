@@ -97,7 +97,6 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint
           env: "dev"
-          helm_dir: "helm_deploy"
       - hmpps/build_docker:
           name: build_docker
           filters:
@@ -108,14 +107,13 @@ workflows:
           name: deploy_dev
           env: "dev"
           jira_update: true
-          helm_dir: "helm_deploy"
           filters:
             branches:
               only:
                 - main
           context:
             - hmpps-common-vars
-            - hmpps-auth-dev
+            - hmpps-auth-devcp
           requires:
             - build_docker
             - helm_lint
@@ -130,7 +128,6 @@ workflows:
           env: "stage"
           jira_update: true
           jira_env_type: testing
-          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
             - hmpps-auth-stage
@@ -146,10 +143,9 @@ workflows:
           env: "preprod"
           jira_update: true
           jira_env_type: staging
-          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
-            - hmpps-auth-preprod
+            - hmpps-auth-preprodcp
           requires:
             - request-preprod-approval
 
@@ -163,10 +159,9 @@ workflows:
           jira_update: true
           jira_env_type: production
           slack_notification: true
-          helm_dir: "helm_deploy"
           context:
             - hmpps-common-vars
-            - hmpps-auth-prod
+            - hmpps-auth-prodcp
           requires:
             - request-prod-approval
 
