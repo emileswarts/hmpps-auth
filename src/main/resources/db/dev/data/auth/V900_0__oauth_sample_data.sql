@@ -87,7 +87,6 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('manage-adjudications','3600','{}',null,'authorization_code','read,write','$2a$10$RYwV0QebHAovVXWPySb2lefr3HTDntGu1euXHDJc3zwh2NsqeNGHG',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('manage-adjudications-client','3600','{}','ROLE_SYSTEM_USER, ROLE_GLOBAL_SEARCH, ROLE_PRISONER_SEARCH','client_credentials','read,write','$2a$10$RYwV0QebHAovVXWPySb2lefr3HTDntGu1euXHDJc3zwh2NsqeNGHG',43200,null,'read,write',null),
        ('hmpps-allocations','3600','{}','ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY,ROLE_HMPPS_TIER','client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
-       ('make-recall-decision-ui','3600','{}',null,'authorization_code','read,write','$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('manage-a-workforce-ui','3600','{}',null,'authorization_code','read,write','$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('send-legal-mail-to-prisons','3600','{}',null,'authorization_code','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('send-legal-mail-to-prisons-client','3600','{}','ROLE_SLM_CREATE_BARCODE,ROLE_SLM_SCAN_BARCODE,ROLE_SLM_EMAIL_LINK','client_credentials','read,write','$2a$10$WzgtydqXSuhdivpWDR3WXO.yjLBm4yuDqP64Og.7E4XURdrSfhOTi',43200,null,'read,write',null),
@@ -98,7 +97,9 @@ VALUES ('omicuser','1200','{"jwtFields":"-user_name"}','SYSTEM_READ_ONLY','passw
        ('ip-allow-a-client-1','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('ip-allow-b-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
        ('ip-allow-b-client-8','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
-       ('ip-allow-c-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null);
+       ('ip-allow-c-client','1200','{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('make-recall-decision-api','3600','{}','ROLE_GLOBAL_SEARCH,ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY','client_credentials','read,write','$2a$10$.95l4ENV1OEZ6qWd4R5QTOXZrjvTQmN402z1pjRUr2EwGFYdkDDnm',43200,null,'read',null),
+       ('make-recall-decision-ui','3600','{}',null,'authorization_code','read,write','$2a$10$.95l4ENV1OEZ6qWd4R5QTOXZrjvTQmN402z1pjRUr2EwGFYdkDDnm',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000,http://make-recall-decision-ui:3000/sign-in/callback,http://make-recall-decision-ui:3000');
 
 
 INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri, last_accessed, created, secret_updated)
@@ -117,6 +118,9 @@ SET autoapprove = scope;
 
 INSERT INTO oauth_client_details (client_id, authorized_grant_types, client_secret) VALUES ('null-test-client','','');
 
+INSERT INTO roles (role_id, role_code, role_name, role_description, admin_Type)
+VALUES (newid(), 'MAKE_RECALL_DECISION', 'Making a Recall Decision User', 'Delius Role - just for testing', 'EXT_ADM');
+
 INSERT INTO oauth_service (code, name, description, authorised_roles, url, enabled, email)
 VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'ROLE_PECS_SUPPLIER,ROLE_PECS_POLICE,', 'https://bookasecuremove.service.justice.gov.uk', 1, 'bookasecuremove@digital.justice.gov.uk'),
        ('categorisationtool', 'Digital Categorisation Service', 'Service to support categorisation of prisoners providing a consistent workflow and risk indicators.', 'ROLE_CREATE_CATEGORISATION,ROLE_APPROVE_CATEGORISATION,ROLE_CATEGORISATION_SECURITY,ROLE_CREATE_RECATEGORISATION', 'https://offender-categorisation.service.justice.gov.uk', 1, 'categorisation@justice.gov.uk'),
@@ -132,7 +136,8 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER', 'http://localhost:3001/', 1, null),
        ('DETAILS', 'Manage account details', null, null, '/auth/account-details?redirect_uri=/', 1, null),
        ('service-edit-test-client', 'test service', 'test service for testing', 'ROLE_FRED_ROLE', '/auth/account-details?redirect_uri=/', 0, null),
-       ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', 1, null);
+       ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', 1, null),
+       ('make-recall-decision', 'Making a Recall Decision', 'This service allows users make recall decisions', 'ROLE_MAKE_RECALL_DECISION', 'http://localhost:3000', 1, null);
 
 
 INSERT INTO user_retries (username, retry_count)
@@ -285,8 +290,8 @@ INSERT INTO users (user_id, username, password, password_expiry, email, first_na
         ('edec977d-b743-4744-a8a8-1da84ee40c6b', 'WMT_DATA_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_data_admin@digital.justice.gov.uk', 'Wmt Data', 'Admin', 1, 1, 0, 'delius'),
         ('f47742d4-18ba-4332-9519-86b2c94ab99c', 'WMT_STAFF', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_staff@digital.justice.gov.uk', 'Wmt', 'Staff', 1, 1, 0, 'delius'),
         ('7fa0d669-6875-4d6b-86a5-3cf42c1c0015', 'WMT_SYSTEM_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_system_admin@digital.justice.gov.uk', 'Wmt System', 'Admin', 1, 1, 0, 'delius'),
-        ('730f3b3c-2758-4a92-b341-f2489dcbc6a0', 'ALLOCATIONS', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'allocations@digital.justice.gov.uk', 'Allocations', 'User', 1, 1, 0, 'delius')
-        ;
+        ('730f3b3c-2758-4a92-b341-f2489dcbc6a0', 'ALLOCATIONS', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'allocations@digital.justice.gov.uk', 'Allocations', 'User', 1, 1, 0, 'delius'),
+        ('C6C9C675-32C0-4f58-936B-07744f0E4999', 'MAKE_RECALL_DECISION_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'making-recall-decisions-tech@digital.justice.gov.uk', 'Making Recall Decisions', 'User', 1, 1, 0, 'auth');
 
 INSERT INTO users (user_id, username, password, last_logged_in, first_name, last_name, verified, enabled, locked, source)
  VALUES ('7B59A818-BC14-43F3-A1C3-93004E173B2A', 'AUTH_DELETE', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '2018-01-02 13:23:19.0000000', 'Auth', 'Delete', 1, 0, 0, 'auth'),
@@ -481,6 +486,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED2_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_VIDEO_LINK_COURT_USER' and role_code = 'VIDEO_LINK_COURT_USER';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'MAKE_RECALL_DECISION_USER' and role_code = 'MAKE_RECALL_DECISION';
 
 INSERT INTO groups (group_id, group_code, group_name) VALUES (newid(), 'SITE_1_GROUP_1', 'Site 1 - Group 1'),
        (newid(), 'SITE_1_GROUP_2', 'Site 1 - Group 2'),

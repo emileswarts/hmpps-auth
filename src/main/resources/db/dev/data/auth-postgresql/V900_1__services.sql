@@ -14,4 +14,5 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('POM', 'Allocate a POM Service', 'Allocate the appropriate offender manager to a prisoner', 'ROLE_ALLOC_MGR', 'https://moic.service.justice.gov.uk', true,  'https://moic.service.justice.gov.uk/help'),
        ('prison-staff-hub', 'Digital Prison Service', 'View and Manage Offenders in Prison (Old name was NEW NOMIS)', 'ROLE_PRISON', 'http://localhost:3000', true, 'feedback@digital.justice.gov.uk'),
        ('service-edit-test-client', 'test service', 'test service for testing', 'ROLE_FRED_ROLE', '/auth/account-details?redirect_uri=/', false, null),
-       ('VIEWCLIENT', 'Oauth Client View Only', 'View Client Credentials for OAUTH2 Clients','ROLE_OAUTH_ADMIN,ROLE_OAUTH_VIEW_ONLY_CLIENT', 'http://localhost:9090/auth/ui/view', true, null);
+       ('VIEWCLIENT', 'Oauth Client View Only', 'View Client Credentials for OAUTH2 Clients','ROLE_OAUTH_ADMIN,ROLE_OAUTH_VIEW_ONLY_CLIENT', 'http://localhost:9090/auth/ui/view', true, null),
+       ('make-recall-decision', 'Making a Recall Decision', 'This service allows users make recall decisions', 'ROLE_MAKE_RECALL_DECISION', 'http://localhost:3000', true, null);

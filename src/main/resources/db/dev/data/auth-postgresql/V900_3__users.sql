@@ -140,8 +140,8 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('edec977d-b743-4744-a8a8-1da84ee40c6b', 'WMT_DATA_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_data_admin@digital.justice.gov.uk', 'Wmt Data', 'Admin', true, true, false, 'delius'),
        ('f47742d4-18ba-4332-9519-86b2c94ab99c', 'WMT_STAFF', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_staff@digital.justice.gov.uk', 'Wmt', 'Staff', true, true, false, 'delius'),
        ('7fa0d669-6875-4d6b-86a5-3cf42c1c0015', 'WMT_SYSTEM_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_system_admin@digital.justice.gov.uk', 'Wmt System', 'Admin', true, true, false, 'delius'),
-       ('730f3b3c-2758-4a92-b341-f2489dcbc6a0', 'ALLOCATIONS', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'allocations@digital.justice.gov.uk', 'Allocations', 'User', true, true, false, 'delius')
-;
+       ('730f3b3c-2758-4a92-b341-f2489dcbc6a0', 'ALLOCATIONS', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'allocations@digital.justice.gov.uk', 'Allocations', 'User', true, true, false, 'delius'),
+       ('C6C9C675-32C0-4f58-936B-07744f0E4318', 'MAKE_RECALL_DECISION_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'making-recall-decisions-tech@digital.justice.gov.uk', 'Making Recall Decisions', 'User', true, true, false, 'auth');
 
 INSERT INTO users (user_id, username, password, last_logged_in, first_name, last_name, verified, enabled, locked, source)
 VALUES ('7B59A818-BC14-43F3-A1C3-93004E173B2A', 'AUTH_DELETE', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '2018-01-02 13:23:19.0000000', 'Auth', 'Delete', true, false, false, 'auth'),
@@ -319,6 +319,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED2_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_VIDEO_LINK_COURT_USER' and role_code = 'VIDEO_LINK_COURT_USER';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'MAKE_RECALL_DECISION_USER' and role_code = 'MAKE_RECALL_DECISION';
 
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_2';

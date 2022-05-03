@@ -544,8 +544,8 @@ class RolesControllerIntTest : IntegrationTest() {
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(69)
-        .jsonPath("$.totalPages").isEqualTo(23)
+        .jsonPath("$.totalElements").isEqualTo(70)
+        .jsonPath("$.totalPages").isEqualTo(24)
         .jsonPath("$.last").isEqualTo(false)
   }
 

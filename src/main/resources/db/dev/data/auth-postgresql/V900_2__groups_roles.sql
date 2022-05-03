@@ -92,6 +92,7 @@ VALUES ('a7f59e44-cbf0-4913-ba11-0764f39c06c2', 'ADD_SENSITIVE_CASE_NOTES', 'Add
        ('3e2f0d25-948f-4591-a78a-a58f07982cb5', 'GLOBAL_APPOINTMENT', 'Global Appointment', '2021-10-15 21:35:48.940000', null, 'EXT_ADM'),
        ('6b84d235-710c-4112-a449-7045d5d9cb35', 'GLOBAL_SEARCH', 'Global Search', '2021-10-15 21:35:48.406667', 'Allow user to search globally for a user', 'DPS_ADM,EXT_ADM'),
        ('73c5a7d1-5b8d-498e-9aa9-037f0e787b3a', 'HMPPS_REGISTERS_MAINTAINER', 'HMPPS Registers Maintainer', '2021-10-15 21:35:50.990000', null, 'DPS_ADM,EXT_ADM'),
+       ('73c5a7d1-5b8d-498e-9aa9-037f0e787b3a', 'MAKE_RECALL_DECISION', 'Making a Recall Decision User', '2021-10-15 21:35:50.990000', null, 'EXT_ADM'),
        ('43225e5f-8729-4eff-a2c1-b537b3327322', 'HWPV_BAND_9', 'HWPV Band 9', '2021-10-15 21:35:52.056667', null, 'DPS_ADM'),
        ('7d42fcf0-06a4-4d2d-877f-c57b20625282', 'HWPV_CLAIM_ENTRY_BAND_2', 'HWPV Band 2', '2021-10-15 21:35:52.056667', null, 'DPS_ADM'),
        ('4185f06a-dac4-4672-8449-5e607b576085', 'HWPV_CASEWORK_MANAGER_BAND_5', 'HWPV Band 5', '2021-10-15 21:35:52.056667', null, 'DPS_ADM'),
