@@ -34,6 +34,7 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
   @Test
   fun `I can add and remove an email domain`() {
     val domainName = "aaa.com"
+    val description = "description"
     goTo(loginPage).loginAs("AUTH_DEVELOPER", "password123456")
     goTo(emailDomainsPage).isAt()
 
@@ -41,10 +42,11 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
 
     emailDomainsPage.navigateToAddEmailDomain()
     addEmailDomainPage.confirmContent()
-    addEmailDomainPage.addEmailDomain(domainName, "aaa")
+    addEmailDomainPage.addEmailDomain(domainName, description)
     emailDomainsPage.isAt()
 
     assertTrue(emailDomainsPage.domainExists(domainName))
+    assertTrue(emailDomainsPage.descriptionExists(description))
 
     emailDomainsPage.navigateToDeleteConfirmPageFor(domainName)
     deleteEmailDomainConfirmPage.isAt()
@@ -165,6 +167,9 @@ class EmailDomainsPage : AuthPage<EmailDomainsPage>(
 
   fun domainExists(domainName: String): Boolean {
     return findTableRowContaining(domainName)?.element?.text?.contains(domainName) ?: false
+  }
+  fun descriptionExists(description: String): Boolean {
+    return findTableRowContaining(description)?.element?.text?.contains(description) ?: false
   }
 
   private fun findTableRowContaining(domainName: String): FluentWebElement? {

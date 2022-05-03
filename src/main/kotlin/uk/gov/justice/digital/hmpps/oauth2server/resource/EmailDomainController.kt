@@ -90,7 +90,7 @@ class EmailDomainController(
   }
 }
 
-data class EmailDomainDto(val id: String, val domain: String)
+data class EmailDomainDto(val id: String, val domain: String, val description: String)
 
 data class CreateEmailDomainDto(
   @field:NotBlank(message = "email domain name must be supplied")

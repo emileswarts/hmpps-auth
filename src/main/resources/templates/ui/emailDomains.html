@@ -16,11 +16,13 @@
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
       <th class="govuk-table__header" scope="col" aria-sort="ascending">Domain</th>
+      <th class="govuk-table__header" scope="col" aria-sort="ascending">Description</th>
     </tr>
     </thead>
     <tbody class="govuk-table__body">
     <tr th:each="emailDomain : ${emailDomains}" class="govuk-table__row" th:attr="data-qa=${emailDomain.id}">
       <td th:text="${emailDomain.domain}" class="govuk-table__cell" data-test="domain"></td>
+      <td th:text="${emailDomain.description}" class="govuk-table__cell" data-test="description"></td>
 
       <td class="govuk-link govuk-link--no-visited-state">
         <a class="govuk-link govuk-link--no-visited-state" th:href="@{/email-domains/{id}(id=${emailDomain.id})}">Delete</a>

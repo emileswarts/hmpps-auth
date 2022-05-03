@@ -34,18 +34,18 @@ class EmailDomainServiceTest {
 
     whenever(emailDomainRepository.findAll()).thenReturn(
       listOf(
-        EmailDomain(id = randomUUID, name = "acc.com"),
-        EmailDomain(id = randomUUID2, name = "%adc.com"),
-        EmailDomain(id = randomUUID3, name = "%.abc.com"),
+        EmailDomain(id = randomUUID, name = "acc.com", description = "description"),
+        EmailDomain(id = randomUUID2, name = "%adc.com", description = "description"),
+        EmailDomain(id = randomUUID3, name = "%.abc.com", description = "description"),
       )
     )
 
     val actualEmailDomainList = service.domainList()
 
     val expectedDomainList = listOf(
-      EmailDomainDto(randomUUID3.toString(), "abc.com"),
-      EmailDomainDto(randomUUID.toString(), "acc.com"),
-      EmailDomainDto(randomUUID2.toString(), "adc.com"),
+      EmailDomainDto(randomUUID3.toString(), "abc.com", "description"),
+      EmailDomainDto(randomUUID.toString(), "acc.com", "description"),
+      EmailDomainDto(randomUUID2.toString(), "adc.com", "description"),
     )
 
     assertEquals(expectedDomainList, actualEmailDomainList)
@@ -127,11 +127,11 @@ class EmailDomainServiceTest {
   fun shouldRetrieveDomain() {
     val randomUUID = UUID.randomUUID()
     val id = randomUUID.toString()
-    val emailDomain = EmailDomain(randomUUID, "%.abc.com")
+    val emailDomain = EmailDomain(randomUUID, "%.abc.com", "Description")
     whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
 
     val actualDomain = service.domain(id)
-    val expectedDomain = EmailDomainDto(id, "abc.com")
+    val expectedDomain = EmailDomainDto(id, "abc.com", "Description")
 
     assertEquals(expectedDomain, actualDomain)
   }

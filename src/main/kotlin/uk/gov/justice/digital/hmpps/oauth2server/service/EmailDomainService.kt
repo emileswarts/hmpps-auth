@@ -26,7 +26,8 @@ class EmailDomainService(
     val emailDomainDtoList = allEmailDomains.map { emailDomain ->
       EmailDomainDto(
         emailDomain.id.toString(),
-        cleanDomainNameForDisplay(emailDomain.name)
+        cleanDomainNameForDisplay(emailDomain.name),
+        emailDomain.description.toString()
       )
     }
 
@@ -38,7 +39,8 @@ class EmailDomainService(
     val emailDomain = retrieveDomain(id, "retrieve")
     return EmailDomainDto(
       emailDomain.id.toString(),
-      cleanDomainNameForDisplay(emailDomain.name)
+      cleanDomainNameForDisplay(emailDomain.name),
+      emailDomain.description.toString()
     )
   }
 

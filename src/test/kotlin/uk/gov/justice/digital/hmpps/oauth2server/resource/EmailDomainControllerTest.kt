@@ -128,12 +128,12 @@ class EmailDomainControllerTest {
 
   @Test
   fun shouldRouteToDeleteConfirm() {
-    whenever(emailDomainService.domain(id1)).thenReturn(EmailDomainDto(id1, "advancecharity.org.uk"))
+    whenever(emailDomainService.domain(id1)).thenReturn(EmailDomainDto(id1, "advancecharity.org.uk", "Description"))
 
     val modelAndView = controller.deleteConfirm(authentication, id1)
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/deleteEmailDomainConfirm")
-    assertEquals(EmailDomainDto(id1, "advancecharity.org.uk"), modelAndView.model["emailDomain"])
+    assertEquals(EmailDomainDto(id1, "advancecharity.org.uk", "Description"), modelAndView.model["emailDomain"])
   }
 }
