@@ -212,7 +212,7 @@ class DuplicateClientControllerIntTest : IntegrationTest() {
       .expectStatus().isNotFound
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .json("""{"error":"Not Found","error_description":"No client found with id = not-a-client","field":"client"}""")
+      .json("""{"error":"Not Found","error_description":"No client found with requested id","field":"client"}""")
   }
 
   @Test
