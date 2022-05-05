@@ -8,6 +8,7 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.validation.BindingResult
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
+import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailDomainCache
 import java.util.UUID
 
 class EmailDomainControllerTest {
@@ -24,10 +26,9 @@ class EmailDomainControllerTest {
   private val principal: UserPersonDetails = mock()
   private val result: BindingResult = mock()
   private val emailDomains: List<EmailDomainDto> = mock()
-
   private val id1 = UUID.randomUUID().toString()
-
-  private val controller = EmailDomainController(emailDomainService, telemetryClient)
+  private val emailDomainCache: EmailDomainCache = mock()
+  private val controller = EmailDomainController(emailDomainService, telemetryClient, emailDomainCache)
 
   @Test
   fun shouldRespondWithEmailDomainsRetrieved() {
@@ -45,10 +46,9 @@ class EmailDomainControllerTest {
   fun shouldAddEmailDomain() {
     whenever(authentication.principal).thenReturn(principal)
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
-
     controller.addEmailDomain(authentication, newEmailDomain, result)
-
     verify(emailDomainService).addDomain(newEmailDomain)
+    verify(emailDomainCache, times(1)).refreshEmailDomainCache()
   }
 
   @Test

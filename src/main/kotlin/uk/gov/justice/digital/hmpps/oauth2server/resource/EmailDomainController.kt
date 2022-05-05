@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainExcludedException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
+import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailDomainCache
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -22,6 +23,7 @@ import javax.validation.constraints.Size
 class EmailDomainController(
   private val emailDomainService: EmailDomainService,
   private val telemetryClient: TelemetryClient,
+  private val emailDomainCache: EmailDomainCache,
 ) {
 
   @GetMapping("/email-domains/form")
@@ -53,6 +55,7 @@ class EmailDomainController(
     return try {
       emailDomainService.addDomain(emailDomain)
       recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", authentication, "domain", emailDomain.name)
+      emailDomainCache.refreshEmailDomainCache()
       redirectToDomainListView()
     } catch (e: EmailDomainExcludedException) {
       newEmailDomainView(emailDomain).addObject("error", e.message)
