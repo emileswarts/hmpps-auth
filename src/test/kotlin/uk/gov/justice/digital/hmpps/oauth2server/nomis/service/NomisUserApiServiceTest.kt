@@ -14,6 +14,7 @@ class NomisUserApiServiceTest {
   private var nomisUserWebClient: WebClient = mock()
   private var objectMapper: ObjectMapper = mock()
   private var nomisDisabledService = NomisUserApiService(webClient, nomisUserWebClient, false, objectMapper)
+  private var nomisService = NomisUserApiService(webClient, nomisUserWebClient, true, objectMapper)
 
   @Nested
   inner class changePassword {
@@ -74,6 +75,12 @@ class NomisUserApiServiceTest {
     @Test
     fun `it will do nothing when disabled`() {
       nomisDisabledService.findUserByUsername("Joe")
+      verifyNoInteractions(webClient)
+    }
+
+    @Test
+    fun `it will do nothing when username contains @`() {
+      nomisService.findUserByUsername("Joe@justice.gov.uk")
       verifyNoInteractions(webClient)
     }
   }

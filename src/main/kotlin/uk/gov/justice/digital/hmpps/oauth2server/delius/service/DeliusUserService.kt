@@ -83,7 +83,10 @@ class DeliusUserService(
       log.debug("Delius integration disabled, returning empty for {}", username)
       return Optional.empty()
     }
-
+    if ("@" in username) {
+      log.debug("Delius not called with username as contained @: {}", username)
+      return Optional.empty()
+    }
     val userDetails = webClient.get().uri("/users/{username}/details", username)
       .retrieve()
       .bodyToMono(UserDetails::class.java)

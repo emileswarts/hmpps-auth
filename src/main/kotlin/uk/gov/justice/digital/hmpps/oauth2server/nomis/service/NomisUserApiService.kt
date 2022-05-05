@@ -129,6 +129,10 @@ class NomisUserApiService(
       log.debug("Nomis integration disabled, returning empty for {}", username)
       return null
     }
+    if ("@" in username) {
+      log.debug("Nomis not called with username as contained @: {}", username)
+      return null
+    }
     val userDetails = webClient.get().uri("/users/{username}", username)
       .retrieve()
       .bodyToMono(NomisUserDetails::class.java)

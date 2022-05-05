@@ -120,6 +120,12 @@ class DeliusUserServiceTest : IntegrationTest() {
     }
 
     @Test
+    fun `deliusUserByUsername username is email address contain @ so community-api not called`() {
+      disabledDeliusService.getDeliusUserByUsername("DeliusSmith@digital.justice.gov.uk")
+      communityApi.verify(0, anyRequestedFor(anyUrl()))
+    }
+
+    @Test
     fun `deliusUserByUsername test role mappings no roles granted`() {
       val optionalDetails = deliusService.getDeliusUserByUsername("NO_ROLES")
       assertThat(optionalDetails).get().isEqualTo(
