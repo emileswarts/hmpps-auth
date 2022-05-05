@@ -32,7 +32,7 @@ VALUES ('another-delete-test-client', 1200, '{}', null, 'client_credentials', 'r
        ('hmpps-registers-ui-client', 3600, '{}', 'ROLE_MAINTAIN_REF_DATA', 'client_credentials', 'read,write', '$2a$10$YRkR9FGSpZu3FAn5.Awtk.Yd0hg92y63VfVVAKhS6k66nMsc3/Hiy', 43200, null, 'read,write', null),
        ('hmpps-tier', 3600, '{}', 'ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY', 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('hmpps-tier-to-delius-update', 3600, '{}', 'ROLE_MANAGEMENT_TIER_UPDATE,ROLE_HMPPS_TIER', 'client_credentials', 'write', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'write', null),
-       ('individual-client',1200,'{}',null,'client_credentials',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read',null),
+       ('individual-client',1200, '{}', null, 'client_credentials', null, '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('interventions', 1200, '{"jwtFields":"-name"}', 'ROLE_COMMUNITY,ROLE_INTERVENTIONS,ROLE_OASYS_READ_ONLY,ROLE_COMMUNITY_USERS,ROLE_RISK_SUMMARY,ROLE_COMMUNITY_INTERVENTIONS_UPDATE', 'client_credentials,authorization_code,refresh_token', 'read,write', '$2a$10$a5WJN/AZc7Nq3rFoy5GOQ.avY.opPq/RaF59TXFaInt0Jxp6NV94a', 43200, null, 'read,write', 'http://localhost:3000,http://localhost:3000/login/callback,http://localhost:3000/logout/success,http://localhost:3000/sign-in/callback,http://localhost:3000/sign-out/success'),
        ('ip-allow-a-client-1', 1200, '{}', null, 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('ip-allow-b-client', 1200, '{}', null, 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
@@ -40,8 +40,8 @@ VALUES ('another-delete-test-client', 1200, '{}', null, 'client_credentials', 'r
        ('ip-allow-c-client', 1200, '{}', null, 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('licences', 28800, '{"jwtFields":"-name"}', null, 'password,authorization_code,refresh_token', 'read,write', '$2a$10$1FTv04xDqLuKWjBjBnxMJuQ9fEXH0CHJKZXpOjMB7hdmrMBoKhi7.', 43200, null, 'read,write', 'http://localhost:3000/login/callback,http://localhost:3000'),
        ('licencesadmin', 3600, '{}', 'ROLE_SYSTEM_USER,ROLE_GLOBAL_SEARCH,ROLE_LICENCE_RO', 'client_credentials', 'read,write', '$2a$10$/JM78ghLrFNTWezv/rAoYe5Bv2HAHTtaQjzY44HTd2pHI82OxGiHy', null, null, 'read,write', null),
-       ('make-recall-decision-api',3600,'{}','ROLE_GLOBAL_SEARCH,ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY','client_credentials','read,write','$2a$10$.95l4ENV1OEZ6qWd4R5QTOXZrjvTQmN402z1pjRUr2EwGFYdkDDnm',43200,null,'read',null),
-       ('make-recall-decision-ui', 3600, '{"jwtFields":"-name"}', null, 'authorization_code', 'read,write', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200,null,'read,write','http://localhost:3000/sign-in/callback,http://localhost:3000,http://make-recall-decision-ui:3000/sign-in/callback,http://make-recall-decision-ui:3000'),
+       ('make-recall-decision-api',3600, '{}', 'ROLE_GLOBAL_SEARCH,ROLE_COMMUNITY,ROLE_OASYS_READ_ONLY', 'client_credentials', 'read,write', '$2a$10$.95l4ENV1OEZ6qWd4R5QTOXZrjvTQmN402z1pjRUr2EwGFYdkDDnm',43200, null, 'read', null),
+       ('make-recall-decision-ui', 3600, '{"jwtFields":"-name"}', null, 'authorization_code', 'read,write', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',43200, null, 'read,write', 'http://localhost:3000/sign-in/callback,http://localhost:3000,http://make-recall-decision-ui:3000/sign-in/callback,http://make-recall-decision-ui:3000'),
        ('manage-a-workforce-ui', 3600, '{"jwtFields":"-name"}', null, 'authorization_code', 'read,write', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', 43200, null, 'read,write', 'http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('manage-adjudications', 3600, '{"jwtFields":"-name"}', null, 'authorization_code', 'read,write', '$2a$10$RYwV0QebHAovVXWPySb2lefr3HTDntGu1euXHDJc3zwh2NsqeNGHG', 43200, null, 'read,write', 'http://localhost:3000/sign-in/callback,http://localhost:3000'),
        ('manage-adjudications-client', 3600, '{}', 'ROLE_SYSTEM_USER, ROLE_GLOBAL_SEARCH, ROLE_PRISONER_SEARCH', 'client_credentials', 'read,write', '$2a$10$RYwV0QebHAovVXWPySb2lefr3HTDntGu1euXHDJc3zwh2NsqeNGHG', 43200, null, 'read,write', null),
@@ -84,9 +84,10 @@ VALUES ('another-delete-test-client', 1200, '{}', null, 'client_credentials', 'r
        ('sentence-plan-api-client', 3600, '{}', 'ROLE_OASYS_READ_ONLY', 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('sentence-plan-client', 3600, '{"jwtFields":"-name"}', null, 'authorization_code,refresh_token', 'read,write', '$2a$10$a5WJN/AZc7Nq3rFoy5GOQ.avY.opPq/RaF59TXFaInt0Jxp6NV94a', 43200, null, 'read,write', 'http://localhost:3000/login/callback,http://localhost:3000'),
        ('service-add-test-client', 1200, '{"jwtFields":"-name"}', null, 'authorization_code', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', 'http://localhost:3001/,http://localhost:3001/sign-in/callback'),
+       ('service-client', 1200, '{}', null, 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', null),
        ('service-edit-test-client', 1200, '{"jwtFields":"-name"}', null, 'authorization_code', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', 'http://localhost:3001/,http://localhost:3001/sign-in/callback'),
-       ('service-mfa-test-client','3600','{"mfa":"all"}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:8081/login'),
-       ('service-mfa-remember-test-client','3600','{"mfa":"all","mfaRememberMe":true}',null,'authorization_code',null,'$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm',null,null,'read','http://localhost:8081/login'),
+       ('service-mfa-test-client', 3600, '{"mfa":"all"}', null, 'authorization_code', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', 'http://localhost:8081/login'),
+       ('service-mfa-remember-test-client', 3600, '{"mfa":"all","mfaRememberMe":true}', 'read', 'authorization_code', null, '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', 'http://localhost:8081/login'),
        ('smoke-test-client', 3600, '{}', 'ROLE_SMOKE_TEST', 'client_credentials', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', 43200, null, 'read', null),
        ('special-chars-test-client', 1200, '{}', null, 'client_credentials', 'read', '{bcrypt}$2a$10$1HCA2OQDpaM2RwVwKb1efOBYdKlgktFX6fr5KVJT4dl4l/AgmZT/C', null, null, 'read', null),
        ('submit-information-report-admin', 3600, '{}', 'ROLE_GLOBAL_SEARCH,ROLE_INTEL_SUBMISSION_ADMIN,ROLE_COMMUNITY', 'client_credentials', 'read,write', '$2a$10$ajGimbJNWF1/FmZQMJWvieeQ/OdYaxWHQPgOjYDvvWu/4/744Yw7S', 43200, null, 'read,write', null),
@@ -108,12 +109,19 @@ VALUES ('another-test-client-2', 1200, '{}', null, 'client_credentials', 'read',
        ('rotation-test-client-2', 3600, '{"jwtFields":"-name"}', null, 'authorization_code', 'read', '$2a$10$lBwbziQlLfiCnn8Kj1PfMujEcLdsJYlYSNJvBRO638gCYTS9yN0xm', null, null, 'read', 'http://localhost:8081/login', '2018-12-25 01:03:50.1234567', '2018-12-25 01:03:50.1234567', '2018-12-25 01:03:50.1234567');
 
 INSERT INTO oauth_client_details (client_id, authorized_grant_types, client_secret)
-VALUES ('null-test-client','','');
+VALUES ('null-test-client', '', '');
 
 INSERT INTO oauth_client_deployment_details (base_client_id,client_type, team, team_contact, team_slack, hosting, namespace, deployment, secret_name, client_id_key, secret_key)
-VALUES ('another-delete-test-client','SERVICE','A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM','another-delete-test-dev','another-delete-test-deployment','another-delete-test-secret','API_CLIENT_ID','API_CLIENT_SECRET'),
-       ('another-test-client','SERVICE','A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM','duplicate-dev','duplicate-deployment','duplicate-secret','API_CLIENT_ID','API_CLIENT_SECRET'),
-       ('service-client','SERVICE','A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM','service-dev','service-deployment','service-secret','API_CLIENT_ID','API_CLIENT_SECRET');
+VALUES ('another-delete-test-client', 'SERVICE', 'A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM', 'another-delete-test-dev', 'another-delete-test-deployment', 'another-delete-test-secret', 'API_CLIENT_ID', 'API_CLIENT_SECRET'),
+       ('another-test-client', 'SERVICE', 'A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM', 'duplicate-dev', 'duplicate-deployment', 'duplicate-secret', 'API_CLIENT_ID', 'API_CLIENT_SECRET'),
+       ('service-client', 'SERVICE', 'A Team', 'A Team contact', 'A team slack', 'CLOUDPLATFORM', 'service-dev', 'service-deployment', 'service-secret', 'API_CLIENT_ID', 'API_CLIENT_SECRET');
 
 INSERT INTO oauth_client_deployment_details (base_client_id,client_type, team, team_contact, team_slack, hosting)
-VALUES ('individual-client','PERSONAL','Bob', 'Bob@digital.justice.gov.uk', 'bob slack', 'OTHER');
+VALUES ('individual-client', 'PERSONAL', 'Bob', 'Bob@digital.justice.gov.uk', 'bob slack', 'OTHER');
+
+INSERT INTO oauth_client_allowed_ips (base_client_id, allowed_ips)
+VALUES ('another-test-client', '127.0.0.1'),
+       ('ip-allow-a-client', '127.0.0.1/32'),
+       ('ip-allow-b-client', '35.176.93.186'),
+       ('ip-allow-c-client', '35.176.0.0/16'),
+       ('service-client', '127.0.0.1');

@@ -1,2 +1,0 @@
-ALTER TABLE users
-    ALTER COLUMN mfa_preference VARCHAR(15) NOT NULL;

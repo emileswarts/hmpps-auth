@@ -1,8 +1,5 @@
 INSERT INTO email_domain (email_domain_id, name, description)
-VALUES ('B1263861-1B5C-44A1-82AA-291691E6D5D2', '%.cjsm.net', 'CJSM'),
-       ('2C9CECB4-FA97-41A6-A9B9-5F18847FC9D9', '%.gse.gov.uk', 'GSEGOVUK'),
-       ('0DF26EE4-E6AD-4582-91D1-2F9DA296E020', '%.gsi.gov.uk', 'GSI'),
-       ('45E266FF-8776-48DB-A2F7-4FA927EFE4C8', '%advancecharity.org.uk', 'ADVANCE'),
+VALUES ('45E266FF-8776-48DB-A2F7-4FA927EFE4C8', '%advancecharity.org.uk', 'ADVANCE'),
        ('8BB676EE-7531-44BA-9A31-5355BEEAD9DB', '%bidvestnoonan.com', 'BIDVESTNOONA'),
        ('FFDB69CB-1E23-40F2-B94A-11E6A9AE7BBF', '%bsigroup.com', 'BSIGROUP'),
        ('2200A597-F47A-439C-9B84-79ADADD72D7C', '%careuk.com', 'CAREUK'),
@@ -117,4 +114,7 @@ VALUES ('B1263861-1B5C-44A1-82AA-291691E6D5D2', '%.cjsm.net', 'CJSM'),
        ('1F00D970-E63B-4C4D-83B4-249F782D9842', 'southglos.gov.uk', 'SOUTHGLOS'),
        ('F5ECD643-0F3A-4FE4-99A2-66C08351703D', 'thamesvalleycrc.org.uk', 'THAMESVALLEY'),
        ('95FC7D6E-0BDB-4809-8758-FFEE34383FE9', 'uk.g4s.com', 'G4S'),
-       ('6B256551-F4AD-493E-A40C-F9DE9B88DF77', 'workinglinkssecure.co.uk', 'WLSECURE');
+       ('6B256551-F4AD-493E-A40C-F9DE9B88DF77', 'workinglinkssecure.co.uk', 'WLSECURE'),
+       ('B1263861-1B5C-44A1-82AA-291691E6D5D2', '%.cjsm.net', 'CJSM'),
+       ('2C9CECB4-FA97-41A6-A9B9-5F18847FC9D9', '%.gse.gov.uk', 'GSEGOVUK'),
+       ('0DF26EE4-E6AD-4582-91D1-2F9DA296E020', '%.gsi.gov.uk', 'GSI');

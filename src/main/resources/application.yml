@@ -26,7 +26,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: 'jdbc:h2:mem:authdb;MODE=MSSQLServer'
+    url: 'jdbc:h2:mem:authdb;MODE=PostgreSQL'
   flyway:
     locations: db/auth,db/auth_{vendor}
   session:
