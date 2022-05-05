@@ -100,7 +100,15 @@ abstract class AbstractWebClientConfiguration(appContext: ApplicationContext, pr
     if (warmup) httpClient.warmupWithHealthPing(url)
     return ReactorClientHttpConnector(
       httpClient
+        .responseTimeout(readTimeout)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout.toMillis().toInt())
+        .doOnConnected { connection: Connection ->
+          connection
+            .addHandlerLast(ReadTimeoutHandler(readTimeout.toSeconds().toInt()))
+        }
+        .secure().responseTimeout(readTimeout)
+        .secure().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout.toMillis().toInt())
+        .secure()
         .doOnConnected { connection: Connection ->
           connection
             .addHandlerLast(ReadTimeoutHandler(readTimeout.toSeconds().toInt()))
