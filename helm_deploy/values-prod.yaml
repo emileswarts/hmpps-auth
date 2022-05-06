@@ -8,7 +8,7 @@ generic-service:
 
   env:
     SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 50
-    SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc"
+    SPRING_PROFILES_ACTIVE: "nomis,delius,token-verification,azure-oidc,postgres"
     APPLICATION_SIGNIN_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth/"
     APPLICATION_SUPPORT_URL: "https://support.hmpps.service.justice.gov.uk/feedback-and-support"
     APPLICATION_AUTHENTICATION_MATCH_SUBDOMAINS: "false"
