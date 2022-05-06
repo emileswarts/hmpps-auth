@@ -2,10 +2,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.auth.model
 
 import org.apache.commons.lang3.StringUtils
 import org.hibernate.annotations.GenericGenerator
-import org.hibernate.annotations.Type
-import org.hibernate.annotations.TypeDef
 import org.springframework.security.core.CredentialsContainer
-import uk.gov.justice.digital.hmpps.oauth2server.config.UUIDCustomType
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import java.time.LocalDateTime
@@ -29,10 +26,6 @@ import javax.persistence.Transient
 
 @Entity
 @Table(name = "USERS")
-@TypeDef(
-  name = "uuid-custom",
-  typeClass = UUIDCustomType::class
-)
 class User(
   @Column(name = "username", nullable = false)
   private var username: String,
@@ -68,7 +61,6 @@ class User(
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
   @Column(name = "user_id", updatable = false, nullable = false)
-  @Type(type = "uuid-custom")
   var id: UUID? = null
 
   @Column(name = "password")

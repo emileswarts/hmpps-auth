@@ -1,3 +1,0 @@
-spring:
-  flyway:
-    locations: db/auth_postgresql
