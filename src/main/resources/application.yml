@@ -27,6 +27,10 @@ spring:
     allow-bean-definition-overriding: true
   datasource:
     url: 'jdbc:h2:mem:authdb;MODE=PostgreSQL'
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 2000
+      validation-timeout: 500
   flyway:
     locations: db/auth,db/auth_{vendor}
   session:
