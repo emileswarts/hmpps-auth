@@ -1,3 +1,12 @@
 spring:
   flyway:
-    locations: db/auth,db/auth_{vendor},db/dev/data/auth
+    locations: classpath:db/auth,db/dev/data/auth
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+

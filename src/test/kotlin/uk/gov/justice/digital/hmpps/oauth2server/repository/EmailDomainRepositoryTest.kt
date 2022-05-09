@@ -13,11 +13,10 @@ import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.EmailDomain
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 class EmailDomainRepositoryTest {
   @Autowired

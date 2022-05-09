@@ -13,18 +13,17 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
 import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 
 @Service("authUserDetailsService")
 @Transactional(
   readOnly = true,
   noRollbackFor = [UsernameNotFoundException::class]
 )
-open class AuthUserDetailsService(private val authUserService: AuthUserService) :
+class AuthUserDetailsService(
+  private val authUserService: AuthUserService,
+  private val authEntityManager: EntityManager
+) :
   UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-
-  @PersistenceContext(unitName = "auth")
-  private lateinit var authEntityManager: EntityManager
 
   override fun loadUserByUsername(username: String): UserDetails {
     val userPersonDetails =

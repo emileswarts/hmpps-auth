@@ -14,12 +14,11 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.OauthCode
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import java.time.LocalDateTime
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 @Transactional
 class OauthCodeRepositoryTest {

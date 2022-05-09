@@ -52,7 +52,7 @@ dependencies {
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
   implementation("org.flywaydb:flyway-core:7.15.0")
-  implementation("com.zaxxer:HikariCP:4.0.3")
+  implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre16")
 

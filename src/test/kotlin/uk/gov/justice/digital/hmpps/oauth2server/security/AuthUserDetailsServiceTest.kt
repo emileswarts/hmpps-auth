@@ -2,14 +2,12 @@ package uk.gov.justice.digital.hmpps.oauth2server.security
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.test.util.ReflectionTestUtils
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
@@ -20,12 +18,7 @@ import javax.persistence.EntityManager
 class AuthUserDetailsServiceTest {
   private val userService: AuthUserService = mock()
   private val authEntityManager: EntityManager = mock()
-  private val service = AuthUserDetailsService(userService)
-
-  @BeforeEach
-  fun setup() {
-    ReflectionTestUtils.setField(service, "authEntityManager", authEntityManager)
-  }
+  private val service = AuthUserDetailsService(userService, authEntityManager)
 
   @Test
   fun testAuthEntityDetached() {

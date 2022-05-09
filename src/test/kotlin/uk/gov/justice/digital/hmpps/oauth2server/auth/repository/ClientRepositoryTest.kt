@@ -10,12 +10,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.resource.MfaAccess
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 @Transactional
 class ClientRepositoryTest {

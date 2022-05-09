@@ -12,11 +12,10 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
 class ClientAllowedIpsRepositoryTest {

@@ -28,11 +28,12 @@ spring:
   datasource:
     url: 'jdbc:h2:mem:authdb;MODE=PostgreSQL'
     hikari:
+      pool-name: Auth-CP
       maximum-pool-size: 20
       connection-timeout: 2000
       validation-timeout: 500
   flyway:
-    locations: db/auth,db/auth_{vendor}
+    locations: db/auth
   session:
     store-type=jdbc
   data:
@@ -46,7 +47,7 @@ spring:
         auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
         show_sql: false
 
   thymeleaf.render-hidden-markers-before-checkboxes: true

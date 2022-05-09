@@ -25,7 +25,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.MfaPreferenceTy
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserFilter
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
-import uk.gov.justice.digital.hmpps.oauth2server.config.FlywayConfig
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
@@ -35,7 +34,7 @@ import java.time.LocalDateTime
 @Suppress("UsePropertyAccessSyntax")
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuthDbConfig::class, FlywayConfig::class)
+@Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = NONE)
 @Transactional
 class UserRepositoryTest {
