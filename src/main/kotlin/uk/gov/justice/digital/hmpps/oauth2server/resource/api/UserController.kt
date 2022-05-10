@@ -100,6 +100,29 @@ class UserController(private val userService: UserService) {
     @ApiIgnore principal: Principal,
   ): ResponseEntity<*> = getUserEmail(username = principal.name, unverified = unverified)
 
+  @GetMapping("/api/user/me/mfa")
+  @ApiOperation(
+    value = "MFA options configured for current user",
+    nickname = "myMfa",
+    consumes = "application/json",
+    produces = "application/json",
+  )
+  fun myMfa(@ApiIgnore principal: Principal): MfaOptions = userService
+    .getOrCreateUser(principal.name)
+    .map {
+      MfaOptions(
+        emailVerified = it.verified,
+        mobileVerified = it.isMobileVerified,
+        backupVerified = it.isSecondaryEmailVerified,
+      )
+    }
+    .orElseThrow { UsernameNotFoundException("Account for username ${principal.name} not found") }
+
+  data class MfaOptions(
+    val emailVerified: Boolean,
+    val mobileVerified: Boolean,
+    val backupVerified: Boolean,
+  )
   @GetMapping("/api/user/{username}")
   @ApiOperation(
     value = "User detail.",

@@ -1,7 +1,10 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
@@ -26,6 +29,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.UserRole
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.UserController.MfaOptions
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
@@ -37,6 +41,7 @@ class UserControllerTest {
   private val userService: UserService = mock()
   private val userController = UserController(userService)
   private val authentication = UsernamePasswordAuthenticationToken("bob", "pass", listOf())
+  private val principal = TestingAuthenticationToken("joe", "credentials")
 
   @Test
   fun user_nomisUserNoCaseload() {
@@ -94,14 +99,12 @@ class UserControllerTest {
 
   @Test
   fun me_userNotFound() {
-    val principal = TestingAuthenticationToken("principal", "credentials")
-    assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(UserDetail.fromUsername("principal"))
+    assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(UserDetail.fromUsername("joe"))
   }
 
   @Test
   fun me_nomisUserNoCaseload() {
     setupFindUserCallForNomis(activeCaseLoadId = null, enabled = false)
-    val principal = TestingAuthenticationToken("principal", "credentials")
     assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(
       UserDetail(
         "principal",
@@ -119,7 +122,6 @@ class UserControllerTest {
   @Test
   fun me_nomisUser() {
     setupFindUserCallForNomis(enabled = false)
-    val principal = TestingAuthenticationToken("principal", "credentials")
     assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(
       UserDetail(
         "principal",
@@ -137,7 +139,6 @@ class UserControllerTest {
   @Test
   fun me_authUser() {
     setupFindUserCallForAuth()
-    val principal = TestingAuthenticationToken("principal", "credentials")
     assertThat(userController.me(principal)).usingRecursiveComparison().isEqualTo(
       UserDetail(
         "principal",
@@ -192,7 +193,6 @@ class UserControllerTest {
         createSampleUser(username = "JOE", verified = true, email = "someemail")
       )
     )
-    val principal = TestingAuthenticationToken("joe", "credentials")
     val responseEntity = userController.myEmail(principal = principal)
     assertThat(responseEntity.statusCodeValue).isEqualTo(200)
     assertThat(responseEntity.body).usingRecursiveComparison().isEqualTo(EmailAddress("JOE", "someemail", true))
@@ -299,7 +299,7 @@ class UserControllerTest {
   }
 
   @Test
-  fun userSearch_mulitpleSourcesDefaultValues() {
+  fun userSearch_multipleSourcesDefaultValues() {
     val unpaged = Pageable.unpaged()
     whenever(userService.searchUsersInMultipleSourceSystems(anyString(), any(), anyString(), any(), any(), anyOrNull()))
       .thenReturn(PageImpl(listOf(fakeUser)))
@@ -325,7 +325,7 @@ class UserControllerTest {
   }
 
   @Test
-  fun userSearch_mulitpleSourcesWithStatusFilterActive() {
+  fun userSearch_multipleSourcesWithStatusFilterActive() {
     val unpaged = Pageable.unpaged()
     whenever(userService.searchUsersInMultipleSourceSystems(anyString(), any(), anyString(), any(), any(), anyOrNull()))
       .thenReturn(PageImpl(listOf(fakeUser)))
@@ -348,6 +348,47 @@ class UserControllerTest {
       UserFilter.Status.ACTIVE,
       listOf(AuthSource.auth, nomis, AuthSource.delius),
     )
+  }
+
+  @Nested
+  inner class myMfa {
+    @Test
+    internal fun `should return email verified`() {
+      whenever(userService.getOrCreateUser(anyString())).thenReturn(
+        Optional.of(
+          createSampleUser(username = "JOE", verified = true, email = "someemail")
+        )
+      )
+      val mfaOptions = userController.myMfa(principal = principal)
+      assertThat(mfaOptions).isEqualTo(MfaOptions(emailVerified = true, mobileVerified = false, backupVerified = false))
+    }
+    @Test
+    internal fun `should return mobile verified`() {
+      whenever(userService.getOrCreateUser(anyString())).thenReturn(
+        Optional.of(
+          createSampleUser(username = "JOE", mobileVerified = true, mobile = "someemail")
+        )
+      )
+      val mfaOptions = userController.myMfa(principal = principal)
+      assertThat(mfaOptions).isEqualTo(MfaOptions(emailVerified = false, mobileVerified = true, backupVerified = false))
+    }
+    @Test
+    internal fun `should return backup verified`() {
+      whenever(userService.getOrCreateUser(anyString())).thenReturn(
+        Optional.of(
+          createSampleUser(username = "JOE", secondaryEmailVerified = true, secondaryEmail = "someemail")
+        )
+      )
+      val mfaOptions = userController.myMfa(principal = principal)
+      assertThat(mfaOptions).isEqualTo(MfaOptions(emailVerified = false, mobileVerified = false, backupVerified = true))
+    }
+    @Test
+    internal fun `should throw exception if user doesn't exist`() {
+      whenever(userService.getOrCreateUser(anyString())).thenReturn(Optional.empty())
+      assertThatThrownBy { userController.myMfa(principal = principal) }
+        .isInstanceOf(UsernameNotFoundException::class.java)
+        .hasMessage("Account for username joe not found")
+    }
   }
 
   private fun setupFindUserCallForNomis(activeCaseLoadId: String? = "somecase", enabled: Boolean = true): NomisUserPersonDetails {

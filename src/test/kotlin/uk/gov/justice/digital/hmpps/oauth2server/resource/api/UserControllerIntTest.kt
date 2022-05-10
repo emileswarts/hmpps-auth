@@ -634,4 +634,23 @@ class UserControllerIntTest : IntegrationTest() {
         }
     }
   }
+
+  @Test
+  fun `User Me MFA endpoint returns mfa options that have been verified`() {
+    webTestClient
+      .get().uri("/api/user/me/mfa")
+      .headers(setAuthorisation("AUTH_USER"))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$").value<Map<String, Any>> {
+        assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          mapOf(
+            "emailVerified" to true,
+            "mobileVerified" to false,
+            "backupVerified" to false,
+          )
+        )
+      }
+  }
 }
