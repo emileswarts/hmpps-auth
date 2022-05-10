@@ -30,8 +30,8 @@ spring:
     hikari:
       pool-name: Auth-CP
       maximum-pool-size: 20
-      connection-timeout: 2000
-      validation-timeout: 500
+      connection-timeout: 30000
+      validation-timeout: 5000
   flyway:
     locations: classpath:db/auth
   session:
