@@ -540,3 +540,10 @@
     margin-bottom: 2px
   }
 }
+.body-tiles {
+  margin-left: -300vw;
+  margin-right: -300vw;
+  padding: 30px 300vw;
+  background: #f0f4f5;
+  margin-bottom: -60px;
+}
