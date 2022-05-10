@@ -190,74 +190,57 @@ class MigrateCMD2FA(
     val useEmailAddress = cmdResult.getBoolean("UseEmailAddress")
     val useSms = cmdResult.getBoolean("UseSms")
     if (useEmailAddress || useSms) {
-      // give email precedence when both are true
-      val mfaPreference = if (useEmailAddress) "SECONDARY_EMAIL" else "TEXT"
 
-      val newUUID = UUID.randomUUID()
-      val authUser = authUsersMap[quantumId.uppercase()]
-        ?: insertIntoUsers.execute( // .executeAndReturnKeyHolder(
-          mapOf(
-            "user_id" to newUUID.toString(),
-            "username" to quantumId.uppercase(),
-            "verified" to true,
-            "enabled" to true,
-            "source" to "nomis",
-            "mfa_preference" to mfaPreference,
+      authUsersMap[quantumId.uppercase()]?.also { authUser ->
+
+        // give email precedence when both are true
+        val mfaPreference = if (useEmailAddress) "SECONDARY_EMAIL" else "TEXT"
+        val userId = authUser.userId
+        val authUserContacts = authUserContactsMap!![userId]
+        val smsAuth = authUserContacts?.firstOrNull { it.type == "MOBILE_PHONE" }?.run { details }
+        val smsExistsInAuth = smsAuth != null
+        val emailAuth = authUserContacts?.firstOrNull { it.type == "SECONDARY_EMAIL" }?.run { details }
+        val emailExistsInAuth = emailAuth != null
+
+        // Do any inserting first
+
+        if (!emailExistsInAuth && emailAddress != null && emailAddress.isNotBlank()) {
+          insertIntoUserContact.execute(
+            mapOf(
+              "user_id" to userId,
+              "type" to "SECONDARY_EMAIL",
+              "details" to emailAddress,
+              "verified" to useEmailAddress
+            )
           )
-        ).run {
-          User(
-            newUUID,
-            // this.getKeyAs(UUID::class.java)!!,
-            quantumId.uppercase(), "", mfaPreference
+        }
+        if (!smsExistsInAuth && sms != null && sms.isNotBlank()) {
+          insertIntoUserContact.execute(
+            mapOf(
+              "user_id" to userId,
+              "type" to "MOBILE_PHONE",
+              "details" to sms,
+              "verified" to useSms
+            )
           )
         }
 
-      val userId = authUser.userId
+        // update carefully!
 
-      val authUserContacts = authUserContactsMap!![userId]
-      val smsAuth = authUserContacts?.firstOrNull { it.type == "MOBILE_PHONE" }?.run { details }
-      val smsExistsInAuth = smsAuth != null
-      val emailAuth = authUserContacts?.firstOrNull { it.type == "SECONDARY_EMAIL" }?.run { details }
-      val emailExistsInAuth = emailAuth != null
+        val emailVerifiedAuth = authUserContacts?.any { it.type == "SECONDARY_EMAIL" && it.verified } ?: false
+        val smsVerifiedAuth = authUserContacts?.any { it.type == "MOBILE_PHONE" && it.verified } ?: false
 
-      // Do any inserting first
-
-      if (!emailExistsInAuth && emailAddress != null && emailAddress.isNotBlank()) {
-        insertIntoUserContact.execute(
-          mapOf(
-            "user_id" to userId,
-            "type" to "SECONDARY_EMAIL",
-            "details" to emailAddress,
-            "verified" to useEmailAddress
-          )
-        )
+        if (useSms && smsExistsInAuth && !smsVerifiedAuth && sms != smsAuth) {
+          auth.update(UPDATE_USER_CONTACT, sms, userId, "MOBILE_PHONE")
+        }
+        if (useEmailAddress && emailExistsInAuth && !emailVerifiedAuth && emailAddress != emailAuth) {
+          auth.update(UPDATE_USER_CONTACT, emailAddress, userId, "SECONDARY_EMAIL")
+        }
+        if (authUser.mfaPreference != mfaPreference) {
+          auth.update(UPDATE_MFA_PREFERENCE, mfaPreference, userId)
+        }
+        Thread.sleep(pauseMillis)
       }
-      if (!smsExistsInAuth && sms != null && sms.isNotBlank()) {
-        insertIntoUserContact.execute(
-          mapOf(
-            "user_id" to userId,
-            "type" to "MOBILE_PHONE",
-            "details" to sms,
-            "verified" to useSms
-          )
-        )
-      }
-
-      // update carefully!
-
-      val emailVerifiedAuth = authUserContacts?.any { it.type == "SECONDARY_EMAIL" && it.verified } ?: false
-      val smsVerifiedAuth = authUserContacts?.any { it.type == "MOBILE_PHONE" && it.verified } ?: false
-
-      if (useSms && smsExistsInAuth && !smsVerifiedAuth && sms != smsAuth) {
-        auth.update(UPDATE_USER_CONTACT, sms, userId, "MOBILE_PHONE")
-      }
-      if (useEmailAddress && emailExistsInAuth && !emailVerifiedAuth && emailAddress != emailAuth) {
-        auth.update(UPDATE_USER_CONTACT, emailAddress, userId, "SECONDARY_EMAIL")
-      }
-      if (authUser.mfaPreference != mfaPreference) {
-        auth.update(UPDATE_MFA_PREFERENCE, mfaPreference, userId)
-      }
-      Thread.sleep(pauseMillis!!)
     }
   }
 

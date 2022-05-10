@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.oauth2server
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -13,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import java.sql.ResultSet
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicReference
 
 class MigrateCMD2FATest {
   private val cmd: JdbcTemplate = mock()
@@ -126,40 +124,16 @@ class MigrateCMD2FATest {
   }
 
   @Test
-  fun `Insert when nothing in auth tables`() {
+  fun `Ignore when nothing in auth tables`() {
     script.authUserContactsMap = mapOf()
 
     script.doMigrate(
       withCMDResultSet("aaa11a", "email2", "0123456", true, false)
     )
 
-    verify(auth, never()).update(any<String>(), any<String>(), any<UUID>())
-
-    val uuid = AtomicReference<UUID>()
-    verify(insertIntoUsers).execute(
-      org.mockito.kotlin.check<Map<String, String>> {
-        assertThat(it["username"]).isEqualTo("AAA11A")
-        assertThat(it["mfa_preference"]).isEqualTo("SECONDARY_EMAIL")
-        uuid.set(UUID.fromString(it["user_id"]))
-      }
-    )
-    verify(insertIntoUserContact).execute(
-      mapOf(
-        "user_id" to uuid.get(),
-        "type" to "SECONDARY_EMAIL",
-        "details" to "email2",
-        "verified" to true
-      )
-    )
-    verify(insertIntoUserContact).execute(
-      mapOf(
-        "user_id" to uuid.get(),
-        "type" to "MOBILE_PHONE",
-        "details" to "0123456",
-        "verified" to false
-      )
-    )
-    verifyNoMoreInteractions(insertIntoUserContact)
+    verifyNoInteractions(auth)
+    verifyNoInteractions(insertIntoUsers)
+    verifyNoInteractions(insertIntoUserContact)
   }
 
   @Test
