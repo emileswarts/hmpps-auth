@@ -51,7 +51,7 @@ dependencies {
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
-  implementation("org.flywaydb:flyway-core:7.15.0")
+  implementation("org.flywaydb:flyway-core:8.5.10")
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
 
@@ -117,4 +117,7 @@ tasks {
 
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+}
+repositories {
+  mavenCentral()
 }
