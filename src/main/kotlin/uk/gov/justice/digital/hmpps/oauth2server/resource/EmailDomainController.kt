@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
-import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainExcludedException
+import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailDomainCache
 import javax.validation.Valid
@@ -57,7 +57,7 @@ class EmailDomainController(
       recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", authentication, "domain", emailDomain.name)
       emailDomainCache.refreshEmailDomainCache()
       redirectToDomainListView()
-    } catch (e: EmailDomainExcludedException) {
+    } catch (e: EmailDomainAdditionBarredException) {
       newEmailDomainView(emailDomain).addObject("error", e.message)
     }
   }

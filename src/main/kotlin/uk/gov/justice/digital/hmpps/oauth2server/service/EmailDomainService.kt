@@ -44,17 +44,19 @@ class EmailDomainService(
     )
   }
 
-  @Throws(EmailDomainExcludedException::class)
+  @Throws(EmailDomainAdditionBarredException::class)
   fun addDomain(newDomain: CreateEmailDomainDto) {
     val domainNameInternal = if (newDomain.name.startsWith(PERCENT)) newDomain.name else PERCENT + newDomain.name
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
-    existingDomain ?: run {
-      if (emailDomainExclusions.contains(newDomain.name)) {
-        throw EmailDomainExcludedException(newDomain.name, "domain present in excluded list")
-      }
-      emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
+    if (existingDomain != null) {
+      throw EmailDomainAdditionBarredException(newDomain.name, "domain already present in allowed list")
     }
+
+    if (emailDomainExclusions.contains(newDomain.name)) {
+      throw EmailDomainAdditionBarredException(newDomain.name, "domain present in excluded list")
+    }
+    emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
   }
 
   @Throws(EmailDomainNotFoundException::class)
@@ -73,7 +75,7 @@ class EmailDomainService(
   }
 }
 
-class EmailDomainExcludedException(val domain: String, val errorCode: String) :
+class EmailDomainAdditionBarredException(val domain: String, val errorCode: String) :
   Exception("Unable to add email domain: $domain to allowed list with reason: $errorCode")
 
 class EmailDomainNotFoundException(val action: String, val id: String, val errorCode: String) :

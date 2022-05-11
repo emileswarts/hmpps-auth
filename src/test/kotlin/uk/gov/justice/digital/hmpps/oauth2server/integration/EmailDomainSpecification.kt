@@ -80,6 +80,18 @@ class EmailDomainSpecification : AbstractAuthSpecification() {
       "Unable to add email domain: virgin.net to allowed list with reason: domain present in excluded list",
     )
   }
+
+  @Test
+  fun `I am advised of error when adding email domain already present in approved list`() {
+    goTo(loginPage).loginAs("AUTH_DEVELOPER", "password123456")
+    goTo(emailDomainsPage).isAt()
+
+    emailDomainsPage.navigateToAddEmailDomain()
+    addEmailDomainPage.addEmailDomain("advancecharity.org.uk", "")
+    addEmailDomainPage.confirmErrorsPresent(
+      "Unable to add email domain: advancecharity.org.uk to allowed list with reason: domain already present in allowed list",
+    )
+  }
 }
 
 @PageUrl("/email-domains/{id}")

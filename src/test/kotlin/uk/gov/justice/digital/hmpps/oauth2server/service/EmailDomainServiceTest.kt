@@ -55,17 +55,19 @@ class EmailDomainServiceTest {
   fun shouldNotAddDomainWhenAlreadyPresent() {
     whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(EmailDomain(name = newDomain.name, description = newDomain.description))
 
-    service.addDomain(newDomain)
+    assertThatThrownBy { service.addDomain(newDomain) }
+      .isInstanceOf(EmailDomainAdditionBarredException::class.java)
+      .hasMessage("Unable to add email domain: ${newDomain.name} to allowed list with reason: domain already present in allowed list")
 
-    verifyNoInteractions(emailDomainExclusions)
     verify(emailDomainRepository, never()).save(any())
+    verifyNoInteractions(emailDomainExclusions)
   }
 
   @Test
   fun shouldNotAddDomainWhenExcluded() {
     whenever(emailDomainExclusions.contains(newDomain.name)).thenReturn(true)
     assertThatThrownBy { service.addDomain(newDomain) }
-      .isInstanceOf(EmailDomainExcludedException::class.java)
+      .isInstanceOf(EmailDomainAdditionBarredException::class.java)
       .hasMessage("Unable to add email domain: ${newDomain.name} to allowed list with reason: domain present in excluded list")
 
     verify(emailDomainRepository, never()).save(any())
