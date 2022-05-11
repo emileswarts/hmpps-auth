@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-auth/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-auth)
 [![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs)
 
-Spring Boot 2.1, Java 11 OAUTH2 Server integrating with NOMIS users, DELIUS (via community api) and an auth database for storing external users.
+Spring Boot 2.6, Java 17 OAUTH2 Server integrating with NOMIS users, DELIUS (via community api) and an auth database for storing external users.
 
 Ministry of Justice users - please raise any questions on the server on the #dps_tech_team channel in the MoJ slack channel - https://mojdt.slack.com/archives/CK0QLCQ1G.
 

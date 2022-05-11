@@ -54,12 +54,10 @@ dependencies {
   implementation("org.flywaydb:flyway-core:7.15.0")
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
-  implementation("com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre16")
 
   runtimeOnly("com.h2database:h2:1.4.200")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.12.0.0")
-  runtimeOnly("org.postgresql:postgresql:42.3.4")
+  runtimeOnly("org.postgresql:postgresql:42.3.5")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -71,9 +69,9 @@ dependencies {
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:3.19.1")
+  testImplementation("com.auth0:java-jwt:3.19.2")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.34.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
   testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
   testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.32")

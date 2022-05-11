@@ -297,7 +297,7 @@ class UserRepositoryTest {
   fun findAll_UserFilter_ByRoles() {
     assertThat(repository.findAll(UserFilter(roleCodes = listOf("  LICENCE_VARY", "  LICENCE_RO"))))
       .extracting<String> { it.username }
-      .containsExactly(
+      .containsOnly(
         "AUTH_DELETEALL",
         "AUTH_RO_USER_TEST",
         "AUTH_RO_USER",
