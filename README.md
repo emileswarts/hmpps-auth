@@ -5,7 +5,7 @@
 
 Spring Boot 2.6, Java 17 OAUTH2 Server integrating with NOMIS users, DELIUS (via community api) and an auth database for storing external users.
 
-Ministry of Justice users - please raise any questions on the server on the #dps_tech_team channel in the MoJ slack channel - https://mojdt.slack.com/archives/CK0QLCQ1G.
+Ministry of Justice users - please raise any questions on the server on the #hmpps-auth-audit-registers channel in the MoJ slack channel - https://mojdt.slack.com/archives/C02S71KUBED.
 
 Non Ministry of Justice users - please raise any questions as a github issue.
 
@@ -14,7 +14,7 @@ For any security concerns / issues please see our [Vulnerability Disclosure Poli
 ### What is HMPPS Auth?
 The HMPPS Authentication (HMPPS Auth) product for accessing HMPPS digital services which includes Digital Prison Services (DPS) and probation services. This product can be used to authenticate end users / consumers who wish to use any of the suite of digital products and legacy applications such as Delius. The HMPPS Auth service will authenticate the user and will issue a token to allow them to navigate across multiple services without the need to log on to each of individual services separately. This token contains the user details such as username and the roles that a user has when accessing a service.
 
-HMPPS Auth also implements two factor authentication (2FA) functionality for any approved and allowed user who wishes to access the service from outside of approved and trusted domains. The 2FA service will issue an authentication code either via email or mobile phone number that the end user has set in the service, and the code will only be issued to the user if the user has been given a role that demands 2FA.
+HMPPS Auth also implements two-factor authentication (2FA) functionality for any approved and allowed user who wishes to access the service from outside of approved and trusted domains. The 2FA service will issue an authentication code either via email or mobile phone number that the end user has set in the service, and the code will only be issued to the user if the user has been given a role that demands 2FA.
 
 For some services like Check My Diary (CMD) the user will be allowed to access the CMD service from home and on their own devices to view their own shift patterns or check leave balances etc. In order to access the service they will need to obtain a verification code to their personal device, and therefore personal user information will be required to be stored in the HMPPS Auth service.
  
