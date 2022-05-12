@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.14
+  hmpps: ministryofjustice/hmpps@5.1
   browser-tools: circleci/browser-tools@1.2.4
 
 parameters:
@@ -97,7 +97,7 @@ workflows:
       - hmpps/helm_lint:
           name: helm_lint
           env: "dev"
-      - hmpps/build_docker:
+      - hmpps/build_multiplatform_docker:
           name: build_docker
           filters:
             branches:
