@@ -27,7 +27,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import java.util.Optional
 
 @Service
-@Transactional(readOnly = true)
 class UserService(
   private val nomisUserService: NomisUserService,
   private val authUserService: AuthUserService,
@@ -85,6 +84,7 @@ class UserService(
       none -> Optional.empty()
     }.map { UserPersonDetails::class.java.cast(it) }
 
+  @Transactional(readOnly = true)
   fun findUsersBySource(source: AuthSource): List<User> = userRepository.findBySourceOrderByUsername(source)
 
   fun getEmail(userPersonDetails: UserPersonDetails): String? {
@@ -100,12 +100,13 @@ class UserService(
 
   private fun emailMatchesUser(email: String?, userPersonDetails: UserPersonDetails): Boolean =
     email == getEmail(userPersonDetails)
-
+  @Transactional(readOnly = true)
   fun findUser(username: String): Optional<User> = userRepository.findByUsername(StringUtils.upperCase(username))
 
   fun getUser(username: String): User =
     findUser(username).orElseThrow { UsernameNotFoundException("User with username $username not found") }
 
+  @Transactional(readOnly = true)
   fun getUserWithContacts(username: String): User = findUser(username)
     .map {
       // initialise contacts by calling size
@@ -134,17 +135,20 @@ class UserService(
       if (isHmpsGsiEmail(it)) Optional.empty() else Optional.of(it)
     } ?: Optional.empty()
 
+  @Transactional(readOnly = true)
   fun hasVerifiedMfaMethod(userDetails: UserPersonDetails): Boolean {
     val user = findUser(userDetails.username).orElseGet { userDetails.toUser() }
     return user.hasVerifiedMfaMethod()
   }
 
+  @Transactional(readOnly = true)
   fun isSameAsCurrentVerifiedMobile(username: String, mobile: String?): Boolean {
     val user = getUser(username)
     val canonicalMobile = mobile?.replace("\\s+".toRegex(), "")
     return user.isMobileVerified && canonicalMobile == user.mobile
   }
 
+  @Transactional(readOnly = true)
   fun isSameAsCurrentVerifiedEmail(username: String, email: String, emailType: EmailType): Boolean {
     val user = getUser(username)
     if (emailType == EmailType.SECONDARY) {
