@@ -95,7 +95,7 @@ Steps are:
 ```
 docker stop pg1 && docker rm pg1 && docker run -e 'POSTGRES_PASSWORD=YourStrong!Passw0rd' -p 5432:5432 --name pg1 -d postgres:14.1
 ```
-* Within Intellij set the active profile to `dev` and override the following parameters
+* Within Intellij set the active profile to `dev, local-postgres` and override the following parameters
 ```
 spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
 spring.datasource.username=postgres
