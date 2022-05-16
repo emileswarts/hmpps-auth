@@ -25,10 +25,10 @@ dependencies {
     // excluded hibernate-core as it brings in 5.6.7.Final which was causing issue with 'startingWith'
     // https://github.com/spring-projects/spring-data-jpa/issues/2472
     // https://hibernate.atlassian.net/browse/HHH-15142
-    // reverted to 5.6.5.FINAL
+    // pinned to 5.6.9.FINAL until included in spring boot
     exclude(group = "org.hibernate", module = "hibernate-core")
   }
-  implementation("org.hibernate:hibernate-core:5.6.5.Final")
+  implementation("org.hibernate:hibernate-core:5.6.9.Final")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
