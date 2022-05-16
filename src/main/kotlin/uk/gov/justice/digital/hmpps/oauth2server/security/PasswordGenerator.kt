@@ -9,11 +9,11 @@ class PasswordGenerator(
   @Value("\${application.authentication.generated-password.length:60}") private val passwordLength: Int,
 ) {
 
-  private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + ('!'..'>')
+  private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + '!' + ('$'..'&') + ('('..'>')
   var random: SecureRandom = SecureRandom()
 
   fun generatePassword(): String = (1..passwordLength)
-    .map { random.nextInt(92) }
+    .map { random.nextInt(charPool.size) }
     .map(charPool::get)
     .joinToString("")
 }

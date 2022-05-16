@@ -204,7 +204,7 @@ internal class ClientServiceTest {
       val authClientDetails = createAuthClientDetails()
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(authClientDetails)
       whenever(clientRepository.findByIdStartsWithOrderById(any())).thenReturn(listOf(Client("some-client")))
-      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
 
       clientService.duplicateClient("some-client")
 
@@ -213,7 +213,7 @@ internal class ClientServiceTest {
           assertThat(it).usingRecursiveComparison().ignoringFields("clientId", "clientSecret")
             .isEqualTo(createBaseClientDetails(authClientDetails))
           assertThat(it.clientId).isEqualTo("some-client-1")
-          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
         }
       )
     }
@@ -228,7 +228,7 @@ internal class ClientServiceTest {
           Client("some-client-1")
         )
       )
-      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
 
       clientService.duplicateClient("some-client-1")
 
@@ -237,7 +237,7 @@ internal class ClientServiceTest {
           assertThat(it).usingRecursiveComparison().ignoringFields("clientId", "clientSecret")
             .isEqualTo(createBaseClientDetails(authClientDetails))
           assertThat(it.clientId).isEqualTo("some-client-2")
-          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
         }
       )
     }
@@ -252,7 +252,7 @@ internal class ClientServiceTest {
           Client("some-client-4")
         )
       )
-      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+      whenever(passwordGenerator.generatePassword()).thenReturn("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
 
       clientService.duplicateClient("some-client")
 
@@ -261,7 +261,7 @@ internal class ClientServiceTest {
           assertThat(it).usingRecursiveComparison().ignoringFields("clientId", "clientSecret")
             .isEqualTo(createBaseClientDetails(authClientDetails))
           assertThat(it.clientId).isEqualTo("some-client-5")
-          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3#")
+          assertThat(it.clientSecret).isEqualTo("O)Xbqg6F–Q7211cj&jUL)oC=E;s9^pFZ:3$")
         }
       )
     }

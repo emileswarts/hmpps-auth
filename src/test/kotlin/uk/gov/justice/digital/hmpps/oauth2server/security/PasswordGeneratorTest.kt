@@ -26,7 +26,22 @@ internal class PasswordGeneratorTest() {
 
   @Test
   fun `password should be generated with at least 4 special characters`() {
-    assertThat(generatedPasswordCountMap["specialCharacterCount"]).isGreaterThan(2)
+    assertThat(generatedPasswordCountMap["specialCharacterCount"]).isGreaterThan(3)
+  }
+
+  @Test
+  fun `password should be generated but not contain single quote`() {
+    assertThat(generatedPassword).doesNotContain("'")
+  }
+
+  @Test
+  fun `password should be generated but not contain double quotes`() {
+    assertThat(generatedPassword).doesNotContain("'")
+  }
+
+  @Test
+  fun `password should be generated but not contain #`() {
+    assertThat(generatedPassword).doesNotContain("'")
   }
 
   @Test
