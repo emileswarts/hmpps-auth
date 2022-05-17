@@ -45,6 +45,11 @@ internal class PasswordGeneratorTest() {
   }
 
   @Test
+  fun `password should be generated but not contain forward slash`() {
+    assertThat(generatedPassword).doesNotContain("/")
+  }
+
+  @Test
   fun `password should be 60 characters long`() {
     assertThat(generatedPassword.length).isEqualTo(60)
   }
