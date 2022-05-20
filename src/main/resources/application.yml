@@ -170,7 +170,7 @@ nomis:
     authentication-scheme: header
     client-authentication-scheme: header
   health.timeout: 1s
-  endpoint.timeout: 2s
+  endpoint.timeout: 8s
 
 tokenverification:
   client:
