@@ -25,7 +25,8 @@
         ],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "active": false
       },
       {
         "username": "ITAG_USER_ADM",
@@ -43,7 +44,8 @@
         ],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "active": true
       }
     ]
   }

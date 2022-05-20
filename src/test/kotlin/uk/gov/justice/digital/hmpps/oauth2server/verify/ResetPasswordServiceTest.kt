@@ -168,7 +168,7 @@ class ResetPasswordServiceTest {
       val user = createSampleUser(username = "someuser", email = "email", source = nomis, verified = true)
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       val staffUserAccount =
-        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false, active = false)
+        nomisUserPersonDetails(AccountStatus.EXPIRED_LOCKED, enabled = false, active = false)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
       val optional = resetPasswordService.requestResetPassword("user", "url")
       verify(notificationClient).sendEmail(
@@ -733,11 +733,30 @@ class ResetPasswordServiceTest {
     }
 
     @Test
+    fun resetPasswordExpired() {
+      val staffUserAccount = nomisUserPersonDetails(AccountStatus.EXPIRED, enabled = true, locked = false, active = false)
+      whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
+      val user = createSampleUser(username = "USER", person = Person("First", "Last"), source = nomis)
+      val userToken = user.createToken(UserToken.TokenType.RESET)
+      whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
+      resetPasswordService.setPassword("bob", "pass")
+      assertThat(user.tokens).isEmpty()
+      verify(userRepository).save(user)
+      verify(delegatingUserService).changePasswordWithUnlock(staffUserAccount, "pass")
+      verify(notificationClient).sendEmail(
+        "reset-confirm",
+        null,
+        mapOf("firstName" to "First", "fullName" to "First Last", "username" to "USER"),
+        null
+      )
+    }
+
+    @Test
     fun resetPasswordLockedAccount() {
       val staffUserAccount =
-        nomisUserPersonDetails(AccountStatus.OPEN, enabled = false, locked = true, active = false)
+        nomisUserPersonDetails(AccountStatus.EXPIRED_LOCKED, enabled = false, locked = true, active = false)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
-      val user = createSampleUser(username = "user", source = nomis, locked = true)
+      val user = createSampleUser(username = "user", source = nomis, locked = false)
       val userToken = user.createToken(UserToken.TokenType.RESET)
       whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
       assertThatThrownBy { resetPasswordService.setPassword("bob", "pass") }.isInstanceOf(LockedException::class.java)

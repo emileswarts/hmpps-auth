@@ -183,7 +183,7 @@ class ResetPasswordServiceImpl(
     }
     val nomisApiUser = userPersonDetails as NomisUserPersonDetails
     val status = nomisApiUser.accountStatus
-    return nomisApiUser.active && (!status.isLocked || status.isUserLocked || user.locked)
+    return (!status.isLocked || status.isUserLocked || user.locked)
   }
 
   @Transactional
