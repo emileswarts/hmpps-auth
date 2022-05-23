@@ -118,6 +118,3 @@ tasks {
 tasks.named("check") {
   dependsOn(":ktlintCheck")
 }
-repositories {
-  mavenCentral()
-}
