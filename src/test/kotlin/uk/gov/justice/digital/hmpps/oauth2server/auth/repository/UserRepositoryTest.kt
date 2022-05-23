@@ -339,7 +339,7 @@ class UserRepositoryTest {
   fun findAll_UserFilter_ByFirstNameLastName() {
     assertThat(repository.findAll(UserFilter(name = "a no")))
       .extracting<String> { it.username }
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         "AUTH_NO_EMAIL",
         "AUTH_MFA_NOEMAIL_USER",
         "AUTH_MFA_NOTEXT_USER",
@@ -416,7 +416,7 @@ class UserRepositoryTest {
   fun `findAll UserFilter InactiveOnly`() {
     assertThat(repository.findAll(UserFilter(name = "a no", status = UserFilter.Status.INACTIVE)))
       .extracting<String> { it.username }
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         "NOMIS_LOCKED_AUTH_DISABLED",
         "DELIUS_ENABLED_AUTH_DISABLED",
         "NOMIS_ENABLED_AUTH_DISABLED",

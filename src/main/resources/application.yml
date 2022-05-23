@@ -20,13 +20,17 @@ spring:
         - "auth-seed"
       test:
         - "dev"
+        - "local-postgres"
         - "token-verification"
         - "delius"
+      test-ui:
+        - "test"
+        - "nomis"
+        - "azure-oidc-int-test"
 
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: 'jdbc:h2:mem:authdb;MODE=PostgreSQL'
     hikari:
       pool-name: Auth-CP
       maximum-pool-size: 20

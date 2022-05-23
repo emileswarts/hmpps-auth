@@ -54,13 +54,15 @@ Can then be accessed in a browser on http://localhost:8080/auth/sign-in
 
 ### Run locally with token verification and delius enabled (for integration tests) on the command line
 ```bash
-SPRING_PROFILES_ACTIVE=dev,token-verification,delius,nomis,azure-oidc-int-test ./gradlew bootRun
+SPRING_PROFILES_ACTIVE=test-ui ./gradlew bootRun
 ```
 
 ### Run integration tests locally against the development instance (in a separate terminal) with:
 ```bash
 ./gradlew testIntegration
 ```
+
+nb. by default, tests run against a postgres db so this will need to be created (see earlier) to ensure they run correctly.
 
 * Requires a matching version of chromedriver to be downloaded and available on the path - check the version of selenium in build.gradle.kts)
 * In build.gradle.kts we have the property `fluentlenium.capabilities`, removing the `headless` arg will open Chrome while the test is running which is helpful for debugging
@@ -91,30 +93,41 @@ i.e. if making database changes and need to verify that they work before being d
 
 Steps are:
 
-* Run a local docker container
+* Run a local docker container to start up auth-db only
 ```
-docker stop pg1 && docker rm pg1 && docker run -e 'POSTGRES_PASSWORD=YourStrong!Passw0rd' -p 5432:5432 --name pg1 -d postgres:14.1
-```
-* Within Intellij set the active profile to `dev, local-postgres` and override the following parameters
-```
-spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
-spring.datasource.username=postgres
-spring.datasource.password=YourStrong!Passw0rd
-spring.jpa.hibernate.dialect=org.hibernate.dialect.PostgreSQL10Dialect
+docker stop auth-db && docker rm auth-db && docker-compose -f docker-compose-test.yml up
 ```
 
-Also set the environment variable
-```
-SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQL10Dialect
-```
+Also set the appropriate spring profiles:
+SPRING_ACTIVE_PROFILES=dev,local-postgres
 
-### H2 database consoles 
+### H2 database consoles
 
 When running locally with the SPRING_ACTIVE_PROFILES=dev the seeded H2 database consoles are available at http://localhost:8080/auth/h2-console
 
 | Database | JDBC connection     |  username | password |
 |----------|---------------------|-----------|----------|
 | AUTH     | jdbc:h2:mem:authdb |  `<blank>`  | `<blank>`  |
+
+
+## Testing
+
+### Test Database
+
+The tests run against a Postgres database, not H2, so that we can test Postgres specific functionality and mimic a real environment.
+
+Note that the database is reinitialized with Flyway after each test class, so you do not need to tidy up data between tests.
+
+#### Postgres Instance - local
+You can run the tests locally against a postgres database by creating the db with:
+
+```
+docker stop auth-db && docker rm auth-db && docker-compose -f docker-compose-test.yml up
+```
+
+#### External Postgres Instance - CircleCI
+
+An external Postgres instance is started during the Circle build and the tests run against that instance.
 
 #### API Documentation
 
@@ -136,6 +149,8 @@ by auth health monitoring (e.g. pager duty) and not other systems who wish to fi
 - auth-seed - seed auth database with api clients and sample users
 - token-verification - turns on token verification, requires the token verification api server running
 - delius - turns on integration with delius, requires community api server running
+- local-postgres - used for running the app against a local postgres database
+- test-ui - integration test configuration, incorporating many of the other profiles (see application.yml)
 
 ### Get a JWT token
 Example command:

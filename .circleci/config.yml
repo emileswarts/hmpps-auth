@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   hmpps: ministryofjustice/hmpps@5.1
-  browser-tools: circleci/browser-tools@1.2.4
+  browser-tools: circleci/browser-tools@1.2.5
 
 parameters:
   alerts-slack-channel:
@@ -12,8 +12,12 @@ parameters:
 jobs:
   validate:
     executor:
-      name: hmpps/java
-      tag: "17.0"
+      name: hmpps/java_postgres
+      jdk_tag: "17.0"
+      postgres_tag: "14"
+      postgres_db: "auth-db"
+      postgres_username: "admin"
+      postgres_password: "admin_password"
     environment:
       _JAVA_OPTIONS: -Xmx800m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
 
@@ -23,6 +27,7 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
+      - hmpps/wait_till_ready_postgres
       - run:
           command: ./gradlew build
       - save_cache:
@@ -41,8 +46,12 @@ jobs:
 
   integration_tests:
     executor:
-      name: hmpps/java
-      tag: 17.0-browsers
+      name: hmpps/java_postgres
+      jdk_tag: "17.0"
+      postgres_tag: "14"
+      postgres_db: "auth-db"
+      postgres_username: "admin"
+      postgres_password: "admin_password"
     parallelism: 4
     environment:
       _JAVA_OPTIONS: -Xmx512m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
@@ -51,9 +60,10 @@ jobs:
       - attach_workspace:
           at: ~/app
       - browser-tools/install-browser-tools
+      - hmpps/wait_till_ready_postgres
       - run:
           name: Run the java app.
-          command: env spring.profiles.active=dev,token-verification,delius,nomis,azure-oidc-int-test java -Xmx256m -jar build/libs/hmpps-auth-*.jar
+          command: env spring.profiles.active=test-ui java -Xmx256m -jar build/libs/hmpps-auth-*.jar
           background: true
       - run:
           name: Wait for java app to start
