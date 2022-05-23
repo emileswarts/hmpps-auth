@@ -237,6 +237,27 @@ class VerifyEmailService(
     return Optional.empty()
   }
 
+  @Transactional
+  fun syncEmailWithNOMIS(username: String, email: String?) {
+    email?.also {
+      userRepository.findByUsername(username).filter {
+        emailsDiffer(email, it.email) && emailChangeNotInProgress(it)
+      }.ifPresent { user ->
+        user.email = email
+        user.verified = true
+
+        log.info("Email re-synchronised with NOMIS for {}", user.username)
+        telemetryClient.trackEvent("SynchroniseEmailSuccess", mapOf("username" to user.username), null)
+      }
+    }
+  }
+
+  private fun emailsDiffer(nomisEmail: String, authEmail: String?) = nomisEmail != authEmail
+
+  private fun emailChangeNotInProgress(user: User): Boolean {
+    return user.verified || user.email.isNullOrBlank()
+  }
+
   private fun markEmailAsVerified(user: User) {
     // verification token match
     user.verified = true

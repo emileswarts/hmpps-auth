@@ -12,6 +12,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -81,6 +82,73 @@ class VerifyEmailServiceTest {
     val user = createSampleUser(username = "bob", email = "joe@bob.com", verified = true)
     whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
     assertThat(verifyEmailService.isNotVerified("user")).isFalse
+  }
+
+  @Nested
+  inner class syncEmailWithNOMIS {
+    @Test
+    fun shouldDoNothingWhenEmailNotPresent() {
+      verifyEmailService.syncEmailWithNOMIS("bob", null)
+
+      verify(userRepository, never()).findByUsername("bob")
+    }
+
+    @Test
+    fun shouldNotUpdateWhenEmailInAuthAndNotVerified() {
+      val user = createSampleUser(username = "bob", email = "joe@bob.com", verified = false)
+      whenever(userRepository.findByUsername(user.username)).thenReturn(Optional.of(user))
+
+      verifyEmailService.syncEmailWithNOMIS("bob", "joey@bob.com")
+
+      assertThat(user.verified).isFalse
+      verifyNoInteractions(telemetryClient)
+    }
+
+    @Test
+    fun shouldUpdateWhenEmailInAuthAndVerified() {
+      val user = createSampleUser(username = "bob", email = "joe@bob.com", verified = true)
+      whenever(userRepository.findByUsername(user.username)).thenReturn(Optional.of(user))
+
+      verifyEmailService.syncEmailWithNOMIS(user.username, "joseph@bob.com")
+
+      assertThat(user.verified).isTrue
+      assertThat(user.email).isEqualTo("joseph@bob.com")
+      verify(telemetryClient).trackEvent(eq("SynchroniseEmailSuccess"), eq(mapOf("username" to user.username)), eq(null))
+    }
+
+    @Test
+    fun shouldNotUpdateWhenEmailInAuthAndVerifiedAndEmailsAlreadyMatch() {
+      val user = createSampleUser(username = "bob", email = "joe@bob.com", verified = true)
+      whenever(userRepository.findByUsername(user.username)).thenReturn(Optional.of(user))
+
+      verifyEmailService.syncEmailWithNOMIS(user.username, "joe@bob.com")
+
+      verifyNoInteractions(telemetryClient)
+    }
+
+    @Test
+    fun shouldUpdateWhenEmailNotInAuthAndNotVerified() {
+      val user = createSampleUser(username = "bob", verified = false)
+      whenever(userRepository.findByUsername(user.username)).thenReturn(Optional.of(user))
+
+      verifyEmailService.syncEmailWithNOMIS(user.username, "joseph@bob.com")
+
+      assertThat(user.verified).isTrue
+      assertThat(user.email).isEqualTo("joseph@bob.com")
+      verify(telemetryClient).trackEvent(eq("SynchroniseEmailSuccess"), eq(mapOf("username" to user.username)), eq(null))
+    }
+
+    @Test
+    fun shouldUpdateWhenEmailNotInAuthAndVerified() {
+      val user = createSampleUser(username = "bob", verified = true)
+      whenever(userRepository.findByUsername(user.username)).thenReturn(Optional.of(user))
+
+      verifyEmailService.syncEmailWithNOMIS(user.username, "joseph@bob.com")
+
+      assertThat(user.verified).isTrue
+      assertThat(user.email).isEqualTo("joseph@bob.com")
+      verify(telemetryClient).trackEvent(eq("SynchroniseEmailSuccess"), eq(mapOf("username" to user.username)), eq(null))
+    }
   }
 
   @Nested

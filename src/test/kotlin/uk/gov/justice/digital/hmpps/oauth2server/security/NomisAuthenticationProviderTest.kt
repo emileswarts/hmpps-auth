@@ -14,18 +14,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 class NomisAuthenticationProviderTest {
 
   private val nomisUserApiService: NomisUserApiService = mock()
   private val nomisUserService: NomisUserService = mock()
+  private val verifyEmailService: VerifyEmailService = mock()
   private val userRetriesService: UserRetriesService = mock()
   private val mfaClientNetworkService: MfaClientNetworkService = mock()
   private val userService: UserService = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val provider = NomisAuthenticationProvider(
     nomisUserApiService,
-    NomisUserDetailsService(nomisUserService),
+    NomisUserDetailsService(nomisUserService, verifyEmailService),
     userRetriesService,
     mfaClientNetworkService,
     userService,

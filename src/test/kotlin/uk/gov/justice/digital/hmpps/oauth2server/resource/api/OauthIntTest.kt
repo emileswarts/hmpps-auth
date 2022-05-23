@@ -8,7 +8,9 @@ import org.json.JSONObject
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -23,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiServi
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import java.util.Base64
 
 @Suppress("DEPRECATION")
@@ -35,8 +38,16 @@ class OauthIntTest : IntegrationTest() {
   @MockBean
   private lateinit var nomisUserApiService: NomisUserApiService
 
+  @MockBean
+  private lateinit var verifyEmailService: VerifyEmailService
+
   @BeforeEach
-  internal override fun setupTokenVerification() {
+  fun suppressEmailSyncWithNOMIS() {
+    doNothing().whenever(verifyEmailService).syncEmailWithNOMIS(anyString(), anyString())
+  }
+
+  @BeforeEach
+  override fun setupTokenVerification() {
     // no action required as mocking
   }
 

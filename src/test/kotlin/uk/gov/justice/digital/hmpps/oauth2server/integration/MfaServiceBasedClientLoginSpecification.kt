@@ -61,7 +61,7 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
     clientMfaServiceAccess {
       loginPage.isAtPage().submitLogin("ITAG_USER", "password")
       mfaEmailPage.isAtPage()
-        .assertEmailCodeDestination("itag******@******.gov.uk")
+        .assertEmailCodeDestination("reset******@******.gov.uk")
         .submitCode()
     }
       .jsonPath(".user_name").isEqualTo("ITAG_USER")
@@ -75,7 +75,7 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
     clientMfaServiceAccess("service-mfa-remember-test-client") {
       loginPage.isAtPage().submitLogin("ITAG_USER", "password")
       mfaEmailPage.isAtPage()
-        .assertEmailCodeDestination("itag******@******.gov.uk")
+        .assertEmailCodeDestination("reset******@******.gov.uk")
         .rememberMe()
         .submitCode()
     }
@@ -122,7 +122,7 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
       mfaEmailPage.isAtPage().resendCodeLink()
       mfaEmailResendCodePage.isAtPage().resendCodeByEmail()
       mfaEmailPage.isAtPage()
-        .assertEmailCodeDestination("itag******@******.gov.uk")
+        .assertEmailCodeDestination("reset******@******.gov.uk")
         .submitCode()
     }
       .jsonPath(".user_name").isEqualTo("ITAG_USER")

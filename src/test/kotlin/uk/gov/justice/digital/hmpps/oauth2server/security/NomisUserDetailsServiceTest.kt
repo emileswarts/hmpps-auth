@@ -5,6 +5,8 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
@@ -14,10 +16,12 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.EXPIR
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.LOCKED_TIMED
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 class NomisUserDetailsServiceTest {
   private val userService: NomisUserService = mock()
-  private val service = NomisUserDetailsService(userService)
+  private val verifyEmailService: VerifyEmailService = mock()
+  private val service = NomisUserDetailsService(userService, verifyEmailService)
 
   @Test
   fun testHappyUserPath() {
@@ -30,6 +34,7 @@ class NomisUserDetailsServiceTest {
     assertThat(itagUser.isCredentialsNonExpired).isTrue()
     assertThat(itagUser.isEnabled).isTrue()
     assertThat((itagUser as UserPersonDetails).name).isEqualTo("Itag User")
+    verify(verifyEmailService).syncEmailWithNOMIS(user.username, user.email)
   }
 
   @Test
@@ -60,6 +65,7 @@ class NomisUserDetailsServiceTest {
   fun testUserNotFound() {
     whenever(userService.getNomisUserByUsername(anyString())).thenReturn(null)
     assertThatThrownBy { service.loadUserByUsername("user") }.isInstanceOf(UsernameNotFoundException::class.java)
+    verify(verifyEmailService, never()).syncEmailWithNOMIS(anyString(), anyString())
   }
 
   @Test

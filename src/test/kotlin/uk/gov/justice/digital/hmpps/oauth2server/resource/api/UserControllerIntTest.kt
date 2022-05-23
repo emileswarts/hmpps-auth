@@ -587,6 +587,7 @@ class UserControllerIntTest : IntegrationTest() {
 
   @Nested
   inner class GetAuthUsersAndEmails {
+
     @Test
     fun `User emails endpoint returns user data forbidden`() {
       webTestClient

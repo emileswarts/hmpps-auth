@@ -10,14 +10,22 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaClientNetworkService
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 @Service("nomisUserDetailsService")
-class NomisUserDetailsService(private val nomisUserService: NomisUserService) :
+class NomisUserDetailsService(private val nomisUserService: NomisUserService, private val verifyEmailService: VerifyEmailService) :
   UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
-  override fun loadUserByUsername(username: String): UserDetails =
-    nomisUserService.getNomisUserByUsername(username)
+  override fun loadUserByUsername(username: String): UserDetails {
+    val user = nomisUserService.getNomisUserByUsername(username)
+
+    user?.also {
+      verifyEmailService.syncEmailWithNOMIS(username, user.email)
+    }
+
+    return user
       ?: throw UsernameNotFoundException(username)
+  }
 
   override fun loadUserDetails(token: PreAuthenticatedAuthenticationToken): UserDetails = loadUserByUsername(token.name)
 }

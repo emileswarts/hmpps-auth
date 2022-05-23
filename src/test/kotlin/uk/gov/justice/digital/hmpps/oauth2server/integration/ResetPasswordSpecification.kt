@@ -98,7 +98,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "activeCaseloadId": "MDI",
                   "accountStatus": "EXPIRED",
                   "accountType": "GENERAL",
-                  "primaryEmail": "reset_test@digital.justice.gov.uk",
+                  "primaryEmail": "ca_user@digital.justice.gov.uk",
                   "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
@@ -114,7 +114,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
       .forgottenPasswordLink()
 
     resetPasswordRequestPage
-      .submitUsernameOrEmail("reset_test@digital.justice.gov.uk")
+      .submitUsernameOrEmail("ca_user@digital.justice.gov.uk")
 
     resetPasswordLinkSentPage.isAtPage()
     val resetLink = resetPasswordLinkSentPage.getResetLink()

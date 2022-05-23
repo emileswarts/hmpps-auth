@@ -222,7 +222,7 @@ class AccountDetailsPage :
     assertThat(el("[data-qa='name']").text()).isEqualTo("Itag User")
     // change name only available for auth users
     assertThat(find("[data-qa='changeName']")).isEmpty()
-    assertThat(el("[data-qa='email']").text()).isEqualTo("itag_user@digital.justice.gov.uk")
+    assertThat(el("[data-qa='email']").text()).isEqualTo("reset_test@digital.justice.gov.uk")
     assertThat(el("[data-qa='changeEmail']").text()).isEqualToNormalizingWhitespace("Change email")
     assertThat(el("[data-qa='secondaryEmail']").text()).isBlank()
     assertThat(el("[data-qa='changeSecondaryEmail']").text()).isEqualToNormalizingWhitespace("Add backup email")
