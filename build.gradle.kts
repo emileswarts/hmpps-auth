@@ -55,7 +55,7 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
 
-  runtimeOnly("com.h2database:h2:1.4.200")
+  runtimeOnly("com.h2database:h2:2.1.212")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   runtimeOnly("org.postgresql:postgresql:42.3.5")
 
@@ -117,4 +117,7 @@ tasks {
 
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+}
+repositories {
+  mavenCentral()
 }
