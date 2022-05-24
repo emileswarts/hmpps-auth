@@ -39,6 +39,19 @@
         </ul>
       </div>
     </div>
+    <div th:if="${userRoleCount == 0}" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+          Important
+        </h2>
+      </div>
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading" data-qa="banner-message">
+          You cannot access any services because you do not have any roles associated with your account.
+          If you think should have access to a service, contact the team to configure your account.
+        </p>
+      </div>
+    </div>
 
     <h1 class="govuk-heading-l">Select service</h1>
     <div class="body-tiles">

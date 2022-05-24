@@ -115,6 +115,9 @@ open class AuthPage<T>(
   @FindBy(css = "#id-provider")
   private lateinit var idProvider: FluentWebElement
 
+  @FindBy(css = "p[data-qa='banner-message']")
+  protected lateinit var notificationText: FluentWebElement
+
   internal fun logOut() {
     logOut.click()
   }
@@ -163,6 +166,11 @@ open class AuthPage<T>(
   internal fun checkErrorContains(error: String): T {
     isAtError()
     assertThat(errorDetail.text()).contains(error)
+    return this as T
+  }
+
+  internal fun checkNotificationBannerContains(p: String): T {
+    assertThat(notificationText.text()).contains(p)
     return this as T
   }
 

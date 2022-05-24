@@ -26,7 +26,7 @@ class HomeController(
 
     val services = authServicesService.listEnabled(authorities)
 
-    return ModelAndView("landing", "services", services)
+    return ModelAndView("landing", "services", services).addObject("userRoleCount", authentication.authorities.size)
   }
 
   @GetMapping("/terms")

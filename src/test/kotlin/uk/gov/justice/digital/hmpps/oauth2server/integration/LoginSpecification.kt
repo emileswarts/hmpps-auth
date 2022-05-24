@@ -187,6 +187,12 @@ class LoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
   }
 
   @Test
+  fun `Log in as user with no roles displays information message`() {
+    goTo(loginPage).loginAs("AUTH_NO_ROLES_USER", "password123456")
+      .checkNotificationBannerContains("You cannot access any services because you do not have any roles associated with your account")
+  }
+
+  @Test
   fun `Log in with Azure justice email credentials link results in successful login`() {
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
