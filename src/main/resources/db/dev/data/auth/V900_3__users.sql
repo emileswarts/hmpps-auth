@@ -43,7 +43,7 @@ VALUES ('A04C70EE-51C9-4852-8D0D-130DA5C85C42', 'ITAG_USER', 'itag_user@digital.
        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABD', 'PT_OMU_LOCAL', 'pt_omu_local@digital.justice.gov.uk', true, 'nomis'),
        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABE', 'MMP_USER', 'mmp_user@digital.justice.gov.uk', true, 'nomis'),
        ('2D787EC4-556F-4D13-818A-45D6843B9A8D', 'SLM_MAILROOM_USER_LOCAL', 'send_legal_mail_mailroom_user_local@digital.justice.gov.uk', true, 'nomis'),
-       ('F770E655-B59C-427F-8DBB-0EE5FD00B895', 'SLM_SECURITY_ANALYST_LOCAL', 'send_legal_mail_security_analyst_local@digital.justice.gov.uk', true, 'nomis');
+       ('F770E655-B59C-427F-8DBB-0EE5FD00B895', 'SLM_ADMIN_LOCAL', 'send_legal_mail_admin_local@digital.justice.gov.uk', true, 'nomis');
 
 INSERT INTO users (user_id, username, email, verified, last_logged_in, source)
 VALUES ('A2B6E3C0-2CE4-4148-9DFB-42E94BC78D02', 'NOMIS_DELETE', 'locked@somewhere.com', true, '2018-02-04 13:23:19.0000000', 'nomis');
