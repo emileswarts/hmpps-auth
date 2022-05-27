@@ -20,6 +20,9 @@ dependencies {
   implementation("org.springframework.security:spring-security-jwt:1.1.1.RELEASE")
   implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
 
+  implementation("org.springframework.security:spring-security-oauth2-core:5.7.1")
+  implementation("org.springframework.security:spring-security-oauth2-client:5.7.1")
+  implementation("org.springframework.security:spring-security-oauth2-jose:5.7.1")
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
