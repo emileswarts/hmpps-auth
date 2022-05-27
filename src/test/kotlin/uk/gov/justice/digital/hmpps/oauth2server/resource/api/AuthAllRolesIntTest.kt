@@ -15,9 +15,9 @@ class AuthAllRolesIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.roleCode == 'GLOBAL_SEARCH')]")
+      .jsonPath("[?(@.roleCode == 'GLOBAL_SEARCH')]")
       .isEqualTo(mapOf("roleCode" to "GLOBAL_SEARCH", "roleName" to "Global Search", "roleDescription" to "Allow user to search globally for a user"))
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).hasSizeGreaterThan(2)
       }
   }

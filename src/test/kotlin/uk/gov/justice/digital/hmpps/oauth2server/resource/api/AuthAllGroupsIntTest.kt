@@ -15,9 +15,9 @@ class AuthAllGroupsIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
-      .jsonPath(".[*].groupCode").value<List<String>> {
+      .jsonPath("[*].groupCode").value<List<String>> {
         assertThat(it).hasSizeGreaterThan(2)
       }
   }

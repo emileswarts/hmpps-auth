@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.7-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.0"
   kotlin("plugin.spring") version "1.6.21"
   kotlin("plugin.jpa") version "1.6.21"
 }
@@ -12,6 +12,8 @@ dependencyCheck {
   suppressionFiles.add("auth-suppressions.xml")
 }
 
+ext["selenium.version"] = "4.1.2"
+
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -21,13 +23,7 @@ dependencies {
   implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
-  implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
-    // excluded hibernate-core as it brings in 5.6.7.Final which was causing issue with 'startingWith'
-    // https://github.com/spring-projects/spring-data-jpa/issues/2472
-    // https://hibernate.atlassian.net/browse/HHH-15142
-    // pinned to 5.6.9.FINAL until included in spring boot
-    exclude(group = "org.hibernate", module = "hibernate-core")
-  }
+  implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.hibernate:hibernate-core:5.6.9.Final")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
@@ -51,20 +47,20 @@ dependencies {
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
-  implementation("org.flywaydb:flyway-core:8.5.10")
+  implementation("org.flywaydb:flyway-core:8.5.11")
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
 
   runtimeOnly("com.h2database:h2:2.1.212")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("org.postgresql:postgresql:42.3.5")
+  runtimeOnly("org.postgresql:postgresql:42.3.6")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  testImplementation("org.seleniumhq.selenium:selenium-support:3.141.59")
-  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:3.141.59")
-  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:3.141.59")
+  testImplementation("org.seleniumhq.selenium:selenium-support:4.1.2")
+  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:4.1.2")
+  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:4.1.2")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
@@ -72,9 +68,9 @@ dependencies {
   testImplementation("com.auth0:java-jwt:3.19.2")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
-  testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:4.8.0")
-  testImplementation("org.fluentlenium:fluentlenium-assertj:4.8.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.32")
+  testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.3")
+  testImplementation("org.fluentlenium:fluentlenium-assertj:5.0.3")
+  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.0.33")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 

@@ -65,11 +65,11 @@ class OauthIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
       .expectBody()
-      .jsonPath(".user_name").isEqualTo("ITAG_USER")
-      .jsonPath(".user_id").isEqualTo("1")
-      .jsonPath(".user_uuid").isEqualTo("a04c70ee-51c9-4852-8d0d-130da5c85c42")
-      .jsonPath(".sub").isEqualTo("ITAG_USER")
-      .jsonPath(".auth_source").isEqualTo("nomis")
+      .jsonPath(".user_name").isEqualTo("AUTH_USER")
+      .jsonPath(".user_id").isEqualTo("608955ae-52ed-44cc-884c-011597a77949")
+      .jsonPath(".user_uuid").isEqualTo("608955ae-52ed-44cc-884c-011597a77949")
+      .jsonPath(".sub").isEqualTo("AUTH_USER")
+      .jsonPath(".auth_source").isEqualTo("auth")
   }
 
   @Test

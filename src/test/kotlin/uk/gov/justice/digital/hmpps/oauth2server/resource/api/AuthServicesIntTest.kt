@@ -15,7 +15,7 @@ class AuthServicesIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.code == 'prison-staff-hub')]")
+      .jsonPath("[?(@.code == 'prison-staff-hub')]")
       .isEqualTo(
         mapOf(
           "code" to "prison-staff-hub",
@@ -25,7 +25,7 @@ class AuthServicesIntTest : IntegrationTest() {
           "url" to "http://localhost:3000"
         )
       )
-      .jsonPath(".[*].code").value<List<String>> {
+      .jsonPath("[*].code").value<List<String>> {
         assertThat(it).hasSizeGreaterThan(5)
       }
   }
@@ -39,7 +39,7 @@ class AuthServicesIntTest : IntegrationTest() {
       .expectStatus().isOk
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
-      .jsonPath(".[?(@.code == 'prison-staff-hub')]")
+      .jsonPath("[?(@.code == 'prison-staff-hub')]")
       .isEqualTo(
         mapOf(
           "code" to "prison-staff-hub",
@@ -49,7 +49,7 @@ class AuthServicesIntTest : IntegrationTest() {
           "url" to "http://localhost:3000"
         )
       )
-      .jsonPath(".[*].code").value<List<String>> {
+      .jsonPath("[*].code").value<List<String>> {
         assertThat(it).containsExactlyInAnyOrder("prison-staff-hub", "DETAILS")
       }
   }
@@ -60,7 +60,7 @@ class AuthServicesIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].code").value<List<String>> {
+      .jsonPath("[*].code").value<List<String>> {
         assertThat(it).hasSizeGreaterThan(5)
       }
   }

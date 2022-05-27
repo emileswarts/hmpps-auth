@@ -410,7 +410,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("MAINTAIN_OAUTH_USERS")
         assertThat(it).contains("OAUTH_ADMIN")
       }
@@ -424,7 +424,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("GLOBAL_SEARCH")
       }
   }
@@ -437,7 +437,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("PROBATION")
       }
   }
@@ -463,7 +463,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("PRISON")
         assertThat(it).contains("GLOBAL_SEARCH")
       }
@@ -477,7 +477,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("OAUTH_ADMIN")
         assertThat(it).contains("MAINTAIN_OAUTH_USERS")
       }
@@ -491,7 +491,7 @@ class UserControllerIntTest : IntegrationTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath(".[*].roleCode").value<List<String>> {
+      .jsonPath("[*].roleCode").value<List<String>> {
         assertThat(it).contains("LICENCE_RO")
         assertThat(it).contains("PROBATION")
         assertThat(it).contains("GLOBAL_SEARCH")

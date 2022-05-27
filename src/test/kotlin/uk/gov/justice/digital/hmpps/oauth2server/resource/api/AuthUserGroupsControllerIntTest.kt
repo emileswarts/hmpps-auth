@@ -13,7 +13,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   fun `Auth User Groups add group by userId endpoint adds a group to a user`() {
 
     callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
       .doesNotExist()
 
     webTestClient
@@ -23,14 +23,14 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
   }
 
   @Test
   fun `Auth User Groups remove group by userId endpoint removes a group from a user`() {
     callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
 
     webTestClient
@@ -40,7 +40,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroupsByUserId(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
   }
 
@@ -48,7 +48,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   fun `Auth User Groups add group by userId endpoint adds a group to a user - group manager`() {
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
       .doesNotExist()
 
     webTestClient
@@ -58,14 +58,14 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_2')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
   }
 
   @Test
   fun `Auth User Groups remove group by userId endpoint removes a group from a user - group manager`() {
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02F")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
 
     webTestClient
@@ -75,7 +75,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isNoContent
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02F")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
   }
 
@@ -83,7 +83,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   fun `Auth User Groups add group by userId endpoint does not add group if group Manager not member of group`() {
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
-      .jsonPath(".[?(@.groupCode == 'PECS_DRB8')]")
+      .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
       .doesNotExist()
 
     webTestClient
@@ -93,7 +93,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isBadRequest
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
-      .jsonPath(".[?(@.groupCode == 'PECS_DRB8')]")
+      .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
       .doesNotExist()
   }
 
@@ -101,7 +101,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
   fun `Auth User Groups add group by userId endpoint does not add group if user not in group managers groups`() {
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
 
     webTestClient
@@ -117,14 +117,14 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       )
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .doesNotExist()
   }
 
   @Test
   fun `Auth User Groups remove group by userId endpoint does not remove group if group Manager not member of group`() {
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
-      .jsonPath(".[?(@.groupCode == 'GC_DEL_4')]")
+      .jsonPath("[?(@.groupCode == 'GC_DEL_4')]")
       .isEqualTo(mapOf("groupCode" to "GC_DEL_4", "groupName" to "Group 4 for deleting"))
 
     webTestClient
@@ -134,14 +134,14 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isBadRequest
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
-      .jsonPath(".[?(@.groupCode == 'GC_DEL_4')]")
+      .jsonPath("[?(@.groupCode == 'GC_DEL_4')]")
       .isEqualTo(mapOf("groupCode" to "GC_DEL_4", "groupName" to "Group 4 for deleting"))
   }
 
   @Test
   fun `Auth User Groups remove group By userId endpoint does not remove group if group Manager and users last group`() {
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44B")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
 
     webTestClient
@@ -151,7 +151,7 @@ class AuthUserGroupsControllerIntTest : IntegrationTest() {
       .expectStatus().isForbidden
 
     callGetGroupsByUserId(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44B")
-      .jsonPath(".[?(@.groupCode == 'SITE_1_GROUP_1')]")
+      .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
       .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
   }
 
