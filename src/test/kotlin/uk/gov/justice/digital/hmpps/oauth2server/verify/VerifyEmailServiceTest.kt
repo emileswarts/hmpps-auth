@@ -13,14 +13,17 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
@@ -148,6 +151,28 @@ class VerifyEmailServiceTest {
       assertThat(user.verified).isTrue
       assertThat(user.email).isEqualTo("joseph@bob.com")
       verify(telemetryClient).trackEvent(eq("SynchroniseEmailSuccess"), eq(mapOf("username" to user.username)), eq(null))
+    }
+
+    @Test
+    fun canPerformSyncProvidingOnlyUsername() {
+      val authUser = createSampleUser(username = "bob", email = "auth@mail.com", verified = true)
+      val nomisUser = NomisUserPersonDetailsHelper.createSampleNomisUser(email = "nomis@mail.com")
+
+      val verifyEmailServiceSpy = spy(verifyEmailService)
+      whenever(userRepository.findByUsername(authUser.username)).thenReturn(Optional.of(authUser))
+      whenever(nomisUserApiService.findUserByUsername(authUser.username)).thenReturn(nomisUser)
+
+      verifyEmailServiceSpy.syncEmailWithNOMIS(authUser.username)
+
+      verify(verifyEmailServiceSpy).syncEmailWithNOMIS(authUser.username, nomisUser.email)
+    }
+
+    @Test
+    fun syncProvidingOnlyUsernameThrowsIfUserNotFound() {
+      whenever(nomisUserApiService.findUserByUsername("BOB")).thenReturn(null)
+
+      assertThatThrownBy { verifyEmailService.syncEmailWithNOMIS("BOB") }
+        .isInstanceOf(UsernameNotFoundException::class.java)
     }
   }
 

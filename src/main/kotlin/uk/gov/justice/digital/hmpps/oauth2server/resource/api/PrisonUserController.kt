@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -36,6 +37,7 @@ import javax.validation.constraints.NotEmpty
 class PrisonUserController(
   private val userService: UserService,
   private val nomisUserService: NomisUserService,
+  private val verifyEmailService: VerifyEmailService,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) {
   @GetMapping
@@ -105,6 +107,24 @@ class PrisonUserController(
     log.info("Amend user succeeded for user {}", userEmailAndUsername.username)
     return if (smokeTestEnabled) userEmailAndUsername.link else ""
   }
+
+  @PostMapping("/{username}/email/sync")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  @ApiOperation(
+    value = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required",
+    nickname = "syncUserEmail",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(code = 200, message = "OK"),
+      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
+      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
+    ]
+  )
+  fun syncUserEmail(
+    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
+    @ApiIgnore authentication: Authentication,
+  ) = verifyEmailService.syncEmailWithNOMIS(username)
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

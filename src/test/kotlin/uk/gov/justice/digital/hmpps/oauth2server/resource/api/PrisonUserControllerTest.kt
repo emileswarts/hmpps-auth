@@ -11,11 +11,13 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
 import uk.gov.justice.digital.hmpps.oauth2server.security.PrisonUserDto
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 class PrisonUserControllerTest {
   private val userService: UserService = mock()
   private val nomisUserService: NomisUserService = mock()
-  private val controller = PrisonUserController(userService, nomisUserService, true)
+  private val verifyEmailService: VerifyEmailService = mock()
+  private val controller = PrisonUserController(userService, nomisUserService, verifyEmailService, true)
 
   @Nested
   inner class prisonUsersByFirstAndLastName {

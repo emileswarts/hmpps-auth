@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Contact
@@ -238,12 +239,18 @@ class VerifyEmailService(
   }
 
   @Transactional
-  fun syncEmailWithNOMIS(username: String, email: String?) {
-    email?.also {
+  fun syncEmailWithNOMIS(username: String) =
+    nomisUserApiService.findUserByUsername(username)
+      ?.let { syncEmailWithNOMIS(username, it.email) }
+      ?: throw UsernameNotFoundException("Account for username $username not found")
+
+  @Transactional
+  fun syncEmailWithNOMIS(username: String, nomisEmail: String?) {
+    nomisEmail?.also {
       userRepository.findByUsername(username).filter {
-        emailsDiffer(email, it.email) && emailChangeNotInProgress(it)
+        emailsDiffer(nomisEmail, it.email) && emailChangeNotInProgress(it)
       }.ifPresent { user ->
-        user.email = email
+        user.email = nomisEmail
         user.verified = true
 
         log.info("Email re-synchronised with NOMIS for {}", user.username)

@@ -10,14 +10,17 @@ import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus.OPEN
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserApiService
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
+import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 @ExtendWith(NomisExtension::class)
 class PrisonUserControllerIntTest : IntegrationTest() {
@@ -25,6 +28,21 @@ class PrisonUserControllerIntTest : IntegrationTest() {
   private lateinit var telemetryClient: TelemetryClient
   @MockBean
   private lateinit var nomisUserApiService: NomisUserApiService
+  @SpyBean
+  private lateinit var verifyEmailService: VerifyEmailService
+
+  @Test
+  fun `Can request email sync`() {
+    whenever(nomisUserApiService.findUserByUsername("SYNC_ME")).thenReturn(createSampleNomisUser())
+
+    webTestClient
+      .post().uri("/api/prisonuser/SYNC_ME/email/sync")
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+      .exchange()
+      .expectStatus().isOk
+
+    verify(verifyEmailService).syncEmailWithNOMIS("SYNC_ME")
+  }
 
   @Test
   fun `Prison user end-point returns results`() {
