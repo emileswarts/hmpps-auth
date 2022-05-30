@@ -40,7 +40,7 @@ class ResetPasswordServiceImpl(
   }
 
   @Transactional
-  @Throws(NotificationClientRuntimeException::class)
+  @Throws(NotificationClientRuntimeException::class, ResetPasswordException::class)
   override fun requestResetPassword(usernameOrEmailAddress: String, url: String): Optional<String> {
     val optionalUser: Optional<User>
     val multipleMatchesAndCanBeReset: Boolean
@@ -87,10 +87,11 @@ class ResetPasswordServiceImpl(
         }
     }
     if (optionalUser.isEmpty || StringUtils.isEmpty(optionalUser.get().email)) {
-      // no user found or email address found, so nothing more we can do.  Bail
+      // no user found or email address found, so nothing more we can do. Bail
       return Optional.empty()
     }
     val user = optionalUser.get()
+    if (user.source == AuthSource.azuread) throw ResetPasswordException("User password not stored in this system.")
     val templateAndParameters = getTemplateAndParameters(url, multipleMatchesAndCanBeReset, user)
     sendEmail(user.username, templateAndParameters, user.masterEmail())
     return Optional.ofNullable(templateAndParameters.resetLink)
@@ -176,15 +177,17 @@ class ResetPasswordServiceImpl(
     }
   }
 
-  private fun passwordAllowedToBeReset(user: User, userPersonDetails: UserPersonDetails): Boolean {
-    if (user.source != AuthSource.nomis) {
+  private fun passwordAllowedToBeReset(user: User, userPersonDetails: UserPersonDetails): Boolean =
+    when (user.source) {
+      AuthSource.azuread -> false
+      AuthSource.nomis -> {
+        val nomisApiUser = userPersonDetails as NomisUserPersonDetails
+        val status = nomisApiUser.accountStatus
+        (!status.isLocked || status.isUserLocked || user.locked)
+      }
       // for non nomis users they must be enabled (so can be locked)
-      return userPersonDetails.isEnabled
+      else -> userPersonDetails.isEnabled
     }
-    val nomisApiUser = userPersonDetails as NomisUserPersonDetails
-    val status = nomisApiUser.accountStatus
-    return (!status.isLocked || status.isUserLocked || user.locked)
-  }
 
   @Transactional
   override fun setPassword(token: String, password: String?) {

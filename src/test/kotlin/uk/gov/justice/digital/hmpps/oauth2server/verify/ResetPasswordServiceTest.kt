@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.azuread
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.delius
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
@@ -453,6 +454,19 @@ class ResetPasswordServiceTest {
     }
 
     @Test
+    fun `Azure User can not reset password`() {
+      val userPersonDetails = buildStandardUser("user")
+      val user = createSampleUser(username = "someuser", email = "email", verified = true, source = azuread)
+      whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(user))
+      whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(userPersonDetails))
+      assertThatThrownBy {
+        resetPasswordService.requestResetPassword("azureuser@justice.gov.uk", "url")
+      }
+        .isInstanceOf(ResetPasswordException::class.java)
+        .withFailMessage("User password not stored in this system.")
+    }
+
+    @Test
     fun `Nomis User who has not logged into auth can reset password`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       val standardUser = buildStandardUser("user")
@@ -559,7 +573,14 @@ class ResetPasswordServiceTest {
     @Test
     fun `Delius User who has not logged into DPS can reset password request with email`() {
       val deliusUserDetails = createDeliusUser()
-      val user = createSampleUser(username = "someuser", email = "a@b.com", person = Person("Bob", "Smith"), enabled = true, source = delius, verified = true)
+      val user = createSampleUser(
+        username = "someuser",
+        email = "a@b.com",
+        person = Person("Bob", "Smith"),
+        enabled = true,
+        source = delius,
+        verified = true
+      )
       whenever(userRepository.findByEmail(anyString())).thenReturn(listOf(), listOf(user)) // no user in auth
       whenever(userService.findUserPersonDetailsByEmail(anyString(), eq(delius))).thenReturn(listOf(deliusUserDetails))
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(deliusUserDetails)
@@ -632,8 +653,20 @@ class ResetPasswordServiceTest {
       return nomisUserPersonDetails(AccountStatus.EXPIRED_LOCKED_TIMED)
     }
 
-  private fun nomisUserPersonDetails(accountStatus: AccountStatus, enabled: Boolean = true, locked: Boolean = false, active: Boolean = true): NomisUserPersonDetails =
-    createSampleNomisUser(accountStatus = accountStatus, firstName = "Bob", lastName = "Smith", enabled = enabled, locked = locked, active = active)
+  private fun nomisUserPersonDetails(
+    accountStatus: AccountStatus,
+    enabled: Boolean = true,
+    locked: Boolean = false,
+    active: Boolean = true
+  ): NomisUserPersonDetails =
+    createSampleNomisUser(
+      accountStatus = accountStatus,
+      firstName = "Bob",
+      lastName = "Smith",
+      enabled = enabled,
+      locked = locked,
+      active = active
+    )
 
   private val staffUserAccountForBobOptional: Optional<UserPersonDetails> = Optional.of(staffUserAccountForBob)
 
@@ -681,6 +714,7 @@ class ResetPasswordServiceTest {
         null
       )
     }
+
     @Test
     fun resetPassword_authUser() {
       val user = createSampleUser(
@@ -734,7 +768,8 @@ class ResetPasswordServiceTest {
 
     @Test
     fun resetPasswordExpired() {
-      val staffUserAccount = nomisUserPersonDetails(AccountStatus.EXPIRED, enabled = true, locked = false, active = false)
+      val staffUserAccount =
+        nomisUserPersonDetails(AccountStatus.EXPIRED, enabled = true, locked = false, active = false)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
       val user = createSampleUser(username = "USER", person = Person("First", "Last"), source = nomis)
       val userToken = user.createToken(UserToken.TokenType.RESET)
@@ -776,7 +811,12 @@ class ResetPasswordServiceTest {
       val user = createSampleUser(username = "user")
       val userToken = user.createToken(UserToken.TokenType.RESET)
       whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
-      assertThatThrownBy { resetPasswordService.setPassword("bob", "pass") }.isInstanceOf(ResetPasswordException::class.java)
+      assertThatThrownBy {
+        resetPasswordService.setPassword(
+          "bob",
+          "pass"
+        )
+      }.isInstanceOf(ResetPasswordException::class.java)
     }
   }
 

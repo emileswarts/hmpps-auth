@@ -5,7 +5,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.ResetPasswordServiceImpl
 import java.util.Optional
 
 interface ResetPasswordService : PasswordService {
-  @Throws(NotificationClientRuntimeException::class)
+
+  @Throws(NotificationClientRuntimeException::class, ResetPasswordException::class)
   fun requestResetPassword(usernameOrEmailAddress: String, url: String): Optional<String>
   override fun setPassword(token: String, password: String?)
 

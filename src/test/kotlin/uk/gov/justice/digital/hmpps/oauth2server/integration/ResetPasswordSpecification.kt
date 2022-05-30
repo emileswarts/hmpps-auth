@@ -26,6 +26,9 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
   private lateinit var resetPasswordLinkSentPage: ResetPasswordLinkSentPage
 
   @Page
+  private lateinit var resetPasswordDisallowedPage: ResetPasswordDisallowedPage
+
+  @Page
   private lateinit var resetPasswordUsernamePage: ResetPasswordUsernamePage
 
   @Page
@@ -510,6 +513,19 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
       .loginAs("DELIUS_PASSWORD_NEW", "helloworld2")
     homePage.isAt()
   }
+
+  @Test
+  fun `An AzureAD user attempts to reset password`() {
+    goTo(loginPage)
+      .forgottenPasswordLink()
+
+    resetPasswordRequestPage
+      .submitUsernameOrEmail("azureuser@justice.gov.uk")
+
+    resetPasswordDisallowedPage.isAtPage().cancel()
+
+    loginPage.isAtPage()
+  }
 }
 
 @PageUrl("/reset-password")
@@ -540,6 +556,15 @@ open class ResetPasswordLinkSentPage :
   AuthPage<ResetPasswordLinkSentPage>("HMPPS Digital Services - Reset Password Email Sent", "Check your email") {
 
   fun getResetLink(): String = el("#resetLink").attribute("href")
+}
+
+@PageUrl("/reset-password")
+open class ResetPasswordDisallowedPage :
+  AuthPage<ResetPasswordDisallowedPage>("Error: HMPPS Digital Services - Reset Password Disallowed", "Your password has not been changed") {
+
+  fun cancel() {
+    el("[data-qa='back-link']").click()
+  }
 }
 
 @PageUrl("/reset-password-select")

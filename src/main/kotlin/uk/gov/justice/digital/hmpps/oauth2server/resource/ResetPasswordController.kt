@@ -105,6 +105,14 @@ class ResetPasswordController(
         }
       }
       modelAndView
+    } catch (e: ResetPasswordException) {
+      log.error("Failed to reset password due to ", e)
+      telemetryClient.trackEvent(
+        "ResetPasswordRequestDisallowed",
+        mapOf("username" to usernameOrEmail, "error" to e.javaClass.simpleName),
+        null
+      )
+      ModelAndView("resetPasswordDisallowed", "error", "other")
     } catch (e: NotificationClientRuntimeException) {
       log.error("Failed to send reset password due to", e)
       telemetryClient.trackEvent(

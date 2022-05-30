@@ -154,6 +154,24 @@ class ResetPasswordControllerTest {
     }
 
     @Test
+    fun resetPasswordRequest_disallowed() {
+      whenever(request.requestURL).thenReturn(StringBuffer("someurl"))
+      whenever(resetPasswordService.requestResetPassword(anyString(), anyString())).thenThrow(
+        ResetPasswordException("failure message")
+      )
+      val modelAndView = controller.resetPasswordRequest("user", request)
+      assertThat(modelAndView.viewName).isEqualTo("resetPasswordDisallowed")
+      assertThat(modelAndView.model).containsExactly(entry("error", "other"))
+      verify(telemetryClient).trackEvent(
+        eq("ResetPasswordRequestDisallowed"),
+        check {
+          assertThat(it).containsOnly(entry("username", "user"), entry("error", "ResetPasswordException"))
+        },
+        isNull()
+      )
+    }
+
+    @Test
     fun resetPasswordRequest_emailfailed() {
       doThrow(ValidEmailException("reason")).whenever(verifyEmailService)
         .validateEmailAddressExcludingGsi(anyString(), eq(User.EmailType.PRIMARY))
