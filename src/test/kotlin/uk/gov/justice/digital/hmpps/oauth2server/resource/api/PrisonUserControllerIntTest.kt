@@ -45,6 +45,18 @@ class PrisonUserControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `Can request email sync as local admin`() {
+    whenever(nomisUserApiService.findUserByUsername("SYNC_ME")).thenReturn(createSampleNomisUser())
+
+    webTestClient
+      .post().uri("/api/prisonuser/SYNC_ME/email/sync")
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+      .exchange()
+      .expectStatus().isOk
+
+    verify(verifyEmailService).syncEmailWithNOMIS("SYNC_ME")
+  }
+  @Test
   fun `Prison user end-point returns results`() {
     whenever(nomisUserApiService.findUsers("ryAn", "OrtoN")).thenReturn(
       listOf(

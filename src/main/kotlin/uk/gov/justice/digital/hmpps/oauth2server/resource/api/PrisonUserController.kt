@@ -109,7 +109,7 @@ class PrisonUserController(
   }
 
   @PostMapping("/{username}/email/sync")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @ApiOperation(
     value = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required",
     nickname = "syncUserEmail",
