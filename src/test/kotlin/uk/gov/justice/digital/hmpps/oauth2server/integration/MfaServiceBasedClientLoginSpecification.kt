@@ -10,7 +10,7 @@ import org.fluentlenium.core.annotation.PageUrl
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension
+import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension.Companion.azureOIDC
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -39,8 +39,25 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
   private lateinit var mfaEmailResendCodePage: ServiceBasedMfaEmailResendCodePage
 
   @Test
+  fun `Sign in as azure ad user with linked single account`() {
+    azureOIDC.stubToken("authsinglerole@digital.justice.gov.uk")
+    clientMfaServiceAccess {
+      loginPage.clickAzureOIDCLink()
+      mfaEmailPage.isAtPage().submitCode()
+    }
+      .jsonPath(".user_name").isEqualTo("AUTH_SINGLE_ROLE_USER")
+      .jsonPath(".user_id").isEqualTo("bb81698b-e3c1-44a4-8947-5d1133856582")
+      .jsonPath(".sub").isEqualTo("AUTH_SINGLE_ROLE_USER")
+      .jsonPath(".auth_source").isEqualTo("auth")
+      .jsonPath(".access_token").value<JSONArray> {
+        val claims = JWTParser.parse(it[0].toString()).jwtClaimsSet
+        assertThat(claims.getClaim("user_name")).isEqualTo("AUTH_SINGLE_ROLE_USER")
+      }
+  }
+
+  @Test
   fun `Sign in as azure ad user with multiple accounts`() {
-    AzureOIDCExtension.azureOIDC.stubToken("Auth_Test@digital.Justice.gov.UK")
+    azureOIDC.stubToken("Auth_Test@digital.Justice.gov.UK")
     clientMfaServiceAccess {
       loginPage.clickAzureOIDCLink()
       selectUserPage.isAtPage().selectUser("auth", "AUTH_CHANGE_TEST")

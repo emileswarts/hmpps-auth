@@ -63,8 +63,8 @@ class UserSelectorAndMfaAuthorizationEndpoint(
     }
 
     if (requireMfa) {
-      selectedUser?.apply { model["selectedUser"] = selectedUser }
-      return ModelAndView("forward:/service-mfa-send-challenge", model)
+      selectedUser?.apply { model[USER_OAUTH_APPROVAL] = selectedUser }
+      return ModelAndView("redirect:/service-mfa-send-challenge", model)
     }
 
     return ModelAndView(

@@ -30,16 +30,36 @@ class HomePageSpecification : AbstractNomisAndDeliusAuthSpecification() {
   }
 
   @Test
-  fun `Log in with azuread user`() {
-    azureOIDC.stubToken("email_not_matched@digital.justice.gov.uk")
+  fun `Log in with azuread user not linked to any users`() {
+    azureOIDC.stubToken("notlinkedazureuser@justice.gov.uk")
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
+    homePage.checkNotificationBannerContains("You cannot access any services because you do not have any roles associated with your account")
 
     homePage.checkLinks("DETAILS")
   }
 
   @Test
-  fun `Log in with azuread user mapped to auth users`() {
+  fun `Log in with azuread user with linked user no roles`() {
+    azureOIDC.stubToken("azureuser@justice.gov.uk")
+    goTo(loginPage).clickAzureOIDCLink()
+    homePage.isAt()
+    homePage.checkNotificationBannerContains("You cannot access any services because you do not have any roles associated with your account")
+
+    homePage.checkLinks("DETAILS")
+  }
+
+  @Test
+  fun `Log in with azuread user with one linked auth user with a role`() {
+    azureOIDC.stubToken("authsinglerole@digital.justice.gov.uk")
+    goTo(loginPage).clickAzureOIDCLink()
+    homePage.isAt()
+
+    homePage.checkLinks("DETAILS", "manage-user-accounts-ui")
+  }
+
+  @Test
+  fun `Log in with azuread user linked to multiple auth users`() {
     azureOIDC.stubToken("auth_test2@digital.justice.gov.uk")
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()

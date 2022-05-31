@@ -15,6 +15,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.oauth2.common.util.OAuth2Utils.USER_OAUTH_APPROVAL
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint
@@ -67,7 +68,7 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
 
       val modelAndView = endpoint.authorize(mutableMapOf(), mapOf(), sessionStatus, authentication)
 
-      assertThat(modelAndView.viewName).isEqualTo("forward:/service-mfa-send-challenge")
+      assertThat(modelAndView.viewName).isEqualTo("redirect:/service-mfa-send-challenge")
       assertThat(modelAndView.model).isEmpty()
     }
 
@@ -84,8 +85,8 @@ internal class UserSelectorAndMfaAuthorizationEndpointTest {
 
       val modelAndView = endpoint.authorize(mutableMapOf(), mapOf(), sessionStatus, authentication)
 
-      assertThat(modelAndView.viewName).isEqualTo("forward:/service-mfa-send-challenge")
-      assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("selectedUser" to "auth/user1"))
+      assertThat(modelAndView.viewName).isEqualTo("redirect:/service-mfa-send-challenge")
+      assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf(USER_OAUTH_APPROVAL to "auth/user1"))
     }
 
     @Test
