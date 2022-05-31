@@ -125,3 +125,6 @@ VALUES ('another-test-client', '127.0.0.1'),
        ('ip-allow-b-client', '35.176.93.186'),
        ('ip-allow-c-client', '35.176.0.0/16'),
        ('service-client', '127.0.0.1');
+
+INSERT INTO oauth_client_details (client_id, access_token_validity, additional_information, authorities, authorized_grant_types, autoapprove, client_secret, refresh_token_validity, resource_ids, scope, web_server_redirect_uri)
+VALUES ('book-a-prison-visit-client-ui', 3600, '{}', 'ROLE_SYSTEM_USER,ROLE_VISIT_SCHEDULER,ROLE_PRISONER_CONTACT_REGISTRY,ROLE_OFFENDER_CONTACTS,ROLE_PRISONER_SEARCH', 'client_credentials,authorization_code,refresh_token', 'read,write', '$2a$12$30bYVFItHZD5RpzwDiczdOPPgbvzHkMlb5bbX3Ev7CnlRmhaYyPsm', 43200, null, 'read,write', 'http://localhost:3000,http://localhost:3000/login/callback,http://localhost:3000/logout/success,http://localhost:3000/sign-in/callback,http://localhost:3000/sign-out/success');

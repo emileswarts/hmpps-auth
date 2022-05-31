@@ -45,6 +45,7 @@ VALUES ('A04C70EE-51C9-4852-8D0D-130DA5C85C42', 'ITAG_USER', 'itag_user@digital.
        ('2D787EC4-556F-4D13-818A-45D6843B9A8D', 'SLM_MAILROOM_USER_LOCAL', 'send_legal_mail_mailroom_user_local@digital.justice.gov.uk', true, 'nomis'),
        ('F770E655-B59C-427F-8DBB-0EE5FD00B895', 'SLM_ADMIN_LOCAL', 'send_legal_mail_admin_local@digital.justice.gov.uk', true, 'nomis');
 
+
 INSERT INTO users (user_id, username, email, verified, last_logged_in, source)
 VALUES ('A2B6E3C0-2CE4-4148-9DFB-42E94BC78D02', 'NOMIS_DELETE', 'locked@somewhere.com', true, '2018-02-04 13:23:19.0000000', 'nomis');
 
@@ -414,3 +415,15 @@ VALUES ('LOCKED_USER', 5),
        ('LOCKED_NOMIS_USER', 3),
        ('AUTH_DELETEALL', 3),
        ('NOMIS_DELETE', 1);
+
+-- User used by 'Book a prison visit UI'
+
+INSERT INTO users (user_id, username, password, password_expiry, email, first_name, last_name, verified, enabled, locked, source)
+VALUES ('608955AE-52ED-44CC-884C-011597A77950', 'PRISON_VISIT_TEST', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'prison-visit-test@digital.justice.gov.uk', 'Auth', 'Only', true, true, false, 'auth');
+
+-- Roles added to 'Book a prison visit UI' User
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'PRISONER_SEARCH';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'VISIT_SCHEDULER';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'PRISONER_CONTACT_REGISTRY';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'OFFENDER_CONTACTS';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'MIGRATE_VISITS';

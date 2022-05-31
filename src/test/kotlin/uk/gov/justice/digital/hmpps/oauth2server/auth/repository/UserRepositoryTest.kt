@@ -332,7 +332,7 @@ class UserRepositoryTest {
   fun findAll_UserFilter_ByEmail() {
     assertThat(repository.findAll(UserFilter(name = "test@digital")))
       .extracting<String> { it.username }
-      .containsOnly("AUTH_TEST", "AUTH_RO_USER_TEST", "AUTH_CHANGE_TEST", "AUTH_CHANGE2_TEST", "AUTH_CHANGE_EMAIL")
+      .containsOnly("AUTH_TEST", "AUTH_RO_USER_TEST", "AUTH_CHANGE_TEST", "AUTH_CHANGE2_TEST", "AUTH_CHANGE_EMAIL", "PRISON_VISIT_TEST")
   }
 
   @Test
