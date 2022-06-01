@@ -19,7 +19,7 @@ data:
     chmod 0600 ~/.pgpass
     set -x
 
-    # Copies all tables but preserves the current preprod oauth_client_allowed_ips, oauth_client_deployment_details, oauth_client_details, oauth_code and oauth_service tables
+    # Copies all tables but preserves the current preprod oauth_client_config, oauth_client_deployment_details, oauth_client_details, oauth_code and oauth_service tables
     # pg_dump -h $DB_HOST -U $DB_USER -Fc --no-privileges -v --file=/tmp/db.dump $DB_NAME
-    pg_dump -h $DB_HOST -U $DB_USER -Fc --no-privileges -v --exclude-table='*oauth_client_allowed_ips' --exclude-table='*oauth_client_deployment_details' --exclude-table='*oauth_client_details' --exclude-table='*oauth_code' --exclude-table='*oauth_service' --file=/tmp/db.dump $DB_NAME
+    pg_dump -h $DB_HOST -U $DB_USER -Fc --no-privileges -v --exclude-table='*oauth_client_config' --exclude-table='*oauth_client_deployment_details' --exclude-table='*oauth_client_details' --exclude-table='*oauth_code' --exclude-table='*oauth_service' --file=/tmp/db.dump $DB_NAME
     pg_restore -h $DB_HOST_PREPROD -U $DB_USER_PREPROD --clean --no-owner -v -d $DB_NAME_PREPROD /tmp/db.dump

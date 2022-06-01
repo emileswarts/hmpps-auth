@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.provider.TokenRequest
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
-import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientConfigRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
@@ -25,7 +25,7 @@ open class TrackingTokenServices(
   private val telemetryClient: TelemetryClient,
   private val restTemplate: RestTemplate,
   private val clientRepository: ClientRepository,
-  private val clientAllowedIpsRepository: ClientAllowedIpsRepository,
+  private val clientConfigRepository: ClientConfigRepository,
   private val tokenVerificationClientCredentials: TokenVerificationClientCredentials,
   private val tokenVerificationEnabled: Boolean,
 ) : DefaultTokenServices() {
@@ -38,7 +38,7 @@ open class TrackingTokenServices(
   override fun createAccessToken(authentication: OAuth2Authentication): OAuth2AccessToken {
     val clientId = authentication.oAuth2Request.clientId
     val baseClientId = ClientService.baseClientId(clientId)
-    val allowedIps = clientAllowedIpsRepository.findByIdOrNull(baseClientId)?.ips
+    val allowedIps = clientConfigRepository.findByIdOrNull(baseClientId)?.ips
     val clientIpAddress = IpAddressHelper.retrieveIpFromRequest()
 
     if (!allowedIps.isNullOrEmpty()) {

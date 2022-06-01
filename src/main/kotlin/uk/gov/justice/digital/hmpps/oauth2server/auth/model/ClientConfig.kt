@@ -8,8 +8,8 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 @Entity
-@Table(name = "OAUTH_CLIENT_ALLOWED_IPS")
-data class ClientAllowedIps(
+@Table(name = "OAUTH_CLIENT_CONFIG")
+data class ClientConfig(
 
   @Id
   @Column(name = "base_client_id", nullable = false)

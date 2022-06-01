@@ -119,7 +119,7 @@ VALUES ('another-delete-test-client', 'SERVICE', 'A Team', 'A Team contact', 'A 
 INSERT INTO oauth_client_deployment_details (base_client_id,client_type, team, team_contact, team_slack, hosting)
 VALUES ('individual-client', 'PERSONAL', 'Bob', 'Bob@digital.justice.gov.uk', 'bob slack', 'OTHER');
 
-INSERT INTO oauth_client_allowed_ips (base_client_id, allowed_ips)
+INSERT INTO oauth_client_config (base_client_id, allowed_ips)
 VALUES ('another-test-client', '127.0.0.1'),
        ('ip-allow-a-client', '127.0.0.1/32'),
        ('ip-allow-b-client', '35.176.93.186'),

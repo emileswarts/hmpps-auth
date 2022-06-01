@@ -33,8 +33,8 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
-import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientConfigRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
@@ -52,13 +52,13 @@ internal class TrackingTokenServicesTest {
   private val clientDetailsService: ClientDetailsService = mock()
   private val userService: UserService = mock()
   private val clientRepository: ClientRepository = mock()
-  private val clientAllowedIpsRepository: ClientAllowedIpsRepository = mock()
+  private val clientConfigRepository: ClientConfigRepository = mock()
   private val restTemplate: RestTemplate = mock()
   private val tokenVerificationClientCredentials = TokenVerificationClientCredentials()
   private val tokenServices =
-    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientAllowedIpsRepository, tokenVerificationClientCredentials, true)
+    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientConfigRepository, tokenVerificationClientCredentials, true)
   private val tokenServicesVerificationDisabled =
-    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientAllowedIpsRepository, tokenVerificationClientCredentials, false)
+    TrackingTokenServices(authIpSecurity, telemetryClient, restTemplate, clientRepository, clientConfigRepository, tokenVerificationClientCredentials, false)
   private val request = MockHttpServletRequest()
 
   @BeforeEach
@@ -138,7 +138,7 @@ internal class TrackingTokenServicesTest {
 
     @Test
     fun `createAccessToken request from allowed ip`() {
-      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(ClientAllowedIps("client", listOf("12.21.23.24"))))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"))))
       whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
@@ -147,19 +147,19 @@ internal class TrackingTokenServicesTest {
         mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
-      verify(clientAllowedIpsRepository, times(1)).findById("client")
+      verify(clientConfigRepository, times(1)).findById("client")
     }
 
     @Test
     fun `createAccessToken throw error when request not from allowed IP`() {
-      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(ClientAllowedIps("client", listOf("12.21.23.24"))))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"))))
       doThrow(AllowedIpException()).whenever(authIpSecurity).validateClientIpAllowed(anyString(), any())
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       Assertions.assertThatThrownBy { tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication)) }
         .isInstanceOf(
           AllowedIpException::class.java
         ).hasMessage("Unable to issue token as request is not from ip within allowed list")
-      verify(clientAllowedIpsRepository, times(1)).findById("client")
+      verify(clientConfigRepository, times(1)).findById("client")
     }
   }
 

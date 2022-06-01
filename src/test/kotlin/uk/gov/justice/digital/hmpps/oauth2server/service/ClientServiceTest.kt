@@ -21,13 +21,13 @@ import org.springframework.security.oauth2.provider.ClientDetailsService
 import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType.PERSONAL
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType.SERVICE
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
-import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientConfigRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientDeploymentRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
@@ -44,7 +44,7 @@ internal class ClientServiceTest {
   private val oauthServiceRepository: OauthServiceRepository = mock()
   private val clientDetailsService: ClientDetailsService = mock()
   private val clientRegistrationService: ClientRegistrationService = mock()
-  private val clientAllowedIpsRepository: ClientAllowedIpsRepository = mock()
+  private val clientConfigRepository: ClientConfigRepository = mock()
   private val passwordGenerator: PasswordGenerator = mock()
   private val clientService = ClientService(
     clientDetailsService,
@@ -52,7 +52,7 @@ internal class ClientServiceTest {
     passwordGenerator,
     clientRepository,
     clientDeploymentRepository,
-    clientAllowedIpsRepository,
+    clientConfigRepository,
     oauthServiceRepository,
   )
 
@@ -529,42 +529,42 @@ internal class ClientServiceTest {
   }
 
   @Nested
-  inner class clientAllowedIps {
+  inner class clientConfig {
 
     @Test
     internal fun `load client allowed ips details`() {
       val clientAllowedIps = createClientAllowedIps()
-      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
-      val allowedIps = clientService.loadClientAllowedIps("client-1")
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
+      val allowedIps = clientService.loadClientConfig("client-1")
 
       assertThat(allowedIps).isEqualTo(clientAllowedIps)
-      verify(clientAllowedIpsRepository).findById("client")
+      verify(clientConfigRepository).findById("client")
     }
 
     @Test
     internal fun `load client allowed ips details - baseClientId`() {
       val clientAllowedIps = createClientAllowedIps()
-      whenever(clientAllowedIpsRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
-      val allowedIps = clientService.loadClientAllowedIps("client")
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
+      val allowedIps = clientService.loadClientConfig("client")
 
       assertThat(allowedIps).isEqualTo(clientAllowedIps)
-      verify(clientAllowedIpsRepository).findById("client")
+      verify(clientConfigRepository).findById("client")
     }
 
     @Test
     internal fun `load client allowed ips details - no details held`() {
-      val allowedIps = clientService.loadClientAllowedIps("client")
+      val allowedIps = clientService.loadClientConfig("client")
 
       assertThat(allowedIps).isNull()
-      verify(clientAllowedIpsRepository).findById("client")
+      verify(clientConfigRepository).findById("client")
     }
 
     @Test
     internal fun `load client allowed ips with new line details - no details held`() {
-      val allowedIps = clientService.loadClientAllowedIps("client")
+      val allowedIps = clientService.loadClientConfig("client")
 
       assertThat(allowedIps?.allowedIpsWithNewlines).isNull()
-      verify(clientAllowedIpsRepository).findById("client")
+      verify(clientConfigRepository).findById("client")
     }
 
     @Test
@@ -572,7 +572,7 @@ internal class ClientServiceTest {
       val clientAllowedIps = createClientAllowedIps()
       clientService.saveClientAllowedIps(clientAllowedIps)
 
-      verify(clientAllowedIpsRepository).save(
+      verify(clientConfigRepository).save(
         check {
           assertThat(it).usingRecursiveComparison().isEqualTo((clientAllowedIps))
         }
@@ -594,7 +594,7 @@ internal class ClientServiceTest {
       clientService.removeClient("client")
 
       verify(clientDeploymentRepository).deleteByBaseClientId("client")
-      verify(clientAllowedIpsRepository).deleteByBaseClientId("client")
+      verify(clientConfigRepository).deleteByBaseClientId("client")
       verify(clientRegistrationService).removeClientDetails("client")
     }
 
@@ -610,7 +610,7 @@ internal class ClientServiceTest {
       clientService.removeClient("client")
 
       verifyNoInteractions(clientDeploymentRepository)
-      verifyNoInteractions(clientAllowedIpsRepository)
+      verifyNoInteractions(clientConfigRepository)
       verify(clientRegistrationService).removeClientDetails("client")
     }
   }
@@ -734,7 +734,7 @@ internal class ClientServiceTest {
     secretKey = "secret-key",
   )
 
-  private fun createClientAllowedIps(): ClientAllowedIps = ClientAllowedIps(
+  private fun createClientAllowedIps(): ClientConfig = ClientConfig(
     baseClientId = "client",
     ips = listOf("127.0.0.1")
   )

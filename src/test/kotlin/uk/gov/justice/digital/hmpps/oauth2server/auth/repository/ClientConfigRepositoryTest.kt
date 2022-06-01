@@ -10,7 +10,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 
 @DataJpaTest
@@ -18,15 +18,15 @@ import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
 @Import(AuthDbConfig::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
-class ClientAllowedIpsRepositoryTest {
+class ClientConfigRepositoryTest {
 
   @Autowired
-  private lateinit var repository: ClientAllowedIpsRepository
+  private lateinit var repository: ClientConfigRepository
 
   @Test
   fun givenATransientEntityItCanBePersisted() {
     val transientEntity = transientEntity()
-    val entity = ClientAllowedIps(transientEntity.baseClientId, transientEntity.ips)
+    val entity = ClientConfig(transientEntity.baseClientId, transientEntity.ips)
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()
     TestTransaction.end()
@@ -43,5 +43,5 @@ class ClientAllowedIpsRepositoryTest {
     )
   }
 
-  private fun transientEntity(): ClientAllowedIps = ClientAllowedIps("hdc", listOf("127.0.0.1"))
+  private fun transientEntity(): ClientConfig = ClientConfig("hdc", listOf("127.0.0.1"))
 }

@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Hosting
@@ -66,8 +66,8 @@ class ClientControllerTest {
       whenever(clientService.loadClientDeploymentDetails(anyString())).thenReturn(
         ClientDeployment(baseClientId = "client-id")
       )
-      whenever(clientService.loadClientAllowedIps(anyString())).thenReturn(
-        ClientAllowedIps(baseClientId = "client-id", ips = listOf("127.0.0.1"))
+      whenever(clientService.loadClientConfig(anyString())).thenReturn(
+        ClientConfig(baseClientId = "client-id", ips = listOf("127.0.0.1"))
       )
       val modelAndView = controller.showEditForm("client-id")
 
@@ -77,7 +77,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
-      assertThat(modelAndView.model["allowedIps"] as ClientAllowedIps).isNotNull
+      assertThat(modelAndView.model["allowedIps"] as ClientConfig).isNotNull
       assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
@@ -92,8 +92,8 @@ class ClientControllerTest {
       whenever(clientService.loadClientDeploymentDetails(anyString())).thenReturn(
         ClientDeployment(baseClientId = "client-id")
       )
-      whenever(clientService.loadClientAllowedIps(anyString())).thenReturn(
-        ClientAllowedIps(baseClientId = "client-id", ips = listOf("127.0.0.1"))
+      whenever(clientService.loadClientConfig(anyString())).thenReturn(
+        ClientConfig(baseClientId = "client-id", ips = listOf("127.0.0.1"))
       )
       val modelAndView = controller.showViewOnlyForm("client-id")
 
@@ -103,7 +103,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
-      assertThat(modelAndView.model["allowedIps"] as ClientAllowedIps).isNotNull
+      assertThat(modelAndView.model["allowedIps"] as ClientConfig).isNotNull
       assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
@@ -171,10 +171,10 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update existing client`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val clientAllowedIps = ClientAllowedIps("client", listOf("127.0.0.1"))
-      val modelAndView = controller.editClient(authentication, authClientDetails, clientAllowedIps, null)
+      val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
+      val modelAndView = controller.editClient(authentication, authClientDetails, clientConfig, null)
       verify(clientRegistrationService).updateClientDetails(authClientDetails)
-      verify(clientService).saveClientAllowedIps(clientAllowedIps)
+      verify(clientService).saveClientAllowedIps(clientConfig)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsUpdate",
         mapOf("username" to "user", "clientId" to "client"),
@@ -186,11 +186,11 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update client throws NoSuchClientException`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val clientAllowedIps = ClientAllowedIps("client", listOf("127.0.0.1"))
+      val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
       val exception = NoSuchClientException("No client found with id = ")
       doThrow(exception).whenever(clientRegistrationService).updateClientDetails(authClientDetails)
 
-      assertThatThrownBy { controller.editClient(authentication, authClientDetails, clientAllowedIps, null) }.isEqualTo(
+      assertThatThrownBy { controller.editClient(authentication, authClientDetails, clientConfig, null) }.isEqualTo(
         exception
       )
 

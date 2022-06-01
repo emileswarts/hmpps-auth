@@ -26,7 +26,7 @@ In sync with the main oracle database refreshes this cronjob runs every other Su
 ### ** Important **
 
 It is important to note that the auth database refresh is slightly different to other db refresh scripts.  Five tables: 
- - oauth_client_allowed_ips
+ - oauth_client_config
  - oauth_client_deployment_details
  - oauth_client_details
  - oauth_code 

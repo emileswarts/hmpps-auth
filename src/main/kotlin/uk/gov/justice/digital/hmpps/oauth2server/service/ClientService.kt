@@ -11,11 +11,11 @@ import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
-import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientAllowedIps
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
-import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientAllowedIpsRepository
+import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientConfigRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientDeploymentRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.ClientRepository
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRepository
@@ -35,7 +35,7 @@ class ClientService(
   private val passwordGenerator: PasswordGenerator,
   private val clientRepository: ClientRepository,
   private val clientDeploymentRepository: ClientDeploymentRepository,
-  private val clientAllowedIpsRepository: ClientAllowedIpsRepository,
+  private val clientConfigRepository: ClientConfigRepository,
   private val oauthServiceRepository: OauthServiceRepository,
 ) {
 
@@ -143,9 +143,9 @@ class ClientService(
     return clientDeploymentRepository.findByIdOrNull(searchClientId)
   }
 
-  fun loadClientAllowedIps(clientId: String): ClientAllowedIps? {
+  fun loadClientConfig(clientId: String): ClientConfig? {
     val searchClientId = baseClientId(clientId)
-    return clientAllowedIpsRepository.findByIdOrNull(searchClientId)
+    return clientConfigRepository.findByIdOrNull(searchClientId)
   }
 
   fun getClientDeploymentDetailsAndBaseClientId(clientId: String): Pair<ClientDeployment?, String> {
@@ -159,8 +159,8 @@ class ClientService(
   }
 
   @Transactional
-  fun saveClientAllowedIps(clientAllowedIps: ClientAllowedIps) {
-    clientAllowedIpsRepository.save(clientAllowedIps)
+  fun saveClientAllowedIps(clientConfig: ClientConfig) {
+    clientConfigRepository.save(clientConfig)
   }
 
   @Transactional
@@ -170,7 +170,7 @@ class ClientService(
     if (clients.size == 1) {
       val baseClientId = baseClientId(clientId)
       clientDeploymentRepository.deleteByBaseClientId(baseClientId)
-      clientAllowedIpsRepository.deleteByBaseClientId(baseClientId)
+      clientConfigRepository.deleteByBaseClientId(baseClientId)
     }
     clientRegistrationService.removeClientDetails(clientId)
   }
