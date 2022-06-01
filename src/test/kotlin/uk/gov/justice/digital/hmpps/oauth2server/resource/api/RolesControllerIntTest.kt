@@ -516,14 +516,14 @@ class RolesControllerIntTest : IntegrationTest() {
 
     @Test
     fun `find page of roles sorting by role code`() {
-      webTestClient.get().uri("/api/roles/paged?page=4&size=3&sort=roleCode")
+      webTestClient.get().uri("/api/roles/paged?page=5&size=3&sort=roleCode")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[2].roleName").isEqualTo("HWPV Band 5")
-        .jsonPath("$.content[2].roleCode").isEqualTo("HWPV_CASEWORK_MANAGER_BAND_5")
+        .jsonPath("$.content[0].roleName").isEqualTo("HWPV Band 5")
+        .jsonPath("$.content[0].roleCode").isEqualTo("HWPV_CASEWORK_MANAGER_BAND_5")
     }
 
     @Test
@@ -544,7 +544,7 @@ class RolesControllerIntTest : IntegrationTest() {
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(70)
+        .jsonPath("$.totalElements").isEqualTo(71)
         .jsonPath("$.totalPages").isEqualTo(24)
         .jsonPath("$.last").isEqualTo(false)
   }

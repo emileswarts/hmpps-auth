@@ -109,6 +109,7 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D41', 'AUTH_CHANGE_MOBILE2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D42', 'AUTH_CHANGE_MOBILE_ADD', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', true, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D43', 'AUTH_CHANGE_MOBILE3', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_mobile@digital.justice.gov.uk', 'Auth', 'Mobile', true, true, false, 'auth'),
+       ('2E285CCD-DCFD-4497-9E22-89E8E10A2A6A', 'AUTH_CREATE_DPS_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_create_dps_user@digital.justice.gov.uk', 'Dpsuser', 'Creator', true, true, false, 'auth'),
        ('67A789DE-7D29-4863-B9C2-F2CE715DC4BC', 'AUTH_NEW_USER', null, '3013-01-28 13:23:19.0000000', 'a@b.com', 'Auth', 'New-User', false, true, false, 'auth'),
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2A3F', 'AUTH_MFA_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'mfa_user@digital.justice.gov.uk', 'Mfa', 'User', true, true, false, 'auth'),
        ('2E285CCF-DCFD-4497-9E22-D6E8E10A2A3F', 'AUTH_MFA_NOEMAIL_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', null, 'Mfa No Email', 'User', true, true, false, 'auth'),
@@ -279,6 +280,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'MAINTAIN_OAUTH_USERS';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'ROLES_ADMIN';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_ADM' and role_code = 'AUDIT_VIEWER';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_CREATE_DPS_USER' and role_code = 'CREATE_USER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_RO_USER' and role_code = 'LICENCE_RO';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_RO_USER2' and role_code = 'LICENCE_RO';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_RO_USER' and role_code = 'GLOBAL_SEARCH';

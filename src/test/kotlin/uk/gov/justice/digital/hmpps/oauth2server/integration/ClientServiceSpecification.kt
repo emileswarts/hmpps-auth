@@ -101,7 +101,7 @@ class ClientServiceSpecification : AbstractAuthSpecification() {
       .checkServiceDetails(
         name = "Manage user accounts",
         description = "",
-        authorisedRoles = "AUTH_GROUP_MANAGER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS",
+        authorisedRoles = "AUTH_GROUP_MANAGER CREATE_USER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS",
         url = "http://localhost:3001/",
         email = "",
         enabled = "Yes"
@@ -113,7 +113,7 @@ class ClientServiceSpecification : AbstractAuthSpecification() {
         code = "manage-user-accounts-ui",
         name = "Manage user accounts",
         description = "",
-        authorisedRoles = "ROLE_KW_MIGRATION\nROLE_MAINTAIN_ACCESS_ROLES\nROLE_MAINTAIN_ACCESS_ROLES_ADMIN\nROLE_MAINTAIN_OAUTH_USERS\nROLE_AUTH_GROUP_MANAGER",
+        authorisedRoles = "ROLE_KW_MIGRATION\nROLE_MAINTAIN_ACCESS_ROLES\nROLE_MAINTAIN_ACCESS_ROLES_ADMIN\nROLE_MAINTAIN_OAUTH_USERS\nROLE_AUTH_GROUP_MANAGER\nROLE_CREATE_USER",
         url = "http://localhost:3001/",
         email = "",
         enabled = "true"

@@ -8,7 +8,7 @@ VALUES ('book-a-secure-move-ui', 'Book a secure move', 'Book a secure move', 'RO
        ('hmpps-registers-ui', 'HMPPS Registers', 'This service allows users to manage registers related to HMPPS data', 'ROLE_HMPPS_REGISTERS_MAINTAINER', 'http://localhost:3000', true, null),
        ('manage-intelligence-client', 'Manage Intelligence', 'Manage Intelligence Reports', 'ROLE_ARTEMIS_USER', 'http://localhost:3000', true, null),
        ('manage-soc-cases-client', 'Manage SOC cases', 'View and manage SOC cases', 'ROLE_SOC_CUSTODY,ROLE_SOC_COMMUNITY', 'http://localhost:3000', true, null),
-       ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER', 'http://localhost:3001/', true, null),
+       ('manage-user-accounts-ui', 'Manage user accounts', null, 'ROLE_KW_MIGRATION,ROLE_MAINTAIN_ACCESS_ROLES,ROLE_MAINTAIN_ACCESS_ROLES_ADMIN,ROLE_MAINTAIN_OAUTH_USERS,ROLE_AUTH_GROUP_MANAGER,ROLE_CREATE_USER', 'http://localhost:3001/', true, null),
        ('OAUTHADMIN', 'Oauth Client Management', 'Manage Client Credentials for OAUTH2 Clients', 'ROLE_OAUTH_ADMIN', 'http://localhost:8080/auth/ui/', true,  null),
        ('pathfinder-client', 'Pathfinder Service', 'View and Manage Pathfinder nominals', 'ROLE_PF_STD_PRISON,ROLE_PF_APPROVAL,ROLE_PF_POLICE', 'http://localhost:3000', true, null),
        ('POM', 'Allocate a POM Service', 'Allocate the appropriate offender manager to a prisoner', 'ROLE_ALLOC_MGR', 'https://moic.service.justice.gov.uk', true,  'https://moic.service.justice.gov.uk/help'),

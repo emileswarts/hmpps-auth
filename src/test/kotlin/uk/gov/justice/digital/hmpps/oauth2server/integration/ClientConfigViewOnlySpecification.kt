@@ -113,7 +113,7 @@ class ClientConfigViewOnlySpecification : AbstractAuthSpecification() {
       .checkServiceDetails(
         name = "Manage user accounts",
         description = "",
-        authorisedRoles = "AUTH_GROUP_MANAGER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS",
+        authorisedRoles = "AUTH_GROUP_MANAGER CREATE_USER KW_MIGRATION MAINTAIN_ACCESS_ROLES MAINTAIN_ACCESS_ROLES_ADMIN MAINTAIN_OAUTH_USERS",
         url = "http://localhost:3001/",
         email = "",
         enabled = "Yes"
