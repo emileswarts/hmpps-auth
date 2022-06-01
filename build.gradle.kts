@@ -45,6 +45,9 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
+  // thymeleaf-layout-dialect:3.1.0 uses groovy 4.0.0 which contains CVE-2020-17521 https://nvd.nist.gov/vuln/detail/CVE-2020-17521
+  // org.apache.groovy:groovy can be removed when thymeleaf-layout-dialect is updated and include groovy:4.0.2 or later
+  implementation("org.apache.groovy:groovy:4.0.2")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
   implementation("org.flywaydb:flyway-core:8.5.11")
