@@ -12,15 +12,30 @@
   <h1 th:if="${newService == 'existing'}" class="govuk-heading-l">Edit service '<span th:text="${param.code[0]}"></span>'</h1>
   <h1 th:unless="${newService == 'existing'}" class="govuk-heading-l">Add service</h1>
 
-  <form th:action="@{/ui/services/edit}" method="post">
+  <form th:action="@{/ui/services/edit}" method="post" th:object="${service}">
+    <div th:if="${#fields.hasAnyErrors() || error != null}" class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary">There is a problem</h2>
+      <div class="govuk-error-summary__body" id="error-detail">
+        <ul class="govuk-list govuk-error-summary__list">
+          <li th:each="err : ${#fields.allErrors()}" th:id="'field-error-' + ${errStat.index}" th:text="${err}" />
+          <div th:if="${error != null}">
+            <li th:text="${error}" />
+          </div>
+        </ul>
+      </div>
+    </div>
+
     <!-- signalize new service -->
     <input type="hidden" th:unless="${newService == 'existing'}" name="newService" value="true"/>
     <input type="hidden" th:unless="${newService == 'new'}" id="code" name="code" th:value="${service.code}"/>
     <input type="hidden" th:if="${param.fromClient}" id="from" name="fromClient" th:value="true"/>
 
     <div class="govuk-form-group">
-      <div class="govuk-form-group" th:unless="${param.code}">
+      <div class="govuk-form-group" th:if="${newService == 'new'}">
         <label class="govuk-label" for="code">Code</label>
+        <span th:if="${#fields.hasErrors('code')}" class="govuk-error-message">
+          <p th:each="err : ${#fields.errors('code')}" th:text="${err}"></p>
+        </span>
         <input class="govuk-input" id="code" type="text" name="code" th:value="${service.code}"/>
       </div>
       <div class="govuk-form-group">

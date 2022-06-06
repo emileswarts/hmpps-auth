@@ -10,6 +10,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.validation.BindingResult
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
@@ -62,10 +63,13 @@ class ServicesControllerTest {
 
   @Nested
   inner class EditService {
+
+    private val bindingResult: BindingResult = mock()
+
     @Test
     fun `edit service - add service`() {
       val service = Service(code = "newcode", name = "", description = "", url = "")
-      val url = controller.editService(authentication, service, true)
+      val url = controller.editService(authentication, service, bindingResult, true)
       assertThat(url.viewName).isEqualTo("redirect:/ui/services")
       assertThat(url.model).isEmpty()
       verify(authServicesService).addService(service)
@@ -77,9 +81,19 @@ class ServicesControllerTest {
     }
 
     @Test
+    fun `edit service - add service validates form`() {
+      whenever(bindingResult.hasErrors()).thenReturn(true)
+
+      val service = Service(code = "", name = "Some Name", description = "Some Description", url = "Some URL")
+      val url = controller.editService(authentication, service, bindingResult, true)
+      assertThat(url.viewName).isEqualTo("ui/service")
+      assertThat(url.model["service"]).isEqualTo(service)
+    }
+
+    @Test
     fun `edit service - edit service`() {
       val service = Service(code = "editcode", name = "", description = "", url = "")
-      val url = controller.editService(authentication, service)
+      val url = controller.editService(authentication, service, bindingResult)
       assertThat(url.viewName).isEqualTo("redirect:/ui/services")
       assertThat(url.model).isEmpty()
       verify(authServicesService).updateService(service)

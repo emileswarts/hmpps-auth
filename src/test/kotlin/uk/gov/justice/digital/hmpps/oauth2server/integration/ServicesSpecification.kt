@@ -18,6 +18,9 @@ class ServicesSpecification : AbstractAuthSpecification() {
   @Page
   private lateinit var servicesMaintenanceAddPage: ServicesMaintenanceAddPage
 
+  @Page
+  private lateinit var servicesMaintenanceValidationPage: ServicesMaintenanceValidationPage
+
   @Test
   fun `View Services Dashboard once logged in`() {
     goTo("/ui/services")
@@ -115,6 +118,23 @@ class ServicesSpecification : AbstractAuthSpecification() {
     servicesSummaryPage.isAtPage()
       .checkServiceDoesntExist("NEW")
   }
+
+  @Test
+  fun `Creating a service credential validates that the code is not blank`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+
+    goTo(servicesSummaryPage).editService(service = "service")
+    servicesMaintenanceAddPage.isAtPage()
+      .edit("code", "  ")
+      .edit("name", "A new service")
+      .edit("description", "With a description")
+      .edit("url", "http://a_url:3003")
+      .editRoles("ROLE_SOME\nROLE_THING")
+      .save()
+
+    servicesMaintenanceValidationPage.isAtPage()
+      .validationErrorShown("Code cannot be blank")
+  }
 }
 
 @PageUrl("/ui/services")
@@ -176,6 +196,10 @@ open class ServicesMaintenancePage(heading: String = "Edit service", headingStar
     return this
   }
 
+  fun validationErrorShown(message: String) {
+    assertThat(el("#field-error-0").text()).isEqualTo(message)
+  }
+
   fun addClientServiceDetails(
     code: String,
     name: String,
@@ -218,3 +242,6 @@ open class ServicesMaintenancePage(heading: String = "Edit service", headingStar
 
 @PageUrl("/ui/services/form")
 class ServicesMaintenanceAddPage : ServicesMaintenancePage("Add service", false)
+
+@PageUrl("/ui/services/edit")
+class ServicesMaintenanceValidationPage : ServicesMaintenancePage("Add service", false)

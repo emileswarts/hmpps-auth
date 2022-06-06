@@ -5,13 +5,16 @@ import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
+import javax.validation.constraints.NotBlank
 
 @Entity
 @Table(name = "OAUTH_SERVICE")
 data class Service(
   @Id
   @Column(nullable = false)
+  @field: NotBlank(message = "Code cannot be blank")
   val code: String,
+
   @Column(nullable = false)
   val name: String,
 
