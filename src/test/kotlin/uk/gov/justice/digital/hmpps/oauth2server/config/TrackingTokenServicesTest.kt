@@ -41,6 +41,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.oauth2server.utils.JwtAuthHelper.JwtParameters
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
@@ -138,7 +139,7 @@ internal class TrackingTokenServicesTest {
 
     @Test
     fun `createAccessToken request from allowed ip`() {
-      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"))))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"), null)))
       whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
@@ -152,7 +153,7 @@ internal class TrackingTokenServicesTest {
 
     @Test
     fun `createAccessToken throw error when request not from allowed IP`() {
-      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"))))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf("12.21.23.24"), null)))
       doThrow(AllowedIpException()).whenever(authIpSecurity).validateClientIpAllowed(anyString(), any())
       val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
       Assertions.assertThatThrownBy { tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication)) }
@@ -161,6 +162,45 @@ internal class TrackingTokenServicesTest {
         ).hasMessage("Unable to issue token as request is not from ip within allowed list")
       verify(clientConfigRepository, times(1)).findById("client")
     }
+
+    @Test
+    fun `createAccessToken request when client end date in future`() {
+      whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client(id = "client-1")))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client-1", clientEndDate = LocalDate.now().plusDays(1))))
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      val token = tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
+      assertThat(token).isNotNull
+      verify(telemetryClient).trackEvent(
+        "CreateAccessToken",
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
+        null
+      )
+    }
+
+    @Test
+    fun `createAccessToken request throw error when client end date in past`() {
+      whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client(id = "client-1")))
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client-1", clientEndDate = LocalDate.now().minusDays(1))))
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      Assertions.assertThatThrownBy { tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication)) }
+        .isInstanceOf(
+          EndDateClientException::class.java
+        ).hasMessage("Unable to issue token as client has end date in past")
+    }
+  }
+
+  @Test
+  fun `createAccessToken request when no client end date`() {
+    whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client(id = "client-1")))
+    whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client-1", clientEndDate = null)))
+    val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+    val token = tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
+    assertThat(token).isNotNull
+    verify(telemetryClient).trackEvent(
+      "CreateAccessToken",
+      mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
+      null
+    )
   }
 
   @Nested

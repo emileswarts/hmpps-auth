@@ -570,7 +570,7 @@ internal class ClientServiceTest {
     @Test
     internal fun `save client allowed ips details`() {
       val clientAllowedIps = createClientAllowedIps()
-      clientService.saveClientAllowedIps(clientAllowedIps)
+      clientService.saveClientConfig(clientAllowedIps)
 
       verify(clientConfigRepository).save(
         check {

@@ -159,7 +159,7 @@ class ClientService(
   }
 
   @Transactional
-  fun saveClientAllowedIps(clientConfig: ClientConfig) {
+  fun saveClientConfig(clientConfig: ClientConfig) {
     clientConfigRepository.save(clientConfig)
   }
 

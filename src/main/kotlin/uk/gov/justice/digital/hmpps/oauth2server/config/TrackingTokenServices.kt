@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.AuthIpSecurity
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.IpAddressHelper
+import java.time.LocalDate
 
 open class TrackingTokenServices(
   private val authIpSecurity: AuthIpSecurity,
@@ -38,18 +39,20 @@ open class TrackingTokenServices(
   override fun createAccessToken(authentication: OAuth2Authentication): OAuth2AccessToken {
     val clientId = authentication.oAuth2Request.clientId
     val baseClientId = ClientService.baseClientId(clientId)
-    val allowedIps = clientConfigRepository.findByIdOrNull(baseClientId)?.ips
+    val clientConfig = clientConfigRepository.findByIdOrNull(baseClientId)
     val clientIpAddress = IpAddressHelper.retrieveIpFromRequest()
 
-    if (!allowedIps.isNullOrEmpty()) {
+    if (clientConfig?.ips != null) {
       // temp custom event to see if the validateClientIpAllowed is called
       telemetryClient.trackEvent(
         "CreateAccessTokenAllowedIps",
-        mapOf("clientId" to clientId, "clientIpAddress" to clientIpAddress, "allowedIps" to allowedIps.toString()),
+        mapOf("clientId" to clientId, "clientIpAddress" to clientIpAddress, "allowedIps" to clientConfig.ips.toString()),
         null
       )
-      authIpSecurity.validateClientIpAllowed(clientIpAddress, allowedIps)
+      authIpSecurity.validateClientIpAllowed(clientIpAddress, clientConfig.ips)
     }
+
+    if (clientConfig?.clientEndDate != null && clientConfig.clientEndDate!!.isBefore(LocalDate.now())) throw EndDateClientException()
 
     val token = super.createAccessToken(authentication)
     val username = retrieveUsernameFromToken(token)
@@ -125,4 +128,7 @@ open class TrackingTokenServices(
   }
 }
 
-class AllowedIpException : OAuth2AccessDeniedException("Unable to issue token as request is not from ip within allowed list")
+class AllowedIpException :
+  OAuth2AccessDeniedException("Unable to issue token as request is not from ip within allowed list")
+
+class EndDateClientException : OAuth2AccessDeniedException("Unable to issue token as client has end date in past")

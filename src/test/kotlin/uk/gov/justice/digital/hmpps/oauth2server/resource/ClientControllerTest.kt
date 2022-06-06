@@ -174,7 +174,7 @@ class ClientControllerTest {
       val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
       val modelAndView = controller.editClient(authentication, authClientDetails, clientConfig, null)
       verify(clientRegistrationService).updateClientDetails(authClientDetails)
-      verify(clientService).saveClientAllowedIps(clientConfig)
+      verify(clientService).saveClientConfig(clientConfig)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsUpdate",
         mapOf("username" to "user", "clientId" to "client"),

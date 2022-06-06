@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.auth.model
 
 import org.apache.commons.lang3.StringUtils
+import java.time.LocalDate
 import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Entity
@@ -17,7 +18,10 @@ data class ClientConfig(
 
   @Column(name = "allowed_ips")
   @Convert(converter = StringListConverter::class)
-  var ips: List<String> = emptyList()
+  var ips: List<String> = emptyList(),
+
+  @Column(name = "client_end_date")
+  var clientEndDate: LocalDate? = null,
 ) {
 
   var allowedIpsWithNewlines: String?

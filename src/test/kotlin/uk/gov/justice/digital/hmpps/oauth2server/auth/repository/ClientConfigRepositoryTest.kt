@@ -12,6 +12,7 @@ import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ClientConfig
 import uk.gov.justice.digital.hmpps.oauth2server.config.AuthDbConfig
+import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -26,16 +27,17 @@ class ClientConfigRepositoryTest {
   @Test
   fun givenATransientEntityItCanBePersisted() {
     val transientEntity = transientEntity()
-    val entity = ClientConfig(transientEntity.baseClientId, transientEntity.ips)
+    val entity = ClientConfig(transientEntity.baseClientId, transientEntity.ips, transientEntity.clientEndDate)
     val persistedEntity = repository.save(entity)
     TestTransaction.flagForCommit()
     TestTransaction.end()
-    Assertions.assertThat(persistedEntity.baseClientId).isNotNull()
+    Assertions.assertThat(persistedEntity.baseClientId).isNotNull
     TestTransaction.start()
     val retrievedEntity = repository.findByIdOrNull(entity.baseClientId)
 
     // equals only compares the business key columns
     Assertions.assertThat(retrievedEntity).isEqualTo(transientEntity)
+    Assertions.assertThat(retrievedEntity?.clientEndDate).isEqualTo(transientEntity.clientEndDate)
     Assertions.assertThat(retrievedEntity?.ips).isEqualTo(transientEntity.ips)
     Assertions.assertThat(retrievedEntity?.baseClientId).isEqualTo(transientEntity.baseClientId)
     Assertions.assertThat(retrievedEntity?.allowedIpsWithNewlines).isEqualTo(
@@ -43,5 +45,5 @@ class ClientConfigRepositoryTest {
     )
   }
 
-  private fun transientEntity(): ClientConfig = ClientConfig("hdc", listOf("127.0.0.1"))
+  private fun transientEntity(): ClientConfig = ClientConfig("hdc", listOf("127.0.0.1"), LocalDate.of(2022, 6, 1))
 }

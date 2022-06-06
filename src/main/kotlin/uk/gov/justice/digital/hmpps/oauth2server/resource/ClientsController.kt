@@ -153,7 +153,7 @@ class ClientsController(
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
     clientRegistrationService.updateClientDetails(clientDetails)
-    clientService.saveClientAllowedIps(clientConfig)
+    clientService.saveClientConfig(clientConfig)
     telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
     clientService.findAndUpdateDuplicates(clientDetails.clientId)
 
