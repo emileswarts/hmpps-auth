@@ -42,11 +42,11 @@ open class TrackingTokenServices(
     val clientConfig = clientConfigRepository.findByIdOrNull(baseClientId)
     val clientIpAddress = IpAddressHelper.retrieveIpFromRequest()
 
-    if (clientConfig?.ips != null) {
+    if (!clientConfig?.ips.isNullOrEmpty()) {
       // temp custom event to see if the validateClientIpAllowed is called
       telemetryClient.trackEvent(
         "CreateAccessTokenAllowedIps",
-        mapOf("clientId" to clientId, "clientIpAddress" to clientIpAddress, "allowedIps" to clientConfig.ips.toString()),
+        mapOf("clientId" to clientId, "clientIpAddress" to clientIpAddress, "allowedIps" to clientConfig!!.ips.toString()),
         null
       )
       authIpSecurity.validateClientIpAllowed(clientIpAddress, clientConfig.ips)

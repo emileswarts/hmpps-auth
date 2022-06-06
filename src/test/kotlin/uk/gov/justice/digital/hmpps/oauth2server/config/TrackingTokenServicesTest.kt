@@ -148,6 +148,39 @@ internal class TrackingTokenServicesTest {
         mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
+      verify(authIpSecurity, times(1)).validateClientIpAllowed("12.21.23.24", listOf("12.21.23.24"))
+      verify(clientConfigRepository, times(1)).findById("client")
+    }
+
+    @Test
+    fun `createAccessToken request from allowed ip no config`() {
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.empty())
+      whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      val token = tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
+      assertThat(token).isNotNull
+      verify(telemetryClient).trackEvent(
+        "CreateAccessToken",
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
+        null
+      )
+      verifyNoInteractions(authIpSecurity)
+      verify(clientConfigRepository, times(1)).findById("client")
+    }
+
+    @Test
+    fun `createAccessToken request from allowed ip empty list of IPS`() {
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(ClientConfig("client", listOf(), null)))
+      whenever(clientRepository.findById(anyString())).thenReturn(Optional.of(Client("id")))
+      val userAuthentication = UsernamePasswordAuthenticationToken(USER_DETAILS, "credentials")
+      val token = tokenServices.createAccessToken(OAuth2Authentication(OAUTH_2_REQUEST, userAuthentication))
+      assertThat(token).isNotNull
+      verify(telemetryClient).trackEvent(
+        "CreateAccessToken",
+        mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
+        null
+      )
+      verifyNoInteractions(authIpSecurity)
       verify(clientConfigRepository, times(1)).findById("client")
     }
 
