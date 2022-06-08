@@ -11,6 +11,9 @@ class ClientServiceSpecification : AbstractAuthSpecification() {
   private lateinit var clientMaintenancePage: ClientMaintenancePage
 
   @Page
+  private lateinit var clientMaintenanceAddPage: ClientMaintenanceAddPage
+
+  @Page
   private lateinit var servicesMaintenancePage: ServicesMaintenancePage
 
   @Page
@@ -53,6 +56,35 @@ class ClientServiceSpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `I can add client service details to an existing client with rotated credentials`() {
+    // create new client
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+    goTo(clientSummaryPage).editClient(client = "client")
+    clientMaintenanceAddPage.isAtPage()
+      .edit("clientId", "new-client")
+      .selectCheckboxOption("authorization_code")
+      .save()
+
+    // duplicate client
+    goTo(clientSummaryPage).editClient("new-client")
+    clientMaintenancePage.isAtPage()
+      .duplicate()
+
+    // remove initial credentials
+    goTo("/ui/clients/new-client/delete")
+
+    // check create service link uses the base client id
+    goTo(clientSummaryPage).editClient("new-client")
+    clientMaintenancePage.isAtPage().serviceChange()
+    servicesMaintenanceAddPage.isAtPage().checkCode("new-client")
+
+    // now remove so test is re-runnable
+    goTo("/ui/clients/new-client-1/delete")
+    clientSummaryPage.isAtPage().checkClientDoesntExist("new-client")
+    clientSummaryPage.isAtPage().checkClientDoesntExist("new-client-1")
+  }
+
+  @Test
   fun `I can update service details for an existing client`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -90,6 +122,35 @@ class ClientServiceSpecification : AbstractAuthSpecification() {
       .editEnabled(false)
       .editRoles("ROLE_FRED_ROLE")
       .save()
+  }
+
+  @Test
+  fun `I can update client service details for an existing client with rotated credentials`() {
+    // create new client
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+    goTo(clientSummaryPage).editClient(client = "client")
+    clientMaintenanceAddPage.isAtPage()
+      .edit("clientId", "new-client")
+      .selectCheckboxOption("authorization_code")
+      .save()
+
+    // duplicate client
+    goTo(clientSummaryPage).editClient("new-client")
+    clientMaintenancePage.isAtPage()
+      .duplicate()
+
+    // remove initial credentials
+    goTo("/ui/clients/new-client/delete")
+
+    // check create service link uses the base client id
+    goTo(clientSummaryPage).editClient("new-client")
+    clientMaintenancePage.isAtPage().serviceChange()
+    servicesMaintenanceAddPage.isAtPage().checkCode("new-client")
+
+    // now remove so test is re-runnable
+    goTo("/ui/clients/new-client-1/delete")
+    clientSummaryPage.isAtPage().checkClientDoesntExist("new-client")
+    clientSummaryPage.isAtPage().checkClientDoesntExist("new-client-1")
   }
 
   @Test

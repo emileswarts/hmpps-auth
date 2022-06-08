@@ -177,6 +177,11 @@ open class ServicesMaintenancePage(heading: String = "Edit service", headingStar
     heading,
     headingStartsWith
   ) {
+  fun checkCode(code: String): ServicesMaintenancePage {
+    assertThat(el("#code").value()).isEqualTo(code)
+    return this
+  }
+
   fun checkDetails(
     code: String,
     name: String,

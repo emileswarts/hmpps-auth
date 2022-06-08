@@ -179,11 +179,11 @@
       <div class="govuk-grid-column-one-third">
         <a class="govuk-link govuk-link--no-visited-state" id="serviceChange" name="serviceChange"
            th:if="${#strings.isEmpty(service.name) == true}"
-           th:href="@{/ui/services/form?code=__${clients[0].id}__&newService=true&fromClient=true}">Add service
+           th:href="@{/ui/services/form?code=__${baseClientId}__&newService=true&fromClient=true}">Add service
           details</a>
         <a class="govuk-link govuk-link--no-visited-state" id="serviceChange" name="serviceChange"
            th:if="${#strings.isEmpty(service.name) == false}"
-           th:href="@{/ui/services/form?code=__${clients[0].id}__&newService=false&fromClient=true}">Change service
+           th:href="@{/ui/services/form?code=__${baseClientId}__&newService=false&fromClient=true}">Change service
           details</a>
       </div>
     </div>
