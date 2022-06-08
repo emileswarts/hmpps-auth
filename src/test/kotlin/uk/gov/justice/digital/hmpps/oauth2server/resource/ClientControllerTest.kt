@@ -18,7 +18,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.provider.ClientDetails
-import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Client
@@ -34,14 +33,14 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
+import java.time.DateTimeException
 
 class ClientControllerTest {
   private val authServiceServices: AuthServicesService = mock()
-  private val clientRegistrationService: ClientRegistrationService = mock()
   private val clientService: ClientService = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val controller =
-    ClientsController(authServiceServices, clientRegistrationService, clientService, telemetryClient)
+    ClientsController(authServiceServices, clientService, telemetryClient)
   private val authentication = TestingAuthenticationToken(
     UserDetailsImpl("user", "name", setOf(), AuthSource.auth.name, "userid", "jwtId"),
     "pass"
@@ -77,7 +76,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
-      assertThat(modelAndView.model["allowedIps"] as ClientConfig).isNotNull
+      assertThat(modelAndView.model["clientConfig"] as ClientConfig).isNotNull
       assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
@@ -103,7 +102,7 @@ class ClientControllerTest {
       assertThat(client.baseClientId).isEqualTo("client")
       assertThat(modelAndView.model["clientDetails"] as ClientDetails).isNotNull
       assertThat(modelAndView.model["deployment"] as ClientDeployment).isNotNull
-      assertThat(modelAndView.model["allowedIps"] as ClientConfig).isNotNull
+      assertThat(modelAndView.model["clientConfig"] as ClientConfig).isNotNull
       assertThat(modelAndView.model["service"] as Service).isNotNull
     }
   }
@@ -113,9 +112,16 @@ class ClientControllerTest {
     @Test
     fun `add client request - add client`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      whenever(clientService.addClient(authClientDetails)).thenReturn("bob")
-      val modelAndView = controller.addClient(authentication, authClientDetails, "true")
-      verify(clientService).addClient(authClientDetails)
+      val clientConfig = ClientConfig(
+        "client",
+        listOf("127.0.0.1"),
+        clientEndDateDay = 29,
+        clientEndDateMonth = 2,
+        clientEndDateYear = 2024
+      )
+      whenever(clientService.addClientAndConfig(authClientDetails, clientConfig)).thenReturn("bob")
+      val modelAndView = controller.addClient(authentication, authClientDetails, clientConfig, "true")
+      verify(clientService).addClientAndConfig(authClientDetails, clientConfig)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsAdd",
         mapOf("username" to "user", "clientId" to "client"),
@@ -135,10 +141,17 @@ class ClientControllerTest {
     @Test
     fun `add client request - add client trailing white spare removed`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
+      val clientConfig = ClientConfig(
+        "client",
+        listOf("127.0.0.1"),
+        clientEndDateDay = 29,
+        clientEndDateMonth = 2,
+        clientEndDateYear = 2024
+      )
       authClientDetails.clientId = "client "
-      whenever(clientService.addClient(authClientDetails)).thenReturn("bob")
-      val modelAndView = controller.addClient(authentication, authClientDetails, "true")
-      verify(clientService).addClient(authClientDetails)
+      whenever(clientService.addClientAndConfig(authClientDetails, clientConfig)).thenReturn("bob")
+      val modelAndView = controller.addClient(authentication, authClientDetails, clientConfig, "true")
+      verify(clientService).addClientAndConfig(authClientDetails, clientConfig)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsAdd",
         mapOf("username" to "user", "clientId" to "client"),
@@ -153,6 +166,25 @@ class ClientControllerTest {
         entry("base64ClientId", "Y2xpZW50"),
         entry("base64ClientSecret", "Ym9i"),
       )
+    }
+
+    @Test
+    fun `add client request - DateTimeException thrown when invalid date`() {
+      val authClientDetails: AuthClientDetails = createAuthClientDetails()
+      val clientConfig = ClientConfig(
+        "client",
+        listOf("127.0.0.1"),
+        clientEndDateDay = 29,
+        clientEndDateMonth = 2,
+        clientEndDateYear = 2023
+      )
+      doThrow(DateTimeException("invalid date")).whenever(clientService)
+        .addClientAndConfig(authClientDetails, clientConfig)
+      controller.addClient(authentication, authClientDetails, clientConfig, "true")
+
+      assertThatThrownBy { clientService.addClientAndConfig(authClientDetails, clientConfig) }.isInstanceOf(
+        DateTimeException::class.java
+      ).hasMessage("invalid date")
     }
 
     private fun createAuthClientDetails(): AuthClientDetails {
@@ -173,8 +205,7 @@ class ClientControllerTest {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
       val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
       val modelAndView = controller.editClient(authentication, authClientDetails, clientConfig, null)
-      verify(clientRegistrationService).updateClientDetails(authClientDetails)
-      verify(clientService).saveClientConfig(clientConfig)
+      verify(clientService).updateClientAndConfig(authClientDetails, clientConfig)
       verify(telemetryClient).trackEvent(
         "AuthClientDetailsUpdate",
         mapOf("username" to "user", "clientId" to "client"),
@@ -188,7 +219,7 @@ class ClientControllerTest {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
       val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
       val exception = NoSuchClientException("No client found with id = ")
-      doThrow(exception).whenever(clientRegistrationService).updateClientDetails(authClientDetails)
+      doThrow(exception).whenever(clientService).updateClientAndConfig(authClientDetails, clientConfig)
 
       assertThatThrownBy { controller.editClient(authentication, authClientDetails, clientConfig, null) }.isEqualTo(
         exception

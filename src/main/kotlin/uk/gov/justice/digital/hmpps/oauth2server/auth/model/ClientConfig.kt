@@ -14,7 +14,7 @@ data class ClientConfig(
 
   @Id
   @Column(name = "base_client_id", nullable = false)
-  val baseClientId: String,
+  var baseClientId: String,
 
   @Column(name = "allowed_ips")
   @Convert(converter = StringListConverter::class)
@@ -22,6 +22,13 @@ data class ClientConfig(
 
   @Column(name = "client_end_date")
   var clientEndDate: LocalDate? = null,
+
+  @Transient
+  var clientEndDateDay: Int? = null,
+  @Transient
+  var clientEndDateMonth: Int? = null,
+  @Transient
+  var clientEndDateYear: Int? = null
 ) {
 
   var allowedIpsWithNewlines: String?

@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.oauth2.provider.ClientRegistrationService
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.WebDataBinder
@@ -30,13 +29,13 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
+import java.time.DateTimeException
 import java.util.Base64.getEncoder
 
 @Controller
 @RequestMapping("ui/clients")
 class ClientsController(
   private val authServicesService: AuthServicesService,
-  private val clientRegistrationService: ClientRegistrationService,
   private val clientService: ClientService,
   private val telemetryClient: TelemetryClient,
 ) {
@@ -65,7 +64,7 @@ class ClientsController(
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
-        .addObject("allowedIps", clientConfig)
+        .addObject("clientConfig", clientConfig)
         .addObject("baseClientId", baseClientId)
         .addObject("service", serviceDetails)
     } else {
@@ -93,7 +92,7 @@ class ClientsController(
     return ModelAndView("ui/viewOnlyForm", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
       .addObject("clients", clients)
       .addObject("deployment", clientDeployment)
-      .addObject("allowedIps", clientConfig)
+      .addObject("clientConfig", clientConfig)
       .addObject("baseClientId", baseClientId)
       .addObject("service", serviceDetails)
   }
@@ -125,20 +124,27 @@ class ClientsController(
   fun addClient(
     authentication: Authentication,
     @ModelAttribute clientDetails: AuthClientDetails,
+    @ModelAttribute clientConfig: ClientConfig,
     @RequestParam(value = "newClient", required = false) newClient: String?,
   ): ModelAndView {
     clientDetails.clientId = clientDetails.clientId.trim()
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
-    val clientSecret = clientService.addClient(clientDetails)
+    return try {
+      val clientSecret = clientService.addClientAndConfig(clientDetails, clientConfig)
 
-    telemetryClient.trackEvent("AuthClientDetailsAdd", telemetryMap, null)
-    return ModelAndView("redirect:/ui/clients/client-success", "newClient", newClient ?: "false")
-      .addObject("clientId", clientDetails.clientId)
-      .addObject("clientSecret", clientSecret)
-      .addObject("base64ClientId", getEncoder().encodeToString(clientDetails.clientId.toByteArray()))
-      .addObject("base64ClientSecret", getEncoder().encodeToString(clientSecret.toByteArray()))
+      telemetryClient.trackEvent("AuthClientDetailsAdd", telemetryMap, null)
+      return ModelAndView("redirect:/ui/clients/client-success", "newClient", newClient ?: "false")
+        .addObject("clientId", clientDetails.clientId)
+        .addObject("clientSecret", clientSecret)
+        .addObject("base64ClientId", getEncoder().encodeToString(clientDetails.clientId.toByteArray()))
+        .addObject("base64ClientSecret", getEncoder().encodeToString(clientSecret.toByteArray()))
+    } catch (e: DateTimeException) {
+
+      ModelAndView("redirect:/ui/clients/form", "client", clientDetails.clientId)
+        .addObject("error", "invalidEndDate")
+    }
   }
 
   @PostMapping("/edit")
@@ -152,12 +158,18 @@ class ClientsController(
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
-    clientRegistrationService.updateClientDetails(clientDetails)
-    clientService.saveClientConfig(clientConfig)
-    telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
-    clientService.findAndUpdateDuplicates(clientDetails.clientId)
+    return try {
+      clientService.updateClientAndConfig(clientDetails, clientConfig)
 
-    return ModelAndView("redirect:/ui")
+      telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
+      clientService.findAndUpdateDuplicates(clientDetails.clientId)
+
+      ModelAndView("redirect:/ui")
+    } catch (e: DateTimeException) {
+
+      ModelAndView("redirect:/ui/clients/form", "client", clientDetails.clientId)
+        .addObject("error", "invalidEndDate")
+    }
   }
 
   @GetMapping("/client-success")

@@ -34,6 +34,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.OauthServiceRep
 import uk.gov.justice.digital.hmpps.oauth2server.resource.ClientsController.AuthClientDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordGenerator
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.count
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.Optional
@@ -532,49 +533,50 @@ internal class ClientServiceTest {
   inner class clientConfig {
 
     @Test
-    internal fun `load client allowed ips details`() {
-      val clientAllowedIps = createClientAllowedIps()
-      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
-      val allowedIps = clientService.loadClientConfig("client-1")
+    internal fun `load client config details`() {
+      val clientConfig = createClientConfig()
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientConfig))
+      val clientConfigFromDB = clientService.loadClientConfig("client-1")
 
-      assertThat(allowedIps).isEqualTo(clientAllowedIps)
+      assertThat(clientConfigFromDB).isEqualTo(clientConfig)
       verify(clientConfigRepository).findById("client")
     }
 
     @Test
-    internal fun `load client allowed ips details - baseClientId`() {
-      val clientAllowedIps = createClientAllowedIps()
-      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientAllowedIps))
-      val allowedIps = clientService.loadClientConfig("client")
+    internal fun `load client config details - baseClientId`() {
+      val clientConfig = createClientConfig()
+      whenever(clientConfigRepository.findById(anyString())).thenReturn(Optional.of(clientConfig))
+      val clientConfigFromDB = clientService.loadClientConfig("client")
 
-      assertThat(allowedIps).isEqualTo(clientAllowedIps)
+      assertThat(clientConfigFromDB).isEqualTo(clientConfig)
       verify(clientConfigRepository).findById("client")
     }
 
     @Test
-    internal fun `load client allowed ips details - no details held`() {
-      val allowedIps = clientService.loadClientConfig("client")
+    internal fun `load client config details - no details held`() {
+      val clientConfigFromDB = clientService.loadClientConfig("client")
 
-      assertThat(allowedIps).isNull()
+      assertThat(clientConfigFromDB).isNull()
       verify(clientConfigRepository).findById("client")
     }
 
     @Test
-    internal fun `load client allowed ips with new line details - no details held`() {
-      val allowedIps = clientService.loadClientConfig("client")
+    internal fun `load client config with new line details - no details held`() {
+      val clientConfigFromDB = clientService.loadClientConfig("client")
 
-      assertThat(allowedIps?.allowedIpsWithNewlines).isNull()
+      assertThat(clientConfigFromDB?.allowedIpsWithNewlines).isNull()
       verify(clientConfigRepository).findById("client")
     }
 
     @Test
-    internal fun `save client allowed ips details`() {
-      val clientAllowedIps = createClientAllowedIps()
-      clientService.saveClientConfig(clientAllowedIps)
+    internal fun `save client config details`() {
+      val client = createAuthClientDetails()
+      val clientConfig = createClientConfig()
+      clientService.addClientAndConfig(client, clientConfig)
 
       verify(clientConfigRepository).save(
         check {
-          assertThat(it).usingRecursiveComparison().isEqualTo((clientAllowedIps))
+          assertThat(it).usingRecursiveComparison().isEqualTo((clientConfig))
         }
       )
     }
@@ -734,8 +736,9 @@ internal class ClientServiceTest {
     secretKey = "secret-key",
   )
 
-  private fun createClientAllowedIps(): ClientConfig = ClientConfig(
+  private fun createClientConfig(): ClientConfig = ClientConfig(
     baseClientId = "client",
-    ips = listOf("127.0.0.1")
+    ips = listOf("127.0.0.1"),
+    clientEndDate = LocalDate.now().plusDays(1)
   )
 }

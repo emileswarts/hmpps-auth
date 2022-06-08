@@ -75,7 +75,6 @@ class AuthIpSecurityTest {
     @Test
     fun testIpV6Address() {
       val testClass = AuthIpSecurity(setOf("0.0.0.0/0"))
-      val check = testClass.validateClientIpAllowed("0:0:0:0:0:0:0:1", listOf("0:0:0:0:0:0:0:1", "127.0.0.1/32"))
       assertThatCode {
         testClass.validateClientIpAllowed("0:0:0:0:0:0:0:1", listOf("0:0:0:0:0:0:0:1", "127.0.0.1/32"))
       }.doesNotThrowAnyException()

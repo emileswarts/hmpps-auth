@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.lastAccessed
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.secretUpdated
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.team
 import uk.gov.justice.digital.hmpps.oauth2server.service.SortBy.type
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -159,7 +160,23 @@ class ClientService(
   }
 
   @Transactional
-  fun saveClientConfig(clientConfig: ClientConfig) {
+  fun addClientAndConfig(clientDetails: ClientDetails, clientConfig: ClientConfig): String {
+    clientConfig.baseClientId = clientDetails.clientId
+    if (clientConfig.clientEndDateYear != null) {
+      clientConfig.clientEndDate =
+        LocalDate.of(clientConfig.clientEndDateYear!!, clientConfig.clientEndDateMonth!!, clientConfig.clientEndDateDay!!)
+    }
+    clientConfigRepository.save(clientConfig)
+    return addClient(clientDetails)
+  }
+
+  @Transactional
+  fun updateClientAndConfig(clientDetails: ClientDetails, clientConfig: ClientConfig) {
+    if (clientConfig.clientEndDateYear != null) {
+      clientConfig.clientEndDate =
+        LocalDate.of(clientConfig.clientEndDateYear!!, clientConfig.clientEndDateMonth!!, clientConfig.clientEndDateDay!!)
+    }
+    clientRegistrationService.updateClientDetails(clientDetails)
     clientConfigRepository.save(clientConfig)
   }
 

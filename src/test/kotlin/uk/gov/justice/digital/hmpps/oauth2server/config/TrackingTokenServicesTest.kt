@@ -148,6 +148,7 @@ internal class TrackingTokenServicesTest {
         mapOf("username" to "authenticateduser", "clientId" to "client-1", "clientIpAddress" to "12.21.23.24"),
         null
       )
+      verify(clientConfigRepository, times(1)).findById("client")
       verify(authIpSecurity, times(1)).validateClientIpAllowed("12.21.23.24", listOf("12.21.23.24"))
       verify(clientConfigRepository, times(1)).findById("client")
     }

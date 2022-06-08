@@ -16,7 +16,7 @@
     <div class="govuk-error-summary__body" id="error-detail">
       <ul class="govuk-list govuk-error-summary__list">
         <li>
-          <p th:text="#{${'client.maxDuplicated'}}">Max duplicate clients message</p>
+          <p th:text="#{${'client.' + param.error}}">client error message</p>
         </li>
       </ul>
     </div>
@@ -267,6 +267,55 @@
     </div>
     <br>
 
+    <h2 class="govuk-heading-m">Client end date</h2>
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset" role="group" aria-describedby="clientEndDate-hint">
+        <div id="clientEndDate-hint" class="govuk-hint">
+          For example, 29 2 2024
+        </div>
+        <div class="govuk-date-input" id="clientEndDate">
+        <span th:if="${#strings.equals(param.error,'invalidEndDate')}" class="govuk-error-message">
+          <p th:text="#{${'client.' + param.error}}">client error message</p>
+        </span>
+
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="clientEndDateDay">
+                Day
+              </label>
+              <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="clientEndDateDay"
+                     name="clientEndDateDay" type="text" inputmode="numeric" pattern="^$|[0-9]|[012][0-9]|3[01]"
+                     th:value="${clientConfig != null}? (${clientConfig.clientEndDate != null}? ${#temporals.day(clientConfig.clientEndDate)} : '' ) : ''">
+              >
+            </div>
+          </div>
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="clientEndDateMonth">
+                Month
+              </label>
+              <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="clientEndDateMonth"
+                     name="clientEndDateMonth" type="text" inputmode="numeric" pattern="^$|[0-9]|[0][0-9]|[1][012]"
+                     th:value="${clientConfig != null}? (${clientConfig.clientEndDate != null}? ${#temporals.month(clientConfig.clientEndDate)} : '') : ''">
+
+            </div>
+          </div>
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="clientEndDateYear">
+                Year
+              </label>
+              <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="clientEndDateYear"
+                     name="clientEndDateYear" type="text" inputmode="numeric" pattern="^$|[0-9]{4}"
+                     th:value="${clientConfig != null}? (${clientConfig.clientEndDate != null}? ${#temporals.year(clientConfig.clientEndDate)} : '') : ''">
+            </div>
+          </div>
+        </div>
+
+      </fieldset>
+    </div>
+    <br>
+
     <h2 class="govuk-heading-m">Client details</h2>
 
     <input class="govuk-input govuk-!-width-one-half" type="hidden" th:if="${param.client}" id="clientId"
@@ -363,7 +412,7 @@
           35.177.252.54/32 - cloudplatform-3
         </span>
       <textarea class="govuk-textarea" id="ips" type="text" name="allowedIpsWithNewlines" rows="6"
-                th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">allowed ip</textarea>
+                th:text="*{clientConfig != null} ? *{clientConfig.allowedIpsWithNewlines} : ''">allowed ip</textarea>
     </div>
 
     <div class="govuk-form-group">
