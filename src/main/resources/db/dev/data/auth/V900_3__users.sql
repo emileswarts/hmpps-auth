@@ -251,6 +251,10 @@ VALUES
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'JPC_USER' and role_code = 'PECS_JPC';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'JPC_USER' and role_code = 'PECS_MAINTAIN_PRICE';
 
+-- auth user for APPROVED PREMISES service
+ INSERT INTO users (user_id, username, password, email, first_name, last_name, verified, locked, enabled, master, create_datetime, password_expiry, last_logged_in, source, mfa_preference)
+ VALUES ('7D4036B7-E87D-44FB-864F-5A06C1C492F3', 'AP_TEST_PROBATION_1', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', 'ap.test.probation.practitioner@digital.justice.gov.uk', 'Roger', 'Smith', true, false, true, false, '2021-03-05 11:48:34.2723638', '2040-04-26 16:17:28.4953990', '2040-03-05 11:48:34.2723638', 'auth', 'EMAIL');
+
 -- auth user for interventions service provider journeys
 INSERT INTO users (user_id, username, password, email, first_name, last_name, verified, locked, enabled, master, create_datetime, password_expiry, last_logged_in, source, mfa_preference)
 VALUES ('6C4036B7-E87D-44FB-864F-5A06C1C492F3', 'TEST_INTERVENTIONS_SP_1', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', 'test.interventions.sp.1@digital.justice.gov.uk', 'Robin', 'Croswell', true, false, true, false, '2021-03-05 11:48:34.2723638', '2040-04-26 16:17:28.4953990', '2040-03-05 11:48:34.2723638', 'auth', 'EMAIL');
