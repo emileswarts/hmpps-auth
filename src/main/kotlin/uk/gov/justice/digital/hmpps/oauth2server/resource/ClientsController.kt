@@ -29,7 +29,8 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
-import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit.DAYS
 import java.util.Base64.getEncoder
 
 @Controller
@@ -61,10 +62,17 @@ class ClientsController(
         description = "",
         url = ""
       )
+      val validDays = if (clientConfig.clientEndDate != null) {
+        val today = 1
+        val days = DAYS.between(LocalDate.now(), clientConfig.clientEndDate)
+        if (days >= 0) days + today else 0
+      } else { null }
+
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
         .addObject("deployment", clientDeployment)
         .addObject("clientConfig", clientConfig)
+        .addObject("validDays", validDays)
         .addObject("baseClientId", baseClientId)
         .addObject("service", serviceDetails)
     } else {
@@ -131,20 +139,14 @@ class ClientsController(
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
-    return try {
-      val clientSecret = clientService.addClientAndConfig(clientDetails, clientConfig)
+    val clientSecret = clientService.addClientAndConfig(clientDetails, clientConfig)
 
-      telemetryClient.trackEvent("AuthClientDetailsAdd", telemetryMap, null)
-      return ModelAndView("redirect:/ui/clients/client-success", "newClient", newClient ?: "false")
-        .addObject("clientId", clientDetails.clientId)
-        .addObject("clientSecret", clientSecret)
-        .addObject("base64ClientId", getEncoder().encodeToString(clientDetails.clientId.toByteArray()))
-        .addObject("base64ClientSecret", getEncoder().encodeToString(clientSecret.toByteArray()))
-    } catch (e: DateTimeException) {
-
-      ModelAndView("redirect:/ui/clients/form", "client", clientDetails.clientId)
-        .addObject("error", "invalidEndDate")
-    }
+    telemetryClient.trackEvent("AuthClientDetailsAdd", telemetryMap, null)
+    return ModelAndView("redirect:/ui/clients/client-success", "newClient", newClient ?: "false")
+      .addObject("clientId", clientDetails.clientId)
+      .addObject("clientSecret", clientSecret)
+      .addObject("base64ClientId", getEncoder().encodeToString(clientDetails.clientId.toByteArray()))
+      .addObject("base64ClientSecret", getEncoder().encodeToString(clientSecret.toByteArray()))
   }
 
   @PostMapping("/edit")
@@ -158,18 +160,12 @@ class ClientsController(
     val userDetails = authentication.principal as UserPersonDetails
     val telemetryMap = mapOf("username" to userDetails.username, "clientId" to clientDetails.clientId)
 
-    return try {
-      clientService.updateClientAndConfig(clientDetails, clientConfig)
+    clientService.updateClientAndConfig(clientDetails, clientConfig)
 
-      telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
-      clientService.findAndUpdateDuplicates(clientDetails.clientId)
+    telemetryClient.trackEvent("AuthClientDetailsUpdate", telemetryMap, null)
+    clientService.findAndUpdateDuplicates(clientDetails.clientId)
 
-      ModelAndView("redirect:/ui")
-    } catch (e: DateTimeException) {
-
-      ModelAndView("redirect:/ui/clients/form", "client", clientDetails.clientId)
-        .addObject("error", "invalidEndDate")
-    }
+    return ModelAndView("redirect:/ui")
   }
 
   @GetMapping("/client-success")

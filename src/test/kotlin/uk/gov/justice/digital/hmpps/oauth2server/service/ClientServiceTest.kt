@@ -571,7 +571,11 @@ internal class ClientServiceTest {
     @Test
     internal fun `save client config details`() {
       val client = createAuthClientDetails()
-      val clientConfig = createClientConfig()
+      val clientConfig = ClientConfig(
+        baseClientId = "client",
+        ips = listOf("127.0.0.1"),
+        validDays = 7
+      )
       clientService.addClientAndConfig(client, clientConfig)
 
       verify(clientConfigRepository).save(

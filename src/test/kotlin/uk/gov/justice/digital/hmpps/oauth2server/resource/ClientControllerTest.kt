@@ -33,7 +33,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDetailsWithCopies
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
-import java.time.DateTimeException
 
 class ClientControllerTest {
   private val authServiceServices: AuthServicesService = mock()
@@ -115,9 +114,7 @@ class ClientControllerTest {
       val clientConfig = ClientConfig(
         "client",
         listOf("127.0.0.1"),
-        clientEndDateDay = 29,
-        clientEndDateMonth = 2,
-        clientEndDateYear = 2024
+        validDays = 7
       )
       whenever(clientService.addClientAndConfig(authClientDetails, clientConfig)).thenReturn("bob")
       val modelAndView = controller.addClient(authentication, authClientDetails, clientConfig, "true")
@@ -144,9 +141,7 @@ class ClientControllerTest {
       val clientConfig = ClientConfig(
         "client",
         listOf("127.0.0.1"),
-        clientEndDateDay = 29,
-        clientEndDateMonth = 2,
-        clientEndDateYear = 2024
+        validDays = 7
       )
       authClientDetails.clientId = "client "
       whenever(clientService.addClientAndConfig(authClientDetails, clientConfig)).thenReturn("bob")
@@ -168,25 +163,6 @@ class ClientControllerTest {
       )
     }
 
-    @Test
-    fun `add client request - DateTimeException thrown when invalid date`() {
-      val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val clientConfig = ClientConfig(
-        "client",
-        listOf("127.0.0.1"),
-        clientEndDateDay = 29,
-        clientEndDateMonth = 2,
-        clientEndDateYear = 2023
-      )
-      doThrow(DateTimeException("invalid date")).whenever(clientService)
-        .addClientAndConfig(authClientDetails, clientConfig)
-      controller.addClient(authentication, authClientDetails, clientConfig, "true")
-
-      assertThatThrownBy { clientService.addClientAndConfig(authClientDetails, clientConfig) }.isInstanceOf(
-        DateTimeException::class.java
-      ).hasMessage("invalid date")
-    }
-
     private fun createAuthClientDetails(): AuthClientDetails {
       val authClientDetails = AuthClientDetails()
       authClientDetails.clientId = "client"
@@ -203,7 +179,27 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update existing client`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
+      val clientConfig = ClientConfig(
+        "client", listOf("127.0.0.1"),
+        validDays = 7
+      )
+      val modelAndView = controller.editClient(authentication, authClientDetails, clientConfig, null)
+      verify(clientService).updateClientAndConfig(authClientDetails, clientConfig)
+      verify(telemetryClient).trackEvent(
+        "AuthClientDetailsUpdate",
+        mapOf("username" to "user", "clientId" to "client"),
+        null
+      )
+      assertThat(modelAndView.viewName).isEqualTo("redirect:/ui")
+    }
+
+    @Test
+    fun `edit client request - update existing client remove end date`() {
+      val authClientDetails: AuthClientDetails = createAuthClientDetails()
+      val clientConfig = ClientConfig(
+        "client", listOf("127.0.0.1"),
+        validDays = 7
+      )
       val modelAndView = controller.editClient(authentication, authClientDetails, clientConfig, null)
       verify(clientService).updateClientAndConfig(authClientDetails, clientConfig)
       verify(telemetryClient).trackEvent(
@@ -217,7 +213,10 @@ class ClientControllerTest {
     @Test
     fun `edit client request - update client throws NoSuchClientException`() {
       val authClientDetails: AuthClientDetails = createAuthClientDetails()
-      val clientConfig = ClientConfig("client", listOf("127.0.0.1"))
+      val clientConfig = ClientConfig(
+        "client", listOf("127.0.0.1"),
+        validDays = 7
+      )
       val exception = NoSuchClientException("No client found with id = ")
       doThrow(exception).whenever(clientService).updateClientAndConfig(authClientDetails, clientConfig)
 

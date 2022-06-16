@@ -27,9 +27,6 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   @Page
   private lateinit var clientMaintenancePageWithError: ClientMaintenancePageWithError
 
-  @Page
-  private lateinit var clientMaintenancePageWithDateError: ClientMaintenancePageWithDateError
-
   @Test
   fun `View Client Dashboard once logged in`() {
     goTo("/ui")
@@ -58,14 +55,13 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
-  fun `I can edit a client credential with end date`() {
+  fun `I can edit a client credential with expiry`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
 
     goTo(clientSummaryPage).editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-    assertThat(el("#clientEndDateDay").value()).isEqualTo("29")
-    assertThat(el("#clientEndDateMonth").value()).isEqualTo("2")
-    assertThat(el("#clientEndDateYear").value()).isEqualTo("2032")
+    assertThat(el("#validDaysCheck").selected()).isTrue
+    assertThat(el("#validDays").value()).isEqualTo("7")
   }
 
   @Test
@@ -161,38 +157,41 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
   }
 
   @Test
-  fun `I can edit a client credential and set the client end date field`() {
+  fun `I can edit a client credential and set the client end field`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
     goTo(clientSummaryPage).editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-      .edit("clientEndDateDay", "1")
-      .edit("clientEndDateMonth", "1")
-      .edit("clientEndDateYear", "2025")
+      .edit("validDays", "1")
       .save()
     clientSummaryPage.isAtPage().editClient("end-date-client")
-    assertThat(el("#clientEndDateDay").value()).isEqualTo("1")
-    assertThat(el("#clientEndDateMonth").value()).isEqualTo("1")
-    assertThat(el("#clientEndDateYear").value()).isEqualTo("2025")
-
-    // remove client end date
     clientMaintenancePage.isAtPage()
-      .edit("clientEndDateDay", "29")
-      .edit("clientEndDateMonth", "2")
-      .edit("clientEndDateYear", "2032")
+    assertThat(el("#validDaysCheck").selected()).isTrue
+    assertThat(el("#validDays").value()).isEqualTo("1")
+
+    // restore client end date
+    clientMaintenancePage.isAtPage()
+      .edit("validDays", "7")
       .save()
   }
 
   @Test
-  fun `I can edit a client credential and invalid client end date returns error`() {
+  fun `I can edit a client credential and remove the client end field`() {
     goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
     goTo(clientSummaryPage).editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-      .edit("clientEndDateDay", "29")
-      .edit("clientEndDateMonth", "2")
-      .edit("clientEndDateYear", "2023")
+      .edit("validDays", "")
       .save()
-    clientMaintenancePageWithDateError.isAtError()
-      .checkError("You have used an invalid date for the client end date.")
+    clientSummaryPage.isAtPage().editClient("end-date-client")
+    clientMaintenancePage.isAtPage()
+    assertThat(el("#validDaysCheck").selected()).isFalse
+    clientMaintenancePage.isAtPage()
+      .selectCheckboxOption("validDaysCheck")
+    assertThat(el("#validDays").value()).isEqualTo("")
+
+    // restore client end date
+    clientMaintenancePage.isAtPage()
+      .edit("validDays", "7")
+      .save()
   }
 
   @Test
@@ -210,13 +209,12 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
 
     goTo(clientSummaryPage).editClient("rotation-test-client-1")
     clientMaintenancePage.isAtPage()
+      .selectCheckboxOption("validDaysCheck")
+      .edit("validDays", "7")
       .edit("registeredRedirectUri", "http://a_url:3003")
       .edit("accessTokenValiditySeconds", "1234")
       .edit("scopes", "read,bob")
       .edit("ips", "127.0.0.1")
-      .edit("clientEndDateDay", "1")
-      .edit("clientEndDateMonth", "1")
-      .edit("clientEndDateYear", "2025")
       .save()
     clientSummaryPage.isAtPage()
     goTo(clientSummaryPage).editClient("rotation-test-client-1")
@@ -226,9 +224,8 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
       assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
-      assertThat(el("#clientEndDateDay").value()).isEqualTo("1")
-      assertThat(el("#clientEndDateMonth").value()).isEqualTo("1")
-      assertThat(el("#clientEndDateYear").value()).isEqualTo("2025")
+      assertThat(el("#validDaysCheck").selected()).isTrue
+      assertThat(el("#validDays").value()).isEqualTo("7")
     }
     goTo("/ui/clients/form?client=rotation-test-client-2")
     with(clientMaintenancePage) {
@@ -236,9 +233,8 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
       assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
-      assertThat(el("#clientEndDateDay").value()).isEqualTo("1")
-      assertThat(el("#clientEndDateMonth").value()).isEqualTo("1")
-      assertThat(el("#clientEndDateYear").value()).isEqualTo("2025")
+      assertThat(el("#validDaysCheck").selected()).isTrue
+      assertThat(el("#validDays").value()).isEqualTo("7")
     }
   }
 
@@ -750,9 +746,6 @@ class ClientMaintenanceAddPage : ClientMaintenancePage("Add client", false)
 
 @PageUrl("/ui/clients/form")
 class ClientMaintenancePageWithError : ClientMaintenancePage("Edit client 'rotation-test-client'", false)
-
-@PageUrl("/ui/clients/form")
-class ClientMaintenancePageWithDateError : ClientMaintenancePage("Edit client 'end-date-client'", false)
 
 @PageUrl("ui/clients/client-success")
 open class ClientCreatedSuccessPage : AuthPage<ClientCreatedSuccessPage>(

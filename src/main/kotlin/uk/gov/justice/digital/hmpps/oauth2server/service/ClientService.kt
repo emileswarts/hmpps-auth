@@ -161,10 +161,11 @@ class ClientService(
 
   @Transactional
   fun addClientAndConfig(clientDetails: ClientDetails, clientConfig: ClientConfig): String {
-    clientConfig.baseClientId = clientDetails.clientId
-    if (clientConfig.clientEndDateYear != null) {
+    clientConfig.baseClientId = baseClientId(clientDetails.clientId)
+    clientConfig.validDays?.let {
+      val validDaysIncludeToday = clientConfig.validDays!!.minus(1)
       clientConfig.clientEndDate =
-        LocalDate.of(clientConfig.clientEndDateYear!!, clientConfig.clientEndDateMonth!!, clientConfig.clientEndDateDay!!)
+        LocalDate.now().plusDays(validDaysIncludeToday)
     }
     clientConfigRepository.save(clientConfig)
     return addClient(clientDetails)
@@ -172,9 +173,11 @@ class ClientService(
 
   @Transactional
   fun updateClientAndConfig(clientDetails: ClientDetails, clientConfig: ClientConfig) {
-    if (clientConfig.clientEndDateYear != null) {
+    clientConfig.baseClientId = baseClientId(clientDetails.clientId)
+    clientConfig.validDays?.let {
+      val validDaysIncludeToday = clientConfig.validDays!!.minus(1)
       clientConfig.clientEndDate =
-        LocalDate.of(clientConfig.clientEndDateYear!!, clientConfig.clientEndDateMonth!!, clientConfig.clientEndDateDay!!)
+        LocalDate.now().plusDays(validDaysIncludeToday)
     }
     clientRegistrationService.updateClientDetails(clientDetails)
     clientConfigRepository.save(clientConfig)

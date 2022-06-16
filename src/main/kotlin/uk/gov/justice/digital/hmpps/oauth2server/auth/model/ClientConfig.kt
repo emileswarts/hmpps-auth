@@ -24,11 +24,8 @@ data class ClientConfig(
   var clientEndDate: LocalDate? = null,
 
   @Transient
-  var clientEndDateDay: Int? = null,
-  @Transient
-  var clientEndDateMonth: Int? = null,
-  @Transient
-  var clientEndDateYear: Int? = null
+  var validDays: Long? = null,
+
 ) {
 
   var allowedIpsWithNewlines: String?

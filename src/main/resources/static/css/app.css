@@ -547,3 +547,7 @@
   background: #f0f4f5;
   margin-bottom: -60px;
 }
+
+.client-expired {
+  color: #d4351c
+}

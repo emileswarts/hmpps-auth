@@ -57,6 +57,16 @@
     <br>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
+        Client end date
+      </dt>
+      <dd class="govuk-summary-list__value" data-qa="jiraNo" name="jiraNo"
+          th:text="${clientConfig.clientEndDate != null} ? ${#temporals.format(clientConfig.clientEndDate, 'dd-MM-yyyy')} : ''">
+        client end date
+      </dd>
+    </div>
+    <br>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
         Registered redirect URIs
       </dt>
       <dd class="govuk-summary-list__value" data-qa="redirectUri" name="redirectUri"
@@ -130,7 +140,7 @@
         Allowed IPs
       </dt>
       <dd class="govuk-summary-list__value" data-qa="ips" name="ips"
-          th:text="*{allowedIps != null} ? *{allowedIps.allowedIpsWithNewlines} : ''">
+          th:text="*{clientConfig != null} ? *{clientConfig.allowedIpsWithNewlines} : ''">
         Allowed IPs
       </dd>
     </div>

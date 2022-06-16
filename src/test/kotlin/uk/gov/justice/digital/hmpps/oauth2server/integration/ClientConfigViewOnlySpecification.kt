@@ -130,6 +130,22 @@ class ClientConfigViewOnlySpecification : AbstractAuthSpecification() {
   }
 
   @Test
+  fun `ip address are displayed for clients`() {
+    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+
+    goTo(clientViewOnlySummaryPage).viewClient("ip-allow-a-client-1")
+    clientViewOnlyPage.isAtPage()
+      .checkAllowedIps()
+  }
+
+  @Test
+  fun `end date are displayed for clients`() {
+    goTo(loginPage).loginAs("AUTH_ADM", "password123456")
+
+    goTo(clientViewOnlySummaryPage).viewClient("end-date-client")
+  }
+
+  @Test
   fun `I can filter by role`() {
     goTo(loginPage).loginAs("AUTH_ADM", "password123456")
 
@@ -303,7 +319,7 @@ open class ClientViewOnlyPage(heading: String = "View client", headingStartsWith
   }
 
   fun checkAllowedIps(): ClientViewOnlyPage {
-    assertThat(el("#ips").text()).isEqualTo("127.0.0.1")
+    assertThat(el("[data-qa='ips']").text()).isEqualTo("127.0.0.1/32")
     return this
   }
 
