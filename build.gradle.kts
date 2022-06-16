@@ -53,6 +53,7 @@ dependencies {
   implementation("org.flywaydb:flyway-core:8.5.11")
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
+  implementation("com.veracode.annotation:VeracodeAnnotations:1.2.1")
 
   runtimeOnly("com.h2database:h2:2.1.212")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
