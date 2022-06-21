@@ -24,6 +24,9 @@ data class ClientConfig(
   var clientEndDate: LocalDate? = null,
 
   @Transient
+  var allowExpire: Boolean = false,
+
+  @Transient
   var validDays: Long? = null,
 
 ) {

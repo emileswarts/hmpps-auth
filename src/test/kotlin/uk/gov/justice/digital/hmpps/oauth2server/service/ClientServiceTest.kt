@@ -430,28 +430,56 @@ internal class ClientServiceTest {
 
     @Test
     internal fun `filter by all`() {
-      val aClient = Client("a-client", authorizedGrantTypes = listOf("client", "pass"), authorities = listOf("BOB", "FRED"))
+      val aClient =
+        Client("a-client", authorizedGrantTypes = listOf("client", "pass"), authorities = listOf("BOB", "FRED"))
       val aClient2 = Client("a-second-client")
       whenever(clientDeploymentRepository.findAll()).thenReturn(
         listOf(ClientDeployment("a-client", type = SERVICE, team = "name"), ClientDeployment("other"))
       )
       whenever(clientRepository.findAll()).thenReturn(listOf(aClient, aClient2))
-      val clients = clientService.listUniqueClients(count, ClientFilter(clientType = SERVICE, role = "bob", grantType = "pass"))
+      val clients =
+        clientService.listUniqueClients(count, ClientFilter(clientType = SERVICE, role = "bob", grantType = "pass"))
       assertThat(clients.map { it.baseClientId }).containsOnly("a-client")
     }
 
     @Test
     internal fun `use service name if set`() {
       whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client")))
-      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "")))
+      whenever(oauthServiceRepository.findAll()).thenReturn(
+        listOf(
+          Service(
+            code = "a-second-client",
+            name = "Service Name",
+            description = "",
+            url = ""
+          )
+        )
+      )
       val clients = clientService.listUniqueClients(count, null)
       assertThat(clients.map { it.service }).containsExactly("Service Name")
     }
 
     @Test
     internal fun `combine roles`() {
-      whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client-2", authorities = listOf("ROLE_BOB"))))
-      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "", authorisedRoles = "ROLE_JOE")))
+      whenever(clientRepository.findAll()).thenReturn(
+        listOf(
+          Client(
+            "a-second-client-2",
+            authorities = listOf("ROLE_BOB")
+          )
+        )
+      )
+      whenever(oauthServiceRepository.findAll()).thenReturn(
+        listOf(
+          Service(
+            code = "a-second-client",
+            name = "Service Name",
+            description = "",
+            url = "",
+            authorisedRoles = "ROLE_JOE"
+          )
+        )
+      )
       val clients = clientService.listUniqueClients(count, null)
       assertThat(clients.map { it.roles }).containsExactly("BOB\nService roles:\nJOE")
     }
@@ -459,7 +487,17 @@ internal class ClientServiceTest {
     @Test
     internal fun `combine roles no authorities`() {
       whenever(clientRepository.findAll()).thenReturn(listOf(Client("a-second-client-2")))
-      whenever(oauthServiceRepository.findAll()).thenReturn(listOf(Service(code = "a-second-client", name = "Service Name", description = "", url = "", authorisedRoles = "ROLE_JOE")))
+      whenever(oauthServiceRepository.findAll()).thenReturn(
+        listOf(
+          Service(
+            code = "a-second-client",
+            name = "Service Name",
+            description = "",
+            url = "",
+            authorisedRoles = "ROLE_JOE"
+          )
+        )
+      )
       val clients = clientService.listUniqueClients(count, null)
       assertThat(clients.map { it.roles }).containsExactly("Service roles:\nJOE")
     }
@@ -569,18 +607,79 @@ internal class ClientServiceTest {
     }
 
     @Test
-    internal fun `save client config details`() {
+    internal fun `save client config details - add client`() {
       val client = createAuthClientDetails()
       val clientConfig = ClientConfig(
         baseClientId = "client",
         ips = listOf("127.0.0.1"),
-        validDays = 7
+        validDays = 7,
+        allowExpire = true
       )
       clientService.addClientAndConfig(client, clientConfig)
 
       verify(clientConfigRepository).save(
         check {
-          assertThat(it).usingRecursiveComparison().isEqualTo((clientConfig))
+          assertThat(it).usingRecursiveComparison().isEqualTo(
+            ClientConfig(
+              baseClientId = "client",
+              ips = listOf("127.0.0.1"),
+              clientEndDate = LocalDate.now().plusDays(6),
+              allowExpire = true,
+              validDays = 7,
+            )
+          )
+        }
+      )
+    }
+
+    @Test
+    internal fun `save client config details - update client`() {
+      val client = createAuthClientDetails()
+      val clientConfig = ClientConfig(
+        baseClientId = "client",
+        ips = listOf("127.0.0.1"),
+        validDays = 7,
+        allowExpire = true
+      )
+      clientService.updateClientAndConfig(client, clientConfig)
+
+      verify(clientConfigRepository).save(
+        check {
+          assertThat(it).usingRecursiveComparison().isEqualTo(
+            ClientConfig(
+              baseClientId = "client",
+              ips = listOf("127.0.0.1"),
+              clientEndDate = LocalDate.now().plusDays(6),
+              allowExpire = true,
+              validDays = 7,
+            )
+          )
+        }
+      )
+    }
+
+    @Test
+    internal fun `save client config details - update client allowed to expire false removes validDays`() {
+      val client = createAuthClientDetails()
+      val clientConfig = ClientConfig(
+        baseClientId = "client",
+        ips = listOf("127.0.0.1"),
+        validDays = 7,
+        allowExpire = false
+      )
+      clientService.updateClientAndConfig(client, clientConfig)
+
+      verify(clientConfigRepository).save(
+        check {
+          assertThat(it).usingRecursiveComparison().isEqualTo(
+            ClientConfig(
+              baseClientId = "client",
+              ips = listOf("127.0.0.1"),
+              clientEndDate = null,
+              allowExpire = false,
+              validDays = null,
+            )
+          )
         }
       )
     }

@@ -62,11 +62,14 @@ class ClientsController(
         description = "",
         url = ""
       )
-      val validDays = if (clientConfig.clientEndDate != null) {
-        val today = 1
-        val days = DAYS.between(LocalDate.now(), clientConfig.clientEndDate)
-        if (days >= 0) days + today else 0
-      } else { null }
+      val validDays = when {
+        clientConfig.clientEndDate != null -> {
+          val today = 1
+          val days = DAYS.between(LocalDate.now(), clientConfig.clientEndDate)
+          if (days >= 0) days + today else 0
+        }
+        else -> null
+      }
 
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)

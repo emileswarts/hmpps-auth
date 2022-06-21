@@ -60,7 +60,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
 
     goTo(clientSummaryPage).editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-    assertThat(el("#validDaysCheck").selected()).isTrue
+    assertThat(el("#allowExpire").selected()).isTrue
     assertThat(el("#validDays").value()).isEqualTo("7")
   }
 
@@ -165,7 +165,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       .save()
     clientSummaryPage.isAtPage().editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-    assertThat(el("#validDaysCheck").selected()).isTrue
+    assertThat(el("#allowExpire").selected()).isTrue
     assertThat(el("#validDays").value()).isEqualTo("1")
 
     // restore client end date
@@ -183,9 +183,29 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       .save()
     clientSummaryPage.isAtPage().editClient("end-date-client")
     clientMaintenancePage.isAtPage()
-    assertThat(el("#validDaysCheck").selected()).isFalse
+    assertThat(el("#allowExpire").selected()).isFalse
     clientMaintenancePage.isAtPage()
-      .selectCheckboxOption("validDaysCheck")
+      .selectCheckboxOption("allowExpire")
+    assertThat(el("#validDays").value()).isEqualTo("")
+
+    // restore client end date
+    clientMaintenancePage.isAtPage()
+      .edit("validDays", "7")
+      .save()
+  }
+
+  @Test
+  fun `I can edit a client credential and remove the client end field by unchecking the allow expire check box`() {
+    goTo(loginPage).loginAs("ITAG_USER_ADM", "password123456")
+    goTo(clientSummaryPage).editClient("end-date-client")
+    clientMaintenancePage.isAtPage()
+      .selectCheckboxOption("allowExpire")
+      .save()
+    clientSummaryPage.isAtPage().editClient("end-date-client")
+    clientMaintenancePage.isAtPage()
+    assertThat(el("#allowExpire").selected()).isFalse
+    clientMaintenancePage.isAtPage()
+      .selectCheckboxOption("allowExpire")
     assertThat(el("#validDays").value()).isEqualTo("")
 
     // restore client end date
@@ -209,7 +229,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
 
     goTo(clientSummaryPage).editClient("rotation-test-client-1")
     clientMaintenancePage.isAtPage()
-      .selectCheckboxOption("validDaysCheck")
+      .selectCheckboxOption("allowExpire")
       .edit("validDays", "7")
       .edit("registeredRedirectUri", "http://a_url:3003")
       .edit("accessTokenValiditySeconds", "1234")
@@ -224,7 +244,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
       assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
-      assertThat(el("#validDaysCheck").selected()).isTrue
+      assertThat(el("#allowExpire").selected()).isTrue
       assertThat(el("#validDays").value()).isEqualTo("7")
     }
     goTo("/ui/clients/form?client=rotation-test-client-2")
@@ -233,7 +253,7 @@ class ClientConfigSpecification : AbstractAuthSpecification() {
       assertThat(el("#accessTokenValiditySeconds").value()).isEqualTo("1234")
       assertThat(el("#scopes").value()).isEqualTo("read,bob")
       assertThat(el("#ips").value()).isEqualTo("127.0.0.1")
-      assertThat(el("#validDaysCheck").selected()).isTrue
+      assertThat(el("#allowExpire").selected()).isTrue
       assertThat(el("#validDays").value()).isEqualTo("7")
     }
   }

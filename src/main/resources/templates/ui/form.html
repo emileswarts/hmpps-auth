@@ -260,13 +260,13 @@
         </legend>
         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
           <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" id="validDaysCheck" name="validDaysCheck" type="checkbox" value="validDaysCheck"
-                   data-aria-controls="conditional-validDaysCheck" th:checked="${validDays != null}">
-            <label class="govuk-label govuk-checkboxes__label" for="validDaysCheck">
+            <input class="govuk-checkboxes__input" id="allowExpire" name="allowExpire" type="checkbox"
+                   data-aria-controls="conditional-allowExpire" th:checked="${validDays != null}">
+            <label class="govuk-label govuk-checkboxes__label" for="allowExpire">
               allow client to expire
             </label>
           </div>
-          <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-validDaysCheck">
+          <div class="govuk-checkboxes__conditional govuk-checkboxes__conditional--hidden" id="conditional-allowExpire">
             <div class="govuk-form-group">
               <h2 class="govuk-heading-m" th:if="${validDays != null} and ${validDays <= 0}">This client has currently <span class="client-expired">EXPIRED</span></h2>
               <label class="govuk-label" for="validDays">
