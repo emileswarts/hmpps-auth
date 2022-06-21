@@ -62,14 +62,7 @@ class ClientsController(
         description = "",
         url = ""
       )
-      val validDays = when {
-        clientConfig.clientEndDate != null -> {
-          val today = 1
-          val days = DAYS.between(LocalDate.now(), clientConfig.clientEndDate)
-          if (days >= 0) days + today else 0
-        }
-        else -> null
-      }
+      val validDays = calculateValidDays(clientConfig)
 
       ModelAndView("ui/form", "clientDetails", AuthClientDetails(clientDetails as BaseClientDetails))
         .addObject("clients", clients)
@@ -84,6 +77,15 @@ class ClientsController(
         .addObject("clients", clients)
     }
   }
+
+  private fun calculateValidDays(clientConfig: ClientConfig): Long? =
+    clientConfig.clientEndDate?.let {
+      val daysToClientExpiry = DAYS.between(LocalDate.now(), clientConfig.clientEndDate)
+
+      val daysToClientExpiryIncludingToday = daysToClientExpiry + 1
+
+      if (daysToClientExpiry < 0) 0 else daysToClientExpiryIncludingToday
+    }
 
   @GetMapping("/view-client")
   @PreAuthorize("hasAnyRole('ROLE_OAUTH_ADMIN','ROLE_OAUTH_VIEW_ONLY_CLIENT')")
