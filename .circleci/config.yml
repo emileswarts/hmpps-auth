@@ -13,7 +13,7 @@ jobs:
   validate:
     executor:
       name: hmpps/java_postgres
-      jdk_tag: "17.0"
+      jdk_tag: "18.0"
       postgres_tag: "14"
       postgres_db: "auth-db"
       postgres_username: "admin"
@@ -47,7 +47,7 @@ jobs:
   integration_tests:
     executor:
       name: hmpps/java_postgres
-      jdk_tag: "17.0"
+      jdk_tag: "18.0"
       postgres_tag: "14"
       postgres_db: "auth-db"
       postgres_username: "admin"
