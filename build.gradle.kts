@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.0-beta-1"
   kotlin("plugin.spring") version "1.7.0"
   kotlin("plugin.jpa") version "1.7.0"
 }
@@ -32,8 +32,8 @@ dependencies {
 
   implementation("javax.annotation:javax.annotation-api:1.3.2")
   implementation("javax.xml.bind:jaxb-api:2.3.1")
-  implementation("com.sun.xml.bind:jaxb-impl:3.0.2")
-  implementation("com.sun.xml.bind:jaxb-core:3.0.2")
+  implementation("com.sun.xml.bind:jaxb-impl:4.0.0")
+  implementation("com.sun.xml.bind:jaxb-core:4.0.0")
   implementation("javax.activation:activation:1.1.1")
 
   implementation("javax.transaction:javax.transaction-api:1.3")
