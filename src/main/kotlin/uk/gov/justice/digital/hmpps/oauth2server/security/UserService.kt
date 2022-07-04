@@ -51,14 +51,21 @@ class UserService(
       .or { deliusUserService.getDeliusUserByUsername(username).map { UserPersonDetails::class.java.cast(it) } }
 
   fun findEnabledOrNomisLockedUserPersonDetails(username: String): UserPersonDetails? =
-    authUserService.getAuthUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) }
+    authUserService.getAuthUserByUsername(username).filter { it.isEnabled }
+      .map { UserPersonDetails::class.java.cast(it) }
       .or {
         Optional.ofNullable(nomisUserService.getNomisUserByUsername(username))
           .filter { it.isEnabled || it.accountStatus == AccountStatus.LOCKED }
           .map { UserPersonDetails::class.java.cast(it) }
       }
-      .or { azureUserService.getAzureUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) } }
-      .or { deliusUserService.getDeliusUserByUsername(username).filter { it.isEnabled }.map { UserPersonDetails::class.java.cast(it) } }
+      .or {
+        azureUserService.getAzureUserByUsername(username).filter { it.isEnabled }
+          .map { UserPersonDetails::class.java.cast(it) }
+      }
+      .or {
+        deliusUserService.getDeliusUserByUsername(username).filter { it.isEnabled }
+          .map { UserPersonDetails::class.java.cast(it) }
+      }
       .orElse(null)
 
   fun getMasterUserPersonDetailsWithEmailCheck(
@@ -100,6 +107,7 @@ class UserService(
 
   private fun emailMatchesUser(email: String?, userPersonDetails: UserPersonDetails): Boolean =
     email == getEmail(userPersonDetails)
+
   @Transactional(readOnly = true)
   fun findUser(username: String): Optional<User> = userRepository.findByUsername(StringUtils.upperCase(username))
 
@@ -129,6 +137,14 @@ class UserService(
         userRepository.save(user)
       }
     }
+
+  @Transactional
+  fun createUser(username: String, email: String, source: AuthSource): Optional<User> {
+    return findUser(username).or {
+      val user = User(username = username.uppercase(), email = email, verified = true, source = source)
+      Optional.of(userRepository.save(user))
+    }
+  }
 
   fun getEmailAddressFromNomis(username: String): Optional<String> =
     nomisUserService.getNomisUserByUsername(username)?.email?.let {

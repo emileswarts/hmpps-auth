@@ -4,13 +4,16 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
+import java.time.LocalDateTime
 import java.util.Optional
 import javax.persistence.EntityNotFoundException
 
@@ -20,6 +23,7 @@ class TokenService(
   private val userTokenRepository: UserTokenRepository,
   private val userService: UserService,
   private val telemetryClient: TelemetryClient,
+  @Value("\${token.reset.expiry.days}") private val tokenExpiryDays: Long,
 ) {
 
   companion object {
@@ -76,6 +80,20 @@ class TokenService(
       mapOf("username" to username),
       null
     )
+    return userToken.token
+  }
+
+  @Transactional
+  fun createTokenForNewUser(tokenType: TokenType, username: String, email: String, source: AuthSource): String {
+    log.info("Requesting {} for {}", tokenType.description, username)
+    val user = userService.createUser(username, email, source).orElseThrow()
+    val userToken = user.createToken(tokenType)
+    telemetryClient.trackEvent(
+      "${tokenType.description}Request",
+      mapOf("username" to username),
+      null
+    )
+    userToken.tokenExpiry = LocalDateTime.now().plusDays(tokenExpiryDays)
     return userToken.token
   }
 

@@ -568,6 +568,7 @@ class UserServiceTest {
   @Nested
   inner class GetMasterUserPersonDetailsWithEmailCheck {
     private val loginDetails = createSampleUser("user", verified = true, email = "joe@fred.com")
+
     @Test
     fun `test getMasterUserPersonDetailsWithEmailCheck - auth user`() {
       val authUser =
@@ -670,7 +671,18 @@ class UserServiceTest {
     @Test
     fun `test search user with multiple auth sources `() {
       val unpaged = Pageable.unpaged()
-      whenever(authUserService.findAuthUsers(anyString(), anyOrNull(), anyOrNull(), any(), anyString(), anyList(), any(), any()))
+      whenever(
+        authUserService.findAuthUsers(
+          anyString(),
+          anyOrNull(),
+          anyOrNull(),
+          any(),
+          anyString(),
+          anyList(),
+          any(),
+          any()
+        )
+      )
         .thenReturn(Page.empty())
 
       userService.searchUsersInMultipleSourceSystems(
@@ -678,7 +690,14 @@ class UserServiceTest {
       )
 
       verify(authUserService).findAuthUsers(
-        "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(nomis, auth)
+        "test",
+        emptyList(),
+        emptyList(),
+        unpaged,
+        "bob",
+        AUTHORITY_INTEL_ADMIN,
+        UserFilter.Status.ALL,
+        listOf(nomis, auth)
       )
     }
 
@@ -695,6 +714,34 @@ class UserServiceTest {
       verify(authUserService).findAuthUsers(
         "test", emptyList(), emptyList(), unpaged, "bob", AUTHORITY_INTEL_ADMIN, UserFilter.Status.ALL, listOf(auth)
       )
+    }
+  }
+
+  @Nested
+  inner class CreateUsersWithEmailAndUserName {
+    @Test
+    fun `createUser with username, email & source`() {
+      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
+      whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
+      val newUser = userService.createUser("joe", "joe@gov.uk", nomis)
+      assertThat(newUser).hasValueSatisfying {
+        assertThat(it.username).isEqualTo("JOE")
+        assertThat(it.email).isEqualTo("joe@gov.uk")
+        assertThat(it.source).isEqualTo(nomis)
+      }
+    }
+
+    @Test
+    fun `Return existing user for createUser with user same details`() {
+      val stubUser = User("joe", email = "joe@gov.uk", source = nomis)
+      whenever(userRepository.findByUsername("JOE")).thenReturn(Optional.of(stubUser))
+      whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
+      val newUser = userService.createUser("joe", "joe@gov.uk", nomis)
+      assertThat(newUser).hasValueSatisfying {
+        assertThat(it.username).isEqualTo("joe")
+        assertThat(it.email).isEqualTo("joe@gov.uk")
+        assertThat(it.source).isEqualTo(nomis)
+      }
     }
   }
 

@@ -31,7 +31,7 @@ class TokenServiceTest {
   private val userTokenRepository: UserTokenRepository = mock()
   private val userService: UserService = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val tokenService = TokenService(userTokenRepository, userService, telemetryClient)
+  private val tokenService = TokenService(userTokenRepository, userService, telemetryClient, 7)
 
   @Nested
   inner class getToken {
