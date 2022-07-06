@@ -46,8 +46,9 @@ open class AbstractPasswordController(
     metricsPrefix: String,
     token: String,
     newPassword: String?,
-    confirmPassword: String?
+    confirmPassword: String?,
   ): Pair<Optional<ModelAndView>, String> {
+
     val userTokenOptional = tokenService.checkToken(tokenType, token)
     if (userTokenOptional.isPresent) {
       val modelAndView: ModelAndView = if (startAgainViewOrUrl.startsWith("redirect")) {

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -64,14 +65,14 @@ class ChangeEmailControllerTest {
 
   @Test
   fun newSecondaryEmailRequest_expiredToken() {
-    whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+    whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("expired"))
     val modelAndView = controller.newSecondaryEmailRequest("token", authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details?error=mfaexpired")
   }
 
   @Test
   fun newSecondaryEmailRequest_invalidToken() {
-    whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+    whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
     val modelAndView = controller.newSecondaryEmailRequest("token", authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details?error=mfainvalid")
   }

@@ -97,7 +97,7 @@ class VerifyEmailController(
 
     if (!resend) {
       if (token.isNullOrEmpty()) return ModelAndView("redirect:/account-details?error=tokeninvalid")
-      val optionalErrorForToken = tokenService.checkToken(TokenType.ACCOUNT, token)
+      val optionalErrorForToken = tokenService.checkTokenForUser(TokenType.ACCOUNT, token, principal.name)
       if (optionalErrorForToken.isPresent) {
         return ModelAndView("redirect:/account-details?error=token${optionalErrorForToken.get()}")
       }

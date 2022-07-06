@@ -313,7 +313,7 @@ class VerifyEmailControllerTest {
 
   @Test
   fun verifySecondaryEmail_tokenInvalid() {
-    whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+    whenever(tokenService.checkTokenForUser(any(), anyString(), eq(principal.name))).thenReturn(Optional.of("invalid"))
     val modelAndView = verifyEmailControllerSmokeTestEnabled.verifyEmail(
       "other",
       "bob@digital.justice.goc.uk",
@@ -330,7 +330,7 @@ class VerifyEmailControllerTest {
 
   @Test
   fun verifySecondaryEmail_tokenExpired() {
-    whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+    whenever(tokenService.checkTokenForUser(any(), anyString(), eq(principal.name))).thenReturn(Optional.of("expired"))
     val modelAndView = verifyEmailControllerSmokeTestEnabled.verifyEmail(
       "other",
       "bob@digital.justice.goc.uk",

@@ -37,6 +37,7 @@ class ResetPasswordControllerTest {
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val request: HttpServletRequest = mock()
+
   private val controller = ResetPasswordController(
     resetPasswordService,
     tokenService,

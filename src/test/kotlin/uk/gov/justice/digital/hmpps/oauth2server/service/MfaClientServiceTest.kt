@@ -128,13 +128,13 @@ internal class MfaClientServiceTest {
     fun `client has remember me set to true and a valid token`() {
       whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.all.name, "mfaRememberMe" to true))
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
-      whenever(tokenService.checkToken(any(), any(), any())).thenReturn(true)
+      whenever(tokenService.isValid(any(), any(), any())).thenReturn(true)
       whenever(userDetails.username).thenReturn("user")
       MfaRememberMeContext.token = "some token"
 
       assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
 
-      verify(tokenService).checkToken(UserToken.TokenType.MFA_RMBR, "some token", "user")
+      verify(tokenService).isValid(UserToken.TokenType.MFA_RMBR, "some token", "user")
     }
   }
 }

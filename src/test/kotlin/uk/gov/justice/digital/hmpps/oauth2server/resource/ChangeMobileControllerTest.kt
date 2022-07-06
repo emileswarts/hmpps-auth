@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -51,14 +52,14 @@ class ChangeMobileControllerTest {
 
     @Test
     fun addMobileRequest_expiredToken() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("expired"))
       val view = controller.changeMobileRequest("token", authentication)
       assertThat(view.viewName).isEqualTo("redirect:/account-details?error=tokenexpired")
     }
 
     @Test
     fun addMobileRequest_invalidToken() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
       val view = controller.changeMobileRequest("token", authentication)
       assertThat(view.viewName).isEqualTo("redirect:/account-details?error=tokeninvalid")
     }
@@ -72,14 +73,14 @@ class ChangeMobileControllerTest {
 
     @Test
     fun updateMobileRequest_expiredToken() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("expired"))
       val view = controller.changeMobileRequest("token", authentication)
       assertThat(view.viewName).isEqualTo("redirect:/account-details?error=tokenexpired")
     }
 
     @Test
     fun updateMobileRequest_invalidToken() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
       val view = controller.changeMobileRequest("token", authentication)
       assertThat(view.viewName).isEqualTo("redirect:/account-details?error=tokeninvalid")
     }

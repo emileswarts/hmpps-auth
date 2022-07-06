@@ -43,6 +43,7 @@ class ChangePasswordControllerTest {
   private val telemetryClient: TelemetryClient = mock()
   private val request: HttpServletRequest = mock()
   private val response: HttpServletResponse = mock()
+
   private val controller = ChangePasswordController(
     jwtAuthenticationSuccessHandler,
     userStateAuthenticationFailureHandler,
@@ -200,7 +201,7 @@ class ChangePasswordControllerTest {
           "password2",
           request,
           response,
-          true
+          true,
         )
       }.isEqualTo(exception)
     }

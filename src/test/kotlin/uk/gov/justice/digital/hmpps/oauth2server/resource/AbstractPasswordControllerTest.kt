@@ -32,6 +32,7 @@ class AbstractPasswordControllerTest {
   private val userService: UserService = mock()
   private val verifyEmailService: VerifyEmailService = mock()
   private val telemetryClient: TelemetryClient = mock()
+
   private val controller = ResetPasswordController(
     resetPasswordService,
     tokenService,

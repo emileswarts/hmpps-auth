@@ -59,7 +59,7 @@ class ChangePasswordController(
     @RequestParam confirmPassword: String?,
     request: HttpServletRequest,
     response: HttpServletResponse,
-    @RequestParam expired: Boolean?,
+    @RequestParam expired: Boolean?
   ): ModelAndView? {
 
     val userToken = tokenService.getToken(TokenType.CHANGE, token)

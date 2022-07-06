@@ -35,6 +35,6 @@ open class MfaClientService(
     // now check if they are allowed to use a remember me token (from the mfa_remember_me cookie) for that client
     // and if it is still valid
     val rememberMe = client.additionalInformation["mfaRememberMe"] as? Boolean? == true
-    return !(rememberMe && tokenService.checkToken(TokenType.MFA_RMBR, MfaRememberMeContext.token, user?.username))
+    return !(rememberMe && tokenService.isValid(TokenType.MFA_RMBR, MfaRememberMeContext.token, user?.username))
   }
 }

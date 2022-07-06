@@ -43,31 +43,8 @@ class TokenService(
     return userToken.user
   }
 
-  fun checkToken(tokenType: TokenType, token: String): Optional<String> =
-    checkToken(tokenType, getToken(tokenType, token))
-
-  private fun checkToken(tokenType: TokenType, userTokenOptional: Optional<UserToken>): Optional<String> {
-    if (userTokenOptional.isEmpty) {
-      log.info("Failed to {} due to invalid token", tokenType.description)
-      telemetryClient.trackEvent(
-        "${tokenType.description}Failure",
-        mapOf("reason" to "invalid"),
-        null
-      )
-      return Optional.of("invalid")
-    }
-    val userToken = userTokenOptional.get()
-    if (userToken.hasTokenExpired()) {
-      log.info("Failed to {} due to expired token", tokenType.description)
-      val username = userToken.user.username
-      telemetryClient.trackEvent(
-        "${tokenType.description}Failure",
-        mapOf("username" to username, "reason" to "expired"),
-        null
-      )
-      return Optional.of("expired")
-    }
-    return Optional.empty()
+  fun checkToken(tokenType: TokenType, token: String): Optional<String> {
+    return checkTokenActive(tokenType, getToken(tokenType, token))
   }
 
   @Transactional
@@ -102,16 +79,79 @@ class TokenService(
     getToken(tokenType, token).ifPresent { userTokenRepository.delete(it) }
 
   @Transactional
-  fun checkToken(tokenType: TokenType, token: String?, username: String?): Boolean {
+  fun isValid(tokenType: TokenType, token: String?, username: String?): Boolean {
     if (token.isNullOrBlank()) return false
     val userTokenOptional = getToken(tokenType, token)
 
-    val errors = checkToken(tokenType, userTokenOptional)
-    val success = errors.map { false }.orElseGet { userTokenOptional.orElseThrow().user.username == username }
+    val errors = checkTokenActive(tokenType, userTokenOptional)
+    val success = errors.map { false }.orElseGet { tokenIssuedToUser(tokenType, userTokenOptional, username) }
 
     // delete token if something went wrong e.g. token expired
-    if (!success && userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())
-
+    if (!success) removeToken(userTokenOptional)
     return success
   }
+
+  @Transactional
+  fun checkTokenForUser(tokenType: TokenType, token: String, username: String?): Optional<String> {
+    if (token.isBlank()) {
+      recordInvalidTokenEvent(tokenType)
+      return invalidTokenResponse()
+    }
+    val userTokenOptional = getToken(tokenType, token)
+    val errorOptional = checkTokenActive(tokenType, userTokenOptional)
+    val response = errorOptional.or { checkTokenOwnedByUser(tokenType, userTokenOptional, username) }
+    response.ifPresent { removeToken(userTokenOptional) }
+
+    return response
+  }
+
+  private fun removeToken(userTokenOptional: Optional<UserToken>) {
+    if (userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())
+  }
+
+  private fun checkTokenOwnedByUser(tokenType: TokenType, token: Optional<UserToken>, username: String?): Optional<String> {
+    if (tokenIssuedToUser(tokenType, token, username)) {
+      return Optional.empty()
+    }
+    return invalidTokenResponse()
+  }
+
+  private fun tokenIssuedToUser(tokenType: TokenType, userTokenOptional: Optional<UserToken>, username: String?): Boolean {
+    val tokenIssuedToUser = userTokenOptional.orElseThrow().user.username == username
+    if (!tokenIssuedToUser) {
+      recordInvalidTokenEvent(tokenType)
+    }
+
+    return tokenIssuedToUser
+  }
+
+  private fun checkTokenActive(tokenType: TokenType, userTokenOptional: Optional<UserToken>): Optional<String> {
+    if (userTokenOptional.isEmpty) {
+      recordInvalidTokenEvent(tokenType)
+      return invalidTokenResponse()
+    }
+    val userToken = userTokenOptional.get()
+    if (userToken.hasTokenExpired()) {
+      log.info("Failed to {} due to expired token", tokenType.description)
+      val username = userToken.user.username
+      telemetryClient.trackEvent(
+        "${tokenType.description}Failure",
+        mapOf("username" to username, "reason" to "expired"),
+        null
+      )
+      return Optional.of("expired")
+    }
+    return Optional.empty()
+  }
+
+  private fun recordInvalidTokenEvent(tokenType: TokenType) {
+    log.info("Failed to {} due to invalid token", tokenType.description)
+    telemetryClient.trackEvent(
+      "${tokenType.description}Failure",
+      mapOf("reason" to "invalid"),
+      null
+    )
+  }
+
+  private fun invalidTokenResponse() = Optional.of("invalid")
 }

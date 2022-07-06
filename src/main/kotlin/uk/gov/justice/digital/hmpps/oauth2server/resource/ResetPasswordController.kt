@@ -132,7 +132,10 @@ class ResetPasswordController(
   }
 
   @PostMapping("/reset-password-select")
-  fun resetPasswordChosen(@RequestParam token: String, @RequestParam username: String): ModelAndView {
+  fun resetPasswordChosen(
+    @RequestParam token: String,
+    @RequestParam username: String,
+  ): ModelAndView {
     val userTokenOptional = tokenService.checkToken(TokenType.RESET, token)
     return userTokenOptional.map { ModelAndView("resetPassword", "error", it) }.orElseGet {
       try {
@@ -171,7 +174,7 @@ class ResetPasswordController(
       if (initial == true) "Initial" else "Reset",
       token,
       newPassword,
-      confirmPassword
+      confirmPassword,
     )
     val authSource = result.second
     return result.first.map { if (initial == true) it.addObject("initial", initial) else it }.orElseGet {

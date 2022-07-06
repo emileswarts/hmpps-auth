@@ -5,6 +5,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.verify
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.data.MapEntry
 import org.assertj.core.data.MapEntry.entry
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -16,8 +17,10 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.ACCOUNT
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.CHANGE
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.RESET
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.VERIFIED
@@ -131,20 +134,74 @@ class TokenServiceTest {
   }
 
   @Nested
-  inner class `checkToken with username parameter` {
+  inner class `check token for user` {
     @Test
-    fun `checkToken with no username`() {
-      val userToken = createSampleUser(username = "user").createToken(RESET)
-      whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
-      assertThat(tokenService.checkToken(RESET, "token", null)).isFalse
+    fun `empty token`() {
+      assertThat(tokenService.checkTokenForUser(ACCOUNT, "", "joe")).hasValue("invalid")
+      verifyEventRecorded("ChangeAccountDetailsFailure", entry("reason", "invalid"))
+    }
+
+    @Test
+    fun `token not found`() {
+      val token = "1234-5678-8989-2233"
+      whenever(userTokenRepository.findById(token)).thenReturn(Optional.empty())
+
+      assertThat(tokenService.checkTokenForUser(ACCOUNT, token, "bob")).hasValue("invalid")
+      verifyEventRecorded("ChangeAccountDetailsFailure", entry("reason", "invalid"))
+    }
+
+    @Test
+    fun `token expired`() {
+      val token = "1234-5678-8989-2233"
+      val username = "bob"
+      val userToken = createSampleUser(username = username).createToken(ACCOUNT)
+      userToken.tokenExpiry = LocalDateTime.now().minusHours(1)
+      whenever(userTokenRepository.findById(token)).thenReturn(Optional.of(userToken))
+
+      assertThat(tokenService.checkTokenForUser(ACCOUNT, token, username)).hasValue("expired")
+      verifyEventRecorded("ChangeAccountDetailsFailure", entry("reason", "expired"), entry("username", username))
+    }
+
+    @Test
+    fun `token not issued to user`() {
+      val token = "1234-5678-8989-2233"
+      val username = "bob"
+      val userToken = createSampleUser(username = username).createToken(ACCOUNT)
+      whenever(userTokenRepository.findById(token)).thenReturn(Optional.of(userToken))
+
+      assertThat(tokenService.checkTokenForUser(ACCOUNT, token, username + "x")).hasValue("invalid")
+      verifyEventRecorded("ChangeAccountDetailsFailure", entry("reason", "invalid"))
       verify(userTokenRepository).delete(userToken)
     }
 
     @Test
-    fun `checkToken with username match`() {
+    fun `token ok`() {
+      val token = "1234-5678-8989-2233"
+      val username = "bob"
+      val userToken = createSampleUser(username = username).createToken(ACCOUNT)
+      whenever(userTokenRepository.findById(token)).thenReturn(Optional.of(userToken))
+
+      assertThat(tokenService.checkTokenForUser(ACCOUNT, token, username)).isEmpty
+      verifyNoInteractions(telemetryClient)
+      verify(userTokenRepository, never()).delete(userToken)
+    }
+  }
+
+  @Nested
+  inner class `isValid token` {
+    @Test
+    fun `isValid with no username`() {
       val userToken = createSampleUser(username = "user").createToken(RESET)
       whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
-      assertThat(tokenService.checkToken(RESET, "token", "user")).isTrue
+      assertThat(tokenService.isValid(RESET, "token", null)).isFalse
+      verify(userTokenRepository).delete(userToken)
+    }
+
+    @Test
+    fun `isValid with username match`() {
+      val userToken = createSampleUser(username = "user").createToken(RESET)
+      whenever(userTokenRepository.findById(anyString())).thenReturn(Optional.of(userToken))
+      assertThat(tokenService.isValid(RESET, "token", "user")).isTrue
       verify(userTokenRepository, never()).delete(any())
     }
   }
@@ -199,5 +256,15 @@ class TokenServiceTest {
       tokenService.removeToken(RESET, "token")
       verify(userTokenRepository).delete(userToken)
     }
+  }
+
+  private fun verifyEventRecorded(eventName: String, vararg entries: MapEntry<String, String>) {
+    verify(telemetryClient).trackEvent(
+      eq(eventName),
+      check {
+        assertThat(it).containsOnly(*entries)
+      },
+      isNull()
+    )
   }
 }

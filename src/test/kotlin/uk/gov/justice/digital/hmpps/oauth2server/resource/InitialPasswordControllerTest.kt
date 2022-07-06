@@ -28,6 +28,7 @@ class InitialPasswordControllerTest {
   private val userService: UserService = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val request: HttpServletRequest = mock()
+
   private val controller = InitialPasswordController(
     resetPasswordService,
     initialPasswordService,

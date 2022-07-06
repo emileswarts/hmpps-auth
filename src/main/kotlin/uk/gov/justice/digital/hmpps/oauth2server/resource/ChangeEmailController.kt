@@ -42,7 +42,7 @@ class ChangeEmailController(private val tokenService: TokenService, private val 
 
   @GetMapping("/new-backup-email")
   fun newSecondaryEmailRequest(@RequestParam token: String, authentication: Authentication): ModelAndView {
-    val optionalErrorForToken = tokenService.checkToken(TokenType.ACCOUNT, token)
+    val optionalErrorForToken = tokenService.checkTokenForUser(TokenType.ACCOUNT, token, authentication.name)
     if (optionalErrorForToken.isPresent) {
       return ModelAndView("redirect:/account-details?error=mfa${optionalErrorForToken.get()}")
     }
