@@ -59,10 +59,12 @@ abstract class AbstractMfaController(
     token: String,
     mfaPreference: MfaPreferenceType,
     code: String,
+    authenticatedUser: String?,
     extraModel: Map<String, Any?> = emptyMap(),
     successFunction: (username: String) -> ModelAndView?,
   ): ModelAndView? {
-    val optionalErrorForToken = tokenService.checkToken(MFA, token)
+
+    val optionalErrorForToken = authenticatedUser?.let { tokenService.checkTokenForUser(MFA, token, authenticatedUser) } ?: tokenService.checkToken(MFA, token)
     if (optionalErrorForToken.isPresent) {
       return ModelAndView("redirect:$initiatorUrl", "error", "mfa${optionalErrorForToken.get()}")
     }
@@ -70,7 +72,7 @@ abstract class AbstractMfaController(
     val (username, authSource) = tokenService.getToken(MFA, token).map { it.user.username to it.user.source }.orElseThrow()
 
     try {
-      mfaService.validateAndRemoveMfaCode(token, code)
+      mfaService.validateAndRemoveMfaCode(token, code, username)
     } catch (e: MfaFlowException) {
       val codeDestination = mfaService.getCodeDestination(token, mfaPreference)
       return ModelAndView("mfaChallenge$viewNameSuffix")
@@ -92,9 +94,10 @@ abstract class AbstractMfaController(
   protected fun createMfaResendRequest(
     token: String,
     mfaPreference: MfaPreferenceType,
+    username: String?,
     extraModel: Map<String, Any?> = emptyMap(),
   ): ModelAndView {
-    val optionalError = tokenService.checkToken(MFA, token)
+    val optionalError = username?.let { tokenService.checkTokenForUser(MFA, token, username) } ?: tokenService.checkToken(MFA, token)
 
     return optionalError.map { ModelAndView("redirect:$initiatorUrl", "error", "mfa$it") }
       .orElseGet {
@@ -108,9 +111,11 @@ abstract class AbstractMfaController(
   protected fun createMfaResend(
     token: String,
     mfaResendPreference: MfaPreferenceType,
-    extraModel: Map<String, Any?> = emptyMap(),
+    username: String?,
+    extraModel: Map<String, Any?> = emptyMap()
   ): ModelAndView {
-    val optionalErrorForToken = tokenService.checkToken(MFA, token)
+
+    val optionalErrorForToken = username?.let { tokenService.checkTokenForUser(MFA, token, username) } ?: tokenService.checkToken(MFA, token)
     if (optionalErrorForToken.isPresent) {
       return ModelAndView("redirect:$initiatorUrl", "error", "mfa${optionalErrorForToken.get()}")
     }

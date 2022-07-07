@@ -78,7 +78,7 @@ class MfaServiceBasedController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     authentication: Authentication,
-  ): ModelAndView? = mfaChallenge(token, mfaPreference, code, extraModel(user_oauth_approval, authorizationRequest)) {
+  ): ModelAndView? = mfaChallenge(token, mfaPreference, code, authentication.name, extraModel(user_oauth_approval, authorizationRequest)) {
     jwtAuthenticationSuccessHandler.updateMfaInRequest(request, response, authentication)
 
     if (rememberMe == true) {
@@ -93,15 +93,17 @@ class MfaServiceBasedController(
   fun mfaResendRequest(
     @RequestParam token: String,
     @RequestParam user_oauth_approval: String?,
-    @RequestParam mfaPreference: MfaPreferenceType
-  ): ModelAndView = createMfaResendRequest(token, mfaPreference, extraModel(user_oauth_approval))
+    @RequestParam mfaPreference: MfaPreferenceType,
+    authentication: Authentication
+  ): ModelAndView = createMfaResendRequest(token, mfaPreference, authentication.name, extraModel(user_oauth_approval))
 
   @PostMapping("/service-mfa-resend")
   fun mfaResend(
     @RequestParam token: String,
     @RequestParam user_oauth_approval: String?,
     @RequestParam mfaResendPreference: MfaPreferenceType,
-  ): ModelAndView = createMfaResend(token, mfaResendPreference, extraModel(user_oauth_approval))
+    authentication: Authentication
+  ): ModelAndView = createMfaResend(token, mfaResendPreference, authentication.name, extraModel(user_oauth_approval))
 
   private fun extraModel(user_oauth_approval: String?) = mapOf("user_oauth_approval" to user_oauth_approval)
   private fun extraModel(user_oauth_approval: String?, authorizationRequest: AuthorizationRequest): Map<String, Any?> {

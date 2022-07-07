@@ -72,7 +72,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `Primary email mfaChallenge Request expired password token`() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("expired"))
 
       val view = controller.mfaSendChallengeAccountDetail(
         authentication,
@@ -85,7 +85,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `Primary email mfaChallenge Request invalid password token`() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
 
       val view = controller.mfaSendChallengeAccountDetail(
         authentication,
@@ -145,7 +145,8 @@ class MfaControllerAccountDetailsTest {
         "invalid",
         "some token",
         "password token",
-        MfaPreferenceType.EMAIL
+        MfaPreferenceType.EMAIL,
+        authentication
       )
       assertThat(modelAndView.viewName).isEqualTo("mfaChallengeAccountDetails")
       assertThat(modelAndView.model).containsOnly(
@@ -160,14 +161,15 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `Primary email mfaChallenge Request expired password token`() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("expired"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("expired"))
 
       val view = controller.mfaChallengeRequestAccountDetail(
         "email",
         "some error",
         null,
         "expired token",
-        MfaPreferenceType.EMAIL
+        MfaPreferenceType.EMAIL,
+        authentication
       )
       assertThat(view.viewName).isEqualTo("redirect:/account-details")
       assertThat(view.model).containsOnly(entry("error", "tokenexpired"))
@@ -178,13 +180,14 @@ class MfaControllerAccountDetailsTest {
   inner class MfaChallenge {
     @Test
     fun `mfaChallenge token invalid`() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
       val modelAndView = controller.mfaChallengeAccountDetail(
         "some token",
         "pass token",
         MfaPreferenceType.EMAIL,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -193,7 +196,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `mfaEmailChallenge code invalid`() {
-      val user = createSampleUser(username = "someuser")
+      val user = createSampleUser(username = authentication.name)
       whenever(tokenService.getToken(any(), anyString())).thenReturn(
         Optional.of(
           UserToken(
@@ -204,7 +207,7 @@ class MfaControllerAccountDetailsTest {
           )
         )
       )
-      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(MfaFlowException("invalid"))
+      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString(), eq(authentication.name))).thenThrow(MfaFlowException("invalid"))
       whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.EMAIL))).thenReturn("auth******@******.gov.uk")
       val modelAndView = controller.mfaChallengeAccountDetail(
         "some token",
@@ -212,6 +215,7 @@ class MfaControllerAccountDetailsTest {
         MfaPreferenceType.EMAIL,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -228,7 +232,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `mfaTextChallenge code invalid`() {
-      val user = createSampleUser(username = "someuser")
+      val user = createSampleUser(username = authentication.name)
       whenever(tokenService.getToken(any(), anyString())).thenReturn(
         Optional.of(
           UserToken(
@@ -239,7 +243,7 @@ class MfaControllerAccountDetailsTest {
           )
         )
       )
-      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(MfaFlowException("invalid"))
+      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString(), eq(authentication.name))).thenThrow(MfaFlowException("invalid"))
       whenever(mfaService.getCodeDestination(any(), eq(MfaPreferenceType.TEXT))).thenReturn("*******0321")
       val modelAndView = controller.mfaChallengeAccountDetail(
         "some token",
@@ -247,6 +251,7 @@ class MfaControllerAccountDetailsTest {
         MfaPreferenceType.TEXT,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -263,7 +268,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `mfaEmailChallenge code locked`() {
-      val user = createSampleUser(username = "someuser")
+      val user = createSampleUser(username = authentication.name)
       whenever(tokenService.getToken(any(), anyString())).thenReturn(
         Optional.of(
           UserToken(
@@ -274,13 +279,14 @@ class MfaControllerAccountDetailsTest {
           )
         )
       )
-      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(LoginFlowException("locked"))
+      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString(), eq(authentication.name))).thenThrow(LoginFlowException("locked"))
       val modelAndView = controller.mfaChallengeAccountDetail(
         "some token",
         "pass token",
         MfaPreferenceType.EMAIL,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -290,7 +296,7 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `mfaTextChallenge code locked`() {
-      val user = createSampleUser(username = "someuser")
+      val user = createSampleUser(username = authentication.name)
       whenever(tokenService.getToken(any(), anyString())).thenReturn(
         Optional.of(
           UserToken(
@@ -301,13 +307,14 @@ class MfaControllerAccountDetailsTest {
           )
         )
       )
-      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString())).thenThrow(LoginFlowException("locked"))
+      whenever(mfaService.validateAndRemoveMfaCode(anyString(), anyString(), eq(authentication.name))).thenThrow(LoginFlowException("locked"))
       val modelAndView = controller.mfaChallengeAccountDetail(
         "some token",
         "pass token",
         MfaPreferenceType.TEXT,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -335,6 +342,7 @@ class MfaControllerAccountDetailsTest {
         MfaPreferenceType.EMAIL,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -364,6 +372,7 @@ class MfaControllerAccountDetailsTest {
         MfaPreferenceType.TEXT,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -392,6 +401,7 @@ class MfaControllerAccountDetailsTest {
         MfaPreferenceType.EMAIL,
         "some code",
         "email",
+        authentication,
         request,
         response
       )
@@ -411,7 +421,7 @@ class MfaControllerAccountDetailsTest {
       )
       whenever(tokenService.getUserFromToken(any(), any())).thenReturn(user)
       whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.empty())
-      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.EMAIL)
+      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
       assertThat(modelAndView.viewName).isEqualTo("mfaResendAccountDetails")
       assertThat(modelAndView.model).containsOnly(
         entry("token", "some token"), entry("passToken", "pass token"), entry("mfaPreference", MfaPreferenceType.EMAIL),
@@ -427,10 +437,10 @@ class MfaControllerAccountDetailsTest {
         mfaPreference = MfaPreferenceType.TEXT,
         mobileVerified = true,
       )
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.empty())
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.empty())
       whenever(tokenService.getUserFromToken(any(), any())).thenReturn(user)
-      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.TEXT)
-      verify(tokenService).checkToken(TokenType.MFA, "some token")
+      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
+      verify(tokenService).checkTokenForUser(TokenType.MFA, "some token", authentication.name)
       assertThat(modelAndView.viewName).isEqualTo("mfaResendAccountDetails")
       assertThat(modelAndView.model).containsOnly(
         entry("token", "some token"), entry("passToken", "pass token"), entry("mfaPreference", MfaPreferenceType.TEXT),
@@ -446,11 +456,11 @@ class MfaControllerAccountDetailsTest {
         mfaPreference = MfaPreferenceType.TEXT,
         secondaryEmailVerified = true,
       )
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.empty())
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.empty())
       whenever(tokenService.getUserFromToken(any(), any())).thenReturn(user)
       val modelAndView =
-        controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.SECONDARY_EMAIL)
-      verify(tokenService).checkToken(TokenType.MFA, "some token")
+        controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.SECONDARY_EMAIL, authentication)
+      verify(tokenService).checkTokenForUser(TokenType.MFA, "some token", authentication.name)
       assertThat(modelAndView.viewName).isEqualTo("mfaResendAccountDetails")
       assertThat(modelAndView.model).containsOnly(
         entry("token", "some token"),
@@ -472,11 +482,11 @@ class MfaControllerAccountDetailsTest {
         mobileVerified = true,
         mfaPreference = MfaPreferenceType.TEXT,
       )
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.empty())
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.empty())
       whenever(tokenService.getUserFromToken(any(), any())).thenReturn(user)
       val modelAndView =
-        controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.SECONDARY_EMAIL)
-      verify(tokenService).checkToken(TokenType.MFA, "some token")
+        controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.SECONDARY_EMAIL, authentication)
+      verify(tokenService).checkTokenForUser(TokenType.MFA, "some token", authentication.name)
       assertThat(modelAndView.viewName).isEqualTo("mfaResendAccountDetails")
       assertThat(modelAndView.model).containsOnly(
         entry("token", "some token"),
@@ -491,8 +501,8 @@ class MfaControllerAccountDetailsTest {
 
     @Test
     fun `mfaResendEmailRequest error`() {
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
-      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.EMAIL)
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
+      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
       assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
       assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
     }
@@ -504,9 +514,9 @@ class MfaControllerAccountDetailsTest {
         mobile = "07700900321",
         mfaPreference = MfaPreferenceType.TEXT
       )
-      whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
+      whenever(tokenService.checkTokenForUser(any(), anyString(), eq(authentication.name))).thenReturn(Optional.of("invalid"))
       whenever(tokenService.getUserFromToken(any(), anyString())).thenReturn(user)
-      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.TEXT)
+      val modelAndView = controller.mfaResendRequest("EMAIL", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
       assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
       assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
     }
@@ -516,7 +526,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendEmail token invalid`() {
     whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
     assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
   }
@@ -525,7 +535,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendText token invalid`() {
     whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("invalid"))
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
     assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
   }
@@ -533,7 +543,7 @@ class MfaControllerAccountDetailsTest {
   @Test
   fun `mfaResendEmail no code found`() {
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
     assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
   }
@@ -541,7 +551,7 @@ class MfaControllerAccountDetailsTest {
   @Test
   fun `mfaResendText no code found`() {
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account-details")
     assertThat(modelAndView.model).containsExactlyInAnyOrderEntriesOf(mapOf("error" to "mfainvalid"))
   }
@@ -550,7 +560,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendEmail check view`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.EMAIL))).thenReturn("code")
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account/mfa-challenge")
   }
 
@@ -558,7 +568,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendText check view`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.TEXT))).thenReturn("code")
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account/mfa-challenge")
   }
 
@@ -566,7 +576,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendEmail check model`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.EMAIL))).thenReturn("code")
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
     assertThat(modelAndView.model).containsOnly(
       entry("token", "some token"),
       entry("contactType", "email"),
@@ -579,7 +589,7 @@ class MfaControllerAccountDetailsTest {
   fun `mfaResendText check model`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.TEXT))).thenReturn("code")
     val modelAndView =
-      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT)
+      controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
     assertThat(modelAndView.model).containsOnly(
       entry("token", "some token"),
       entry("contactType", "email"),
@@ -596,7 +606,8 @@ class MfaControllerAccountDetailsTest {
         "email",
         "some token",
         "pass token",
-        MfaPreferenceType.EMAIL
+        MfaPreferenceType.EMAIL,
+        authentication
       )
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account/mfa-challenge")
   }
@@ -609,7 +620,8 @@ class MfaControllerAccountDetailsTest {
         "email",
         "some token",
         "pass token",
-        MfaPreferenceType.TEXT
+        MfaPreferenceType.TEXT,
+        authentication
       )
     assertThat(modelAndView.viewName).isEqualTo("redirect:/account/mfa-challenge")
   }
@@ -622,7 +634,8 @@ class MfaControllerAccountDetailsTest {
         "email",
         "some token",
         "pass token",
-        MfaPreferenceType.EMAIL
+        MfaPreferenceType.EMAIL,
+        authentication
       )
     assertThat(modelAndView.model).containsOnly(
       entry("token", "some token"),
@@ -642,7 +655,8 @@ class MfaControllerAccountDetailsTest {
         "email",
         "some token",
         "pass token",
-        MfaPreferenceType.TEXT
+        MfaPreferenceType.TEXT,
+        authentication
       )
     assertThat(modelAndView.model).containsOnly(
       entry("token", "some token"),
@@ -656,14 +670,14 @@ class MfaControllerAccountDetailsTest {
   @Test
   fun `mfaResendEmail check service call`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.EMAIL))).thenReturn("code")
-    controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL)
+    controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.EMAIL, authentication)
     verify(mfaService).resendMfaCode("some token", MfaPreferenceType.EMAIL)
   }
 
   @Test
   fun `mfaResendText check service call`() {
     whenever(mfaService.resendMfaCode(anyString(), eq(MfaPreferenceType.TEXT))).thenReturn("code")
-    controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT)
+    controller.mfaResend("email", "some token", "pass token", MfaPreferenceType.TEXT, authentication)
     verify(mfaService).resendMfaCode("some token", MfaPreferenceType.TEXT)
   }
 }

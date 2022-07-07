@@ -42,7 +42,7 @@ class MfaControllerAccountDetails(
     @RequestParam contactType: String,
     @RequestParam passToken: String?,
   ): ModelAndView {
-    passTokenInvalidForEmail(contactType, passToken)?.let {
+    passTokenInvalidForEmail(contactType, passToken, authentication.name)?.let {
       return ModelAndView(
         "redirect:/account-details",
         "error",
@@ -52,10 +52,10 @@ class MfaControllerAccountDetails(
     return mfaSendChallenge(authentication, extraModel(contactType, passToken))
   }
 
-  private fun passTokenInvalidForEmail(contactType: String, passToken: String?): String? {
+  private fun passTokenInvalidForEmail(contactType: String, passToken: String?, username: String): String? {
     if (contactType != "email") return null
     if (passToken.isNullOrEmpty()) return "tokeninvalid"
-    val optionalErrorForToken = tokenService.checkToken(TokenType.CHANGE, passToken)
+    val optionalErrorForToken = tokenService.checkTokenForUser(TokenType.CHANGE, passToken, username)
     return optionalErrorForToken.map { "token$it" }.orElse(null)
   }
 
@@ -66,8 +66,9 @@ class MfaControllerAccountDetails(
     @RequestParam token: String?,
     @RequestParam passToken: String?,
     @RequestParam mfaPreference: MfaPreferenceType?,
+    authentication: Authentication
   ): ModelAndView {
-    passTokenInvalidForEmail(contactType, passToken)?.let {
+    passTokenInvalidForEmail(contactType, passToken, authentication.name)?.let {
       return ModelAndView(
         "redirect:/account-details",
         "error",
@@ -86,9 +87,10 @@ class MfaControllerAccountDetails(
     @RequestParam mfaPreference: MfaPreferenceType,
     @RequestParam code: String,
     @RequestParam contactType: String,
+    authentication: Authentication,
     request: HttpServletRequest,
     response: HttpServletResponse,
-  ): ModelAndView? = mfaChallenge(token, mfaPreference, code, extraModel(contactType, passToken)) {
+  ): ModelAndView? = mfaChallenge(token, mfaPreference, code, authentication.name, extraModel(contactType, passToken)) {
     continueToChangeAccountDetails(it, contactType)
   }
 
@@ -104,8 +106,9 @@ class MfaControllerAccountDetails(
     @RequestParam contactType: String,
     @RequestParam token: String,
     @RequestParam passToken: String,
-    @RequestParam mfaPreference: MfaPreferenceType
-  ): ModelAndView = createMfaResendRequest(token, mfaPreference, extraModel(contactType, passToken))
+    @RequestParam mfaPreference: MfaPreferenceType,
+    authentication: Authentication
+  ): ModelAndView = createMfaResendRequest(token, mfaPreference, authentication.name, extraModel(contactType, passToken))
 
   @PostMapping("/account/mfa-resend")
   fun mfaResend(
@@ -113,7 +116,8 @@ class MfaControllerAccountDetails(
     @RequestParam token: String,
     @RequestParam passToken: String,
     @RequestParam mfaResendPreference: MfaPreferenceType,
-  ): ModelAndView = createMfaResend(token, mfaResendPreference, extraModel(contactType, passToken))
+    authentication: Authentication
+  ): ModelAndView = createMfaResend(token, mfaResendPreference, authentication.name, extraModel(contactType, passToken))
 
   private fun extraModel(contactType: String, passToken: String?) =
     mapOf("contactType" to contactType, "passToken" to passToken)

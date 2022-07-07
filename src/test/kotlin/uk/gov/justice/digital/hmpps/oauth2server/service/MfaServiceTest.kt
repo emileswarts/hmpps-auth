@@ -39,13 +39,13 @@ internal class MfaServiceTest {
 
   @Test
   fun `validateAndRemoveMfaCode null`() {
-    assertThatThrownBy { service.validateAndRemoveMfaCode("", null) }.isInstanceOf(MfaFlowException::class.java)
+    assertThatThrownBy { service.validateAndRemoveMfaCode("", null, "user") }.isInstanceOf(MfaFlowException::class.java)
       .withFailMessage("missingcode")
   }
 
   @Test
   fun `validateAndRemoveMfaCode blank`() {
-    assertThatThrownBy { service.validateAndRemoveMfaCode("", "   ") }.isInstanceOf(MfaFlowException::class.java)
+    assertThatThrownBy { service.validateAndRemoveMfaCode("", "   ", "user") }.isInstanceOf(MfaFlowException::class.java)
       .withFailMessage("missingcode")
   }
 
@@ -55,8 +55,8 @@ internal class MfaServiceTest {
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
 
-    whenever(tokenService.checkToken(any(), anyString())).thenReturn(Optional.of("someproblem"))
-    assertThatThrownBy { service.validateAndRemoveMfaCode("", "somecode") }.isInstanceOf(MfaFlowException::class.java)
+    whenever(tokenService.checkTokenForUser(any(), anyString(), eq("user"))).thenReturn(Optional.of("someproblem"))
+    assertThatThrownBy { service.validateAndRemoveMfaCode("", "somecode", "user") }.isInstanceOf(MfaFlowException::class.java)
       .withFailMessage("someproblem")
   }
 
@@ -65,7 +65,7 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
   }
 
   @Test
@@ -73,7 +73,7 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
 
     verify(tokenService).getToken(TokenType.MFA, "sometoken")
   }
@@ -83,9 +83,9 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
 
-    verify(tokenService).checkToken(TokenType.MFA_CODE, "somecode")
+    verify(tokenService).checkTokenForUser(TokenType.MFA_CODE, "somecode", "user")
   }
 
   @Test
@@ -93,7 +93,7 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
 
     verify(userService).findMasterUserPersonDetails("user")
   }
@@ -103,7 +103,7 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
 
     verify(tokenService).removeToken(TokenType.MFA, "sometoken")
     verify(tokenService).removeToken(TokenType.MFA_CODE, "somecode")
@@ -114,7 +114,7 @@ internal class MfaServiceTest {
     val userToken = createSampleUser(username = "user").createToken(TokenType.MFA)
     whenever(tokenService.getToken(any(), anyString())).thenReturn(Optional.of(userToken))
     whenever(userService.findMasterUserPersonDetails(anyString())).thenReturn(Optional.of(createSampleUser(username = "bob")))
-    service.validateAndRemoveMfaCode("sometoken", "somecode")
+    service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
 
     verify(userRetriesService).resetRetries("bob")
   }
@@ -127,7 +127,7 @@ internal class MfaServiceTest {
       Optional.of(createSampleUser(username = "bob", locked = true))
     )
     assertThatThrownBy {
-      service.validateAndRemoveMfaCode("sometoken", "somecode")
+      service.validateAndRemoveMfaCode("sometoken", "somecode", "user")
     }.isInstanceOf(LoginFlowException::class.java).withFailMessage("locked")
   }
 

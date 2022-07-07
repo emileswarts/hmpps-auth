@@ -4,6 +4,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.resource
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -44,11 +45,13 @@ class MfaController(
   fun mfaChallengeRequest(
     @RequestParam(required = false) token: String?,
     @RequestParam mfaPreference: MfaPreferenceType,
+    authentication: Authentication?
   ): ModelAndView {
 
     if (token.isNullOrBlank()) return ModelAndView("redirect:/sign-in?error=mfainvalid")
 
-    val optionalError = tokenService.checkToken(TokenType.MFA, token)
+    val optionalError = authentication?.let { tokenService.checkTokenForUser(TokenType.MFA, token, authentication.name) }
+      ?: tokenService.checkToken(TokenType.MFA, token)
 
     return optionalError.map { ModelAndView("redirect:/sign-in?error=mfa$it") }
       .orElseGet {
@@ -67,7 +70,8 @@ class MfaController(
     @RequestParam code: String,
     request: HttpServletRequest,
     response: HttpServletResponse,
-  ): ModelAndView? = mfaChallenge(token, mfaPreference, code) {
+    authentication: Authentication?
+  ): ModelAndView? = mfaChallenge(token, mfaPreference, code, authentication?.name) {
     // now load the user
     val userPersonDetails = userService.findMasterUserPersonDetails(it).orElseThrow()
 
@@ -79,12 +83,13 @@ class MfaController(
   }
 
   @GetMapping("/mfa-resend")
-  fun mfaResendRequest(@RequestParam token: String, @RequestParam mfaPreference: MfaPreferenceType): ModelAndView =
-    createMfaResendRequest(token, mfaPreference)
+  fun mfaResendRequest(@RequestParam token: String, @RequestParam mfaPreference: MfaPreferenceType, authentication: Authentication?): ModelAndView =
+    createMfaResendRequest(token, mfaPreference, authentication?.name)
 
   @PostMapping("/mfa-resend")
   fun mfaResend(
     @RequestParam token: String,
     @RequestParam mfaResendPreference: MfaPreferenceType,
-  ): ModelAndView = createMfaResend(token, mfaResendPreference)
+    authentication: Authentication?
+  ): ModelAndView = createMfaResend(token, mfaResendPreference, authentication?.name)
 }

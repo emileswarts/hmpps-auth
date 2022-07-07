@@ -57,7 +57,7 @@ class MfaService(
   @Transactional(
     noRollbackFor = [LoginFlowException::class, MfaFlowException::class]
   )
-  fun validateAndRemoveMfaCode(token: String, code: String?) {
+  fun validateAndRemoveMfaCode(token: String, code: String?, username: String) {
     if (code.isNullOrBlank()) throw MfaFlowException("missingcode")
 
     val userToken = tokenService.getToken(TokenType.MFA, token).orElseThrow()
@@ -65,7 +65,7 @@ class MfaService(
 
     if (!userPersonDetails.isAccountNonLocked) throw LoginFlowException("locked")
 
-    val errors = tokenService.checkToken(TokenType.MFA_CODE, code)
+    val errors = tokenService.checkTokenForUser(TokenType.MFA_CODE, code, username)
     errors.ifPresent {
       if (it == "invalid") {
         val locked = userRetriesService.incrementRetriesAndLockAccountIfNecessary(userPersonDetails)
