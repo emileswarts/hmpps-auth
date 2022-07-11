@@ -108,7 +108,6 @@ generic-service:
     DELIUS_ROLES_MAPPINGS_CVLBT001: "ROLE_LICENCE_ACO"
     DELIUS_ROLES_MAPPINGS_MRDBT001: "ROLE_MAKE_RECALL_DECISION"
     APPLICATION_AUTHENTICATION_MFA_ROLES: "ROLE_MFA,ROLE_PECS_COURT,ROLE_PECS_SUPPLIER"
-    TOKENVERIFICATION_ENDPOINT_URL: "http://token-verification-api"
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:
