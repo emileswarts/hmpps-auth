@@ -18,7 +18,6 @@ generic-service:
     DELIUS_ENDPOINT_URL: "https://community-api-secure.pre-prod.delius.probation.hmpps.dsd.io"
     NOMIS_ENDPOINT_URL: "https://nomis-user-pp.aks-live-1.studio-hosting.service.justice.gov.uk"
     JWT_JWK_KEY_ID: "preprod-jwk-kid"
-    TOKENVERIFICATION_ENDPOINT_URL: "https://token-verification-api-preprod.prison.service.justice.gov.uk"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
 
 # CloudPlatform AlertManager receiver to route Prometheus alerts to slack
