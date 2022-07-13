@@ -728,6 +728,7 @@ class UserServiceTest {
         assertThat(it.username).isEqualTo("JOE")
         assertThat(it.email).isEqualTo("joe@gov.uk")
         assertThat(it.source).isEqualTo(nomis)
+        assertThat(it.verified).isEqualTo(false)
       }
     }
 
@@ -741,6 +742,7 @@ class UserServiceTest {
         assertThat(it.username).isEqualTo("joe")
         assertThat(it.email).isEqualTo("joe@gov.uk")
         assertThat(it.source).isEqualTo(nomis)
+        assertThat(it.verified).isEqualTo(false)
       }
     }
   }

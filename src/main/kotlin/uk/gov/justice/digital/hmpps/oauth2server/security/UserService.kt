@@ -141,7 +141,7 @@ class UserService(
   @Transactional
   fun createUser(username: String, email: String, source: AuthSource): Optional<User> {
     return findUser(username).or {
-      val user = User(username = username.uppercase(), email = email, verified = true, source = source)
+      val user = User(username = username.uppercase(), email = email, source = source)
       Optional.of(userRepository.save(user))
     }
   }
