@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.UserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailDomainCache
+import java.util.UUID
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -40,7 +41,7 @@ class EmailDomainController(
 
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun deleteConfirm(authentication: Authentication, @PathVariable id: String): ModelAndView {
+  fun deleteConfirm(authentication: Authentication, @PathVariable id: UUID): ModelAndView {
     val emailDomain = emailDomainService.domain(id)
     return ModelAndView("ui/deleteEmailDomainConfirm", mapOf("emailDomain" to emailDomain))
   }
@@ -64,9 +65,9 @@ class EmailDomainController(
 
   @DeleteMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun deleteEmailDomain(authentication: Authentication, @PathVariable id: String): ModelAndView {
+  fun deleteEmailDomain(authentication: Authentication, @PathVariable id: UUID): ModelAndView {
     emailDomainService.removeDomain(id)
-    recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess", authentication, "id", id)
+    recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess", authentication, "id", id.toString())
     return redirectToDomainListView()
   }
 

@@ -26,7 +26,7 @@ class EmailDomainControllerTest {
   private val principal: UserPersonDetails = mock()
   private val result: BindingResult = mock()
   private val emailDomains: List<EmailDomainDto> = mock()
-  private val id1 = UUID.randomUUID().toString()
+  private val id1 = UUID.randomUUID()
   private val emailDomainCache: EmailDomainCache = mock()
   private val controller = EmailDomainController(emailDomainService, telemetryClient, emailDomainCache)
 
@@ -54,11 +54,11 @@ class EmailDomainControllerTest {
   @Test
   fun shouldDeleteEmailDomain() {
     whenever(authentication.principal).thenReturn(principal)
-    val id = UUID.randomUUID().toString()
+    val uuid = UUID.randomUUID()
 
-    controller.deleteEmailDomain(authentication, id)
+    controller.deleteEmailDomain(authentication, uuid)
 
-    verify(emailDomainService).removeDomain(id)
+    verify(emailDomainService).removeDomain(uuid)
   }
 
   @Test
@@ -80,13 +80,13 @@ class EmailDomainControllerTest {
     whenever(authentication.principal).thenReturn(principal)
     whenever(principal.name).thenReturn("Fred")
     val eventDetails = argumentCaptor<Map<String, String>>()
-    val id = UUID.randomUUID().toString()
+    val id = UUID.randomUUID()
 
     controller.deleteEmailDomain(authentication, id)
 
     verify(telemetryClient).trackEvent(eq("EmailDomainDeleteSuccess"), eventDetails.capture(), anyOrNull())
     assertEquals("Fred", eventDetails.firstValue.getValue("username"))
-    assertEquals(id, eventDetails.firstValue.getValue("id"))
+    assertEquals(id.toString(), eventDetails.firstValue.getValue("id"))
   }
 
   @Test
@@ -118,7 +118,7 @@ class EmailDomainControllerTest {
   @Test
   fun shouldRedirectToDomainListOnSuccessfulDelete() {
     whenever(authentication.principal).thenReturn(principal)
-    val id = UUID.randomUUID().toString()
+    val id = UUID.randomUUID()
 
     val modelAndView = controller.deleteEmailDomain(authentication, id)
 
@@ -128,12 +128,12 @@ class EmailDomainControllerTest {
 
   @Test
   fun shouldRouteToDeleteConfirm() {
-    whenever(emailDomainService.domain(id1)).thenReturn(EmailDomainDto(id1, "advancecharity.org.uk", "Description"))
+    whenever(emailDomainService.domain(id1)).thenReturn(EmailDomainDto(id1.toString(), "advancecharity.org.uk", "Description"))
 
     val modelAndView = controller.deleteConfirm(authentication, id1)
 
     assertTrue(modelAndView.hasView())
     assertEquals(modelAndView.viewName, "ui/deleteEmailDomainConfirm")
-    assertEquals(EmailDomainDto(id1, "advancecharity.org.uk", "Description"), modelAndView.model["emailDomain"])
+    assertEquals(EmailDomainDto(id1.toString(), "advancecharity.org.uk", "Description"), modelAndView.model["emailDomain"])
   }
 }

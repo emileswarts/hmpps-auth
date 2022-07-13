@@ -35,7 +35,7 @@ class EmailDomainService(
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun domain(id: String): EmailDomainDto {
+  fun domain(id: UUID): EmailDomainDto {
     val emailDomain = retrieveDomain(id, "retrieve")
     return EmailDomainDto(
       emailDomain.id.toString(),
@@ -59,15 +59,19 @@ class EmailDomainService(
     emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
   }
 
+  fun isValidEmailDomain(emailDomain: String): Boolean {
+    val domainNameInternal = if (emailDomain.startsWith(PERCENT)) emailDomain else PERCENT + emailDomain
+    return emailDomainRepository.findByName(domainNameInternal) != null
+  }
+
   @Throws(EmailDomainNotFoundException::class)
-  fun removeDomain(id: String) {
+  fun removeDomain(id: UUID) {
     val emailDomain = retrieveDomain(id, "delete")
     emailDomainRepository.delete(emailDomain)
   }
 
-  private fun retrieveDomain(id: String, action: String): EmailDomain {
-    val uuid: UUID = UUID.fromString(id)
-    return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, id, "notfound")
+  private fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
+    return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
   }
 
   private fun cleanDomainNameForDisplay(persistedDomainName: String): String {
@@ -78,5 +82,5 @@ class EmailDomainService(
 class EmailDomainAdditionBarredException(val domain: String, val errorCode: String) :
   Exception("Unable to add email domain: $domain to allowed list with reason: $errorCode")
 
-class EmailDomainNotFoundException(val action: String, val id: String, val errorCode: String) :
+class EmailDomainNotFoundException(val action: String, val id: UUID, val errorCode: String) :
   Exception("Unable to $action email domain id: $id with reason: $errorCode")

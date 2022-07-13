@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -53,7 +54,12 @@ class EmailDomainServiceTest {
 
   @Test
   fun shouldNotAddDomainWhenAlreadyPresent() {
-    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(EmailDomain(name = newDomain.name, description = newDomain.description))
+    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
+      EmailDomain(
+        name = newDomain.name,
+        description = newDomain.description
+      )
+    )
 
     assertThatThrownBy { service.addDomain(newDomain) }
       .isInstanceOf(EmailDomainAdditionBarredException::class.java)
@@ -102,25 +108,23 @@ class EmailDomainServiceTest {
 
   @Test
   fun shouldNotRemoveDomainWhenDomainNotPresent() {
-    val randomUUID = UUID.randomUUID()
-    val id = randomUUID.toString()
-    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.empty())
+    val id = UUID.randomUUID()
+    whenever(emailDomainRepository.findById(id)).thenReturn(Optional.empty())
 
     assertThatThrownBy { service.removeDomain(id) }
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to delete email domain id: $id with reason: notfound")
 
-    verify(emailDomainRepository, never()).deleteById(randomUUID)
+    verify(emailDomainRepository, never()).deleteById(id)
   }
 
   @Test
   fun shouldRemoveDomainWhenDomainPresent() {
     val randomUUID = UUID.randomUUID()
-    val id = randomUUID.toString()
     val emailDomain = EmailDomain(randomUUID, "abc.com")
     whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
 
-    service.removeDomain(id)
+    service.removeDomain(randomUUID)
 
     verify(emailDomainRepository).delete(emailDomain)
   }
@@ -132,7 +136,7 @@ class EmailDomainServiceTest {
     val emailDomain = EmailDomain(randomUUID, "%.abc.com", "Description")
     whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
 
-    val actualDomain = service.domain(id)
+    val actualDomain = service.domain(randomUUID)
     val expectedDomain = EmailDomainDto(id, "abc.com", "Description")
 
     assertEquals(expectedDomain, actualDomain)
@@ -144,8 +148,34 @@ class EmailDomainServiceTest {
     val id = randomUUID.toString()
     whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.empty())
 
-    assertThatThrownBy { service.domain(id) }
+    assertThatThrownBy { service.domain(randomUUID) }
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to retrieve email domain id: $id with reason: notfound")
+  }
+
+  @Test
+  fun shouldPassCheckEmailDomainValidity() {
+
+    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
+      EmailDomain(
+        name = newDomain.name,
+        description = newDomain.description
+      )
+    )
+    val test = service.isValidEmailDomain("123.co.uk")
+    assertThat(test).isTrue
+  }
+
+  @Test
+  fun shouldFailCheckEmailDomainValidity() {
+
+    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
+      EmailDomain(
+        name = newDomain.name,
+        description = newDomain.description
+      )
+    )
+    val test = service.isValidEmailDomain("gmail.uk")
+    assertThat(test).isFalse
   }
 }
