@@ -49,7 +49,7 @@ class SpringFoxConfiguration(buildProperties: BuildProperties) {
       "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
       emptyList()
     )
-    val docket = Docket(DocumentationType.OAS_30)
+    val docket = Docket(DocumentationType.SWAGGER_2)
       .useDefaultResponseMessages(false)
       .apiInfo(apiInfo)
       .select()
