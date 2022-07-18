@@ -8,4 +8,11 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-jwt@.*$</packageUrl>
     <cve>CVE-2021-22112</cve>
   </suppress>
+    <suppress>
+      <notes><![CDATA[
+      file name: spring-security-jwt-1.1.1.RELEASE.jar
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-jwt@.*$</packageUrl>
+      <cve>CVE-2022-31569</cve>
+    </suppress>
 </suppressions>
