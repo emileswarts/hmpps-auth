@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.oauth2server.service
 
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -151,31 +150,5 @@ class EmailDomainServiceTest {
     assertThatThrownBy { service.domain(randomUUID) }
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to retrieve email domain id: $id with reason: notfound")
-  }
-
-  @Test
-  fun shouldPassCheckEmailDomainValidity() {
-
-    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
-      EmailDomain(
-        name = newDomain.name,
-        description = newDomain.description
-      )
-    )
-    val test = service.isValidEmailDomain("123.co.uk")
-    assertThat(test).isTrue
-  }
-
-  @Test
-  fun shouldFailCheckEmailDomainValidity() {
-
-    whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
-      EmailDomain(
-        name = newDomain.name,
-        description = newDomain.description
-      )
-    )
-    val test = service.isValidEmailDomain("gmail.uk")
-    assertThat(test).isFalse
   }
 }

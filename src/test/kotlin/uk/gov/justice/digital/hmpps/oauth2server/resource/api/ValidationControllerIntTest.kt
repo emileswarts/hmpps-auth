@@ -11,7 +11,22 @@ class ValidationControllerIntTest : IntegrationTest() {
   fun `Validate email domain`() {
 
     val isValid = webTestClient
-      .get().uri("/api/validate/?emailDomain=careuk.com")
+      .get().uri("/api/validate/email-domain?emailDomain=careuk.com")
+      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<Boolean>()
+      .returnResult().responseBody
+
+    if (isValid != null) {
+      Assertions.assertThat(isValid).isEqualTo(true)
+    }
+  }
+  @Test
+  fun `Validate email domain matching existing domains`() {
+
+    val isValid = webTestClient
+      .get().uri("/api/validate/email-domain?emailDomain=1careuk.com")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
       .exchange()
       .expectStatus().isOk
@@ -27,7 +42,7 @@ class ValidationControllerIntTest : IntegrationTest() {
   fun `Should fail for invalid email domain`() {
 
     val isValid = webTestClient
-      .get().uri("/api/validate/?emailDomain=invaliddomain.com")
+      .get().uri("/api/validate/email-domain?emailDomain=invaliddomain.com")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
       .exchange()
       .expectStatus().isOk

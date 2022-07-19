@@ -188,6 +188,9 @@ class VerifyEmailService(
     }
   }
 
+  fun validateEmailDomainExcludingGsi(emailDomain: String): Boolean =
+    verifyEmailDomainService.isValidEmailDomain(emailDomain)
+
   @Transactional
   fun confirmEmail(token: String): Optional<String> {
     val userTokenOptional = userTokenRepository.findById(token)

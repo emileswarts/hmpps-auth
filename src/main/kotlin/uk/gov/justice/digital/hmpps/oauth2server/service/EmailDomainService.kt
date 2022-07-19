@@ -59,11 +59,6 @@ class EmailDomainService(
     emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
   }
 
-  fun isValidEmailDomain(emailDomain: String): Boolean {
-    val domainNameInternal = if (emailDomain.startsWith(PERCENT)) emailDomain else PERCENT + emailDomain
-    return emailDomainRepository.findByName(domainNameInternal) != null
-  }
-
   @Throws(EmailDomainNotFoundException::class)
   fun removeDomain(id: UUID) {
     val emailDomain = retrieveDomain(id, "delete")

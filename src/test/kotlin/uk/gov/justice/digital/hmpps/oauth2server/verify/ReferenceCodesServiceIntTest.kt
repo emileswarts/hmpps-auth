@@ -30,6 +30,11 @@ open class ReferenceCodesServiceIntTest {
   }
 
   @Test
+  fun isValidEmailDomain_preceding_with_valid_domain() {
+    assertThat(referenceCodesService.isValidEmailDomain("XXdigital.justice.gov.uk")).isTrue()
+  }
+
+  @Test
   fun isValidEmailDomain_blank() {
     assertThat(referenceCodesService.isValidEmailDomain("  ")).isFalse()
   }
