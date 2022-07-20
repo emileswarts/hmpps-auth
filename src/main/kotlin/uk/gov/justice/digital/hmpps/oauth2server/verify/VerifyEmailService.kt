@@ -151,13 +151,14 @@ class VerifyEmailService(
     .isSecondaryEmailVerified
 
   @Throws(ValidEmailException::class)
-  fun validateEmailAddress(email: String?, emailType: EmailType) {
+  fun validateEmailAddress(email: String?, emailType: EmailType): Boolean {
     if (email.isNullOrBlank()) {
       throw ValidEmailException("blank")
     }
     if (email.length > MAX_LENGTH_EMAIL) throw ValidEmailException("maxlength")
     validateEmailAddressExcludingGsi(email, emailType)
     if (email.matches(Regex(".*@.*\\.gsi\\.gov\\.uk"))) throw ValidEmailException("gsi")
+    return true
   }
 
   @Throws(ValidEmailException::class)
