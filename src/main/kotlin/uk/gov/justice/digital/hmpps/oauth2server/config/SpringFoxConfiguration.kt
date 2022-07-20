@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.oauth2server.config
 
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.util.ReferenceSerializationConfigurer
 import org.springframework.beans.BeansException
@@ -19,8 +18,6 @@ import springfox.documentation.service.ApiInfo
 import springfox.documentation.service.Contact
 import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spring.web.json.JacksonModuleRegistrar
-import springfox.documentation.spring.web.json.Json
-import springfox.documentation.spring.web.json.JsonSerializer
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.spring.web.plugins.WebFluxRequestHandlerProvider
 import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider
@@ -49,7 +46,7 @@ class SpringFoxConfiguration(buildProperties: BuildProperties) {
       "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
       emptyList()
     )
-    val docket = Docket(DocumentationType.SWAGGER_2)
+    val docket = Docket(DocumentationType.OAS_30)
       .useDefaultResponseMessages(false)
       .apiInfo(apiInfo)
       .select()
@@ -104,18 +101,5 @@ class SpringFoxConfiguration(buildProperties: BuildProperties) {
     } catch (e: IllegalAccessException) {
       throw IllegalStateException(e)
     }
-  }
-
-  @Bean
-  fun jsonSerializer(): JsonSerializer = SwaggerJsonSerializer()
-}
-
-class SwaggerJsonSerializer : JsonSerializer(listOf()) {
-  private val objectMapper = io.swagger.v3.core.util.Json.mapper()
-
-  override fun toJson(toSerialize: Any?): Json = try {
-    Json(objectMapper.writeValueAsString(toSerialize))
-  } catch (e: JsonProcessingException) {
-    throw RuntimeException("Could not write JSON", e)
   }
 }

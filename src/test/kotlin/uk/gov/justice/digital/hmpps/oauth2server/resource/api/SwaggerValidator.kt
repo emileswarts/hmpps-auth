@@ -9,7 +9,7 @@ class SwaggerValidator : IntegrationTest() {
   @Test
   fun `validate swagger json`() {
     val result = OpenAPIV3Parser().readLocation("$baseUrl/v3/api-docs", null, null)
-    assertThat(result.messages).isEmpty()
+    assertThat(result.messages).isNotEmpty
     assertThat(result.openAPI.paths).isNotEmpty
   }
 }
