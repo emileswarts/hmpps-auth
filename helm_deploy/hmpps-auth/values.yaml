@@ -10,10 +10,11 @@ generic-service:
 
   ingress:
     enabled: true
+    v1_2_enabled: true
+    v0_47_enabled: true
     host: app-hostname.local    # override per environment
     tlsSecretName: hmpps-auth-cert
     path: /
-    contextColour: green
     modsecurity_enabled: true  # enable OWASP core rules then handle false positives by removing or tweaking rules to not block specific args or cookies
     modsecurity_audit_enabled: false
     modsecurity_snippet: |
