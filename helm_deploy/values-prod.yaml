@@ -28,4 +28,4 @@ generic-prometheus-alerts:
   alertSeverity: hmpps_tech
   rdsAlertsDatabases:
     cloud-platform-edf050d943534f60: 'hmpps auth'
-    rdsAlertsConnectionThreshold: 720
+  rdsAlertsConnectionThreshold: 720
