@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
-import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.model.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
@@ -61,13 +61,13 @@ class TokenService(
   }
 
   @Transactional
-  fun createTokenForNewUser(tokenType: TokenType, username: String, email: String, source: AuthSource): String {
-    log.info("Requesting {} for {}", tokenType.description, username)
-    val user = userService.createUser(username, email, source).orElseThrow()
+  fun createTokenForNewUser(tokenType: TokenType, createTokenRequest: CreateTokenRequest): String {
+    log.info("Requesting {} for {}", tokenType.description, createTokenRequest.username)
+    val user = userService.createUser(createTokenRequest).orElseThrow()
     val userToken = user.createToken(tokenType)
     telemetryClient.trackEvent(
       "${tokenType.description}Request",
-      mapOf("username" to username),
+      mapOf("username" to createTokenRequest.username),
       null
     )
     userToken.tokenExpiry = LocalDateTime.now().plusDays(tokenExpiryDays)
@@ -109,14 +109,22 @@ class TokenService(
     if (userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())
   }
 
-  private fun checkTokenOwnedByUser(tokenType: TokenType, token: Optional<UserToken>, username: String?): Optional<String> {
+  private fun checkTokenOwnedByUser(
+    tokenType: TokenType,
+    token: Optional<UserToken>,
+    username: String?
+  ): Optional<String> {
     if (tokenIssuedToUser(tokenType, token, username)) {
       return Optional.empty()
     }
     return invalidTokenResponse()
   }
 
-  private fun tokenIssuedToUser(tokenType: TokenType, userTokenOptional: Optional<UserToken>, username: String?): Boolean {
+  private fun tokenIssuedToUser(
+    tokenType: TokenType,
+    userTokenOptional: Optional<UserToken>,
+    username: String?
+  ): Boolean {
     val tokenIssuedToUser = userTokenOptional.orElseThrow().user.username == username
     if (!tokenIssuedToUser) {
       recordInvalidTokenEvent(tokenType)

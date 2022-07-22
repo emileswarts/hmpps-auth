@@ -36,7 +36,7 @@ class TokenController(private val tokenService: TokenService) {
   ): String {
     return tokenService.createTokenForNewUser(
       UserToken.TokenType.RESET,
-      createTokenRequest.username, createTokenRequest.email, createTokenRequest.source
+      createTokenRequest
     )
   }
 }

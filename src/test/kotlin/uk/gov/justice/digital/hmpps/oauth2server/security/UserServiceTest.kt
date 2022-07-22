@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.azure.service.AzureUserService
 import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
+import uk.gov.justice.digital.hmpps.oauth2server.model.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetailsHelper.Companion.createSampleNomisUser
@@ -704,7 +705,18 @@ class UserServiceTest {
     @Test
     fun `test search user with default auth source when not provided`() {
       val unpaged = Pageable.unpaged()
-      whenever(authUserService.findAuthUsers(anyString(), anyOrNull(), anyOrNull(), any(), anyString(), anyList(), any(), any()))
+      whenever(
+        authUserService.findAuthUsers(
+          anyString(),
+          anyOrNull(),
+          anyOrNull(),
+          any(),
+          anyString(),
+          anyList(),
+          any(),
+          any()
+        )
+      )
         .thenReturn(Page.empty())
 
       userService.searchUsersInMultipleSourceSystems(
@@ -723,12 +735,14 @@ class UserServiceTest {
     fun `createUser with username, email & source`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
-      val newUser = userService.createUser("joe", "joe@gov.uk", nomis)
+      val createTokenRequest = CreateTokenRequest("joe", "joe@gov.uk", nomis, "joe", "Smith")
+      val newUser = userService.createUser(createTokenRequest)
       assertThat(newUser).hasValueSatisfying {
         assertThat(it.username).isEqualTo("JOE")
         assertThat(it.email).isEqualTo("joe@gov.uk")
         assertThat(it.source).isEqualTo(nomis)
         assertThat(it.verified).isEqualTo(false)
+        assertThat(it.firstName).isEqualTo("joe")
       }
     }
 
@@ -737,12 +751,14 @@ class UserServiceTest {
       val stubUser = User("joe", email = "joe@gov.uk", source = nomis)
       whenever(userRepository.findByUsername("JOE")).thenReturn(Optional.of(stubUser))
       whenever(userRepository.save<User>(any())).thenAnswer { it.arguments[0] }
-      val newUser = userService.createUser("joe", "joe@gov.uk", nomis)
+      val createTokenRequest = CreateTokenRequest("joe", "joe@gov.uk", nomis, "joe", "Smith")
+      val newUser = userService.createUser(createTokenRequest)
       assertThat(newUser).hasValueSatisfying {
         assertThat(it.username).isEqualTo("joe")
         assertThat(it.email).isEqualTo("joe@gov.uk")
         assertThat(it.source).isEqualTo(nomis)
         assertThat(it.verified).isEqualTo(false)
+        assertThat(it.firstName).isEqualTo("joe")
       }
     }
   }

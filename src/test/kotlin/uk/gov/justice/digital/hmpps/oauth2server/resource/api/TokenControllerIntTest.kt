@@ -30,7 +30,9 @@ class TokenControllerIntTest : IntegrationTest() {
           CreateTokenRequest(
             username = "joe",
             email = "joe@gov.uk",
-            source = AuthSource.nomis
+            source = AuthSource.nomis,
+            firstName = "Joe",
+            lastName = "Smith",
           )
         )
       )
@@ -61,7 +63,9 @@ class TokenControllerIntTest : IntegrationTest() {
           CreateTokenRequest(
             username = "bill",
             email = "bill@gov.uk",
-            source = AuthSource.nomis
+            source = AuthSource.nomis,
+            firstName = "Joe",
+            lastName = "Smith"
           )
         )
       )
@@ -87,7 +91,9 @@ class TokenControllerIntTest : IntegrationTest() {
           CreateTokenRequest(
             username = "bill",
             email = "bill@gov.uk",
-            source = AuthSource.nomis
+            source = AuthSource.nomis,
+            firstName = "Joe",
+            lastName = "Smith"
           )
         )
       )

@@ -30,4 +30,10 @@ data class CreateTokenRequest(
   @ApiModelProperty(required = true, value = "AuthSource", example = "auth or azuread or delius or nomis or none", position = 3)
   @Schema(description = "AuthSource should be either nomis or delius", example = "nomis", required = true)
   @NotBlank val source: AuthSource,
+
+  @Schema(description = "First name of the user", example = "John", required = true)
+  @NotBlank val firstName: String,
+
+  @Schema(description = "Last name of the user", example = "Smith", required = true)
+  @NotBlank val lastName: String,
 )

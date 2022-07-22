@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Person
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserFilter
@@ -16,6 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserRepository
 import uk.gov.justice.digital.hmpps.oauth2server.azure.service.AzureUserService
 import uk.gov.justice.digital.hmpps.oauth2server.delius.service.DeliusUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
+import uk.gov.justice.digital.hmpps.oauth2server.model.CreateTokenRequest
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.AccountStatus
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.service.NomisUserSummaryDto
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.auth
@@ -139,9 +141,13 @@ class UserService(
     }
 
   @Transactional
-  fun createUser(username: String, email: String, source: AuthSource): Optional<User> {
-    return findUser(username).or {
-      val user = User(username = username.uppercase(), email = email, source = source)
+  fun createUser(createTokenRequest: CreateTokenRequest): Optional<User> {
+    return findUser(createTokenRequest.username).or {
+      val person = Person(firstName = createTokenRequest.firstName, lastName = createTokenRequest.lastName)
+      val user = User(
+        username = createTokenRequest.username.uppercase(), email = createTokenRequest.email,
+        source = createTokenRequest.source, person = person
+      )
       Optional.of(userRepository.save(user))
     }
   }
