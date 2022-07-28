@@ -225,7 +225,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
                   "enabled": true,
-                  "active": false
+                  "active": true
             }
               """.trimIndent()
             )
@@ -455,7 +455,7 @@ class ResetPasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
                   "accountNonLocked": true,
                   "credentialsNonExpired": true,
                   "enabled": true,
-                  "active": false
+                  "active": true
             }
               """.trimIndent()
             )

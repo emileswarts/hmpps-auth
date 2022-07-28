@@ -769,7 +769,7 @@ class ResetPasswordServiceTest {
     @Test
     fun resetPasswordExpired() {
       val staffUserAccount =
-        nomisUserPersonDetails(AccountStatus.EXPIRED, enabled = true, locked = false, active = false)
+        nomisUserPersonDetails(AccountStatus.EXPIRED, enabled = true, locked = false, active = true)
       whenever(userService.findEnabledOrNomisLockedUserPersonDetails(anyString())).thenReturn(staffUserAccount)
       val user = createSampleUser(username = "USER", person = Person("First", "Last"), source = nomis)
       val userToken = user.createToken(UserToken.TokenType.RESET)
