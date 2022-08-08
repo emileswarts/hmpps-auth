@@ -183,7 +183,7 @@ class ResetPasswordServiceImpl(
       AuthSource.nomis -> {
         val nomisApiUser = userPersonDetails as NomisUserPersonDetails
         val status = nomisApiUser.accountStatus
-        nomisApiUser.active && (!status.isLocked || status.isUserLocked || user.locked)
+        (!status.isLocked || status.isUserLocked || user.locked)
       }
       // for non nomis users they must be enabled (so can be locked)
       else -> userPersonDetails.isEnabled
