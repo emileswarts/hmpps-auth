@@ -40,14 +40,14 @@ dependencies {
 
   implementation("io.springfox:springfox-boot-starter:3.0.0")
   implementation("io.swagger:swagger-core:1.6.6")
-  implementation("io.swagger.core.v3:swagger-core:2.2.1")
+  implementation("io.swagger.core.v3:swagger-core:2.2.2")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
   // thymeleaf-layout-dialect:3.1.0 uses groovy 4.0.0 which contains CVE-2020-17521 https://nvd.nist.gov/vuln/detail/CVE-2020-17521
   // org.apache.groovy:groovy can be removed when thymeleaf-layout-dialect is updated and include groovy:4.0.2 or later
-  implementation("org.apache.groovy:groovy:4.0.3")
+  implementation("org.apache.groovy:groovy:4.0.4")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
   implementation("org.flywaydb:flyway-core:8.5.13")
@@ -57,19 +57,19 @@ dependencies {
 
   runtimeOnly("com.h2database:h2:2.1.214")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("org.postgresql:postgresql:42.4.0")
+  runtimeOnly("org.postgresql:postgresql:42.4.1")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  testImplementation("org.seleniumhq.selenium:selenium-support:4.1.2")
-  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:4.1.2")
-  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:4.1.2")
+  testImplementation("org.seleniumhq.selenium:selenium-support:4.1.4")
+  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:4.1.4")
+  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:4.1.4")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:3.19.2")
+  testImplementation("com.auth0:java-jwt:4.0.0")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
