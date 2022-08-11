@@ -324,7 +324,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "accountNonLocked": true,
         "credentialsNonExpired": true,
         "enabled": true,
-        "admin": false
+        "admin": false,
+        "staffStatus": "ACTIVE"
     }]
                 """.trimIndent()
               )
@@ -362,7 +363,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "staffStatus": "ACTIVE"
     }]
                 """.trimIndent()
               )
@@ -399,7 +401,8 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         "dpsRoleCodes": ["ROLE_GLOBAL_SEARCH", "ROLE_ROLES_ADMIN"],
         "accountNonLocked": true,
         "credentialsNonExpired": true,
-        "enabled": true
+        "enabled": true,
+        "staffStatus": "ACTIVE"
     }
                 """.trimIndent()
               )

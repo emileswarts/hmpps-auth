@@ -149,7 +149,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
     val encodedClientAndSecret = convertToBase64("omicadmin", "clientsecret")
@@ -277,7 +278,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -311,7 +313,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -384,7 +387,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -499,7 +503,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = false,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -534,7 +539,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = false,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -589,7 +595,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -646,7 +653,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -690,7 +698,8 @@ class OauthIntTest : IntegrationTest() {
         accountStatus = AccountStatus.OPEN,
         accountNonLocked = true,
         credentialsNonExpired = true,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 

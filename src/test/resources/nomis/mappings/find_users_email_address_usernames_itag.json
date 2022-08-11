@@ -26,7 +26,8 @@
         "accountNonLocked": true,
         "credentialsNonExpired": true,
         "enabled": true,
-        "active": false
+        "active": false,
+        "staffStatus": "ACTIVE"
       }
     ]
   }

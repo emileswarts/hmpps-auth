@@ -15,7 +15,8 @@ internal class NomisUserPersonDetailsTest {
       surname = "lastName",
       activeCaseLoadId = "activeCaseLoadId",
       email = "email",
-      accountStatus = AccountStatus.OPEN
+      accountStatus = AccountStatus.OPEN,
+      staffStatus = "ACTIVE"
     )
     Assertions.assertThat(account.toUser().verified).isTrue()
   }
@@ -29,7 +30,8 @@ internal class NomisUserPersonDetailsTest {
       surname = "lastName",
       activeCaseLoadId = "activeCaseLoadId",
       email = null,
-      accountStatus = AccountStatus.OPEN
+      accountStatus = AccountStatus.OPEN,
+      staffStatus = "ACTIVE"
     )
     Assertions.assertThat(account.toUser().verified).isFalse()
   }
@@ -44,7 +46,8 @@ internal class NomisUserPersonDetailsTest {
       activeCaseLoadId = "activeCaseLoadId",
       email = "email",
       accountStatus = AccountStatus.OPEN,
-      roles = setOf(SimpleGrantedAuthority("role1"))
+      roles = setOf(SimpleGrantedAuthority("role1")),
+      staffStatus = "ACTIVE"
     )
     Assertions.assertThat(account.authorities).containsExactly(SimpleGrantedAuthority("ROLE_ROLE1"), SimpleGrantedAuthority("ROLE_PRISON"))
   }

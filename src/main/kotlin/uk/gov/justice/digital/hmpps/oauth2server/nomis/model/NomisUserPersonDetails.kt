@@ -21,6 +21,7 @@ data class NomisUserPersonDetails(
   private val enabled: Boolean = false,
   private val admin: Boolean = false,
   val active: Boolean = false,
+  val staffStatus: String?,
 ) : UserPersonDetails {
 
   override fun getUsername(): String = username

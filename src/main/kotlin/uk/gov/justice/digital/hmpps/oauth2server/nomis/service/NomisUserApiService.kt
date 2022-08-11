@@ -249,6 +249,7 @@ private fun mapUserDetailsToNomisUser(userDetails: NomisUserDetails): NomisUserP
     enabled = userDetails.enabled,
     admin = userDetails.admin,
     active = userDetails.active,
+    staffStatus = userDetails.staffStatus,
   )
 
 inline fun <reified T> typeReference() = object : ParameterizedTypeReference<T>() {}

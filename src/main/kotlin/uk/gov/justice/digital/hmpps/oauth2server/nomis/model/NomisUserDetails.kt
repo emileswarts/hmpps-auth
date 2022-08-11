@@ -17,4 +17,5 @@ data class NomisUserDetails @JsonCreator constructor(
   @JsonProperty("enabled") val enabled: Boolean,
   @JsonProperty("admin") val admin: Boolean,
   @JsonProperty("active") val active: Boolean,
+  @JsonProperty("staffStatus") val staffStatus: String?,
 )

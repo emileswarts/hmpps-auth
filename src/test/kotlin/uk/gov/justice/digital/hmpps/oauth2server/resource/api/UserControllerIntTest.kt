@@ -32,7 +32,8 @@ class UserControllerIntTest : IntegrationTest() {
         activeCaseLoadId = "MDI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -112,7 +113,8 @@ class UserControllerIntTest : IntegrationTest() {
         activeCaseLoadId = "BEL",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -148,7 +150,8 @@ class UserControllerIntTest : IntegrationTest() {
         activeCaseLoadId = "MDI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
-        enabled = true
+        enabled = true,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -319,7 +322,8 @@ class UserControllerIntTest : IntegrationTest() {
         surname = "User",
         activeCaseLoadId = "MDI",
         email = null,
-        accountStatus = AccountStatus.OPEN
+        accountStatus = AccountStatus.OPEN,
+        staffStatus = "ACTIVE"
       )
     )
 
@@ -453,7 +457,8 @@ class UserControllerIntTest : IntegrationTest() {
         activeCaseLoadId = "MDI",
         email = "nomis@email",
         accountStatus = AccountStatus.OPEN,
-        roles = setOf(SimpleGrantedAuthority("PRISON"), SimpleGrantedAuthority("GLOBAL_SEARCH"))
+        roles = setOf(SimpleGrantedAuthority("PRISON"), SimpleGrantedAuthority("GLOBAL_SEARCH")),
+        staffStatus = "ACTIVE"
       )
     )
 

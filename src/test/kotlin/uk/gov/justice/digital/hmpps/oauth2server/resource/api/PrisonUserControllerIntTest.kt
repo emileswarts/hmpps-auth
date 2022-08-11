@@ -169,6 +169,7 @@ class PrisonUserControllerIntTest : IntegrationTest() {
         activeCaseLoadId = "BXI",
         email = "nomis@email",
         accountStatus = OPEN,
+        staffStatus = "ACTIVE",
       )
     )
 

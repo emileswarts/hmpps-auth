@@ -120,7 +120,8 @@ class NomisUserDetailsServiceTest {
       email = "b.h@somewhere.com",
       accountNonLocked = accountNonLocked,
       credentialsNonExpired = credentialsNonExpired,
-      enabled = enabled
+      enabled = enabled,
+      staffStatus = "ACTIVE"
     )
   }
 

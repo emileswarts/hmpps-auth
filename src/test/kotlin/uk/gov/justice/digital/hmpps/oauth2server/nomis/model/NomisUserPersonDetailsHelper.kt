@@ -17,6 +17,7 @@ class NomisUserPersonDetailsHelper {
       locked: Boolean = false,
       admin: Boolean = false,
       active: Boolean = true,
+      staffStatus: String? = "ACTIVE"
     ): NomisUserPersonDetails = NomisUserPersonDetails(
       username = username,
       userId = userId,
@@ -31,6 +32,7 @@ class NomisUserPersonDetailsHelper {
       locked = locked,
       admin = admin,
       active = active,
+      staffStatus = staffStatus,
     )
   }
 }
