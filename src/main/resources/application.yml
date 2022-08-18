@@ -187,3 +187,7 @@ logging.uris.exclude.regex: /auth/health|/auth/info|/auth/ping|/auth/swagger.*|/
 application.link.accounts: false
 
 token.reset.expiry.days: 7
+
+springfox:
+  documentation:
+    enabled: false
