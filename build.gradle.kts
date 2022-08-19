@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.2-beta"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -57,7 +57,7 @@ dependencies {
 
   runtimeOnly("com.h2database:h2:2.1.214")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("org.postgresql:postgresql:42.4.1")
+  runtimeOnly("org.postgresql:postgresql:42.4.2")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -74,7 +74,7 @@ dependencies {
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
   testImplementation("org.fluentlenium:fluentlenium-assertj:5.0.4")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.1.1")
+  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.1.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 
