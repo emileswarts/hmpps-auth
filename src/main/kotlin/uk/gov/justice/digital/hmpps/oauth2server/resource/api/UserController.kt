@@ -1,13 +1,13 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiModelProperty
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.core.annotation.Order
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserFilter
 import uk.gov.justice.digital.hmpps.oauth2server.model.EmailAddress
@@ -36,24 +35,32 @@ import java.security.Principal
 import java.time.LocalDateTime
 
 @RestController
-@Api(tags = ["/api/user"])
+@Tag(name = "/api/user")
 class UserController(private val userService: UserService) {
 
   @GetMapping("/api/user/me")
-  @ApiOperation(
-    value = "Current user detail.",
-    notes = "Current user detail.",
-    nickname = "getMyUserInformation",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Current user detail.",
+    description = "Current user detail."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = UserDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
-  fun me(@ApiIgnore principal: Principal): UserDetail {
+  fun me(@Parameter(hidden = true) principal: Principal): UserDetail {
     val upd = userService.findMasterUserPersonDetails(principal.name)
     return upd.map {
       val user = userService.getOrCreateUser(principal.name).orElseThrow()
@@ -62,52 +69,59 @@ class UserController(private val userService: UserService) {
   }
 
   @GetMapping("/api/user/me/roles")
-  @ApiOperation(
-    value = "List of roles for current user.",
-    notes = "List of roles for current user.",
-    nickname = "getMyRoles",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiResponses(
-    value = [
-      ApiResponse(code = 200, message = "OK", response = UserRole::class, responseContainer = "List"),
-      ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetail::class)
-    ]
-  )
-  fun myRoles(@ApiIgnore authentication: Authentication): Collection<UserRole> =
-    authentication.authorities.map { UserRole(it!!.authority.substring(5)) } // remove ROLE_
-
-  @GetMapping("/api/me/email")
-  @ApiOperation(
-    value = "Email address for current user",
-    notes = "Verified email address for current user",
-    nickname = "myEmail",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "List of roles for current user.",
+    description = "List of roles for current user."
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        code = 204,
-        message = "No content.  No verified email address found for user.  Only if unverified not supplied or set to false"
+        responseCode = "200",
+        description = "OK"
       ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun myRoles(@Parameter(hidden = true) authentication: Authentication): Collection<UserRole> =
+    authentication.authorities.map { UserRole(it!!.authority.substring(5)) } // remove ROLE_
+
+  @GetMapping("/api/me/email")
+  @Operation(
+    summary = "Email address for current user",
+    description = "Verified email address for current user"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "204",
+        description = "No content.  No verified email address found for user.  Only if unverified not supplied or set to false",
+      )
     ]
   )
   fun myEmail(
-    @ApiParam(value = "Return unverified email addresses.", required = false)
+    @Parameter(description = "Return unverified email addresses.", required = false)
     @RequestParam unverified: Boolean = false,
-    @ApiIgnore principal: Principal,
+    @Parameter(hidden = true) principal: Principal,
   ): ResponseEntity<*> = getUserEmail(username = principal.name, unverified = unverified)
 
   @GetMapping("/api/user/me/mfa")
-  @ApiOperation(
-    value = "MFA options configured for current user",
-    nickname = "myMfa",
-    consumes = "application/json",
-    produces = "application/json",
+  @Operation(
+    summary = "MFA options configured for current user",
+    description = "MFA options configured for current user"
   )
-  fun myMfa(@ApiIgnore principal: Principal): MfaOptions = userService
+  fun myMfa(@Parameter(hidden = true) principal: Principal): MfaOptions = userService
     .getOrCreateUser(principal.name)
     .map {
       MfaOptions(
@@ -123,23 +137,40 @@ class UserController(private val userService: UserService) {
     val mobileVerified: Boolean,
     val backupVerified: Boolean,
   )
+
   @GetMapping("/api/user/{username}")
-  @ApiOperation(
-    value = "User detail.",
-    notes = "User detail.",
-    nickname = "getUserDetails",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "User detail.",
+    description = "User detail."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = UserDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun user(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ): UserDetail {
     val upd = userService.findMasterUserPersonDetails(username)
       .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
@@ -148,23 +179,39 @@ class UserController(private val userService: UserService) {
   }
 
   @GetMapping("/api/user/{username}/roles")
-  @ApiOperation(
-    value = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
-    nickname = "userRoles",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "List of roles for user.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
-  @PreAuthorize(
-    "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')"
-  )
+  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')")
   fun userRoles(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
   ): Collection<UserRole> {
     val user = userService.findMasterUserPersonDetails(username)
       .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
@@ -172,26 +219,34 @@ class UserController(private val userService: UserService) {
   }
 
   @GetMapping("/api/user/{username}/email")
-  @ApiOperation(
-    value = "Email address for user",
-    notes = "Verified email address for user",
-    nickname = "getUserEmail",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Email address for user",
+    description = "Verified email address for user"
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 204, message = "No content.  No verified email address found for user"),
       ApiResponse(
-        code = 404,
-        message = "User not found.  The user doesn't exist in auth so could have never logged in",
-        response = ErrorDetail::class,
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "204", description = "No content.  No verified email address found for user",
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found. The user doesn't exist in auth so could have never logged in",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
       )
     ]
   )
   fun getUserEmail(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiParam(value = "Return unverified email addresses.", required = false)
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "Return unverified email addresses.", required = false)
     @RequestParam unverified: Boolean = false,
   ): ResponseEntity<*> = userService
     .getOrCreateUser(username)
@@ -201,21 +256,18 @@ class UserController(private val userService: UserService) {
     }
     .orElseGet { notFoundResponse(username) }
 
-  @Deprecated("Please user /api/authuser/email instead")
+  @Deprecated("Please use /api/authuser/email instead")
   @PostMapping("/api/user/email")
-  @ApiOperation(
-    value = "Email address for users",
-    notes =
+  @Operation(
+    summary = "Email address for users",
+    description =
     """Verified email address for users.  Post version that accepts multiple email addresses.
         Requires ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN.
-    """,
-    nickname = "getUserEmails",
-    consumes = "application/json",
-    produces = "application/json"
+    """
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   fun getUserEmails(
-    @ApiParam(value = "List of usernames.", required = true) @RequestBody usernames: List<String>,
+    @Parameter(description = "List of usernames.", required = true) @RequestBody usernames: List<String>,
   ): List<EmailAddress> = userService
     .getOrCreateUsers(usernames)
     .filter { it.verified }
@@ -225,23 +277,39 @@ class UserController(private val userService: UserService) {
     .body(ErrorDetail("Not Found", "Account for username $username not found", "username"))
 
   @GetMapping("/api/users/email")
-  @ApiOperation(
-    value = "Email address for all users",
-    notes = "Primary email address for all users.",
-    nickname = "getAllEmails",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Email address for all users",
+    description = "Return primary email address for all users."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = EmailAddress::class, responseContainer = "List"),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS')")
   fun getAllUserEmails(
-    @ApiParam(value = "A single auth source to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.")
+    @Parameter(description = "A single auth source to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.")
     @RequestParam(
       required = false
     ) authSource: AuthSource?
@@ -251,8 +319,9 @@ class UserController(private val userService: UserService) {
     .map { EmailAddress(it) }
 
   @GetMapping("/api/user/search")
-  @ApiOperation(
-    value = """
+  @Operation(
+    summary = "Search for users ",
+    description = """
       Search for users in the Auth DB who match on partial first name, surname, username or email and return a pageable result set. 
       Optionally choose the authentication sources from any combination of auth, delius, nomis and azuread sources.
       It will default to AuthSource.auth if the authSources parameter is omitted.
@@ -260,52 +329,42 @@ class UserController(private val userService: UserService) {
       It will return users with the requested auth sources where they have authenticated against the auth service at least once.
       Note: User information held in the auth service may be out of date with the user information held in the source systems as
       their details will be as they were the last time that they authenticated.
-    """,
-    nickname = "searchForUsersInMultipleSourceSystems",
-    produces = "application/json"
+    """
   )
-  @ApiResponses(value = [ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)])
-  @ApiImplicitParams(
-    ApiImplicitParam(
-      name = "page",
-      dataType = "java.lang.Integer",
-      paramType = "query",
-      value = "Results page you want to retrieve (0..N)",
-      example = "0",
-      defaultValue = "0"
-    ),
-    ApiImplicitParam(
-      name = "size",
-      dataType = "java.lang.Integer",
-      paramType = "query",
-      value = "Number of records per page.",
-      example = "10",
-      defaultValue = "10"
-    ),
-    ApiImplicitParam(
-      name = "sort",
-      dataType = "java.lang.String",
-      paramType = "query",
-      value = "Sort column and direction, eg sort=lastName,desc"
-    )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
   )
   @PreAuthorize(
     "hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')"
   )
   fun searchForUsersInMultipleSourceSystems(
-    @ApiParam(
-      value = "The username, email or name of the user.",
+    @Parameter(
+      description = "The username, email or name of the user.",
       example = "j smith"
     ) @RequestParam(required = false) name: String?,
-    @ApiParam(value = "User status to find ACTIVE, INACTIVE or ALL. Defaults to ALL if omitted.") @RequestParam(
+    @Parameter(description = "User status to find ACTIVE, INACTIVE or ALL. Defaults to ALL if omitted.") @RequestParam(
       required = false,
       defaultValue = "ALL"
     ) status: UserFilter.Status,
-    @ApiParam(value = "List of auth sources to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.") @RequestParam(
+    @Parameter(description = "List of auth sources to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.") @RequestParam(
       required = false
     ) authSources: List<AuthSource>?,
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication,
   ): Page<AuthUserWithSource> =
     userService.searchUsersInMultipleSourceSystems(
       name,
@@ -319,50 +378,48 @@ class UserController(private val userService: UserService) {
 }
 
 data class AuthUserWithSource(
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "User ID",
-    example = "91229A16-B5F4-4784-942E-A484A97AC865",
-    position = 1
+    description = "User ID",
+    example = "91229A16-B5F4-4784-942E-A484A97AC865"
   )
   val userId: String? = null,
 
-  @ApiModelProperty(required = true, value = "Username", example = "authuser", position = 2)
+  @Schema(required = true, description = "Username", example = "authuser")
   val username: String? = null,
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Email address",
-    example = "auth.user@someagency.justice.gov.uk",
-    position = 3
+    description = "Email address",
+    example = "auth.user@someagency.justice.gov.uk"
   )
   val email: String? = null,
 
-  @ApiModelProperty(required = true, value = "First name", example = "Auth", position = 4)
+  @Schema(required = true, description = "First name", example = "Auth")
   val firstName: String? = null,
 
-  @ApiModelProperty(required = true, value = "Last name", example = "User", position = 5)
+  @Schema(required = true, description = "Last name", example = "User")
   val lastName: String? = null,
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Account is locked due to incorrect password attempts",
-    example = "true",
-    position = 6
+    description = "Account is locked due to incorrect password attempts",
+    example = "true"
   )
+  @Order(6)
   val locked: Boolean = false,
 
-  @ApiModelProperty(required = true, value = "Account is enabled", example = "false", position = 7)
+  @Schema(required = true, description = "Account is enabled", example = "false")
   val enabled: Boolean = false,
 
-  @ApiModelProperty(required = true, value = "Email address has been verified", example = "false", position = 8)
+  @Schema(required = true, description = "Email address has been verified", example = "false")
   val verified: Boolean = false,
 
-  @ApiModelProperty(required = true, value = "Last time user logged in", example = "01/01/2001", position = 9)
+  @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
   val lastLoggedIn: LocalDateTime? = null,
 
-  @ApiModelProperty(required = true, value = "Authentication source", example = "delius", position = 10)
-  val source: AuthSource = AuthSource.auth,
+  @Schema(required = true, description = "Authentication source", example = "delius")
+  val source: AuthSource = AuthSource.auth
 
 ) {
   companion object {

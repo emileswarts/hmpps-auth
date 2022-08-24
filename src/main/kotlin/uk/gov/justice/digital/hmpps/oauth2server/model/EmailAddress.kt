@@ -2,20 +2,19 @@ package uk.gov.justice.digital.hmpps.oauth2server.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 
 @JsonInclude(NON_NULL)
-@ApiModel(description = "User email details")
+@Schema(description = "User email details")
 data class EmailAddress(
-  @ApiModelProperty(required = true, value = "Username", example = "DEMO_USER1", position = 1)
+  @Schema(required = true, description = "Username", example = "DEMO_USER1")
   val username: String,
 
-  @ApiModelProperty(required = false, value = "Email", example = "john.smith@digital.justice.gov.uk", position = 2)
+  @Schema(description = "Email", example = "john.smith@digital.justice.gov.uk")
   val email: String?,
 
-  @ApiModelProperty(required = true, value = "Verified email", example = "true", position = 3)
+  @Schema(required = true, description = "Verified email", example = "true")
   val verified: Boolean,
 ) {
 

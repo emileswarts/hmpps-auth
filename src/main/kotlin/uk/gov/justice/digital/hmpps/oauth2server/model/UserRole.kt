@@ -1,10 +1,9 @@
 package uk.gov.justice.digital.hmpps.oauth2server.model
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 
-@ApiModel(description = "User Role")
+@Schema(description = "User Role")
 data class UserRole(
-  @ApiModelProperty(required = true, value = "Role Code", example = "GLOBAL_SEARCH")
+  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
   val roleCode: String,
 )

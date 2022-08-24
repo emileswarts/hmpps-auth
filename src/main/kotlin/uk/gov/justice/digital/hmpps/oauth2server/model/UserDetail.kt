@@ -1,8 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
@@ -12,77 +11,59 @@ import java.util.UUID
 
 @Suppress("DEPRECATION")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel(description = "User Details")
+@Schema(description = "User Details")
 data class UserDetail(
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Username",
-    example = "DEMO_USER1",
-    position = 1
-  ) val username: String,
-
+    description = "Username",
+    example = "DEMO_USER1"
+  ) val username: String
 ) {
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Active",
-    example = "false",
-    position = 2
-  )
-  var active: Boolean? = null
+    description = "Active",
+    example = "false"
+  ) var active: Boolean? = null
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Name",
-    example = "John Smith",
-    position = 3
-  )
-  var name: String? = null
+    description = "Name",
+    example = "John Smith"
+  ) var name: String? = null
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "Authentication Source",
-    notes = "auth for auth users, nomis for nomis authenticated users",
-    example = "nomis",
-    position = 4
-  )
-  var authSource: AuthSource? = null
+    title = "Authentication Source",
+    description = "auth for auth users, nomis for nomis authenticated users",
+    example = "nomis"
+  ) var authSource: AuthSource? = null
 
   @Deprecated("")
-  @ApiModelProperty(
-    value = "Staff Id",
-    notes = "Deprecated, use userId instead",
-    example = "231232",
-    position = 5
-  )
-
-  var staffId: Long? = null
+  @Schema(
+    title = "Staff Id",
+    description = "Deprecated, use userId instead",
+    example = "231232"
+  ) var staffId: Long? = null
 
   @Deprecated("")
-  @ApiModelProperty(
-    value = "Current Active Caseload",
-    notes = "Deprecated, retrieve from prison API rather than auth",
-    example = "MDI",
-    position = 6
-  )
+  @Schema(
+    title = "Current Active Caseload",
+    description = "Deprecated, retrieve from prison API rather than auth",
+    example = "MDI"
+  ) var activeCaseLoadId: String? = null
 
-  var activeCaseLoadId: String? = null
+  @Schema(
+    title = "User Id",
+    description = "Unique identifier for user, will be UUID for auth users or staff ID for nomis users",
+    example = "231232"
+  ) var userId: String? = null
 
-  @ApiModelProperty(
-    value = "User Id",
-    notes = "Unique identifier for user, will be UUID for auth users or staff ID for nomis users",
-    example = "231232",
-    position = 7
-  )
-  var userId: String? = null
-
-  @ApiModelProperty(
-    value = "Unique Id",
-    notes = "Universally unique identifier for user, generated and stored in auth database for all users",
+  @Schema(
+    title = "Unique Id",
+    description = "Universally unique identifier for user, generated and stored in auth database for all users",
     example = "5105a589-75b3-4ca0-9433-b96228c1c8f3",
-    position = 8
-  )
-  var uuid: UUID? = null
+  ) var uuid: UUID? = null
 
   constructor(
     username: String,

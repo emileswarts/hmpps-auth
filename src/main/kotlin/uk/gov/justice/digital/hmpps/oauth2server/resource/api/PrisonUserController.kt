@@ -1,11 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiModelProperty
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.apache.commons.text.WordUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserService
@@ -32,7 +32,7 @@ import javax.validation.constraints.NotEmpty
 
 @RestController
 @Validated
-@Api(tags = ["/api/prisonuser"])
+@Tag(name = "/api/prisonuser", description = "Prison User Controller")
 @RequestMapping("/api/prisonuser")
 class PrisonUserController(
   private val userService: UserService,
@@ -42,20 +42,34 @@ class PrisonUserController(
 ) {
   @GetMapping
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
-  @ApiOperation(
-    value = "Find prison users by first and last names.",
-    notes = "Find prison users by first and last names.",
-    nickname = "Prison users",
-    produces = "application/json"
+  @Operation(
+    summary = "Find prison users by first and last names.",
+    description = "Find prison users by first and last names."
   )
-  @ApiResponses(value = [ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)])
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
+  )
   fun prisonUsersByFirstAndLastName(
-    @ApiParam(
-      value = "The first name to match. Case insensitive.",
+    @Parameter(
+      description = "The first name to match. Case insensitive.",
       required = true
     ) @RequestParam @NotEmpty firstName: String,
-    @ApiParam(
-      value = "The last name to match. Case insensitive",
+    @Parameter(
+      description = "The last name to match. Case insensitive",
       required = true
     ) @RequestParam @NotEmpty lastName: String,
   ): List<PrisonUser> = userService.findPrisonUsersByFirstAndLastNames(firstName, lastName)
@@ -74,25 +88,50 @@ class PrisonUserController(
 
   @PostMapping("/{username}/email")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Amend a prison user email address.",
-    nickname = "amendUserEmail",
-    consumes = "application/json",
-    produces = "application/json",
+  @Operation(
+    summary = "Amend a prison user email address.",
+    description = "Amend a prison user email address.",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK"),
-      ApiResponse(code = 400, message = "Bad request e.g. missing email address", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "400", description = "Bad request e.g. missing email address.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun amendUserEmail(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
     @Valid @RequestBody amendUser: AmendEmail,
-    @ApiIgnore request: HttpServletRequest,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) request: HttpServletRequest,
+    @Parameter(hidden = true) authentication: Authentication,
   ): String? {
     val setPasswordUrl =
       request.requestURL.toString().replaceFirst("/api/prisonuser/.*".toRegex(), "/verify-email-confirm?token=")
@@ -110,20 +149,39 @@ class PrisonUserController(
 
   @PostMapping("/{username}/email/sync")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required",
-    nickname = "syncUserEmail",
+  @Operation(
+    summary = "Sync user email",
+    description = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK"),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun syncUserEmail(
-    @ApiParam(value = "The username of the user.", required = true) @PathVariable username: String,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(hidden = true) authentication: Authentication,
   ) = verifyEmailService.syncEmailWithNOMIS(username)
 
   companion object {
@@ -136,26 +194,26 @@ class PrisonUserController(
  * Done to keep presentation layer detail out of the service layer.
  */
 data class PrisonUser(
-  @ApiModelProperty(required = true, example = "RO_USER_TEST")
+  @Schema(required = true, example = "RO_USER_TEST")
   val username: String,
-  @ApiModelProperty(required = true, example = "1234564789")
+  @Schema(required = true, example = "1234564789")
   val staffId: Long?,
-  @ApiModelProperty(required = false, example = "ryanorton@justice.gov.uk")
+  @Schema(required = false, example = "ryanorton@justice.gov.uk")
   val email: String?,
-  @ApiModelProperty(required = true, example = "true")
+  @Schema(required = true, example = "true")
   val verified: Boolean,
-  @ApiModelProperty(required = true, example = "Ryan")
+  @Schema(required = true, example = "Ryan")
   val firstName: String,
-  @ApiModelProperty(required = true, example = "Orton")
+  @Schema(required = true, example = "Orton")
   val lastName: String,
-  @ApiModelProperty(required = true, example = "Ryan Orton")
+  @Schema(required = true, example = "Ryan Orton")
   val name: String,
-  @ApiModelProperty(required = false, example = "MDI")
+  @Schema(required = false, example = "MDI")
   val activeCaseLoadId: String?
 )
 
 data class AmendEmail(
-  @ApiModelProperty(required = true, value = "Email address", example = "nomis.user@someagency.justice.gov.uk")
+  @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
   val email: String?,
 )

@@ -3,6 +3,8 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.microsoft.applicationinsights.TelemetryClient
+import io.swagger.v3.oas.annotations.Hidden
+import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.provider.ClientDetails
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RestController
-import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientDuplicateIdsAndDeployment
 import uk.gov.justice.digital.hmpps.oauth2server.service.ClientService
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
@@ -28,8 +29,8 @@ class DuplicateClientController(
 
   @GetMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
-  @ApiIgnore
-  // @ApiOperation(
+  @Hidden
+  // @Operation(
   //   value = "get Client",
   //   nickname = "GetClient"
   //   produces = "application/json"
@@ -42,7 +43,7 @@ class DuplicateClientController(
   // )
   @Throws(NoSuchClientException::class)
   fun getClientIdsAndDeployment(
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication,
     @PathVariable clientId: String,
   ): ClientDuplicateIdsAndDeployment {
     return clientService.loadClientAndDeployment(clientId)
@@ -50,8 +51,8 @@ class DuplicateClientController(
 
   @PutMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
-  @ApiIgnore
-  // @ApiOperation(
+  @Hidden
+  // @Operation(
   //   value = "Duplicate Client",
   //   nickname = "DuplicateClient",
   //   produces = "application/json"
@@ -64,7 +65,7 @@ class DuplicateClientController(
   // )
   @Throws(DuplicateClientsException::class, NoSuchClientException::class)
   fun duplicateClient(
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication,
     @PathVariable clientId: String,
   ): DuplicateClientDetail {
     val username = authentication.principal
@@ -77,8 +78,8 @@ class DuplicateClientController(
 
   @DeleteMapping("/api/client/{clientId}")
   @PreAuthorize("hasRole('ROLE_CLIENT_ROTATION_ADMIN')")
-  @ApiIgnore
-  // @ApiOperation(
+  @Hidden
+  // @Operation(
   //   value = "Delete Client",
   //   nickname = "Delete"
   // )
@@ -90,7 +91,7 @@ class DuplicateClientController(
   // )
   @Throws(NoSuchClientException::class)
   fun deleteClient(
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication,
     @PathVariable clientId: String,
   ) {
     val username = authentication.principal
@@ -102,7 +103,7 @@ class DuplicateClientController(
 }
 
 // @ApiModel(description = "Duplicate Client Details")
-@ApiIgnore
+@Hidden
 data class DuplicateClientDetail(
   // @ApiModelProperty(required = true, value = "Client ID", example = "SERVICE-NAME-CLIENT")
   val clientId: String,

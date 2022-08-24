@@ -1,12 +1,14 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import com.nimbusds.jose.jwk.JWKSet
+import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletResponse
 
 @RestController
+@Hidden
 class JwkSetController(@Autowired private val jwkSet: JWKSet) {
   private val jwkSetJson = jwkSet.toJSONObject()
 

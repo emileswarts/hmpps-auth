@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
+import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import javax.servlet.http.HttpServletResponse
 
+@Hidden
 @RestController
 class AuthServerMetadataController {
 

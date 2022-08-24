@@ -1,16 +1,15 @@
 package uk.gov.justice.digital.hmpps.oauth2server.model
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.ChildGroup
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Group
 
-@ApiModel(description = "User Group")
+@Schema(description = "User Group")
 data class AuthUserGroup(
-  @ApiModelProperty(required = true, value = "Group Code", example = "HDC_NPS_NE")
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
-  @ApiModelProperty(required = true, value = "Group Name", example = "HDC NPS North East")
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
 ) {
 

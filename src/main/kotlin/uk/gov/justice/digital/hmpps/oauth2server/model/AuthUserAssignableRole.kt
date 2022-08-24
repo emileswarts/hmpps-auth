@@ -1,18 +1,17 @@
 package uk.gov.justice.digital.hmpps.oauth2server.model
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 
-@ApiModel(description = "User Role")
+@Schema(description = "User Role")
 data class AuthUserAssignableRole(
-  @ApiModelProperty(required = true, value = "Role Code", example = "LICENCE_RO")
+  @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 
-  @ApiModelProperty(required = true, value = "Role Name", example = "Licence Responsible Officer")
+  @Schema(required = true, description = "Role Name", example = "Licence Responsible Officer")
   val roleName: String,
 
-  @ApiModelProperty(required = true, value = "automatic", example = "TRUE")
+  @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
 ) {
 

@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,14 +20,13 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 
 @RestController
-@Api(tags = ["/api/authuser/{username}/groups", "/api/authuser/id/{userId}/groups"])
+@Tag(name = "/api/authuser/id/{userId}/groups", description = "Auth User Groups Controller")
 class AuthUserGroupsController(
   private val authUserService: AuthUserService,
   private val authUserGroupService: AuthUserGroupService,
@@ -36,22 +37,40 @@ class AuthUserGroupsController(
   }
 
   @GetMapping("/api/authuser/{username}/groups")
-  @ApiOperation(
-    value = "Get groups for user.",
-    nickname = "groups",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Get groups for user.",
+    description = "Get groups for user."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun groups(
-    @ApiParam(value = "The username of the user.", required = true)
+    @Parameter(description = "The username of the user.", required = true)
     @PathVariable username: String,
-    @ApiParam(value = "Whether groups are expanded into their children.", required = false)
+    @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true") children: Boolean = true,
   ): List<AuthUserGroup> = authUserGroupService.getAuthUserGroups(username)
     ?.flatMap { g ->
@@ -62,24 +81,42 @@ class AuthUserGroupsController(
 
   @GetMapping("/api/authuser/id/{userId}/groups")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Get groups for userId.",
-    nickname = "groups",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Get groups for userId.",
+    description = "Get groups for userId."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun groupsByUserId(
-    @ApiParam(value = "The userId of the user.", required = true)
+    @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: String,
-    @ApiParam(value = "Whether groups are expanded into their children.", required = false)
+    @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true") children: Boolean = true,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication,
   ): List<AuthUserGroup> =
     authUserGroupService.getAuthUserGroupsByUserId(userId, authentication.name, authentication.authorities)
       ?.flatMap { g ->
@@ -91,26 +128,67 @@ class AuthUserGroupsController(
   @PutMapping("/api/authuser/id/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Add group to user.",
-    notes = "Add group to user.",
-    nickname = "addGroup",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Add group to user.",
+    description = "Add group to user."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
-      ApiResponse(code = 409, message = "Group for user already exists.", response = ErrorDetail::class),
-      ApiResponse(code = 500, message = "Server exception e.g. failed to insert row.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "204",
+        description = "Added"
+      ),
+      ApiResponse(
+        responseCode = "400", description = "Validation failed.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409", description = "Group for user already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun addGroupByUserId(
-    @ApiParam(value = "The userId of the user.", required = true) @PathVariable userId: String,
-    @ApiParam(value = "The group to be added to the user.", required = true) @PathVariable group: String,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The group to be added to the user.", required = true) @PathVariable group: String,
+    @Parameter(hidden = true) authentication: Authentication,
   ) {
     authUserGroupService.addGroupByUserId(userId, group, authentication.name, authentication.authorities)
     log.info("Add group succeeded for userId {} and group {}", userId, group)
@@ -119,25 +197,58 @@ class AuthUserGroupsController(
   @DeleteMapping("/api/authuser/id/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiOperation(
-    value = "Remove group from user.",
-    notes = "Remove group from user.",
-    nickname = "removeGroup",
-    consumes = "application/json",
-    produces = "application/json"
+  @Operation(
+    summary = "Remove group from user.",
+    description = "Remove group from user."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "User not found.", response = ErrorDetail::class),
-      ApiResponse(code = 500, message = "Server exception e.g. failed to insert row.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "204",
+        description = "Deleted"
+      ),
+      ApiResponse(
+        responseCode = "400", description = "Validation failed.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun removeGroupByUserId(
-    @ApiParam(value = "The userId of the user.", required = true) @PathVariable userId: String,
-    @ApiParam(value = "The group to be delete from the user.", required = true) @PathVariable group: String,
-    @ApiIgnore authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable group: String,
+    @Parameter(hidden = true) authentication: Authentication,
   ) {
     authUserGroupService.removeGroupByUserId(userId, group, authentication.name, authentication.authorities)
     log.info("Remove group succeeded for userId {} and group {}", userId, group)

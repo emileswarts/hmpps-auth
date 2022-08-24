@@ -1,9 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -14,43 +17,64 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 @RestController
 @Validated
+@Tag(name = "validation-controller", description = "Validation Controller")
 class ValidationController(
   private val verifyEmailService: VerifyEmailService
 ) {
   @GetMapping("/api/validate/email-domain")
-  @ApiOperation(
-    value = "Validates Email domain",
-    notes =
-    """
-      Validates Email domain.
-    """,
-    nickname = "isValidEmailDomain",
-    produces = "application/json"
+  @Operation(
+    summary = "Validates Email domain",
+    description = "Validates Email domain."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = Boolean::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun isValidEmailDomain(@RequestParam(value = "emailDomain", required = true) emailDomain: String): Boolean =
     verifyEmailService.validateEmailDomainExcludingGsi(emailDomain)
 
   @GetMapping("/api/validate/email")
-  @ApiOperation(
-    value = "Validates Email",
-    notes =
-    """
-      Validates Email.
-    """,
-    nickname = "isValidEmailDomain",
-    produces = "application/json"
+  @Operation(
+    summary = "Validates Email",
+    description = "Validates Email.",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 200, message = "OK", response = Boolean::class),
-      ApiResponse(code = 400, message = "Validation failed.", response = ErrorDetail::class),
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "400", description = "Validation failed.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun isValidEmail(

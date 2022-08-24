@@ -1,7 +1,7 @@
 # HMPPS Oauth2 / SSO Server
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-auth/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-auth)
-[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://sign-in-dev.hmpps.service.justice.gov.uk/auth/swagger-ui/index.html?configUrl=/v3/api-docs)
 
 Spring Boot 2.7, Java 18 OAUTH2 Server integrating with NOMIS users, DELIUS (via community api) and an auth database for storing external users.
 
@@ -131,8 +131,8 @@ An external Postgres instance is started during the Circle build and the tests r
 
 #### API Documentation
 
-Is available on a running local server at http://localhost:9090/auth/swagger-ui/?configUrl=/v2/api-docs.  Alternatively production
-documentation can be found at https://sign-in.hmpps.service.justice.gov.uk/auth/swagger-ui/?configUrl=/v2/api-docs.  Don't forget to
+Is available on a running local server at http://localhost:9090/auth/swagger-ui/index.html?configUrl=/v3/api-docs.  Alternatively production
+documentation can be found at https://sign-in.hmpps.service.justice.gov.uk/auth/swagger-ui/index.html?configUrl=/v3/api-docs.  Don't forget to
 include /auth in the requests if calling an api endpoint.`
 
 #### Health

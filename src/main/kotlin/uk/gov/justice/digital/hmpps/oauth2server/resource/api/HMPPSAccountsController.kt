@@ -1,11 +1,14 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,23 +25,34 @@ import java.time.LocalDateTime
 
 @RestController
 class HMPPSAccountsController(private val service: HMPPSAccountsService) {
-  @GetMapping("/api/accounts/multiple")
-  @ApiOperation(
-    value = """
-      A  list of users that have accounts in more than one HMPPS system
-    """,
-    nickname = "searchForUsersWithMultipleAccounts",
-    produces = "application/json"
+  @GetMapping("/api/accounts/multiple", produces = [APPLICATION_JSON_VALUE])
+  @Operation(
+    summary = "Search for users with multiple accounts",
+    description = "A  list of users that have accounts in more than one HMPPS system"
   )
-  @ApiResponses(value = [ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)])
-  @PreAuthorize(
-    "hasAnyRole('ROLE_ACCOUNT_RESEARCH')"
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
   )
+  @PreAuthorize("hasAnyRole('ROLE_ACCOUNT_RESEARCH')")
   fun searchForUsersWithMultipleAccounts(
-    @ApiParam(value = "page number to start searching NOMIS users from", required = true)
+    @Parameter(description = "page number to start searching NOMIS users from", required = true)
     @RequestParam(value = "page", required = false)
     page: Int?,
-    @ApiParam(value = "page count to retrieve for NOMIS users. Each page is 200 users", required = true)
+    @Parameter(description = "page count to retrieve for NOMIS users. Each page is 200 users", required = true)
     @RequestParam(value = "pageCount", required = false)
     pageCount: Int?,
   ): List<HMPPSAccounts> =

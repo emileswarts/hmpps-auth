@@ -1,7 +1,8 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.Hidden
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.apache.commons.codec.binary.Base64
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.PublicKey
 
-@Api(tags = ["jwt-public-key"])
+@Hidden
+@Tag(name = "jwt-public-key")
 @RestController
 class PublicKeyController @Autowired constructor(
   @Value("\${jwt.signing.key.pair}") privateKeyPair: String?,
@@ -22,7 +24,7 @@ class PublicKeyController @Autowired constructor(
   private val publicKey: PublicKey
 
   @RequestMapping(value = ["jwt-public-key"], produces = [MediaType.APPLICATION_JSON_VALUE])
-  @ApiOperation(value = "Public JWT Key", notes = "formatted and base 64 encoded version", nickname = "getFormattedKey")
+  @Operation(summary = "Public JWT Key", description = "formatted and base 64 encoded version")
   fun getJwtPublicKey(): Map<String, Any> {
     val formattedKey = getFormattedKey(publicKey)
     return mapOf(

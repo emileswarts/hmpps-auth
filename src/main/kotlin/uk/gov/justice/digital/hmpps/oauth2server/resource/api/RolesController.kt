@@ -1,13 +1,12 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import springfox.documentation.annotations.ApiIgnore
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.AdminType
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Authority
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService
@@ -39,45 +37,73 @@ import javax.validation.constraints.Size
 
 @Validated
 @RestController
+@Tag(name = "roles-controller", description = "Roles Controller")
 class RolesController(
   private val rolesService: RolesService
 ) {
   @PostMapping("/api/roles")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Create role.",
-    nickname = "CreateRole",
-    consumes = "application/json",
+  @Operation(
+    summary = "Create role.",
+    description = "Create a Role",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 409, message = "Role already exists.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409", description = "Role already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   @ResponseStatus(HttpStatus.CREATED)
   @Throws(RoleExistsException::class, RoleNotFoundException::class)
   fun createRole(
-    @ApiIgnore authentication: Authentication,
-    @ApiParam(value = "Details of the role to be created.", required = true)
+    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody createRole: CreateRole,
   ) {
     rolesService.createRole(authentication.name, createRole)
   }
+
   @GetMapping("/api/roles")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
-  @ApiOperation(
-    value = "get all Roles",
-    nickname = "getAllRoles",
-    produces = "application/json"
+  @Operation(
+    summary = "Get all Roles",
+    description = "Get all Roles",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun getRoles(
-    @ApiParam(value = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
+    @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(
       required = false,
     ) adminTypes: List<AdminType>?,
@@ -88,49 +114,44 @@ class RolesController(
 
   @GetMapping("/api/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiImplicitParams(
-    ApiImplicitParam(
-      name = "page",
-      dataType = "java.lang.Integer",
-      paramType = "query",
-      value = "Results page you want to retrieve (0..N)",
-      example = "0",
-      defaultValue = "0"
-    ),
-    ApiImplicitParam(
-      name = "size",
-      dataType = "java.lang.Integer",
-      paramType = "query",
-      value = "Number of records per page.",
-      example = "10",
-      defaultValue = "10"
-    ),
-    ApiImplicitParam(
-      name = "sort",
-      dataType = "java.lang.String",
-      paramType = "query",
-      value = "Sort column and direction, eg sort=roleName,desc"
-    )
-  )
-  @ApiOperation(
-    value = "get all paged Roles.",
-    nickname = "getAllPagedRoles",
-    produces = "application/json"
+  @Operation(
+    summary = "get all paged Roles.",
+    description = "getAllPagedRoles",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "Roles not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Roles not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun getAllRoles(
-    @ApiParam(value = "Role name or partial of a role name") @RequestParam(
+    @Parameter(description = "Role name or partial of a role name") @RequestParam(
       required = false,
     ) roleName: String?,
-    @ApiParam(value = "Role code or partial of a role code") @RequestParam(
+    @Parameter(description = "Role code or partial of a role code") @RequestParam(
       required = false,
     ) roleCode: String?,
-    @ApiParam(value = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.") @RequestParam(
+    @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.") @RequestParam(
       required = false,
     ) adminTypes: List<AdminType>?,
     @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
@@ -145,19 +166,38 @@ class RolesController(
 
   @GetMapping("/api/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Role detail.",
-    nickname = "getRoleDetails",
-    produces = "application/json"
+  @Operation(
+    summary = "Role detail.",
+    description = "Get Role Details",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun getRoleDetail(
-    @ApiParam(value = "The Role code of the role.", required = true)
+    @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable role: String,
   ): RoleDetails {
     val returnedRole: Authority = rolesService.getRoleDetail(role)
@@ -166,23 +206,42 @@ class RolesController(
 
   @PutMapping("/api/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Amend role name.",
-    nickname = "AmendRoleName",
-    produces = "application/json"
+  @Operation(
+    summary = "Amend role name.",
+    description = "AmendRoleName",
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun amendRoleName(
-    @ApiParam(value = "The role code of the role.", required = true)
+    @Parameter(description = "The role code of the role.", required = true)
     @PathVariable role: String,
-    @ApiIgnore authentication: Authentication,
-    @ApiParam(
-      value = "Details of the role to be updated.",
+    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(
+      description = "Details of the role to be updated.",
       required = true
     ) @Valid @RequestBody roleAmendment: RoleNameAmendment
   ) {
@@ -191,23 +250,42 @@ class RolesController(
 
   @PutMapping("/api/roles/{role}/description")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Amend role description.",
-    nickname = "AmendRoleDescription",
-    produces = "application/json"
+  @Operation(
+    summary = "Amend role description.",
+    description = "Amend role description."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun amendRoleDescription(
-    @ApiParam(value = "The role code of the role.", required = true)
+    @Parameter(description = "The role code of the role.", required = true)
     @PathVariable role: String,
-    @ApiIgnore authentication: Authentication,
-    @ApiParam(
-      value = "Details of the role to be updated.",
+    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(
+      description = "Details of the role to be updated.",
       required = true
     ) @Valid @RequestBody roleAmendment: RoleDescriptionAmendment
   ) {
@@ -216,23 +294,42 @@ class RolesController(
 
   @PutMapping("/api/roles/{role}/admintype")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
-  @ApiOperation(
-    value = "Amend role admin type.",
-    nickname = "AmendRoleAdminType",
-    produces = "application/json"
+  @Operation(
+    summary = "Amend role admin type.",
+    description = "Amend role admin type."
   )
   @ApiResponses(
     value = [
-      ApiResponse(code = 401, message = "Unauthorized.", response = ErrorDetail::class),
-      ApiResponse(code = 404, message = "Role not found.", response = ErrorDetail::class)
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401", description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404", description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
     ]
   )
   fun amendRoleAdminType(
-    @ApiParam(value = "The role code of the role.", required = true)
+    @Parameter(description = "The role code of the role.", required = true)
     @PathVariable role: String,
-    @ApiIgnore authentication: Authentication,
-    @ApiParam(
-      value = "Details of the role to be updated.",
+    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(
+      description = "Details of the role to be updated.",
       required = true
     ) @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
   ) {
@@ -241,50 +338,55 @@ class RolesController(
 }
 
 data class CreateRole(
-  @ApiModelProperty(required = true, value = "Role Code", example = "AUTH_GROUP_MANAGER", position = 1)
+  @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30)
   @field:Pattern(regexp = "^[0-9A-Za-z_]*")
   val roleCode: String,
 
-  @ApiModelProperty(required = true, value = "roleName", example = "Auth Group Manager", position = 2)
+  @Schema(required = true, description = "roleName", example = "Auth Group Manager")
   @field:NotBlank(message = "role name must be supplied")
   @field:Size(min = 4, max = 128)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val roleName: String,
 
-  @ApiModelProperty(
+  @Schema(
     required = false,
-    value = "roleDescription",
-    example = "Allow Group Manager to administer the account within their groups",
-    position = 3
+    description = "roleDescription",
+    example = "Allow Group Manager to administer the account within their groups"
   )
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
   val roleDescription: String? = null,
 
-  @ApiModelProperty(
+  @Schema(
     required = true,
-    value = "adminType, can be used if multiple admin types required",
-    example = "[\"EXT_ADM\", \"DPS_ADM\"]",
-    position = 4
+    description = "adminType, can be used if multiple admin types required",
+    example = "[\"EXT_ADM\", \"DPS_ADM\"]"
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>,
 )
 
-@ApiModel(description = "Role Details")
+@Schema(description = "Role Details")
 data class RoleDetails(
-  @ApiModelProperty(required = true, value = "Role Code", example = "AUTH_GROUP_MANAGER")
+  @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   val roleCode: String,
 
-  @ApiModelProperty(required = true, value = "Role Name", example = "Auth Group Manager")
+  @Schema(required = true, description = "Role Name", example = "Auth Group Manager")
   val roleName: String,
 
-  @ApiModelProperty(required = true, value = "Role Description", example = "Allow Group Manager to administer the account within their groups")
+  @Schema(
+    required = true,
+    description = "Role Description",
+    example = "Allow Group Manager to administer the account within their groups"
+  )
   val roleDescription: String?,
 
-  @ApiModelProperty(required = true, value = "Administration Type")
+  @Schema(
+    required = true, description = "Administration Type",
+    example = "{\"adminTypeCode\": \"EXT_ADM\",\"adminTypeName\": \"External Administrator\"}"
+  )
   val adminType: List<AdminType>,
 ) {
   constructor(r: Authority) : this(
@@ -295,26 +397,26 @@ data class RoleDetails(
   )
 }
 
-@ApiModel(description = "Role Name")
+@Schema(description = "Role Name")
 data class RoleNameAmendment(
-  @ApiModelProperty(required = true, value = "Role Name", example = "Central admin")
+  @Schema(required = true, description = "Role Name", example = "Central admin")
   @field:NotBlank(message = "Role name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val roleName: String
 )
 
-@ApiModel(description = "Role Description")
+@Schema(description = "Role Description")
 data class RoleDescriptionAmendment(
-  @ApiModelProperty(required = true, value = "Role Description", example = "Maintaining admin users")
+  @Schema(required = true, description = "Role Description", example = "Maintaining admin users")
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
   val roleDescription: String?
 )
 
-@ApiModel(description = "Role Administration Types")
+@Schema(description = "Role Administration Types")
 data class RoleAdminTypeAmendment(
-  @ApiModelProperty(required = true, value = "Role Administration Types", example = "[\"DPS_ADM\"]")
+  @Schema(required = true, description = "Role Administration Types", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>
 )

@@ -38,9 +38,9 @@ dependencies {
 
   implementation("javax.transaction:javax.transaction-api:1.3")
 
-  implementation("io.springfox:springfox-boot-starter:3.0.0")
-  implementation("io.swagger:swagger-core:1.6.6")
-  implementation("io.swagger.core.v3:swagger-core:2.2.2")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.10")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.10")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.10")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
@@ -74,7 +74,6 @@ dependencies {
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
   testImplementation("org.fluentlenium:fluentlenium-assertj:5.0.4")
-  testImplementation("io.swagger.parser.v3:swagger-parser-v3:2.1.2")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 

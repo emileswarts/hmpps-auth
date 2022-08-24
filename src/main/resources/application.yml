@@ -188,6 +188,6 @@ application.link.accounts: false
 
 token.reset.expiry.days: 7
 
-springfox:
-  documentation:
-    enabled: false
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
