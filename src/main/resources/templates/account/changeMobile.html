@@ -44,8 +44,7 @@
              aria-describedby="mobile-number-hint mobile-error"
              maxlength="20" th:value="${mobile}">
     </div>
-    <input class="govuk-button" id="submit" type="submit" role="button"
-           data-element-id="continue-button" th:value="Continue">
+    <button data-prevent-double-click="true" class="govuk-button" id="submit" data-element-id="continue-button">Continue</button>
   </form>
 </div>
 </body>

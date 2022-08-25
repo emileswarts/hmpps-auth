@@ -96,8 +96,7 @@
     </div>
     <div class="govuk-form-group">
       <ul class="govuk-list">
-        <li><input class="govuk-button" id="submit" type="submit" role="button" data-element-id="continue-button"
-                   value="Sign in"></li>
+        <li><button data-prevent-double-click="true" class="govuk-button" id="submit" data-element-id="continue-button">Sign in</button></li>
         <li th:each="oauth2Client: ${oauth2Clients}">
           <a class="govuk-link" th:id="${'oauth2-client-' + oauth2Client.clientName}" th:href="${'/auth/oauth2/authorization/' + oauth2Client.clientName}" th:text="${@environment.getProperty('application.authentication.' + oauth2Client.clientName + '.linktext')}">OAuth2 Client link text</a>
         </li>

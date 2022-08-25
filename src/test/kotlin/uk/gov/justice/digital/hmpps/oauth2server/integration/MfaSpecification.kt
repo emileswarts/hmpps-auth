@@ -575,7 +575,7 @@ class MfaSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
 @PageUrl("/mfa-challenge")
 open class MfaEmailPage : AuthPage<MfaEmailPage>("HMPPS Digital Services - Email Verification", "Check your email") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var continueButton: FluentWebElement
 
   @FindBy(css = "input[name='code']")
@@ -633,7 +633,7 @@ open class MfaEmailPage : AuthPage<MfaEmailPage>("HMPPS Digital Services - Email
 
 @PageUrl("/mfa-challenge")
 open class MfaTextPage : AuthPage<MfaTextPage>("HMPPS Digital Services - Text Message Verification", "Check your phone") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var continueButton: FluentWebElement
 
   @FindBy(css = "input[name='code']")
@@ -687,7 +687,7 @@ open class MfaTextPage : AuthPage<MfaTextPage>("HMPPS Digital Services - Text Me
 @PageUrl("/mfa-challenge")
 open class MfaEmailResendCodePage :
   AuthPage<MfaEmailResendCodePage>("HMPPS Digital Services - Resend Security Code", "Resend security code") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var resendSecurityCode: FluentWebElement
 
   @FindBy(css = "input[id='mfa-pref-email']")
@@ -718,7 +718,7 @@ open class MfaEmailResendCodePage :
 @PageUrl("/mfa-resend-text")
 open class MfaTextResendCodePage :
   AuthPage<MfaTextResendCodePage>("HMPPS Digital Services - Resend Security Code", "Resend security code") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var resendSecurityCode: FluentWebElement
 
   @FindBy(css = "input[id='mfa-pref-email']")

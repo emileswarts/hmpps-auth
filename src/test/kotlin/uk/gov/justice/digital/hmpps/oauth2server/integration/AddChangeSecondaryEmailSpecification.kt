@@ -734,13 +734,13 @@ open class ChangeSecondaryEmailPage : AuthPage<ChangeSecondaryEmailPage>(
   "HMPPS Digital Services - Change Backup Email",
   "What is your new backup email address?"
 ) {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var changeSecondaryEmailButton: FluentWebElement
   private lateinit var email: FluentWebElement
 
   fun updateSecondaryEmailAs(email: String) {
     this.email.fill().withText(email)
-    assertThat(changeSecondaryEmailButton.value()).isEqualTo("Continue")
+    assertThat(changeSecondaryEmailButton.html()).contains("Continue")
     changeSecondaryEmailButton.click()
   }
 }
@@ -750,13 +750,13 @@ open class NewSecondaryEmailPage : AuthPage<NewSecondaryEmailPage>(
   "HMPPS Digital Services - Change Backup Email",
   "What is your backup email address?"
 ) {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var changeSecondaryEmailButton: FluentWebElement
   private lateinit var email: FluentWebElement
 
   fun addSecondaryEmailAs(email: String) {
     this.email.fill().withText(email)
-    assertThat(changeSecondaryEmailButton.value()).isEqualTo("Continue")
+    assertThat(changeSecondaryEmailButton.html()).contains("Continue")
     changeSecondaryEmailButton.click()
   }
 }

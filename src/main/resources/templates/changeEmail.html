@@ -48,8 +48,8 @@
                id="email" name="email" type="email" aria-describedby="email-error" autocomplete="email"
                spellcheck="false" th:value="${email}">
       </div>
-      <input class="govuk-button" id="submit" type="submit" role="button"
-             data-element-id="continue-button" value="Continue">
+      <button data-prevent-double-click="true" class="govuk-button" id="submit"
+              data-element-id="continue-button">Continue</button>
     </form>
   </span>
 </div>

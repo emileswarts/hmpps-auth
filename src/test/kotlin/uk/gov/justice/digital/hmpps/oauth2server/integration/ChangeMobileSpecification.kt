@@ -644,21 +644,21 @@ class ChangeMobileSpecification : AbstractAuthSpecification() {
 @PageUrl("/new-mobile")
 open class ChangeMobilePage :
   AuthPage<ChangeMobilePage>("HMPPS Digital Services - Change Mobile Number", "What is your new mobile number?") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var changeMobileButton: FluentWebElement
   private lateinit var mobile: FluentWebElement
 
   fun updateMobileAs(mobile: String, existingMobile: String): ChangeMobilePage {
     assertThat(this.mobile.value()).isEqualTo(existingMobile)
     this.mobile.fill().withText(mobile)
-    assertThat(changeMobileButton.value()).isEqualTo("Continue")
+    assertThat(changeMobileButton.html()).contains("Continue")
     changeMobileButton.click()
     return this
   }
 
   fun addMobileAs(mobile: String) {
     this.mobile.fill().withText(mobile)
-    assertThat(changeMobileButton.value()).isEqualTo("Continue")
+    assertThat(changeMobileButton.html()).contains("Continue")
     changeMobileButton.click()
   }
 
@@ -672,14 +672,14 @@ open class ChangeMobilePage :
 @PageUrl("/new-mobile")
 open class AddMobilePage :
   AuthPage<AddMobilePage>("HMPPS Digital Services - Change Mobile Number", "What is your mobile number?") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var changeMobileButton: FluentWebElement
   private lateinit var mobile: FluentWebElement
 
   fun updateMobileAs(mobile: String, existingMobile: String): AddMobilePage {
     assertThat(this.mobile.value()).isEqualTo(existingMobile)
     this.mobile.fill().withText(mobile)
-    assertThat(changeMobileButton.value()).isEqualTo("Continue")
+    assertThat(changeMobileButton.html()).contains("Continue")
     changeMobileButton.click()
     return this
   }

@@ -797,7 +797,7 @@ open class PasswordPromptForEmailPage : AuthPage<PasswordPromptForEmailPage>(
   @FindBy(css = "input[id='password']")
   private lateinit var currentPassword: FluentWebElement
 
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var savePassword: FluentWebElement
 
   fun inputAndConfirmCurrentPassword(confirmPassword: String): PasswordPromptForEmailPage {
@@ -816,7 +816,7 @@ open class ExistingPasswordPage : AuthPage<ExistingPasswordPage>(
   @FindBy(css = "input[id='password']")
   private lateinit var currentPassword: FluentWebElement
 
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var savePassword: FluentWebElement
 
   fun inputAndConfirmCurrentPassword(confirmPassword: String): ExistingPasswordPage {
@@ -835,7 +835,7 @@ open class ChangeEmailPage : AuthPage<ChangeEmailPage>(
   @FindBy(css = "input[id='email']")
   private lateinit var newEmail: FluentWebElement
 
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var saveNewEmail: FluentWebElement
 
   fun inputAndConfirmNewEmail(newEmail: String): ChangeEmailPage {
@@ -870,7 +870,7 @@ open class VerifyEmailErrorPage : AuthPage<VerifyEmailErrorPage>(
   @FindBy(css = "input[id='email']")
   private lateinit var newEmail: FluentWebElement
 
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var saveNewEmail: FluentWebElement
 
   fun inputAndConfirmNewEmail(newEmail: String): VerifyEmailErrorPage {

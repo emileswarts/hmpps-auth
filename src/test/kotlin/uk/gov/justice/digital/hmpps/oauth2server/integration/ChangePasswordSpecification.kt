@@ -130,7 +130,7 @@ class ChangePasswordSpecification : AbstractNomisAndDeliusAuthSpecification() {
 @PageUrl("/existing-password")
 open class PasswordPromptPage :
   AuthPage<PasswordPromptPage>("HMPPS Digital Services - Change Password Request", "What is your current password?") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var continueButton: FluentWebElement
 
   @FindBy(css = "input[name='password']")
@@ -138,7 +138,7 @@ open class PasswordPromptPage :
 
   fun enterCurrentPassword(existingPassword: String): PasswordPromptPage {
     this.existingPassword.fill().withText(existingPassword)
-    assertThat(continueButton.value()).isEqualTo("Continue")
+    assertThat(continueButton.html()).contains("Continue")
     continueButton.click()
     return this
   }

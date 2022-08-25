@@ -282,7 +282,7 @@ class LoginSpecification : AbstractNomisAndDeliusAuthSpecification() {
 
 @PageUrl("/sign-in")
 class LoginPage : AuthPage<LoginPage>("HMPPS Digital Services - Sign in", "Sign in") {
-  @FindBy(css = "input[type='submit']")
+  @FindBy(css = "button[id='submit']")
   private lateinit var signInButton: FluentWebElement
 
   @FindBy(css = "input[name='username']")
