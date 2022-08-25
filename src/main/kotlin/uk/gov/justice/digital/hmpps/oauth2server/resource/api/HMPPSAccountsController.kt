@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -24,6 +25,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 
 @RestController
+@Tag(name = "/api/accounts", description = "Multiple Accounts Controller")
 class HMPPSAccountsController(private val service: HMPPSAccountsService) {
   @GetMapping("/api/accounts/multiple", produces = [APPLICATION_JSON_VALUE])
   @Operation(

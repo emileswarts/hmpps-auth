@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 
 @RestController
-@Tag(name = "/api/user/{username}/contacts")
+@Tag(name = "/api/user/{username}/contacts", description = "User Contact Controller")
 class UserContactsController(private val userService: UserService) {
   @GetMapping("/api/user/{username}/contacts")
   @PreAuthorize("hasRole('ROLE_RETRIEVE_OAUTH_CONTACTS')")

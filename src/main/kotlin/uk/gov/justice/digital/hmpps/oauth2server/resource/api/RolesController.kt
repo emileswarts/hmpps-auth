@@ -37,7 +37,7 @@ import javax.validation.constraints.Size
 
 @Validated
 @RestController
-@Tag(name = "roles-controller", description = "Roles Controller")
+@Tag(name = "/api/roles", description = "Roles Controller")
 class RolesController(
   private val rolesService: RolesService
 ) {

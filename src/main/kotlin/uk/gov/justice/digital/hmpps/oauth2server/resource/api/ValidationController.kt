@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 
 @RestController
 @Validated
-@Tag(name = "validation-controller", description = "Validation Controller")
+@Tag(name = "/api/validate", description = "Validation Controller")
 class ValidationController(
   private val verifyEmailService: VerifyEmailService
 ) {

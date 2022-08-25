@@ -35,7 +35,7 @@ import java.security.Principal
 import java.time.LocalDateTime
 
 @RestController
-@Tag(name = "/api/user")
+@Tag(name = "/api/user", description = "User Controller")
 class UserController(private val userService: UserService) {
 
   @GetMapping("/api/user/me")

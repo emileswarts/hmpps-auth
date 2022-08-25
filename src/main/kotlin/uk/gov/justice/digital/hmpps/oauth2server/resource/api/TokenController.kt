@@ -19,7 +19,7 @@ import javax.validation.Valid
 
 @RestController
 @Validated
-@Tag(name = "token-controller", description = "Token Controller")
+@Tag(name = "/api/new-token", description = "Token Controller")
 class TokenController(private val tokenService: TokenService) {
 
   @PreAuthorize("hasRole('ROLE_CREATE_EMAIL_TOKEN')")

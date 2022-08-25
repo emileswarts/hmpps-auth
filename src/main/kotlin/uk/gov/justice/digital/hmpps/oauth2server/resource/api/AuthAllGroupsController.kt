@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 
 @RestController
-@Tag(name = "/api/authgroups")
+@Tag(name = "/api/authgroups", description = "Auth All Groups Controller")
 class AuthAllGroupsController(private val authUserGroupService: AuthUserGroupService) {
   @GetMapping("/api/authgroups")
   @Operation(
