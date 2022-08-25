@@ -38,7 +38,7 @@ class PrisonUserController(
   private val userService: UserService,
   private val nomisUserService: NomisUserService,
   private val verifyEmailService: VerifyEmailService,
-  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
+  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean
 ) {
   @GetMapping
   @PreAuthorize("hasAnyRole('ROLE_USE_OF_FORCE', 'ROLE_STAFF_SEARCH')")
@@ -53,7 +53,8 @@ class PrisonUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -67,11 +68,13 @@ class PrisonUserController(
     @Parameter(
       description = "The first name to match. Case insensitive.",
       required = true
-    ) @RequestParam @NotEmpty firstName: String,
+    ) @RequestParam @NotEmpty
+    firstName: String,
     @Parameter(
       description = "The last name to match. Case insensitive",
       required = true
-    ) @RequestParam @NotEmpty lastName: String,
+    ) @RequestParam @NotEmpty
+    lastName: String
   ): List<PrisonUser> = userService.findPrisonUsersByFirstAndLastNames(firstName, lastName)
     .map {
       PrisonUser(
@@ -90,7 +93,7 @@ class PrisonUserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @Operation(
     summary = "Amend a prison user email address.",
-    description = "Amend a prison user email address.",
+    description = "Amend a prison user email address."
   )
   @ApiResponses(
     value = [
@@ -99,7 +102,8 @@ class PrisonUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "400", description = "Bad request e.g. missing email address.",
+        responseCode = "400",
+        description = "Bad request e.g. missing email address.",
         content = [
           Content(
             mediaType = "application/json",
@@ -108,7 +112,8 @@ class PrisonUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -117,7 +122,8 @@ class PrisonUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -128,10 +134,12 @@ class PrisonUserController(
     ]
   )
   fun amendUserEmail(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
-    @Valid @RequestBody amendUser: AmendEmail,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
+    @Valid @RequestBody
+    amendUser: AmendEmail,
     @Parameter(hidden = true) request: HttpServletRequest,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication
   ): String? {
     val setPasswordUrl =
       request.requestURL.toString().replaceFirst("/api/prisonuser/.*".toRegex(), "/verify-email-confirm?token=")
@@ -151,7 +159,7 @@ class PrisonUserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   @Operation(
     summary = "Sync user email",
-    description = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required",
+    description = "Run process to check for differences in email address between Auth and NOMIS and update Auth if required"
   )
   @ApiResponses(
     value = [
@@ -160,7 +168,8 @@ class PrisonUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -169,7 +178,8 @@ class PrisonUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -180,8 +190,9 @@ class PrisonUserController(
     ]
   )
   fun syncUserEmail(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) = verifyEmailService.syncEmailWithNOMIS(username)
 
   companion object {
@@ -215,5 +226,5 @@ data class PrisonUser(
 data class AmendEmail(
   @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
   @field:NotBlank(message = "Email must not be blank")
-  val email: String?,
+  val email: String?
 )

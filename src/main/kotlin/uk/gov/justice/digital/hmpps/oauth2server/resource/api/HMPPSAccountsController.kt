@@ -37,7 +37,8 @@ class HMPPSAccountsController(private val service: HMPPSAccountsService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -54,7 +55,7 @@ class HMPPSAccountsController(private val service: HMPPSAccountsService) {
     page: Int?,
     @Parameter(description = "page count to retrieve for NOMIS users. Each page is 200 users", required = true)
     @RequestParam(value = "pageCount", required = false)
-    pageCount: Int?,
+    pageCount: Int?
   ): List<HMPPSAccounts> =
     service.searchForUsersWithMultipleAccounts(page, pageCount)
 }
@@ -106,10 +107,10 @@ class HMPPSAccountsService(
                 accountType = NOMIS,
                 username = nomisUser.username,
                 firstName = nomisUser.firstName,
-                lastName = nomisUser.lastName,
+                lastName = nomisUser.lastName
               )
             ),
-            email = user.email!!,
+            email = user.email!!
           )
         }
         .map { account ->
@@ -122,7 +123,7 @@ class HMPPSAccountsService(
 
 data class HMPPSAccounts(
   val accounts: List<HMPPSAccount>,
-  val email: String,
+  val email: String
 )
 
 data class HMPPSAccount(

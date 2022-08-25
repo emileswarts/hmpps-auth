@@ -45,12 +45,13 @@ class RolesController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Create role.",
-    description = "Create a Role",
+    description = "Create a Role"
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -59,7 +60,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Role already exists.",
+        responseCode = "409",
+        description = "Role already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -74,7 +76,8 @@ class RolesController(
   fun createRole(
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(description = "Details of the role to be created.", required = true)
-    @Valid @RequestBody createRole: CreateRole,
+    @Valid @RequestBody
+    createRole: CreateRole
   ) {
     rolesService.createRole(authentication.name, createRole)
   }
@@ -83,7 +86,7 @@ class RolesController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all Roles",
-    description = "Get all Roles",
+    description = "Get all Roles"
   )
   @ApiResponses(
     value = [
@@ -92,7 +95,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -105,8 +109,9 @@ class RolesController(
   fun getRoles(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(
-      required = false,
-    ) adminTypes: List<AdminType>?,
+      required = false
+    )
+    adminTypes: List<AdminType>?
   ): List<RoleDetails> = rolesService.getRoles(adminTypes)
     .map {
       RoleDetails(it)
@@ -116,7 +121,7 @@ class RolesController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "get all paged Roles.",
-    description = "getAllPagedRoles",
+    description = "getAllPagedRoles"
   )
   @ApiResponses(
     value = [
@@ -125,7 +130,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -134,7 +140,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Roles not found.",
+        responseCode = "404",
+        description = "Roles not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -146,21 +153,24 @@ class RolesController(
   )
   fun getAllRoles(
     @Parameter(description = "Role name or partial of a role name") @RequestParam(
-      required = false,
-    ) roleName: String?,
+      required = false
+    )
+    roleName: String?,
     @Parameter(description = "Role code or partial of a role code") @RequestParam(
-      required = false,
-    ) roleCode: String?,
+      required = false
+    )
+    roleCode: String?,
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.") @RequestParam(
-      required = false,
-    ) adminTypes: List<AdminType>?,
-    @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
+      required = false
+    )
+    adminTypes: List<AdminType>?,
+    @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable
   ): Page<RoleDetails> =
     rolesService.getAllRoles(
       roleName,
       roleCode,
       adminTypes,
-      pageable,
+      pageable
     )
       .map { RoleDetails(it) }
 
@@ -168,7 +178,7 @@ class RolesController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Role detail.",
-    description = "Get Role Details",
+    description = "Get Role Details"
   )
   @ApiResponses(
     value = [
@@ -177,7 +187,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -186,7 +197,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Role not found.",
+        responseCode = "404",
+        description = "Role not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -198,7 +210,8 @@ class RolesController(
   )
   fun getRoleDetail(
     @Parameter(description = "The Role code of the role.", required = true)
-    @PathVariable role: String,
+    @PathVariable
+    role: String
   ): RoleDetails {
     val returnedRole: Authority = rolesService.getRoleDetail(role)
     return RoleDetails(returnedRole)
@@ -208,7 +221,7 @@ class RolesController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role name.",
-    description = "AmendRoleName",
+    description = "AmendRoleName"
   )
   @ApiResponses(
     value = [
@@ -217,7 +230,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -226,7 +240,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Role not found.",
+        responseCode = "404",
+        description = "Role not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -238,12 +253,14 @@ class RolesController(
   )
   fun amendRoleName(
     @Parameter(description = "The role code of the role.", required = true)
-    @PathVariable role: String,
+    @PathVariable
+    role: String,
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(
       description = "Details of the role to be updated.",
       required = true
-    ) @Valid @RequestBody roleAmendment: RoleNameAmendment
+    ) @Valid @RequestBody
+    roleAmendment: RoleNameAmendment
   ) {
     rolesService.updateRoleName(authentication.name, role, roleAmendment)
   }
@@ -261,7 +278,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -270,7 +288,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Role not found.",
+        responseCode = "404",
+        description = "Role not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -282,12 +301,14 @@ class RolesController(
   )
   fun amendRoleDescription(
     @Parameter(description = "The role code of the role.", required = true)
-    @PathVariable role: String,
+    @PathVariable
+    role: String,
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(
       description = "Details of the role to be updated.",
       required = true
-    ) @Valid @RequestBody roleAmendment: RoleDescriptionAmendment
+    ) @Valid @RequestBody
+    roleAmendment: RoleDescriptionAmendment
   ) {
     rolesService.updateRoleDescription(authentication.name, role, roleAmendment)
   }
@@ -305,7 +326,8 @@ class RolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -314,7 +336,8 @@ class RolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Role not found.",
+        responseCode = "404",
+        description = "Role not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -326,12 +349,14 @@ class RolesController(
   )
   fun amendRoleAdminType(
     @Parameter(description = "The role code of the role.", required = true)
-    @PathVariable role: String,
+    @PathVariable
+    role: String,
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(
       description = "Details of the role to be updated.",
       required = true
-    ) @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
+    ) @Valid @RequestBody
+    roleAmendment: RoleAdminTypeAmendment
   ) {
     rolesService.updateRoleAdminType(authentication.name, role, roleAmendment)
   }
@@ -365,7 +390,7 @@ data class CreateRole(
     example = "[\"EXT_ADM\", \"DPS_ADM\"]"
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: Set<AdminType>,
+  val adminType: Set<AdminType>
 )
 
 @Schema(description = "Role Details")
@@ -384,10 +409,11 @@ data class RoleDetails(
   val roleDescription: String?,
 
   @Schema(
-    required = true, description = "Administration Type",
+    required = true,
+    description = "Administration Type",
     example = "{\"adminTypeCode\": \"EXT_ADM\",\"adminTypeName\": \"External Administrator\"}"
   )
-  val adminType: List<AdminType>,
+  val adminType: List<AdminType>
 ) {
   constructor(r: Authority) : this(
     r.roleCode,

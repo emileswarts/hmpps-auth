@@ -50,7 +50,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -80,7 +81,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -106,14 +108,15 @@ class UserController(private val userService: UserService) {
       ),
       ApiResponse(
         responseCode = "204",
-        description = "No content.  No verified email address found for user.  Only if unverified not supplied or set to false",
+        description = "No content.  No verified email address found for user.  Only if unverified not supplied or set to false"
       )
     ]
   )
   fun myEmail(
     @Parameter(description = "Return unverified email addresses.", required = false)
-    @RequestParam unverified: Boolean = false,
-    @Parameter(hidden = true) principal: Principal,
+    @RequestParam
+    unverified: Boolean = false,
+    @Parameter(hidden = true) principal: Principal
   ): ResponseEntity<*> = getUserEmail(username = principal.name, unverified = unverified)
 
   @GetMapping("/api/user/me/mfa")
@@ -127,7 +130,7 @@ class UserController(private val userService: UserService) {
       MfaOptions(
         emailVerified = it.verified,
         mobileVerified = it.isMobileVerified,
-        backupVerified = it.isSecondaryEmailVerified,
+        backupVerified = it.isSecondaryEmailVerified
       )
     }
     .orElseThrow { UsernameNotFoundException("Account for username ${principal.name} not found") }
@@ -135,7 +138,7 @@ class UserController(private val userService: UserService) {
   data class MfaOptions(
     val emailVerified: Boolean,
     val mobileVerified: Boolean,
-    val backupVerified: Boolean,
+    val backupVerified: Boolean
   )
 
   @GetMapping("/api/user/{username}")
@@ -150,7 +153,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -159,7 +163,8 @@ class UserController(private val userService: UserService) {
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -170,7 +175,8 @@ class UserController(private val userService: UserService) {
     ]
   )
   fun user(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
   ): UserDetail {
     val upd = userService.findMasterUserPersonDetails(username)
       .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
@@ -181,7 +187,7 @@ class UserController(private val userService: UserService) {
   @GetMapping("/api/user/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN."
   )
   @ApiResponses(
     value = [
@@ -190,7 +196,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -199,7 +206,8 @@ class UserController(private val userService: UserService) {
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -211,7 +219,8 @@ class UserController(private val userService: UserService) {
   )
   @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')")
   fun userRoles(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
   ): Collection<UserRole> {
     val user = userService.findMasterUserPersonDetails(username)
       .orElseThrow { UsernameNotFoundException("Account for username $username not found") }
@@ -230,7 +239,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "204", description = "No content.  No verified email address found for user",
+        responseCode = "204",
+        description = "No content.  No verified email address found for user"
       ),
       ApiResponse(
         responseCode = "404",
@@ -245,9 +255,11 @@ class UserController(private val userService: UserService) {
     ]
   )
   fun getUserEmail(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String,
     @Parameter(description = "Return unverified email addresses.", required = false)
-    @RequestParam unverified: Boolean = false,
+    @RequestParam
+    unverified: Boolean = false
   ): ResponseEntity<*> = userService
     .getOrCreateUser(username)
     .map { user: User ->
@@ -267,7 +279,8 @@ class UserController(private val userService: UserService) {
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   fun getUserEmails(
-    @Parameter(description = "List of usernames.", required = true) @RequestBody usernames: List<String>,
+    @Parameter(description = "List of usernames.", required = true) @RequestBody
+    usernames: List<String>
   ): List<EmailAddress> = userService
     .getOrCreateUsers(usernames)
     .filter { it.verified }
@@ -288,7 +301,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -297,7 +311,8 @@ class UserController(private val userService: UserService) {
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -312,7 +327,8 @@ class UserController(private val userService: UserService) {
     @Parameter(description = "A single auth source to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.")
     @RequestParam(
       required = false
-    ) authSource: AuthSource?
+    )
+    authSource: AuthSource?
   ): List<EmailAddress> = userService
     .findUsersBySource(authSource ?: AuthSource.auth)
     .filter { it.verified }
@@ -338,7 +354,8 @@ class UserController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -355,16 +372,19 @@ class UserController(private val userService: UserService) {
     @Parameter(
       description = "The username, email or name of the user.",
       example = "j smith"
-    ) @RequestParam(required = false) name: String?,
+    ) @RequestParam(required = false)
+    name: String?,
     @Parameter(description = "User status to find ACTIVE, INACTIVE or ALL. Defaults to ALL if omitted.") @RequestParam(
       required = false,
       defaultValue = "ALL"
-    ) status: UserFilter.Status,
+    )
+    status: UserFilter.Status,
     @Parameter(description = "List of auth sources to search [nomis|delius|auth|azuread]. Defaults to auth if omitted.") @RequestParam(
       required = false
-    ) authSources: List<AuthSource>?,
+    )
+    authSources: List<AuthSource>?,
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication
   ): Page<AuthUserWithSource> =
     userService.searchUsersInMultipleSourceSystems(
       name,
@@ -434,7 +454,7 @@ data class AuthUserWithSource(
         enabled = user.isEnabled,
         verified = user.verified,
         lastLoggedIn = user.lastLoggedIn,
-        source = user.source,
+        source = user.source
       )
     }
   }

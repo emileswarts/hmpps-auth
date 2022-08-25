@@ -33,7 +33,8 @@ class ValidationController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -49,7 +50,7 @@ class ValidationController(
   @GetMapping("/api/validate/email")
   @Operation(
     summary = "Validates Email",
-    description = "Validates Email.",
+    description = "Validates Email."
   )
   @ApiResponses(
     value = [
@@ -58,7 +59,8 @@ class ValidationController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -67,7 +69,8 @@ class ValidationController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -79,8 +82,10 @@ class ValidationController(
   )
   fun isValidEmail(
     @RequestParam(value = "email", required = true)
-    @Parameter(description = "Email to validate") email: String,
+    @Parameter(description = "Email to validate")
+    email: String,
     @RequestParam(value = "emailType", defaultValue = "PRIMARY", required = false)
-    @Parameter(description = "Email Type. PRIMARY or SECONDARY") emailType: User.EmailType
+    @Parameter(description = "Email Type. PRIMARY or SECONDARY")
+    emailType: User.EmailType
   ): Boolean = verifyEmailService.validateEmailAddress(email, emailType)
 }

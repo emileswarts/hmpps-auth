@@ -18,7 +18,7 @@ class AuthAllRolesController(private val authUserRoleService: AuthUserRoleServic
   @GetMapping("/api/authroles")
   @Operation(
     summary = "Get all possible roles.",
-    description = "Get all roles allowed for auth users.",
+    description = "Get all roles allowed for auth users."
   )
   @ApiResponses(
     value = [
@@ -27,7 +27,8 @@ class AuthAllRolesController(private val authUserRoleService: AuthUserRoleServic
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",

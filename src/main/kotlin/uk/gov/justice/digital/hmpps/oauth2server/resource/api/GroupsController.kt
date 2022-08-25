@@ -43,7 +43,7 @@ class GroupsController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Group detail.",
-    description = "return Group Details",
+    description = "return Group Details"
   )
   @ApiResponses(
     value = [
@@ -52,7 +52,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -61,7 +62,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Group not found.",
+        responseCode = "404",
+        description = "Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -73,8 +75,9 @@ class GroupsController(
   )
   fun getGroupDetail(
     @Parameter(description = "The group code of the group.", required = true)
-    @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ): GroupDetails {
     val returnedGroup: Group = groupsService.getGroupDetail(group, authentication.name, authentication.authorities)
     return GroupDetails(returnedGroup)
@@ -84,7 +87,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
-    description = "get Child Group Details",
+    description = "get Child Group Details"
   )
   @ApiResponses(
     value = [
@@ -93,7 +96,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -102,7 +106,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Child Group not found.",
+        responseCode = "404",
+        description = "Child Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -114,8 +119,9 @@ class GroupsController(
   )
   fun getChildGroupDetail(
     @Parameter(description = "The group code of the child group.", required = true)
-    @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ): ChildGroupDetails {
     val returnedGroup: ChildGroup =
       groupsService.getChildGroupDetail(group, authentication.name, authentication.authorities)
@@ -126,7 +132,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend group name.",
-    description = "AmendGroupName",
+    description = "AmendGroupName"
   )
   @ApiResponses(
     value = [
@@ -135,7 +141,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -144,7 +151,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Group not found.",
+        responseCode = "404",
+        description = "Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -156,12 +164,14 @@ class GroupsController(
   )
   fun amendGroupName(
     @Parameter(description = "The group code of the group.", required = true)
-    @PathVariable group: String,
+    @PathVariable
+    group: String,
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(
       description = "Details of the group to be updated.",
       required = true
-    ) @RequestBody groupAmendment: GroupAmendment,
+    ) @RequestBody
+    groupAmendment: GroupAmendment
 
   ) {
     groupsService.updateGroup(authentication.name, group, groupAmendment)
@@ -171,7 +181,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete group.",
-    description = "Delete a Group",
+    description = "Delete a Group"
   )
   @ApiResponses(
     value = [
@@ -180,7 +190,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -189,7 +200,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Group not found.",
+        responseCode = "404",
+        description = "Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -202,8 +214,9 @@ class GroupsController(
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
   fun deleteGroup(
     @Parameter(description = "The group code of the group.", required = true)
-    @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     groupsService.deleteGroup(authentication.name, group, authentication.authorities)
   }
@@ -221,7 +234,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -230,7 +244,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Child Group not found.",
+        responseCode = "404",
+        description = "Child Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -242,12 +257,14 @@ class GroupsController(
   )
   fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
-    @PathVariable group: String,
+    @PathVariable
+    group: String,
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(
       description = "Details of the child group to be updated.",
       required = true
-    ) @RequestBody groupAmendment: GroupAmendment,
+    ) @RequestBody
+    groupAmendment: GroupAmendment
 
   ) {
     groupsService.updateChildGroup(authentication.name, group, groupAmendment)
@@ -266,7 +283,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -275,7 +293,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Group already exists.",
+        responseCode = "409",
+        description = "Group already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -289,7 +308,8 @@ class GroupsController(
   fun createGroup(
     @Parameter(hidden = true) authentication: Authentication,
     @Parameter(description = "Details of the group to be created.", required = true)
-    @Valid @RequestBody createGroup: CreateGroup,
+    @Valid @RequestBody
+    createGroup: CreateGroup
   ) {
     groupsService.createGroup(authentication.name, createGroup)
   }
@@ -298,7 +318,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
-    description = "Create a Child Group",
+    description = "Create a Child Group"
   )
   @ApiResponses(
     value = [
@@ -307,7 +327,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -316,7 +337,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Child Group already exists.",
+        responseCode = "409",
+        description = "Child Group already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -329,9 +351,11 @@ class GroupsController(
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
   fun createChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true)
+    authentication: Authentication,
     @Parameter(description = "Details of the child group to be created.", required = true)
-    @Valid @RequestBody createChildGroup: CreateChildGroup,
+    @Valid @RequestBody
+    createChildGroup: CreateChildGroup
   ) {
     groupsService.createChildGroup(authentication.name, createChildGroup)
   }
@@ -340,7 +364,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",
-    description = "Delete a Child Group",
+    description = "Delete a Child Group"
   )
   @ApiResponses(
     value = [
@@ -349,7 +373,8 @@ class GroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -358,7 +383,8 @@ class GroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "Child Group not found.",
+        responseCode = "404",
+        description = "Child Group not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -370,8 +396,9 @@ class GroupsController(
   )
   fun deleteChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
-    @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     groupsService.deleteChildGroup(authentication.name, group)
   }
@@ -389,7 +416,7 @@ data class GroupDetails(
   val assignableRoles: List<AuthUserAssignableRole>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<AuthUserGroup>,
+  val children: List<AuthUserGroup>
 ) {
   constructor(g: Group) : this(
     g.groupCode,
@@ -403,7 +430,7 @@ data class GroupDetails(
 data class GroupAmendment(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
-  val groupName: String,
+  val groupName: String
 )
 
 @Schema(description = "Group Details")
@@ -412,7 +439,7 @@ data class ChildGroupDetails(
   val groupCode: String,
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-  val groupName: String,
+  val groupName: String
 ) {
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }
@@ -428,14 +455,15 @@ data class CreateGroup(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String,
+  val groupName: String
 )
 
 data class CreateChildGroup(
   @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 2, max = 30)
-  @field:Pattern(regexp = "^[0-9A-Za-z_]*") val parentGroupCode: String,
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val parentGroupCode: String,
 
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   @field:NotBlank(message = "group code must be supplied")
@@ -447,5 +475,5 @@ data class CreateChildGroup(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String,
+  val groupName: String
 )

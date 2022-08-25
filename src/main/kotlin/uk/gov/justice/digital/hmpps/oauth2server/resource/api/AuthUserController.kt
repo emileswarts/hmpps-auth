@@ -54,7 +54,7 @@ class AuthUserController(
   private val authUserService: AuthUserService,
   private val authUserGroupService: AuthUserGroupService,
   private val authUserRoleService: AuthUserRoleService,
-  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
+  @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean
 ) {
 
   companion object {
@@ -64,7 +64,7 @@ class AuthUserController(
   @GetMapping("/api/authuser/{username}")
   @Operation(
     summary = "User detail.",
-    description = "User detail.",
+    description = "User detail."
   )
   @ApiResponses(
     value = [
@@ -73,7 +73,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -82,7 +83,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -93,7 +95,8 @@ class AuthUserController(
     ]
   )
   fun user(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable username: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
   ): ResponseEntity<Any?> {
     val user = authUserService.getAuthUserByUsername(username)
     return user.map { AuthUser.fromUser(it) }
@@ -114,7 +117,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -123,7 +127,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -135,10 +140,10 @@ class AuthUserController(
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   fun getUserById(
-    @Parameter(description = "The ID of the user.", required = true) @PathVariable userId: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The ID of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(hidden = true) authentication: Authentication
   ): AuthUser {
-
     return authUserService.getAuthUserByUserId(userId, authentication.name, authentication.authorities)
       ?.let { AuthUser.fromUser(it) }
       ?: throw UsernameNotFoundException("User $userId not found")
@@ -147,12 +152,13 @@ class AuthUserController(
   @GetMapping("/api/authuser")
   @Operation(
     summary = "Search for a user.",
-    description = "Search for a user.",
+    description = "Search for a user."
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "200", description = "OK.",
+        responseCode = "200",
+        description = "OK.",
         content = [
           Content(
             mediaType = "application/json",
@@ -162,7 +168,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -171,7 +178,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "No users found.",
+        responseCode = "404",
+        description = "No users found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -182,7 +190,8 @@ class AuthUserController(
     ]
   )
   fun searchForUser(
-    @Parameter(description = "The email address of the user.", required = true) @RequestParam email: String?,
+    @Parameter(description = "The email address of the user.", required = true) @RequestParam
+    email: String?
   ): ResponseEntity<Any> {
     val users = authUserService.findAuthUsersByEmail(email).map { AuthUser.fromUser(it) }
     return if (users.isEmpty()) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
@@ -199,7 +208,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -216,15 +226,19 @@ class AuthUserController(
     @Parameter(
       description = "The username, email or name of the user.",
       example = "j smith"
-    ) @RequestParam(required = false) name: String?,
-    @Parameter(description = "The role codes of the user.") @RequestParam(required = false) roles: List<String>?,
-    @Parameter(description = "The group codes of the user.") @RequestParam(required = false) groups: List<String>?,
+    ) @RequestParam(required = false)
+    name: String?,
+    @Parameter(description = "The role codes of the user.") @RequestParam(required = false)
+    roles: List<String>?,
+    @Parameter(description = "The group codes of the user.") @RequestParam(required = false)
+    groups: List<String>?,
     @Parameter(description = "Limit to active / inactive / show all users.") @RequestParam(
       required = false,
       defaultValue = "ALL"
-    ) status: Status,
+    )
+    status: Status,
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication
   ): Page<AuthUser> =
     authUserService.findAuthUsers(
       name,
@@ -240,7 +254,7 @@ class AuthUserController(
   @GetMapping("/api/authuser/me/assignable-groups")
   @Operation(
     summary = "Get list of assignable groups.",
-    description = "Get list of groups that can be assigned by the current user.",
+    description = "Get list of groups that can be assigned by the current user."
   )
   @ApiResponses(
     value = [
@@ -249,7 +263,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -267,7 +282,7 @@ class AuthUserController(
   @GetMapping("/api/authuser/me/searchable-roles")
   @Operation(
     summary = "Get list of searchable roles.",
-    description = "Get list of roles that can be search for by the current user.",
+    description = "Get list of roles that can be search for by the current user."
   )
   @ApiResponses(
     value = [
@@ -276,7 +291,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -304,7 +320,8 @@ class AuthUserController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -313,7 +330,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -322,7 +340,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "User or email already exists.",
+        responseCode = "409",
+        description = "User or email already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -331,23 +350,24 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to call notify.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to call notify.",
         content = [
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = ErrorDetail::class)
           )
         ]
-      ),
+      )
     ]
   )
   @Throws(NotificationClientException::class)
   fun createUserByEmail(
-    @Parameter(description = "Details of the user to be created.", required = true) @RequestBody createUser: CreateUser,
+    @Parameter(description = "Details of the user to be created.", required = true) @RequestBody
+    createUser: CreateUser,
     @Parameter(hidden = true) request: HttpServletRequest,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication
   ): ResponseEntity<Any> {
-
     val email = EmailHelper.format(createUser.email)
 
     val user = email?.let { authUserService.getAuthUserByUsername(email).orElse(null) }
@@ -416,10 +436,12 @@ class AuthUserController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "OK."
+        responseCode = "204",
+        description = "OK."
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -428,7 +450,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "403", description = "Unable to enable user, the user is not within one of your groups.",
+        responseCode = "403",
+        description = "Unable to enable user, the user is not within one of your groups.",
         content = [
           Content(
             mediaType = "application/json",
@@ -437,7 +460,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -448,9 +472,10 @@ class AuthUserController(
     ]
   )
   fun enableUserByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
     @Parameter(hidden = true) authentication: Authentication,
-    @Parameter(hidden = true) request: HttpServletRequest,
+    @Parameter(hidden = true) request: HttpServletRequest
   ) = authUserService.enableUserByUserId(
     userId,
     authentication.name,
@@ -468,10 +493,12 @@ class AuthUserController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "OK."
+        responseCode = "204",
+        description = "OK."
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -480,7 +507,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "403", description = "Unable to disable user, the user is not within one of your groups.",
+        responseCode = "403",
+        description = "Unable to disable user, the user is not within one of your groups.",
         content = [
           Content(
             mediaType = "application/json",
@@ -489,7 +517,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -500,12 +529,14 @@ class AuthUserController(
     ]
   )
   fun disableUserByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
     @Parameter(
       description = "The reason user made inactive.",
       required = true
-    ) @RequestBody deactivateReason: DeactivateReason,
-    @Parameter(hidden = true) authentication: Authentication,
+    ) @RequestBody
+    deactivateReason: DeactivateReason,
+    @Parameter(hidden = true) authentication: Authentication
   ) = authUserService.disableUserByUserId(
     userId,
     authentication.name,
@@ -517,12 +548,13 @@ class AuthUserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Amend a user email address.",
-    description = "Amend a user email address.",
+    description = "Amend a user email address."
   )
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "OK."
+        responseCode = "204",
+        description = "OK."
       ),
       ApiResponse(
         responseCode = "400",
@@ -535,7 +567,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -554,7 +587,8 @@ class AuthUserController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -566,10 +600,11 @@ class AuthUserController(
   )
   @Throws(NotificationClientException::class)
   fun alterUserEmail(
-    @Parameter(description = "The ID of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The ID of the user.", required = true) @PathVariable
+    userId: String,
     @RequestBody amendUser: AmendUser,
     @Parameter(hidden = true) request: HttpServletRequest,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(hidden = true) authentication: Authentication
   ): String? {
     val setPasswordUrl = createInitialPasswordUrl(request)
     val resetLink = authUserService.amendUserEmailByUserId(
@@ -593,7 +628,8 @@ class AuthUserController(
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
   fun getAuthUserEmails(
-    @Parameter(description = "List of usernames.", required = true) @RequestBody usernames: List<String>,
+    @Parameter(description = "List of usernames.", required = true) @RequestBody
+    usernames: List<String>
   ): List<EmailAddress> = authUserService
     .findAuthUsersByUsernames(usernames)
     .filter { it.verified }
@@ -603,7 +639,7 @@ class AuthUserController(
     @Schema(
       required = true,
       description = "Email address",
-      example = "nomis.user@someagency.justice.gov.uk",
+      example = "nomis.user@someagency.justice.gov.uk"
     )
     val email: String?,
 
@@ -618,9 +654,9 @@ class AuthUserController(
 
     @Schema(
       description = "Initial groups, can be used if multiple initial groups required",
-      example = "[\"SITE_1_GROUP_1\", \"SITE_1_GROUP_2\"]",
+      example = "[\"SITE_1_GROUP_1\", \"SITE_1_GROUP_2\"]"
     )
-    val groupCodes: Set<String>?,
+    val groupCodes: Set<String>?
   )
 
   data class ErrorDetailUserId(
@@ -639,14 +675,14 @@ class AuthUserController(
 
   data class AmendUser(
     @Schema(required = true, description = "Email address", example = "nomis.user@someagency.justice.gov.uk")
-    val email: String?,
+    val email: String?
   )
 
   data class AuthUser(
     @Schema(
       required = true,
       description = "User ID",
-      example = "91229A16-B5F4-4784-942E-A484A97AC865",
+      example = "91229A16-B5F4-4784-942E-A484A97AC865"
     )
     val userId: String? = null,
 
@@ -656,7 +692,7 @@ class AuthUserController(
     @Schema(
       required = true,
       description = "Email address",
-      example = "auth.user@someagency.justice.gov.uk",
+      example = "auth.user@someagency.justice.gov.uk"
     )
     val email: String? = null,
 
@@ -669,7 +705,7 @@ class AuthUserController(
     @Schema(
       required = true,
       description = "Account is locked due to incorrect password attempts",
-      example = "true",
+      example = "true"
     )
     val locked: Boolean = false,
 
@@ -683,7 +719,7 @@ class AuthUserController(
     val lastLoggedIn: LocalDateTime? = null,
 
     @Schema(required = true, description = "Inactive reason", example = "Left department")
-    val inactiveReason: String? = null,
+    val inactiveReason: String? = null
   ) {
     companion object {
       fun fromUser(user: User): AuthUser {
@@ -710,5 +746,6 @@ class AuthUserController(
 @Schema(description = "Deactivate Reason")
 data class DeactivateReason(
   @Schema(required = true, description = "Deactivate Reason", example = "User has left")
-  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank val reason: String,
+  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
+  val reason: String
 )

@@ -35,7 +35,8 @@ class TokenController(private val tokenService: TokenService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -46,7 +47,8 @@ class TokenController(private val tokenService: TokenService) {
     ]
   )
   fun createNewTokenByUserName(
-    @Valid @RequestBody createTokenRequest: CreateTokenRequest
+    @Valid @RequestBody
+    createTokenRequest: CreateTokenRequest
   ): String {
     return tokenService.createTokenForNewUser(
       UserToken.TokenType.RESET,

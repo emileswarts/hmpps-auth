@@ -31,13 +31,13 @@ import javax.validation.constraints.NotEmpty
 @Tag(name = "/api/authuser/id/{userId}/roles", description = "Auth User Roles Controller")
 class AuthUserRolesController(
   private val authUserService: AuthUserService,
-  private val authUserRoleService: AuthUserRoleService,
+  private val authUserRoleService: AuthUserRoleService
 ) {
 
   @GetMapping("/api/authuser/id/{userId}/roles")
   @Operation(
     summary = "Get roles for user.",
-    description = "Get roles for user.",
+    description = "Get roles for user."
   )
   @ApiResponses(
     value = [
@@ -46,7 +46,8 @@ class AuthUserRolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -55,7 +56,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -70,8 +72,9 @@ class AuthUserRolesController(
     @Parameter(
       description = "The userId of the user.",
       required = true
-    ) @PathVariable userId: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    ) @PathVariable
+    userId: String,
+    @Parameter(hidden = true) authentication: Authentication
   ): Set<AuthUserRole> =
     authUserService.getAuthUserByUserId(userId, authentication.name, authentication.authorities)
       ?.let { u: User -> u.authorities.map { AuthUserRole(it) }.toSet() }
@@ -80,7 +83,7 @@ class AuthUserRolesController(
   @GetMapping("/api/authuser/id/{userId}/assignable-roles")
   @Operation(
     summary = "Get list of assignable roles.",
-    description = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role",
+    description = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role"
   )
   @ApiResponses(
     value = [
@@ -89,7 +92,8 @@ class AuthUserRolesController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -98,7 +102,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -109,8 +114,9 @@ class AuthUserRolesController(
     ]
   )
   fun assignableRolesByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(hidden = true) authentication: Authentication
   ): List<AuthUserRole> {
     val roles = authUserRoleService.getAssignableRolesByUserId(userId, authentication.authorities)
     return roles.map { AuthUserRole(it) }
@@ -126,10 +132,12 @@ class AuthUserRolesController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "Added."
+        responseCode = "204",
+        description = "Added."
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -138,7 +146,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -147,7 +156,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -156,7 +166,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Role for user already exists.",
+        responseCode = "409",
+        description = "Role for user already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -165,7 +176,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to insert row.",
         content = [
           Content(
             mediaType = "application/json",
@@ -176,9 +188,11 @@ class AuthUserRolesController(
     ]
   )
   fun addRoleByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
-    @Parameter(description = "The role to be added to the user.", required = true) @PathVariable role: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(description = "The role to be added to the user.", required = true) @PathVariable
+    role: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     authUserRoleService.addRolesByUserId(userId, listOf(role), authentication.name, authentication.authorities)
     log.info("Add role succeeded for userId {} and role {}", userId, role)
@@ -194,10 +208,12 @@ class AuthUserRolesController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "Removed."
+        responseCode = "204",
+        description = "Removed."
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -206,7 +222,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -215,7 +232,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -224,7 +242,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to insert row.",
         content = [
           Content(
             mediaType = "application/json",
@@ -235,9 +254,11 @@ class AuthUserRolesController(
     ]
   )
   fun removeRoleByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
-    @Parameter(description = "The role to be delete from the user.", required = true) @PathVariable role: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(description = "The role to be delete from the user.", required = true) @PathVariable
+    role: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     authUserRoleService.removeRoleByUserId(userId, role, authentication.name, authentication.authorities)
     log.info("Remove role succeeded for userId {} and role {}", userId, role)
@@ -253,10 +274,12 @@ class AuthUserRolesController(
   @ApiResponses(
     value = [
       ApiResponse(
-        responseCode = "204", description = "Added."
+        responseCode = "204",
+        description = "Added."
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -265,7 +288,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -274,7 +298,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -283,7 +308,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Role(s) for user already exists..",
+        responseCode = "409",
+        description = "Role(s) for user already exists..",
         content = [
           Content(
             mediaType = "application/json",
@@ -292,7 +318,8 @@ class AuthUserRolesController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to insert row.",
         content = [
           Content(
             mediaType = "application/json",
@@ -303,12 +330,14 @@ class AuthUserRolesController(
     ]
   )
   fun addRolesByUserId(
-    @Parameter(description = "The username of the user.", required = true) @PathVariable userId: String,
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    userId: String,
     @Parameter(
       description = "List of roles to be assigned.",
       required = true
-    ) @RequestBody @NotEmpty roles: List<String>,
-    @Parameter(hidden = true) authentication: Authentication,
+    ) @RequestBody @NotEmpty
+    roles: List<String>,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     authUserRoleService.addRolesByUserId(userId, roles, authentication.name, authentication.authorities)
     log.info("Add role succeeded for userId {} and roles {}", userId, roles.toString())

@@ -30,7 +30,8 @@ class UserContactsController(private val userService: UserService) {
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -39,7 +40,8 @@ class UserContactsController(private val userService: UserService) {
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -53,7 +55,8 @@ class UserContactsController(private val userService: UserService) {
     @Parameter(
       description = "The username of the user.",
       required = true
-    ) @PathVariable username: String,
+    ) @PathVariable
+    username: String
   ): List<ContactDto> {
     val user = userService.getUserWithContacts(username)
     return user.contacts.filter { it.verified }.map { ContactDto(it.value!!, it.type.name, it.type.description) }
@@ -66,5 +69,5 @@ data class ContactDto(
   @Schema(required = true, example = "SECONDARY_EMAIL")
   val type: String,
   @Schema(required = true, example = "Mobile Phone")
-  val typeDescription: String,
+  val typeDescription: String
 )

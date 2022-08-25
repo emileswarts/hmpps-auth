@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -29,7 +30,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 @Tag(name = "/api/authuser/id/{userId}/groups", description = "Auth User Groups Controller")
 class AuthUserGroupsController(
   private val authUserService: AuthUserService,
-  private val authUserGroupService: AuthUserGroupService,
+  private val authUserGroupService: AuthUserGroupService
 ) {
 
   companion object {
@@ -41,37 +42,14 @@ class AuthUserGroupsController(
     summary = "Get groups for user.",
     description = "Get groups for user."
   )
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK"
-      ),
-      ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
-          )
-        ]
-      ),
-      ApiResponse(
-        responseCode = "404", description = "User not found.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
-          )
-        ]
-      )
-    ]
-  )
+  @Hidden
   fun groups(
     @Parameter(description = "The username of the user.", required = true)
-    @PathVariable username: String,
+    @PathVariable
+    username: String,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
-    @RequestParam(defaultValue = "true") children: Boolean = true,
+    @RequestParam(defaultValue = "true")
+    children: Boolean = true
   ): List<AuthUserGroup> = authUserGroupService.getAuthUserGroups(username)
     ?.flatMap { g ->
       if (children && g.children.isNotEmpty()) g.children.map { AuthUserGroup(it) }
@@ -92,7 +70,8 @@ class AuthUserGroupsController(
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -101,7 +80,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -113,10 +93,12 @@ class AuthUserGroupsController(
   )
   fun groupsByUserId(
     @Parameter(description = "The userId of the user.", required = true)
-    @PathVariable userId: String,
+    @PathVariable
+    userId: String,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
-    @RequestParam(defaultValue = "true") children: Boolean = true,
-    @Parameter(hidden = true) authentication: Authentication,
+    @RequestParam(defaultValue = "true")
+    children: Boolean = true,
+    @Parameter(hidden = true) authentication: Authentication
   ): List<AuthUserGroup> =
     authUserGroupService.getAuthUserGroupsByUserId(userId, authentication.name, authentication.authorities)
       ?.flatMap { g ->
@@ -139,7 +121,8 @@ class AuthUserGroupsController(
         description = "Added"
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -148,7 +131,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -157,7 +141,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -166,7 +151,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "409", description = "Group for user already exists.",
+        responseCode = "409",
+        description = "Group for user already exists.",
         content = [
           Content(
             mediaType = "application/json",
@@ -175,7 +161,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to insert row.",
         content = [
           Content(
             mediaType = "application/json",
@@ -186,9 +173,11 @@ class AuthUserGroupsController(
     ]
   )
   fun addGroupByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
-    @Parameter(description = "The group to be added to the user.", required = true) @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(description = "The group to be added to the user.", required = true) @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     authUserGroupService.addGroupByUserId(userId, group, authentication.name, authentication.authorities)
     log.info("Add group succeeded for userId {} and group {}", userId, group)
@@ -208,7 +197,8 @@ class AuthUserGroupsController(
         description = "Deleted"
       ),
       ApiResponse(
-        responseCode = "400", description = "Validation failed.",
+        responseCode = "400",
+        description = "Validation failed.",
         content = [
           Content(
             mediaType = "application/json",
@@ -217,7 +207,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
@@ -226,7 +217,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "404", description = "User not found.",
+        responseCode = "404",
+        description = "User not found.",
         content = [
           Content(
             mediaType = "application/json",
@@ -235,7 +227,8 @@ class AuthUserGroupsController(
         ]
       ),
       ApiResponse(
-        responseCode = "500", description = "Server exception e.g. failed to insert row.",
+        responseCode = "500",
+        description = "Server exception e.g. failed to insert row.",
         content = [
           Content(
             mediaType = "application/json",
@@ -246,9 +239,11 @@ class AuthUserGroupsController(
     ]
   )
   fun removeGroupByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable userId: String,
-    @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable group: String,
-    @Parameter(hidden = true) authentication: Authentication,
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String,
+    @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable
+    group: String,
+    @Parameter(hidden = true) authentication: Authentication
   ) {
     authUserGroupService.removeGroupByUserId(userId, group, authentication.name, authentication.authorities)
     log.info("Remove group succeeded for userId {} and group {}", userId, group)

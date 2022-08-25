@@ -19,7 +19,7 @@ import java.security.PublicKey
 class PublicKeyController @Autowired constructor(
   @Value("\${jwt.signing.key.pair}") privateKeyPair: String?,
   @Value("\${jwt.keystore.password}") keystorePassword: String,
-  @Value("\${jwt.keystore.alias:elite2api}") keystoreAlias: String?,
+  @Value("\${jwt.keystore.alias:elite2api}") keystoreAlias: String?
 ) {
   private val publicKey: PublicKey
 

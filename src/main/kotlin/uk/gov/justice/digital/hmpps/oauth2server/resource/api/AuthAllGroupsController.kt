@@ -18,7 +18,7 @@ class AuthAllGroupsController(private val authUserGroupService: AuthUserGroupSer
   @GetMapping("/api/authgroups")
   @Operation(
     summary = "Get all possible groups.",
-    description = "Get all groups allowed for auth users.",
+    description = "Get all groups allowed for auth users."
   )
   @ApiResponses(
     value = [
@@ -27,7 +27,8 @@ class AuthAllGroupsController(private val authUserGroupService: AuthUserGroupSer
         description = "OK"
       ),
       ApiResponse(
-        responseCode = "401", description = "Unauthorized.",
+        responseCode = "401",
+        description = "Unauthorized.",
         content = [
           Content(
             mediaType = "application/json",
