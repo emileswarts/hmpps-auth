@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.2-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.3-beta"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -38,9 +38,9 @@ dependencies {
 
   implementation("javax.transaction:javax.transaction-api:1.3")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.10")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.10")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.10")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
@@ -57,7 +57,7 @@ dependencies {
 
   runtimeOnly("com.h2database:h2:2.1.214")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("org.postgresql:postgresql:42.4.2")
+  runtimeOnly("org.postgresql:postgresql:42.5.0")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
