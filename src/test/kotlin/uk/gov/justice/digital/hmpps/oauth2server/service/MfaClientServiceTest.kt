@@ -10,7 +10,6 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.provider.AuthorizationRequest
 import org.springframework.security.oauth2.provider.ClientDetails
@@ -69,43 +68,6 @@ internal class MfaClientServiceTest {
       whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
 
       assertThat(service.clientNeedsMfa(request, null)).isFalse
-    }
-
-    @Test
-    fun `check my diary client no role`() {
-      whenever(clientDetails.clientId).thenReturn("my-diary")
-      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
-
-      assertThat(service.clientNeedsMfa(request, null)).isFalse
-    }
-
-    @Test
-    fun `check my diary client incorrect role`() {
-      whenever(clientDetails.clientId).thenReturn("my-diary")
-      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_JOE")))
-      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
-
-      assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
-    }
-
-    @Test
-    fun `check my diary client with role but mfa disabled for my-diary`() {
-      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE")))
-      whenever(clientDetails.clientId).thenReturn("my-diary-5")
-      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
-
-      assertThat(service.clientNeedsMfa(request, userDetails)).isFalse
-    }
-
-    @Test
-    fun `check my diary client with role and mfa enabled for my-diary`() {
-      whenever(userDetails.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_CMD_MIGRATED_MFA"), SimpleGrantedAuthority("ROLE_JOE")))
-      whenever(clientDetails.clientId).thenReturn("my-diary-5")
-      whenever(mfaClientNetworkService.outsideApprovedNetwork()).thenReturn(true)
-      whenever(clientDetails.additionalInformation).thenReturn(mapOf("mfa" to MfaAccess.untrusted.name))
-      whenever(clientDetailsService.loadClientByClientId(any())).thenReturn(clientDetails)
-
-      assertThat(service.clientNeedsMfa(request, userDetails)).isTrue
     }
 
     @Test

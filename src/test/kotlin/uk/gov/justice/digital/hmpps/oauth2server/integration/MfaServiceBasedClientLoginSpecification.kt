@@ -252,21 +252,6 @@ class MfaServiceBasedClientLoginSpecification : AbstractNomisAndDeliusAuthSpecif
       .jsonPath(".user_name").isEqualTo("AUTH_MFA_USER")
   }
 
-  @Test
-  fun `Sign in as cmd user bypasses 2FA`() {
-    goTo(loginPage).loginAs("AUTH_CMD_USER")
-    clientMfaServiceAccess(clientId = "my-diary").jsonPath(".user_name").isEqualTo("AUTH_CMD_USER")
-  }
-
-  @Test
-  fun `Sign in as cmd user with migrated role presents 2FA`() {
-    goTo(loginPage).loginAs("AUTH_CMD_MIGRATED_USER")
-    clientMfaServiceAccess(clientId = "my-diary") {
-      mfaEmailPage.isAtPage()
-        .submitCode()
-    }.jsonPath(".user_name").isEqualTo("AUTH_CMD_MIGRATED_USER")
-  }
-
   private fun clientMfaServiceAccess(clientId: String = "service-mfa-test-client", doWithinAuth: () -> Unit = {}): WebTestClient.BodyContentSpec =
     clientAccess(clientId, doWithinAuth)
 }
