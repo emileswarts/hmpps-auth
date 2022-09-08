@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.4.3-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.0-beta"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -50,7 +50,7 @@ dependencies {
   implementation("org.apache.groovy:groovy:4.0.4")
   implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
 
-  implementation("org.flywaydb:flyway-core:8.5.13")
+  implementation("org.flywaydb:flyway-core")
   implementation("com.zaxxer:HikariCP:5.0.1")
   implementation("org.apache.commons:commons-text:1.9")
   implementation("com.veracode.annotation:VeracodeAnnotations:1.2.1")
