@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 
 abstract class AbstractMfaController(
   private val tokenService: TokenService,
-  private val telemetryClient: TelemetryClient,
+  protected val telemetryClient: TelemetryClient,
   private val mfaService: MfaService,
   private val smokeTestEnabled: Boolean,
   private val viewNameSuffix: String,

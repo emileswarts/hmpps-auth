@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupNot
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
+import uk.gov.justice.digital.hmpps.oauth2server.resource.AuthorizationRequestMissingException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
@@ -75,6 +76,14 @@ class AuthExceptionHandler {
   @ExceptionHandler(AuthUserRoleException::class)
   fun handleAuthUserRoleException(e: AuthUserRoleException): ResponseEntity<ErrorDetail> {
     log.debug("Auth user role exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", e.field))
+  }
+
+  @ExceptionHandler(AuthorizationRequestMissingException::class)
+  fun handleAuthorizationRequestMissingException(e: AuthorizationRequestMissingException): ResponseEntity<ErrorDetail> {
+    log.debug("Authorization: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", e.field))

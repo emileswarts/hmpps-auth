@@ -29,7 +29,7 @@ class MfaController(
   private val jwtAuthenticationSuccessHandler: JwtAuthenticationSuccessHandler,
   private val tokenService: TokenService,
   private val userService: UserService,
-  private val telemetryClient: TelemetryClient,
+  telemetryClient: TelemetryClient,
   private val mfaService: MfaService,
   @Value("\${application.smoketest.enabled}") private val smokeTestEnabled: Boolean,
 ) : AbstractMfaController(

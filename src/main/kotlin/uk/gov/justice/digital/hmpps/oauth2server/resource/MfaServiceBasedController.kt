@@ -63,8 +63,16 @@ class MfaServiceBasedController(
     @RequestParam token: String?,
     @RequestParam mfaPreference: MfaPreferenceType?,
     @RequestParam user_oauth_approval: String?,
-    @ModelAttribute("authorizationRequest") authorizationRequest: AuthorizationRequest,
-  ): ModelAndView = mfaChallengeRequest(error, token, mfaPreference, extraModel(user_oauth_approval, authorizationRequest))
+    @ModelAttribute("authorizationRequest") authorizationRequest: AuthorizationRequest?,
+  ): ModelAndView {
+
+    if (authorizationRequest == null) {
+      telemetryClient.trackEvent("MissingAuthorizationRequest", null, null)
+      throw AuthorizationRequestMissingException()
+    }
+
+    return mfaChallengeRequest(error, token, mfaPreference, extraModel(user_oauth_approval, authorizationRequest))
+  }
 
   @PostMapping("/service-mfa-challenge")
   @Throws(IOException::class, ServletException::class)
@@ -116,3 +124,8 @@ class MfaServiceBasedController(
 
 @Component
 class MfaRememberMeCookieHelper : CookieHelper("mfa_remember_me", Duration.ofDays(7))
+
+open class AuthorizationRequestMissingException() : Exception("End point invoked without AuthorizationRequest") {
+  var field: String = "authorizationRequest"
+  var errorCode: String = "authorizationRequest.notfound"
+}
