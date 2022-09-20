@@ -14,6 +14,11 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 
 @RestController
 @Tag(name = "/api/authroles", description = "Auth All Roles Controller")
+@Deprecated(
+  message = "Role endpoints now use the mange-users-api service",
+  replaceWith = ReplaceWith("/{manage-users-api}/roles?adminTypes=EXT_ADM"),
+  level = DeprecationLevel.WARNING
+)
 class AuthAllRolesController(private val authUserRoleService: AuthUserRoleService) {
   @GetMapping("/api/authroles")
   @Operation(
