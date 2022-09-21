@@ -42,6 +42,11 @@ class RolesController(
   private val rolesService: RolesService
 ) {
   @PostMapping("/api/roles")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Create role.",
