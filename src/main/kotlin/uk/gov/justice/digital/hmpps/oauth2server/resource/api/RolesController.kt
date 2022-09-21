@@ -37,7 +37,11 @@ import javax.validation.constraints.Size
 
 @Validated
 @RestController
-@Tag(name = "/api/roles", description = "Roles Controller")
+@Tag(name = "/api/roles", description = "** IMPORTANT ** Calls to all /api/roles endpoints are now deprecated. The endpoints have been moved to the mange-users-api service.")
+@Deprecated(
+  message = "Role endpoints now use the mange-users-api service",
+  level = DeprecationLevel.WARNING
+)
 class RolesController(
   private val rolesService: RolesService
 ) {
@@ -128,6 +132,11 @@ class RolesController(
     }
 
   @GetMapping("/api/roles/paged")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles/paged"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "get all paged Roles.",
@@ -185,6 +194,11 @@ class RolesController(
       .map { RoleDetails(it) }
 
   @GetMapping("/api/roles/{role}")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles/{role}"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Role detail.",
@@ -228,6 +242,11 @@ class RolesController(
   }
 
   @PutMapping("/api/roles/{role}")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles/{role}"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role name.",
@@ -276,6 +295,11 @@ class RolesController(
   }
 
   @PutMapping("/api/roles/{role}/description")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles/{role}/description"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role description.",
@@ -324,6 +348,11 @@ class RolesController(
   }
 
   @PutMapping("/api/roles/{role}/admintype")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles/{role}/admintype"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role admin type.",

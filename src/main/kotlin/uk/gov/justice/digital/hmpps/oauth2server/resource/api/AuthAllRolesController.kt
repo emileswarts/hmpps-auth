@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserRole
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 
 @RestController
-@Tag(name = "/api/authroles", description = "Auth All Roles Controller")
+@Tag(name = "/api/authroles", description = "** IMPORTANT ** Calls to all /api/authroles endpoints are now deprecated. The endpoints have been moved to the mange-users-api service.")
 @Deprecated(
   message = "Role endpoints now use the mange-users-api service",
   replaceWith = ReplaceWith("/{manage-users-api}/roles?adminTypes=EXT_ADM"),
