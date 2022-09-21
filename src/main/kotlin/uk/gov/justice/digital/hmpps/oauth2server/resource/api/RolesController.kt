@@ -83,7 +83,12 @@ class RolesController(
   }
 
   @GetMapping("/api/roles")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
+  @Deprecated(
+    message = "Role endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/roles"),
+    level = DeprecationLevel.WARNING
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all Roles",
     description = "Get all Roles"
