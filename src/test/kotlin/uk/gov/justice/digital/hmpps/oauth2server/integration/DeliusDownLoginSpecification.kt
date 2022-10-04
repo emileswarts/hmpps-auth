@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions
 import org.fluentlenium.core.annotation.Page
 import org.junit.jupiter.api.Test
 
-class DeliusDownLoginSpecification : AbstractAuthSpecification() {
+class DeliusDownLoginSpecification : AbstractNomisAuthSpecification() {
 
   @Page
   private lateinit var homePage: HomePage

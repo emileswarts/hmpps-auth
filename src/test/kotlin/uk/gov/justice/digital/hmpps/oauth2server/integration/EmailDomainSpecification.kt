@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.openqa.selenium.By
 import org.openqa.selenium.support.FindBy
 
-class EmailDomainSpecification : AbstractAuthSpecification() {
+class EmailDomainSpecification : AbstractNomisAuthSpecification() {
 
   @Page
   internal lateinit var emailDomainsPage: EmailDomainsPage

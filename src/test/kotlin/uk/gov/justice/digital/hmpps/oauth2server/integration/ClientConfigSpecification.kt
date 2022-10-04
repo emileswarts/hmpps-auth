@@ -8,7 +8,7 @@ import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 
-class ClientConfigSpecification : AbstractAuthSpecification() {
+class ClientConfigSpecification : AbstractNomisAuthSpecification() {
   @Page
   private lateinit var clientSummaryPage: ClientSummaryPage
 

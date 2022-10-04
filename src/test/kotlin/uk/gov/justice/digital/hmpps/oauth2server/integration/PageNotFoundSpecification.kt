@@ -7,7 +7,7 @@ import org.fluentlenium.core.domain.FluentWebElement
 import org.junit.jupiter.api.Test
 import org.openqa.selenium.support.FindBy
 
-class PageNotFoundSpecification : AbstractAuthSpecification() {
+class PageNotFoundSpecification : AbstractNomisAuthSpecification() {
 
   @Page
   private lateinit var pageNotFoundPage: PageNotFoundPage

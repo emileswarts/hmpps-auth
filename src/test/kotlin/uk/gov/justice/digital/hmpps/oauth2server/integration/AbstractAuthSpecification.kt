@@ -17,13 +17,12 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AzureOIDCExtension
-import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.RemoteClientMockServer
 import uk.gov.justice.digital.hmpps.oauth2server.resource.TokenVerificationExtension
 import java.nio.charset.Charset
 import java.util.Base64
 
-@ExtendWith(TokenVerificationExtension::class, AzureOIDCExtension::class, NomisExtension::class)
+@ExtendWith(TokenVerificationExtension::class, AzureOIDCExtension::class)
 open class AbstractAuthSpecification : FluentTest() {
   private val webTestClient = WebTestClient.bindToServer().baseUrl(baseUrl).build()
 

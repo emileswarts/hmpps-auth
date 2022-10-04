@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.oauth2server.integration
 import org.fluentlenium.core.annotation.Page
 import org.junit.jupiter.api.Test
 
-class ClientServiceSpecification : AbstractAuthSpecification() {
+class ClientServiceSpecification : AbstractNomisAuthSpecification() {
   @Page
   private lateinit var clientSummaryPage: ClientSummaryPage
 
