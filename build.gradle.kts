@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.2-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.4"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -52,7 +52,7 @@ dependencies {
 
   implementation("org.flywaydb:flyway-core")
   implementation("com.zaxxer:HikariCP:5.0.1")
-  implementation("org.apache.commons:commons-text:1.9")
+  implementation("org.apache.commons:commons-text:1.10.0")
   implementation("com.veracode.annotation:VeracodeAnnotations:1.2.1")
 
   runtimeOnly("com.h2database:h2:2.1.214")
