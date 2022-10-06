@@ -34,7 +34,12 @@ import javax.validation.constraints.Size
 
 @Validated
 @RestController
-@Tag(name = "/api/groups", description = "Groups Controller")
+@Tag(name = "/api/groups", description = "** IMPORTANT ** Calls to all /api/groups/{group} endpoints are now deprecated. The endpoints have been moved to the mange-users-api service.")
+@Deprecated(
+  message = "Groups endpoints now use the mange-users-api service",
+  replaceWith = ReplaceWith("/{manage-users-api}/groups"),
+  level = DeprecationLevel.WARNING
+)
 class GroupsController(
   private val groupsService: GroupsService
 ) {
@@ -84,6 +89,11 @@ class GroupsController(
   }
 
   @GetMapping("/api/groups/child/{group}")
+  @Deprecated(
+    message = "Groups endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/groups/child/{group}"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
@@ -270,6 +280,11 @@ class GroupsController(
     groupsService.updateChildGroup(authentication.name, group, groupAmendment)
   }
 
+  @Deprecated(
+    message = "Groups endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/groups/child/{group}"),
+    level = DeprecationLevel.WARNING
+  )
   @PostMapping("/api/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
