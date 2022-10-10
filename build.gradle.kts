@@ -24,7 +24,7 @@ dependencies {
   implementation("io.jsonwebtoken:jjwt:0.9.1")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-  implementation("org.hibernate:hibernate-core:5.6.9.Final")
+  implementation("org.hibernate:hibernate-core")
 
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
