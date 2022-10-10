@@ -187,6 +187,11 @@ class GroupsController(
     groupsService.updateGroup(authentication.name, group, groupAmendment)
   }
 
+  @Deprecated(
+    message = "Groups endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/groups/{group}"),
+    level = DeprecationLevel.WARNING
+  )
   @DeleteMapping("/api/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
