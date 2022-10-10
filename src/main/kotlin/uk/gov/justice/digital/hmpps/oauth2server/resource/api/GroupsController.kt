@@ -335,6 +335,11 @@ class GroupsController(
   }
 
   @PostMapping("/api/groups/child")
+  @Deprecated(
+    message = "Groups endpoints now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/groups/child"),
+    level = DeprecationLevel.WARNING
+  )
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
