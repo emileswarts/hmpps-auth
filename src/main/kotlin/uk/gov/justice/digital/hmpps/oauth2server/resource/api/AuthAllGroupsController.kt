@@ -13,7 +13,12 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 
 @RestController
-@Tag(name = "/api/authgroups", description = "Auth All Groups Controller")
+@Tag(name = "/api/authgroups", description = "** IMPORTANT ** Calls to the /api/authgroups endpoint are now deprecated. The endpoint has been moved to the mange-users-api service.")
+@Deprecated(
+  message = "Groups endpoints now use the mange-users-api service",
+  replaceWith = ReplaceWith("/{manage-users-api}/groups"),
+  level = DeprecationLevel.WARNING
+)
 class AuthAllGroupsController(private val authUserGroupService: AuthUserGroupService) {
   @GetMapping("/api/authgroups")
   @Operation(
