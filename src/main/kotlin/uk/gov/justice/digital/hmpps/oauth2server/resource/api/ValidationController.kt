@@ -22,6 +22,11 @@ class ValidationController(
   private val verifyEmailService: VerifyEmailService
 ) {
   @GetMapping("/api/validate/email-domain")
+  @Deprecated(
+    message = "Validate email domains now uses the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/validate/email-domain"),
+    level = DeprecationLevel.WARNING
+  )
   @Operation(
     summary = "Validates Email domain",
     description = "Validates Email domain."
