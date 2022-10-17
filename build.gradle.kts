@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.5"
   kotlin("plugin.spring") version "1.7.10"
   kotlin("plugin.jpa") version "1.7.10"
 }
@@ -38,17 +38,17 @@ dependencies {
 
   implementation("javax.transaction:javax.transaction-api:1.3")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
   // thymeleaf-layout-dialect:3.1.0 uses groovy 4.0.0 which contains CVE-2020-17521 https://nvd.nist.gov/vuln/detail/CVE-2020-17521
   // org.apache.groovy:groovy can be removed when thymeleaf-layout-dialect is updated and include groovy:4.0.2 or later
-  implementation("org.apache.groovy:groovy:4.0.5")
-  implementation("uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE")
+  implementation("org.apache.groovy:groovy:4.0.6")
+  implementation("uk.gov.service.notify:notifications-java-client:3.18.0-RELEASE")
 
   implementation("org.flywaydb:flyway-core")
   implementation("com.zaxxer:HikariCP:5.0.1")
@@ -69,9 +69,9 @@ dependencies {
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:4.0.0")
+  testImplementation("com.auth0:java-jwt:4.1.0")
 
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
   testImplementation("org.fluentlenium:fluentlenium-assertj:5.0.4")
   testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
