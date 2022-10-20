@@ -14,15 +14,17 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.DeliusAuthenticationServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaRequiredException
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 
 @Controller
 class ExistingPasswordController(
   private val authenticationManager: AuthenticationManager,
   private val tokenService: TokenService,
-  private val telemetryClient: TelemetryClient,
+  private val telemetryClient: TelemetryClient
 ) {
 
   @GetMapping("/existing-email")
@@ -37,7 +39,7 @@ class ExistingPasswordController(
   fun existingPassword(
     @RequestParam password: String?,
     @RequestParam type: String,
-    authentication: Authentication,
+    authentication: Authentication
   ): ModelAndView {
     if (password.isNullOrBlank()) return createModelAndViewWithUsername(authentication)
       .addObject("error", "required")
@@ -58,17 +60,23 @@ class ExistingPasswordController(
         mapOf("username" to username, "reason" to reason),
         null
       )
-      when (e::class) {
-        DeliusAuthenticationServiceException::class -> createModelAndViewWithUsername(authentication).addObject(
+      when {
+        ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true -> createModelAndViewWithUsername(authentication).addObject(
+          "error",
+          listOf("invalid", "nomisdown")
+        ).addObject("type", type)
+        e::class == DeliusAuthenticationServiceException::class -> createModelAndViewWithUsername(authentication).addObject(
           "error",
           listOf("invalid", "deliusdown")
         ).addObject("type", type)
-        BadCredentialsException::class ->
+        e::class == BadCredentialsException::class ->
           createModelAndViewWithUsername(authentication).addObject("error", "invalid")
             .addObject("type", type)
-        LockedException::class -> ModelAndView("redirect:/sign-out", "error", "locked")
+        e::class == LockedException::class -> ModelAndView("redirect:/sign-out", "error", "locked")
         else -> ModelAndView("redirect:/sign-out", "error", "invalid")
       }
+    } finally {
+      ServiceUnavailableThreadLocal.clear()
     }
   }
 

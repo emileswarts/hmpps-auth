@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaRequiredException
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaUnavailableException
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaService
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 import java.io.IOException
 import java.util.StringJoiner
@@ -54,7 +55,6 @@ class UserStateAuthenticationFailureHandler(
     exception: AuthenticationException,
     username: String?,
   ) {
-
     val failures = when (exception) {
       is LockedException -> Pair("locked", null)
       is CredentialsExpiredException -> {
@@ -99,8 +99,16 @@ class UserStateAuthenticationFailureHandler(
         log.error("Unable to connect to azure due to:", exception)
         Pair("justiceunavailable", null)
       }
-      else -> Pair("invalid", null)
+      else -> {
+        if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true) {
+          Pair("invalid", "nomisdown")
+        } else {
+          Pair("invalid", null)
+        }
+      }
     }
+
+    ServiceUnavailableThreadLocal.clear()
 
     val builder = StringJoiner("&error=", "?error=", "")
     with(failures) {

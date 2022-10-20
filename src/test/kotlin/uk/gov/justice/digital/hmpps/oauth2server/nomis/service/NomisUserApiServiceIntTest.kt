@@ -30,6 +30,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Compani
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 import java.net.HttpURLConnection
 
 @ExtendWith(NomisExtension::class)
@@ -276,6 +277,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
       )
       assertThat(users).isEmpty()
     }
+
     @Test
     fun `findUsers encodes the email address parameter`() {
       nomisApi.stubFor(
@@ -416,6 +418,21 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
         )
       )
       assertThat(user).isNotNull
+    }
+
+    @Test
+    fun `findUserByUsername does not set ServiceUnavailableThreadLocal when nomis available`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/ITAG_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_OK)
+          )
+      )
+      nomisService.findUserByUsername("ITAG_USER")
+
+      assertThat(ServiceUnavailableThreadLocal.service == null)
     }
 
     @Test

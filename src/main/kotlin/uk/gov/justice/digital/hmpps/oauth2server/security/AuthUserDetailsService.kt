@@ -41,7 +41,7 @@ class AuthUserDetailsService(
   readOnly = true,
   noRollbackFor = [BadCredentialsException::class]
 )
-open class AuthAuthenticationProvider(
+class AuthAuthenticationProvider(
   authUserDetailsService: AuthUserDetailsService,
   userRetriesService: UserRetriesService,
   mfaClientNetworkService: MfaClientNetworkService,

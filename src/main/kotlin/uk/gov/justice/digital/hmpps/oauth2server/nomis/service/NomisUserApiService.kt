@@ -21,9 +21,13 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserDetails
 import uk.gov.justice.digital.hmpps.oauth2server.nomis.model.NomisUserPersonDetails
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUnreachableServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
+import java.net.ConnectException
 
 @Service
 class NomisUserApiService(
@@ -133,26 +137,36 @@ class NomisUserApiService(
       log.debug("Nomis not called with username as contained @: {}", username)
       return null
     }
-    val userDetails = webClient.get().uri("/users/{username}", username)
-      .retrieve()
-      .bodyToMono(NomisUserDetails::class.java)
-      .onErrorResume(
-        WebClientResponseException.NotFound::class.java
-      ) {
-        log.debug("User not found in NOMIS due to {}", it.message)
-        Mono.empty()
-      }
-      .onErrorResume(WebClientResponseException::class.java) {
-        log.warn(
-          "Unable to retrieve details from NOMIS for user {} due to {}",
-          username,
-          (it as WebClientResponseException).statusCode
+    try {
+      val userDetails = webClient.get().uri("/users/{username}", username)
+        .retrieve()
+        .bodyToMono(NomisUserDetails::class.java)
+        .onErrorResume(
+          { it.cause is ConnectException },
+          {
+            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS Down", username, it)
+            throw NomisUnreachableServiceException(username)
+          }
         )
-        Mono.error(NomisUserServiceException(username))
+        .onErrorResume(WebClientResponseException.NotFound::class.java) {
+          log.debug("User not found in NOMIS due to {}", it.message)
+          Mono.empty()
+        }
+        .onErrorResume(WebClientResponseException::class.java) {
+          log.warn(
+            "Unable to retrieve details from NOMIS for user {} due to {}",
+            username,
+            (it as WebClientResponseException).statusCode
+          )
+          Mono.error(NomisUserServiceException(username))
+        }
+        .block()
+      return userDetails?.let {
+        mapUserDetailsToNomisUser(userDetails)
       }
-      .block()
-    return userDetails?.let {
-      mapUserDetailsToNomisUser(userDetails)
+    } catch (e: NomisUnreachableServiceException) {
+      ServiceUnavailableThreadLocal.addService(AuthSource.nomis)
+      return null
     }
   }
 
@@ -204,7 +218,8 @@ class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) const
   @JsonProperty("totalElements") totalElements: Long,
   @Suppress("UNUSED_PARAMETER") @JsonProperty(
     "pageable"
-  ) pageable: JsonNode
+  )
+  pageable: JsonNode
 ) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)
 
 data class NomisUserSummaryDto(
