@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaRequiredException
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaUnavailableException
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaService
@@ -100,7 +101,7 @@ class UserStateAuthenticationFailureHandler(
         Pair("justiceunavailable", null)
       }
       else -> {
-        if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true) {
+        if (ServiceUnavailableThreadLocal.containsAuthSource(nomis)) {
           Pair("invalid", "nomisdown")
         } else {
           Pair("invalid", null)

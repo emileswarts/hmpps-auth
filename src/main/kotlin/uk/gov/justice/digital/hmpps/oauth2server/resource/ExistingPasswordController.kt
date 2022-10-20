@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
-import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.DeliusAuthenticationServiceException
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaRequiredException
 import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 class ExistingPasswordController(
   private val authenticationManager: AuthenticationManager,
   private val tokenService: TokenService,
-  private val telemetryClient: TelemetryClient
+  private val telemetryClient: TelemetryClient,
 ) {
 
   @GetMapping("/existing-email")
@@ -39,7 +39,7 @@ class ExistingPasswordController(
   fun existingPassword(
     @RequestParam password: String?,
     @RequestParam type: String,
-    authentication: Authentication
+    authentication: Authentication,
   ): ModelAndView {
     if (password.isNullOrBlank()) return createModelAndViewWithUsername(authentication)
       .addObject("error", "required")
@@ -61,7 +61,9 @@ class ExistingPasswordController(
         null
       )
       when {
-        ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true -> createModelAndViewWithUsername(authentication).addObject(
+        ServiceUnavailableThreadLocal.containsAuthSource(nomis) -> createModelAndViewWithUsername(
+          authentication
+        ).addObject(
           "error",
           listOf("invalid", "nomisdown")
         ).addObject("type", type)

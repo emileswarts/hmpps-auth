@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
-import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 
 class NomisUserApiServiceDownIntTest : IntegrationTest() {
@@ -37,6 +37,6 @@ class NomisUserApiServiceDownIntTest : IntegrationTest() {
 
     assertThat(user).isNull()
 
-    assertThat(ServiceUnavailableThreadLocal.service!!.contains(AuthSource.nomis))
+    assertThat(ServiceUnavailableThreadLocal.containsAuthSource(nomis)).isTrue
   }
 }

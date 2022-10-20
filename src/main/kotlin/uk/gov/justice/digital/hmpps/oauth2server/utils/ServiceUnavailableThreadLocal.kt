@@ -16,6 +16,10 @@ object ServiceUnavailableThreadLocal {
     service.add(authSource)
   }
 
+  fun containsAuthSource(authSource: AuthSource): Boolean {
+    return ServiceUnavailableThreadLocal.get()?.contains(authSource) ?: false
+  }
+
   fun clear() {
     ServiceUnavailableThreadLocal.remove()
   }
