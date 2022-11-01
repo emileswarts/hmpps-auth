@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.5"
-  kotlin("plugin.spring") version "1.7.10"
-  kotlin("plugin.jpa") version "1.7.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.6"
+  kotlin("plugin.spring") version "1.7.20"
+  kotlin("plugin.jpa") version "1.7.20"
 }
 
 configurations {
@@ -48,7 +48,7 @@ dependencies {
   // thymeleaf-layout-dialect:3.1.0 uses groovy 4.0.0 which contains CVE-2020-17521 https://nvd.nist.gov/vuln/detail/CVE-2020-17521
   // org.apache.groovy:groovy can be removed when thymeleaf-layout-dialect is updated and include groovy:4.0.2 or later
   implementation("org.apache.groovy:groovy:4.0.6")
-  implementation("uk.gov.service.notify:notifications-java-client:3.18.0-RELEASE")
+  implementation("uk.gov.service.notify:notifications-java-client:3.19.0-RELEASE")
 
   implementation("org.flywaydb:flyway-core")
   implementation("com.zaxxer:HikariCP:5.0.1")
@@ -68,8 +68,8 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.slf4j:slf4j-api:1.7.36")
-  testImplementation("com.auth0:java-jwt:4.1.0")
+  testImplementation("org.slf4j:slf4j-api:2.0.3")
+  testImplementation("com.auth0:java-jwt:4.2.1")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
