@@ -144,7 +144,14 @@ class NomisUserApiService(
         .onErrorResume(
           { it.cause is ConnectException },
           {
-            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS Down", username, it)
+            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS connection execption", username, it)
+            throw NomisUnreachableServiceException(username)
+          }
+        )
+        .onErrorResume(
+          { it is WebClientResponseException && it.statusCode.is5xxServerError },
+          {
+            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS 5XX error", username, it)
             throw NomisUnreachableServiceException(username)
           }
         )

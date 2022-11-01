@@ -27,7 +27,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.NomisExtension.Companion.nomisApi
-import uk.gov.justice.digital.hmpps.oauth2server.security.NomisUserServiceException
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.PasswordValidationFailureException
 import uk.gov.justice.digital.hmpps.oauth2server.security.ReusedPasswordException
 import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
@@ -465,7 +465,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `it will throw an exception for 500 errors`() {
+    fun `it will set serviceUnavailableThreadLocal to contain AuthSource nomis for 500 errors`() {
       nomisApi.stubFor(
         get(urlEqualTo("/users/TEST_USER"))
           .willReturn(
@@ -483,9 +483,35 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
               .withStatus(HttpURLConnection.HTTP_INTERNAL_ERROR)
           )
       )
+      nomisService.findUserByUsername("TEST_USER")
+      assertThat(ServiceUnavailableThreadLocal.containsAuthSource(nomis)).isTrue
+    }
 
-      assertThatThrownBy { nomisService.findUserByUsername("TEST_USER") }
-        .isInstanceOf(NomisUserServiceException::class.java)
+    @Test
+    fun `it will set serviceUnavailableThreadLocal to contain AuthSource nomis for 503 errors`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/TEST_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_UNAVAILABLE)
+          )
+      )
+      nomisService.findUserByUsername("TEST_USER")
+      assertThat(ServiceUnavailableThreadLocal.containsAuthSource(nomis)).isTrue
+    }
+    @Test
+    fun `it will set serviceUnavailableThreadLocal to contain AuthSource nomis for 504 errors`() {
+      nomisApi.stubFor(
+        get(urlEqualTo("/users/TEST_USER"))
+          .willReturn(
+            aResponse()
+              .withHeader("Content-Type", "application/json")
+              .withStatus(HttpURLConnection.HTTP_GATEWAY_TIMEOUT)
+          )
+      )
+      nomisService.findUserByUsername("TEST_USER")
+      assertThat(ServiceUnavailableThreadLocal.containsAuthSource(nomis)).isTrue
     }
   }
 
@@ -726,7 +752,7 @@ class NomisUserApiServiceIntTest : IntegrationTest() {
       )
 
       val result = nomisService.authenticateUser("ITAG_USER", "password")
-      assertThat(result).isFalse()
+      assertThat(result).isFalse
 
       nomisApi.verify(
         postRequestedFor(
