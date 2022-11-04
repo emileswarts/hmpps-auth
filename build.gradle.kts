@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7"
   kotlin("plugin.spring") version "1.7.20"
   kotlin("plugin.jpa") version "1.7.20"
 }
@@ -11,6 +11,9 @@ configurations {
 dependencyCheck {
   suppressionFiles.add("auth-suppressions.xml")
 }
+
+// Temporarily kept selenium version at 4.1.4 as tests fail using 4.5.3
+val seleniumVersion by extra("4.1.4")
 
 ext["selenium.version"] = "4.1.2"
 
@@ -62,9 +65,9 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 
-  testImplementation("org.seleniumhq.selenium:selenium-support:4.1.4")
-  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:4.1.4")
-  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:4.1.4")
+  testImplementation("org.seleniumhq.selenium:selenium-support:$seleniumVersion")
+  testImplementation("org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion")
+  testImplementation("org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion")
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
