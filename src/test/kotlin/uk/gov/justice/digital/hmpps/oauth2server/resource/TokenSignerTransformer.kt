@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.HashMap
 
 /**
  * Takes the static token responses, incorporates the nonce from the client request into the ID token, and then signs them
@@ -39,7 +38,6 @@ class TokenSignerTransformer : ResponseDefinitionTransformer() {
     files: FileSource,
     parameters: Parameters,
   ): ResponseDefinition {
-
     val accessToken = mapper.readValue(parameters.readJson("accessToken"), typeRef)
     val idToken = mapper.readValue(parameters.readJson("idToken"), typeRef)
     parameters["email"]?.let { idToken["preferred_username"] = it }
@@ -53,6 +51,7 @@ class TokenSignerTransformer : ResponseDefinitionTransformer() {
 
     val jsonResponse = mapOf(
       "token_type" to "bearer",
+      "scope" to "email profile openid",
       "access_token" to getSignedToken(rsaJWK, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(accessToken)),
       "id_token" to getSignedToken(rsaJWK, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(idToken)),
     )
