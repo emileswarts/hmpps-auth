@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.fluentlenium.core.annotation.Page
 import org.junit.jupiter.api.Test
 
-class NomisDownLoginSpecification : AbstractDeliusAuthSpecification() {
+class NomisAndDeliusDownLoginSpecification : AbstractAuthSpecification() {
 
   @Page
   private lateinit var homePage: HomePage
@@ -13,17 +13,17 @@ class NomisDownLoginSpecification : AbstractDeliusAuthSpecification() {
   private lateinit var accountDetailsPage: AccountDetailsPage
 
   @Test
-  fun `NOMIS unavailable shows in error`() {
+  fun `NOMIS and Delius unavailable shows in error`() {
     goTo(loginPage)
       .loginError("NOMIS_USER", "password")
       .checkError(
         "Enter a valid username and password. You will be locked out if you enter the wrong details 3 times." +
-          "\nNOMIS is experiencing issues. Please try later if you are attempting to sign in using your NOMIS credentials."
+          "\nNOMIS and Delius are experiencing issues. Please try later if you are attempting to sign in using your NOMIS or Delius credentials."
       )
   }
 
   @Test
-  fun `NOMIS unavailable doesn't prevent logging in as auth user`() {
+  fun `NOMIS and Delius unavailable doesn't prevent logging in as auth user`() {
     goTo(loginPage)
       .loginAs("AUTH_USER", "password123456")
     homePage
@@ -32,19 +32,10 @@ class NomisDownLoginSpecification : AbstractDeliusAuthSpecification() {
   }
 
   @Test
-  fun `NOMIS unavailable doesn't prevent logging in as Delius user`() {
-    goTo(loginPage)
-      .loginAs("DELIUS_USER", "password")
-    homePage
-      .isAtPage()
-    assertThat(accountDetailsPage.getCurrentName()).isEqualTo("D. Smith")
-  }
-
-  @Test
-  fun `Log in with Azure justice email credentials link results in successful login nomis down`() {
+  fun `Log in with Azure justice email credentials link results in successful login nomis and Delius down`() {
     goTo(loginPage).clickAzureOIDCLink()
     homePage.isAt()
 
-    homePage.checkNomisCurrentlyUnavailableMessage()
+    homePage.checkNomisAndDeliusCurrentlyUnavailableMessage()
   }
 }

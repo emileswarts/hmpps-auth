@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
-import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaRequiredException
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaUnavailableException
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaService
@@ -101,15 +100,17 @@ class UserStateAuthenticationFailureHandler(
         Pair("justiceunavailable", null)
       }
       else -> {
-        if (ServiceUnavailableThreadLocal.containsAuthSource(nomis)) {
+        if (ServiceUnavailableThreadLocal.service?.containsAll(listOf(AuthSource.nomis, AuthSource.delius)) == true) {
+          Pair("invalid", "nomisdeliusdown")
+        } else if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true) {
           Pair("invalid", "nomisdown")
+        } else if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.delius) == true) {
+          Pair("invalid", "deliusdown")
         } else {
           Pair("invalid", null)
         }
       }
     }
-
-    ServiceUnavailableThreadLocal.clear()
 
     val builder = StringJoiner("&error=", "?error=", "")
     with(failures) {
@@ -117,6 +118,8 @@ class UserStateAuthenticationFailureHandler(
       second?.run { builder.add(this) }
       trackFailure(username, first)
     }
+
+    ServiceUnavailableThreadLocal.clear()
 
     val redirectUrl = FAILURE_URL + builder.toString()
     redirectStrategy.sendRedirect(request, response, redirectUrl)

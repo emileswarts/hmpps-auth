@@ -38,6 +38,7 @@ class GroupsControllerTest {
       "ROLE_AUTH_GROUP_MANAGER"
     )
   private val groupsController = GroupsController(groupsService)
+
   @Nested
   inner class `create group` {
     @Test
@@ -55,7 +56,8 @@ class GroupsControllerTest {
           any()
         )
 
-      @Suppress("ClassName") val Group = CreateGroup("_code", " group")
+      @Suppress("ClassName")
+      val Group = CreateGroup("_code", " group")
       assertThatThrownBy { groupsController.createGroup(authentication, Group) }
         .isInstanceOf(GroupExistsException::class.java)
         .withFailMessage("Unable to maintain group: code with reason: group code already exists")
@@ -176,7 +178,6 @@ class GroupsControllerTest {
 
   @Test
   fun `Group Not Found`() {
-
     doThrow(GroupNotFoundException("find", "NotGroup", "not found")).whenever(groupsService).getGroupDetail(
       anyString(),
       any(),
@@ -190,7 +191,6 @@ class GroupsControllerTest {
 
   @Test
   fun `Child Group Not Found`() {
-
     doThrow(ChildGroupNotFoundException("NotGroup", "not found")).whenever(groupsService).getChildGroupDetail(
       anyString(),
       any(),

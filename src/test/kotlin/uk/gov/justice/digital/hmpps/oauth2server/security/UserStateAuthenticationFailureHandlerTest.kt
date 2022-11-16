@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationP
 import uk.gov.justice.digital.hmpps.oauth2server.security.LockingAuthenticationProvider.MfaUnavailableException
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaData
 import uk.gov.justice.digital.hmpps.oauth2server.service.MfaService
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 import uk.gov.justice.digital.hmpps.oauth2server.verify.TokenService
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -93,13 +94,28 @@ class UserStateAuthenticationFailureHandlerTest {
 
   @Test
   fun onAuthenticationFailure_deliusDown() {
-    handler.onAuthenticationFailure(request, response, DeliusAuthenticationServiceException("joe"))
+    ServiceUnavailableThreadLocal.addService(AuthSource.delius)
+    handler.onAuthenticationFailure(request, response, BadCredentialsException("Bad credentials"))
     verify(redirectStrategy).sendRedirect(request, response, "/sign-in?error=invalid&error=deliusdown")
     verify(telemetryClient).trackEvent(
       "AuthenticateFailure",
       mapOf("username" to "missinguser", "type" to "invalid"),
       null
     )
+    ServiceUnavailableThreadLocal.clear()
+  }
+
+  @Test
+  fun onAuthenticationFailure_nomisDown() {
+    ServiceUnavailableThreadLocal.addService(AuthSource.nomis)
+    handler.onAuthenticationFailure(request, response, BadCredentialsException("Bad credentials"))
+    verify(redirectStrategy).sendRedirect(request, response, "/sign-in?error=invalid&error=nomisdown")
+    verify(telemetryClient).trackEvent(
+      "AuthenticateFailure",
+      mapOf("username" to "missinguser", "type" to "invalid"),
+      null
+    )
+    ServiceUnavailableThreadLocal.clear()
   }
 
   @Test

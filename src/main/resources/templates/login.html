@@ -51,6 +51,7 @@
             Mfa invalid message</a>
           <a th:case="'deliusdown'" href="#username" th:text="#{login.deliusdown}">Delius unavailable message</a>
           <a th:case="'nomisdown'" href="#username" th:text="#{login.nomisdown}">NOMIS unavailable message</a>
+          <a th:case="'nomisdeliusdown'" href="#username" th:text="#{login.nomisdeliusdown}">NOMIS and Delius unavailable message</a>
           <a th:case="*" href="#username" th:text="#{${'login.' + error}}">Username message</a>
         </li>
       </ul>

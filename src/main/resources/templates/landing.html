@@ -39,7 +39,28 @@
         </ul>
       </div>
     </div>
-    <div th:if="${userRoleCount == 0}" class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+    <div th:if="${#strings.equals(serviceDown, 'nomisdeliusdown') or
+     #strings.equals(serviceDown, 'nomisdown') or
+     #strings.equals(serviceDown, 'deliusdown')}" class="govuk-error-summary" aria-labelledby="error-summary-title"
+         role="alert"
+         data-module="govuk-error-summary">
+      <h2 class="govuk-error-summary__title" id="error-summary">
+        There is a problem
+      </h2>
+      <div class="govuk-error-summary__body" id="service unavailable">
+
+          <div th:text="#{servicedown.nomisdelius}" th:if="${#strings.equals(serviceDown, 'nomisdeliusdown') } " >
+            nomis and delius down
+          </div>
+          <div th:text="#{servicedown.nomis}" th:if="${#strings.equals(serviceDown, 'nomisdown') } "> nomis down
+          </div>
+          <div th:text="#{servicedown.delius}" th:if="${#strings.equals(serviceDown, 'deliusdown') } "> delius down
+          </div>
+
+      </div>
+    </div>
+    <div th:if="${userRoleCount == 0}" class="govuk-notification-banner" role="region"
+         aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
       <div class="govuk-notification-banner__header">
         <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
           Important
@@ -52,6 +73,7 @@
         </p>
       </div>
     </div>
+
 
     <h1 class="govuk-heading-l">Select service</h1>
     <div class="body-tiles">

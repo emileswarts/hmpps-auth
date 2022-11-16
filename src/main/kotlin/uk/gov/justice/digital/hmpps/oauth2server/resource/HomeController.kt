@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserDetailsImpl
 import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
 import uk.gov.justice.digital.hmpps.oauth2server.service.UserContextService
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 
 @Controller
 class HomeController(
@@ -26,7 +27,15 @@ class HomeController(
 
     val services = authServicesService.listEnabled(authorities)
 
-    return ModelAndView("landing", "services", services).addObject("userRoleCount", authorities.size)
+    val modelAndView = ModelAndView("landing", "services", services).addObject("userRoleCount", authorities.size)
+    if (ServiceUnavailableThreadLocal.service?.containsAll(listOf(AuthSource.nomis, AuthSource.delius)) == true) {
+      modelAndView.addObject("serviceDown", "nomisdeliusdown")
+    } else if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.nomis) == true) {
+      modelAndView.addObject("serviceDown", "nomisdown")
+    } else if (ServiceUnavailableThreadLocal.service?.contains(AuthSource.delius) == true) {
+      modelAndView.addObject("serviceDown", "deliusdown")
+    }
+    return modelAndView
   }
 
   @GetMapping("/terms")

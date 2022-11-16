@@ -32,7 +32,7 @@ class NomisUserApiServiceDownIntTest : IntegrationTest() {
   }
 
   @Test
-  fun `Noms unavailable, service unavailable thread local contains AuthSource nomis`() {
+  fun `Nomis unavailable, service unavailable thread local contains AuthSource nomis`() {
     val user = nomisService.findUserByUsername("TEST_USER")
 
     assertThat(user).isNull()

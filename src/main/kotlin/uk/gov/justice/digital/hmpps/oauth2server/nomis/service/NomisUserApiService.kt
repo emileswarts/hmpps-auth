@@ -100,16 +100,39 @@ class NomisUserApiService(
       log.debug("Nomis integration disabled, returning empty for {}", emailAddress)
       return listOf()
     }
-    val userDetails = webClient.post().uri {
-      it.path("/users/user")
-        .queryParam("email", "{emailAddress}")
-        .build(emailAddress)
+    try {
+      val userDetails = webClient.post().uri {
+        it.path("/users/user")
+          .queryParam("email", "{emailAddress}")
+          .build(emailAddress)
+      }
+        .bodyValue(usernames)
+        .retrieve()
+        .bodyToMono(object : ParameterizedTypeReference<List<NomisUserDetails>>() {})
+        .onErrorResume(
+          { it.cause is ConnectException },
+          {
+            log.warn(
+              "Unable to retrieve details from NOMIS for user with email address {} due to NOMIS Down",
+              emailAddress,
+              it
+            )
+            throw NomisUnreachableServiceException(emailAddress)
+          }
+        )
+        .onErrorResume(
+          { it is WebClientResponseException && it.statusCode.is5xxServerError },
+          {
+            log.warn("Unable to retrieve details from NOMIS for user with email address {} due to NOMIS 5XX error", emailAddress, it)
+            throw NomisUnreachableServiceException(emailAddress)
+          }
+        )
+        .block()!!
+      return userDetails.map(::mapUserDetailsToNomisUser)
+    } catch (e: NomisUnreachableServiceException) {
+      ServiceUnavailableThreadLocal.addService(AuthSource.nomis)
+      return emptyList()
     }
-      .bodyValue(usernames)
-      .retrieve()
-      .bodyToMono(object : ParameterizedTypeReference<List<NomisUserDetails>>() {})
-      .block()!!
-    return userDetails.map(::mapUserDetailsToNomisUser)
   }
 
   fun findUsers(firstName: String, lastName: String): List<NomisUserSummaryDto> {
@@ -144,7 +167,7 @@ class NomisUserApiService(
         .onErrorResume(
           { it.cause is ConnectException },
           {
-            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS connection execption", username, it)
+            log.warn("Unable to retrieve details from NOMIS for user with username {} due to NOMIS connection exception", username, it)
             throw NomisUnreachableServiceException(username)
           }
         )
@@ -226,7 +249,7 @@ class RestResponsePage<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) const
   @Suppress("UNUSED_PARAMETER") @JsonProperty(
     "pageable"
   )
-  pageable: JsonNode
+  pageable: JsonNode,
 ) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)
 
 data class NomisUserSummaryDto(
@@ -241,14 +264,14 @@ data class NomisUserSummaryDto(
 
 data class PrisonCaseload(
   val id: String,
-  val name: String
+  val name: String,
 )
 
 data class Authentication(val password: String)
 
 fun <T> errorWhenBadRequest(
   exception: WebClientResponseException,
-  errorMapper: (content: String) -> AuthenticationException
+  errorMapper: (content: String) -> AuthenticationException,
 ): Mono<T> =
   if (exception.rawStatusCode == BAD_REQUEST.value()) Mono.error(errorMapper(exception.responseBodyAsString)) else Mono.error(
     exception

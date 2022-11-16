@@ -5,3 +5,6 @@ import org.springframework.security.authentication.InternalAuthenticationService
 class DeliusAuthenticationServiceException(username: String) : InternalAuthenticationServiceException(
   "Unable to retrieve information for $username from Delius.  We are unable to connect to Delius or there is an issue with $username in Delius"
 )
+class DeliusUnreachableServiceException(username: String) : InternalAuthenticationServiceException(
+  "Delius Down - Unable to retrieve information for $username from Delius.  We are unable to connect to Delius or there is an issue with $username in Delius"
+)

@@ -40,4 +40,12 @@ class DeliusDownLoginSpecification : AbstractNomisAuthSpecification() {
       .isAtPage()
     Assertions.assertThat(accountDetailsPage.getCurrentName()).isEqualTo("I. User")
   }
+
+  @Test
+  fun `Log in with Azure justice email credentials link results in successful login Delius down`() {
+    goTo(loginPage).clickAzureOIDCLink()
+    homePage.isAt()
+
+    homePage.checkDeliusCurrentlyUnavailableMessage()
+  }
 }

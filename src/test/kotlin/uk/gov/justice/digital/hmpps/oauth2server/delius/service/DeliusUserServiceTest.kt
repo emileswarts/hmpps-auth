@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.oauth2server.delius.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.WireMock.anyRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.anyUrl
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
@@ -22,7 +21,9 @@ import uk.gov.justice.digital.hmpps.oauth2server.delius.model.DeliusUserPersonDe
 import uk.gov.justice.digital.hmpps.oauth2server.resource.CommunityApiMockServer
 import uk.gov.justice.digital.hmpps.oauth2server.resource.DeliusExtension
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
+import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource
 import uk.gov.justice.digital.hmpps.oauth2server.security.DeliusAuthenticationServiceException
+import uk.gov.justice.digital.hmpps.oauth2server.utils.ServiceUnavailableThreadLocal
 
 @ExtendWith(DeliusExtension::class)
 class DeliusUserServiceTest : IntegrationTest() {
@@ -32,8 +33,8 @@ class DeliusUserServiceTest : IntegrationTest() {
   @Qualifier("deliusWebClient")
   lateinit var webClient: WebClient
 
-  @Autowired
-  lateinit var objectMapper: ObjectMapper
+  // @Autowired
+  // lateinit var objectMapper: ObjectMapper
 
   private lateinit var disabledDeliusService: DeliusUserService
   private lateinit var deliusService: DeliusUserService
@@ -85,10 +86,9 @@ class DeliusUserServiceTest : IntegrationTest() {
     }
 
     @Test
-    fun `getDeliusUsersByEmail handles server error and rethrows`() {
-      assertThatThrownBy { deliusService.getDeliusUsersByEmail("delius_server_error@where.com") }.isInstanceOf(
-        DeliusAuthenticationServiceException::class.java
-      )
+    fun `getDeliusUsersByEmail handles server error and sets serviceUnavailableThreadLocal`() {
+      deliusService.getDeliusUsersByEmail("delius_server_error@where.com")
+      assertThat(ServiceUnavailableThreadLocal.containsAuthSource(AuthSource.delius)).isTrue
     }
 
     @Test
@@ -202,10 +202,9 @@ class DeliusUserServiceTest : IntegrationTest() {
     }
 
     @Test
-    fun `getDeliusUserByUsername throws DeliusAuthenticationServiceException if server error`() {
-      assertThatThrownBy { deliusService.getDeliusUserByUsername("DELIUS_ERROR_SERVER") }.isInstanceOf(
-        DeliusAuthenticationServiceException::class.java
-      )
+    fun `getDeliusUserByUsername sets ServiceUnavailableThreadLocal if server error`() {
+      deliusService.getDeliusUserByUsername("DELIUS_ERROR_SERVER")
+      assertThat(ServiceUnavailableThreadLocal.containsAuthSource(AuthSource.delius)).isTrue
     }
 
     @Test

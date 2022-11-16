@@ -91,4 +91,15 @@ class HomePage : AuthPage<HomePage>("HMPPS Digital Services - Home", "Select ser
   fun checkLinks(vararg links: String) {
     assertThat(serviceLinks.attributes("id")).containsExactlyInAnyOrderElementsOf(links.toList())
   }
+
+  fun checkNomisCurrentlyUnavailableMessage() {
+    assertThat(el("[id='service unavailable']").text()).isEqualTo("NOMIS is currently unavailable so we may not have been able to retrieve all your account details")
+  }
+
+  fun checkDeliusCurrentlyUnavailableMessage() {
+    assertThat(el("[id='service unavailable']").text()).isEqualTo("DELIUS is currently unavailable so we may not have been able to retrieve all your account details")
+  }
+  fun checkNomisAndDeliusCurrentlyUnavailableMessage() {
+    assertThat(el("[id='service unavailable']").text()).isEqualTo("NOMIS and DELIUS are currently unavailable so we may not have been able to retrieve all your account details")
+  }
 }
