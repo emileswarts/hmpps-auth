@@ -37,7 +37,7 @@ spring:
       connection-timeout: 30000
       validation-timeout: 5000
   flyway:
-    locations: classpath:db/auth
+    locations: classpath:db/auth,db/auth_{vendor}
   session:
     store-type=jdbc
   data:
