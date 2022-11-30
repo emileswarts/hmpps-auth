@@ -489,6 +489,20 @@ class UserControllerIntTest : IntegrationTest() {
   }
 
   @Test
+  fun `User Roles endpoint returns roles for auth user - PF_USER_ADMIN role`() {
+    webTestClient
+      .get().uri("/api/user/AUTH_ADM/roles")
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PF_USER_ADMIN")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("[*].roleCode").value<List<String>> {
+        assertThat(it).contains("OAUTH_ADMIN")
+        assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+      }
+  }
+
+  @Test
   fun `User Roles endpoint returns roles for delius user`() {
     webTestClient
       .get().uri("/api/user/DELIUS/roles")

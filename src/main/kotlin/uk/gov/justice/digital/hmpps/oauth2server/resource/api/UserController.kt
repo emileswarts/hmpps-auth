@@ -217,7 +217,7 @@ class UserController(private val userService: UserService) {
       )
     ]
   )
-  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN')")
   fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
