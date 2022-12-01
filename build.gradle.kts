@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.0-beta"
   kotlin("plugin.spring") version "1.7.21"
   kotlin("plugin.jpa") version "1.7.21"
 }
@@ -41,9 +41,9 @@ dependencies {
 
   implementation("javax.transaction:javax.transaction-api:1.3")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.13")
 
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
@@ -60,7 +60,7 @@ dependencies {
 
   runtimeOnly("com.h2database:h2:2.1.214")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("org.postgresql:postgresql:42.5.0")
+  runtimeOnly("org.postgresql:postgresql:42.5.1")
 
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -71,13 +71,13 @@ dependencies {
   testImplementation("io.github.http-builder-ng:http-builder-ng-apache:1.0.4")
 
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
-  testImplementation("org.slf4j:slf4j-api:2.0.3")
+  testImplementation("org.slf4j:slf4j-api:2.0.5")
   testImplementation("com.auth0:java-jwt:4.2.1")
 
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("org.fluentlenium:fluentlenium-junit-jupiter:5.0.4")
   testImplementation("org.fluentlenium:fluentlenium-assertj:5.0.4")
-  testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+  testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
 }
 
 java {
