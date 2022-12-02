@@ -48,7 +48,12 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
-@Tag(name = "/api/authuser", description = "Auth User Controller")
+@Tag(
+  name = "/api/authuser",
+  description = "** IMPORTANT ** Calls to some endpoint in Auth User Controller are now deprecated. " +
+    "The endpoints have been moved to the mange-users-api service."
+)
+
 class AuthUserController(
   private val userService: UserService,
   private val authUserService: AuthUserService,
@@ -426,6 +431,11 @@ class AuthUserController(
     return requestURL.toString().replaceFirst("/api/authuser/.*".toRegex(), "/initial-password?token=")
   }
 
+  @Deprecated(
+    message = "Enable User by userId  now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/users/{userId}/enable"),
+    level = DeprecationLevel.WARNING
+  )
   @PutMapping("/api/authuser/id/{userId}/enable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
