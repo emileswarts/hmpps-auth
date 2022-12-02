@@ -154,6 +154,11 @@ class AuthUserController(
       ?: throw UsernameNotFoundException("User $userId not found")
   }
 
+  @Deprecated(
+    message = "Search for users by email - now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/externalusers"),
+    level = DeprecationLevel.WARNING
+  )
   @GetMapping("/api/authuser")
   @Operation(
     summary = "Search for a user.",
