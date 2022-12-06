@@ -71,6 +71,11 @@ class AuthUserController(
     summary = "User detail.",
     description = "User detail."
   )
+  @Deprecated(
+    message = "Search for users by UserName - now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/externalusers"),
+    level = DeprecationLevel.WARNING
+  )
   @ApiResponses(
     value = [
       ApiResponse(
