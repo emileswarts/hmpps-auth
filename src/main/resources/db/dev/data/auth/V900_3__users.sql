@@ -420,3 +420,11 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'PRISONER_CONTACT_REGISTRY';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'OFFENDER_CONTACTS';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'MIGRATE_VISITS';
+
+-- User used by 'HMPPS Eduction Employment UI'
+       
+INSERT INTO users (user_id, username, password, password_expiry, email, first_name, last_name, verified, enabled, locked, source)
+VALUES ('E9E6D7E7-D113-43F4-BCF9-0D3AE4A0A8ED', 'ESWE_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'eduction-skills-work-employment-user@digital.justice.gov.uk', 'ESWE', 'User', true, true, false, 'auth');
+
+-- Roles added to 'HMPPS Eduction Employment UI' User
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'ESWE_USER' and role_code = 'VIEW_PRISONER_DATA';
