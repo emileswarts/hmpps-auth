@@ -266,6 +266,11 @@ class AuthUserController(
     )
       .map { AuthUser.fromUser(it) }
 
+  @Deprecated(
+    message = "Get list of the current user's assignable groups, now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/externalusers/me/assignable-groups"),
+    level = DeprecationLevel.WARNING
+  )
   @GetMapping("/api/authuser/me/assignable-groups")
   @Operation(
     summary = "Get list of assignable groups.",
