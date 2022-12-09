@@ -35,7 +35,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserService.CreateUserException
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.oauth2server.model.AuthUserRole
-import uk.gov.justice.digital.hmpps.oauth2server.model.EmailAddress
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import uk.gov.justice.digital.hmpps.oauth2server.utils.EmailHelper
@@ -642,23 +641,6 @@ class AuthUserController(
     )
     return if (smokeTestEnabled) resetLink else null
   }
-
-  @PostMapping("/api/authuser/email")
-  @Operation(
-    summary = "Email address for users",
-    description =
-    """Verified email address for users.  Post version that accepts multiple email addresses.
-        Requires ROLE_MAINTAIN_ACCESS_ROLES or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN.
-    """
-  )
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN')")
-  fun getAuthUserEmails(
-    @Parameter(description = "List of usernames.", required = true) @RequestBody
-    usernames: List<String>
-  ): List<EmailAddress> = authUserService
-    .findAuthUsersByUsernames(usernames)
-    .filter { it.verified }
-    .map { EmailAddress(it) }
 
   data class CreateUser(
     @Schema(
