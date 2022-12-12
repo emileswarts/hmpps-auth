@@ -28,7 +28,16 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import javax.validation.constraints.NotEmpty
 
 @RestController
-@Tag(name = "/api/authuser/id/{userId}/roles", description = "Auth User Roles Controller")
+@Tag(
+  name = "/api/authuser/id/{userId}/roles",
+  description = "** IMPORTANT ** Calls to all /api/authuser/id/{userId}/roles endpoints are now deprecated. " +
+    "The endpoints (excluding the PutMapping to add a single role, which is no longer supported) have been moved to the mange-users-api service."
+)
+@Deprecated(
+  message = "User roles endpoints now use the mange-users-api service",
+  replaceWith = ReplaceWith("/{manage-users-api}/users/{userId}/roles"),
+  level = DeprecationLevel.WARNING
+)
 class AuthUserRolesController(
   private val authUserService: AuthUserService,
   private val authUserRoleService: AuthUserRoleService
