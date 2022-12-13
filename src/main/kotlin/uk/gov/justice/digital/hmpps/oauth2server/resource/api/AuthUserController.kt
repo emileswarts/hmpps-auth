@@ -507,6 +507,11 @@ class AuthUserController(
     authentication.authorities
   )
 
+  @Deprecated(
+    message = "Disable User by userId  now use the mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/users/{userId}/disable"),
+    level = DeprecationLevel.WARNING
+  )
   @PutMapping("/api/authuser/id/{userId}/disable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
