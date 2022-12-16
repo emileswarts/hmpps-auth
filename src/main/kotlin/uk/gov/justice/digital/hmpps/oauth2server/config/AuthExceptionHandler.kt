@@ -15,10 +15,6 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.A
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserGroupService.AuthUserLastGroupException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.AuthUserRoleService.AuthUserRoleExistsException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.ChildGroupExistsException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupExistsException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupHasChildGroupException
-import uk.gov.justice.digital.hmpps.oauth2server.maintain.GroupsService.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleExistsException
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
@@ -55,14 +51,6 @@ class AuthExceptionHandler {
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "username"))
   }
 
-  @ExceptionHandler(GroupNotFoundException::class)
-  fun handleGroupNotFoundException(e: GroupNotFoundException): ResponseEntity<ErrorDetail> {
-    log.debug("Username not found exception caught: {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.NOT_FOUND)
-      .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "group"))
-  }
-
   @ExceptionHandler(AuthGroupRelationshipException::class)
   fun handleAuthGroupRelationshipException(e: AuthGroupRelationshipException): ResponseEntity<ErrorDetail> {
     log.debug("Auth maintain group relationship exception caught: {}", e.message)
@@ -85,30 +73,6 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", e.field))
-  }
-
-  @ExceptionHandler(GroupHasChildGroupException::class)
-  fun handleGroupHasChildGroupException(e: GroupHasChildGroupException): ResponseEntity<ErrorDetail> {
-    log.debug("Group has children exception caught: {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
-  }
-
-  @ExceptionHandler(ChildGroupExistsException::class)
-  fun handleChildGroupExistsException(e: ChildGroupExistsException): ResponseEntity<ErrorDetail> {
-    log.debug("Child group exists exception caught: {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
-  }
-
-  @ExceptionHandler(GroupExistsException::class)
-  fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorDetail> {
-    log.debug("Group exists exception caught: {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(ErrorDetail(e.errorCode, e.message ?: "Error message not set", "group"))
   }
 
   @ExceptionHandler(DuplicateClientsException::class)
