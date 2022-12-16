@@ -211,6 +211,11 @@ class AuthUserController(
     return if (users.isEmpty()) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
+  @Deprecated(
+    message = "For user search, please use mange-users-api service",
+    replaceWith = ReplaceWith("/{manage-users-api}/externalusers/search"),
+    level = DeprecationLevel.WARNING
+  )
   @GetMapping("/api/authuser/search")
   @Operation(
     summary = "Search for a user."
