@@ -4,8 +4,6 @@ generic-service:
   replicaCount: 8
 
   ingress:
-    v1_2_enabled: true
-    v0_47_enabled: false
     host: sign-in.hmpps.service.justice.gov.uk
 
   env:
