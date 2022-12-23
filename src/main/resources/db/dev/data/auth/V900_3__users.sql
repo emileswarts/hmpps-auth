@@ -139,6 +139,7 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('2E285CCD-DCFD-4497-9E22-A9E8E10A2A6B', 'AUTH_CREATE_USER_INVALID', null, '2020-01-28 13:23:19.0000000', 'auth_invalid_token@digital.justice.gov.uk', 'email', 'User', false, true, false, 'auth'),
        ('6c76f1fa-3393-11ea-978f-2e728ce88125', 'AUTH_VIDEO_LINK_COURT_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'vlb_court_user@digital.justice.gov.uk', 'VLB Court', 'User', true, true, false, 'auth'),
        ('C6C9C675-32C0-4f58-936B-07744f0E4318', 'MAKE_RECALL_DECISION_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'making-recall-decisions-tech@digital.justice.gov.uk', 'Making Recall Decisions', 'User', true, true, false, 'auth'),
+       ('64B4FD9B-59CA-4D62-8C4E-7EE9E8067029', 'MAKE_RECALL_DECISION_SPO_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'making-recall-decisions-spo-tech@digital.justice.gov.uk', 'Making Recall Decisions SPO', 'User', true, true, false, 'auth'),
        ('9f6f8681-c273-48e5-bf6c-29a2d4fe159d', 'NOMIS_ENABLED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'nomis_auth_user@digital.justice.gov.uk', 'nomis_enabled', 'Auth Disabled', true, false, false, 'auth'),
        ('8351b5de-2c38-4c0a-bcad-8ee78de6b5af', 'NOMIS_LOCKED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'nomis_auth_user@digital.justice.gov.uk', 'nomis locked', 'Auth Disabled', true, false, false, 'auth'),
        ('f83c7a90-50c2-4b1b-b5ab-59206f731202', 'DELIUS_ENABLED_AUTH_DISABLED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'delius_auth_user@digital.justice.gov.uk', 'nomis_disabled', 'Auth Disabled', true, false, false, 'auth'),
@@ -332,6 +333,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_VIDEO_LINK_COURT_USER' and role_code = 'VIDEO_LINK_COURT_USER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'MAKE_RECALL_DECISION_USER' and role_code = 'MAKE_RECALL_DECISION';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'MAKE_RECALL_DECISION_SPO_USER' and role_code = 'MAKE_RECALL_DECISION_SPO';
 
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_2';

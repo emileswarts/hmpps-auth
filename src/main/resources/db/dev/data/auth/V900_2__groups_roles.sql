@@ -109,6 +109,7 @@ VALUES ('a7f59e44-cbf0-4913-ba11-0764f39c06c2', 'ADD_SENSITIVE_CASE_NOTES', 'Add
        ('7c5b1183-9f15-4dab-91f5-cbdf33f21e82', 'LICENCE_RO_READONLY', 'Licence RO Read Only', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
        ('4f382076-45ab-44d1-8af0-d8c53b5affda', 'LICENCE_VARY', 'Licence Variation', '2021-10-15 21:35:48.406667', null, 'EXT_ADM'),
        ('73c5a7d1-5b8d-498e-9aa9-037f0e78793a', 'MAKE_RECALL_DECISION', 'Making a Recall Decision User', '2021-10-15 21:35:50.990000', null, 'EXT_ADM'),
+       ('15faae81-b075-4465-9709-da66b2c5c69a', 'MAKE_RECALL_DECISION_SPO', 'Making a Recall Decision SPO User', '2021-10-15 21:35:50.990000', null, 'EXT_ADM'),
        ('0a81eb06-b142-4e7f-85b7-d61ef17f57e6', 'MANAGE_RECALLS', 'PPUD Manage Recalls', '2021-10-15 21:35:51.086667', null, 'DPS_ADM,EXT_ADM'),
        ('f42befde-f1be-4243-afb7-ad4f28516050', 'MAINTAIN_EMAIL_DOMAINS', 'Maintain Email Domains for HMPPS Auth', '2021-10-15 21:35:51.366667', null, 'EXT_ADM'),
        ('97fd770e-ee92-4a61-8268-0c633ba84957', 'MAINTAIN_OAUTH_USERS', 'Maintain Auth Users (admin)', '2021-10-15 21:35:48.406667', null, 'DPS_ADM,EXT_ADM'),
