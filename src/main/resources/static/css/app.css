@@ -40,18 +40,11 @@
   font-size: 16px;
   background-color: #f3f2f1;
   color: #0b0c0c;
-  padding: 3px;
-  margin-top: 7px;
-  margin-left: 10px;
-  width: auto;
+  width: 80px;
   position: absolute;
-  right: 5px;
-  box-shadow: none;
-}
-
-.show-password button:focus, .show-password button:hover {
-  background-color: #f3f2f1;
-  color: #0b0c0c;
+  right: -80px;
+  line-height: 1.2;
+  box-shadow: 0 2px 0 #929191;
 }
 
 /** card copied from prison staff hub **/

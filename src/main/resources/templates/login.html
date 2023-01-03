@@ -12,10 +12,10 @@
       var showButton = document.getElementById('show-password');
       if (pwd.getAttribute('type') === 'password') {
         pwd.setAttribute('type', 'text');
-        showButton.innerHTML = 'hide';
+        showButton.innerHTML = 'Hide';
       } else {
         pwd.setAttribute('type', 'password');
-        showButton.innerHTML = 'show';
+        showButton.innerHTML = 'Show';
       }
     }
   </script>
@@ -90,8 +90,8 @@
               th:class="'govuk-input' + (${missingpass} ? ' govuk-input--error' : '')"
               id="password" name="password" type="password" autocomplete="current-password"
               data-element-id="password" aria-describedby="password-error">
-          <button type="button" onclick="showHide()" id="show-password" class="govuk-button" data-module="govuk-button">
-            show<span class="govuk-visually-hidden"> password</span>
+          <button type="button" onclick="showHide()" id="show-password" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            Show<span class="govuk-visually-hidden"> password</span>
           </button>
         </div>
       </div>
