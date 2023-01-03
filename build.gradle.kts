@@ -1,7 +1,7 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
-  kotlin("plugin.spring") version "1.7.22"
-  kotlin("plugin.jpa") version "1.7.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.0-beta"
+  kotlin("plugin.spring") version "1.8.0"
+  kotlin("plugin.jpa") version "1.8.0"
 }
 
 configurations {
@@ -50,7 +50,7 @@ dependencies {
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0")
   // thymeleaf-layout-dialect:3.1.0 uses groovy 4.0.0 which contains CVE-2020-17521 https://nvd.nist.gov/vuln/detail/CVE-2020-17521
   // org.apache.groovy:groovy can be removed when thymeleaf-layout-dialect is updated and include groovy:4.0.2 or later
-  implementation("org.apache.groovy:groovy:4.0.6")
+  implementation("org.apache.groovy:groovy:4.0.7")
   implementation("uk.gov.service.notify:notifications-java-client:3.19.0-RELEASE")
 
   implementation("org.flywaydb:flyway-core")
