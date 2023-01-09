@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User.EmailType.PRIMARY
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.VERIFIED
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
 import uk.gov.justice.digital.hmpps.oauth2server.model.CreateTokenRequest
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
@@ -104,6 +107,13 @@ class TokenService(
 
     return response
   }
+
+  @Transactional
+  fun createTokenByEmailType(tokenByEmailTypeRequest: TokenByEmailTypeRequest): String =
+    userService.getUser(tokenByEmailTypeRequest.username).createToken(
+      if (tokenByEmailTypeRequest.emailType == PRIMARY)
+        VERIFIED else TokenType.SECONDARY
+    ).token
 
   private fun removeToken(userTokenOptional: Optional<UserToken>) {
     if (userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())

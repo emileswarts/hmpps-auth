@@ -19,12 +19,14 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.oauth2server.auth.model.User
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.ACCOUNT
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.CHANGE
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.RESET
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.VERIFIED
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.TokenByEmailTypeRequest
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
@@ -266,5 +268,17 @@ class TokenServiceTest {
       },
       isNull()
     )
+  }
+  @Nested
+  inner class CreateTokenByEmailType {
+    @Test
+    fun `Create Token for Email Type`() {
+      val tokenByEmailTypeRequest = TokenByEmailTypeRequest("USER", User.EmailType.PRIMARY)
+      val user = createSampleUser(username = "user")
+      whenever(userService.getUser(anyString())).thenReturn(user)
+      val token = tokenService.createTokenByEmailType(tokenByEmailTypeRequest)
+      assertThat(token).isNotNull
+      verify(userService).getUser("USER")
+    }
   }
 }
