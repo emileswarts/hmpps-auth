@@ -5,6 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
@@ -27,6 +28,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.none
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import java.util.Optional
+import java.util.UUID
 
 @Service
 class UserService(
@@ -115,6 +117,10 @@ class UserService(
 
   fun getUser(username: String): User =
     findUser(username).orElseThrow { UsernameNotFoundException("User with username $username not found") }
+
+  @Transactional(readOnly = true)
+  fun getUserById(userId: UUID): User =
+    userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
 
   @Transactional(readOnly = true)
   fun getUserWithContacts(username: String): User = findUser(username)
@@ -227,6 +233,9 @@ class UserService(
     getOrCreateUser(it).orElse(null)
   }
 }
+
+class UserNotFoundException(val userId: UUID) :
+  Exception("User: ${userId.toString().uppercase()} not found")
 
 data class PrisonUserDto(
   val username: String,

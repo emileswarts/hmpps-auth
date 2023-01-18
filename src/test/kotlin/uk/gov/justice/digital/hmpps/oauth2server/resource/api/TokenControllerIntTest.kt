@@ -172,7 +172,7 @@ class TokenControllerIntTest : IntegrationTest() {
     }
 
     @Test
-    fun `Should fail with user not found for non-existing user1`() {
+    fun `Should fail with bad request for invalid email type`() {
 
       webTestClient
         .post().uri("/api/token/email-type")
@@ -186,6 +186,60 @@ class TokenControllerIntTest : IntegrationTest() {
         {"status":400,"error":"Bad Request","path":"/auth/api/token/email-type"} 
           """.trimIndent()
         )
+    }
+  }
+
+  @Nested
+  inner class CreateResetTokenForUser {
+
+    val userId = "C0279EE3-76BF-487F-833C-AA47C5DF22F8"
+
+    @Test
+    fun `CreateToken based on email type`() {
+
+      val token = webTestClient
+        .post().uri("/api/token/reset/$userId")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<String>()
+        .returnResult().responseBody
+
+      assertThat(token).isNotNull
+    }
+
+    @Test
+    fun `Should respond with not found when user not found`() {
+      webTestClient
+        .post().uri("/api/token/reset/C9999EE9-99BF-999F-999C-AA99C9DF99F9")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+            {
+              "error":"Not Found",
+              "error_description":"User: C9999EE9-99BF-999F-999C-AA99C9DF99F9 not found",
+              "field":"userId"
+            }
+          """.trimIndent()
+        )
+    }
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.post().uri("/api/token/reset/$userId")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient
+        .post().uri("/api/token/reset/$userId")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isForbidden
     }
   }
 }

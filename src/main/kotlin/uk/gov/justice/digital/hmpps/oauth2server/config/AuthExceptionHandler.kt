@@ -21,18 +21,28 @@ import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AuthorizationRequestMissingException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.service.DuplicateClientsException
 import uk.gov.justice.digital.hmpps.oauth2server.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService.ValidEmailException
 
 @RestControllerAdvice
 class AuthExceptionHandler {
+
   @ExceptionHandler(UsernameNotFoundException::class)
   fun handleNotFoundException(e: UsernameNotFoundException): ResponseEntity<ErrorDetail> {
     log.debug("Username not found exception caught: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.NOT_FOUND)
       .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "username"))
+  }
+
+  @ExceptionHandler(UserNotFoundException::class)
+  fun handleUserNotFoundException(e: UserNotFoundException): ResponseEntity<ErrorDetail> {
+    log.debug("User not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.NOT_FOUND)
+      .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "userId"))
   }
 
   @ExceptionHandler(AuthUserRoleExistsException::class)

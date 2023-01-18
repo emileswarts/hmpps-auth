@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.data.MapEntry
 import org.assertj.core.data.MapEntry.entry
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
@@ -27,9 +28,11 @@ import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.UserToken.TokenType.VERIFIED
 import uk.gov.justice.digital.hmpps.oauth2server.auth.repository.UserTokenRepository
 import uk.gov.justice.digital.hmpps.oauth2server.resource.api.TokenByEmailTypeRequest
+import uk.gov.justice.digital.hmpps.oauth2server.security.UserNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
+import java.util.UUID
 import javax.persistence.EntityNotFoundException
 
 class TokenServiceTest {
@@ -269,6 +272,7 @@ class TokenServiceTest {
       isNull()
     )
   }
+
   @Nested
   inner class CreateTokenByEmailType {
     @Test
@@ -279,6 +283,30 @@ class TokenServiceTest {
       val token = tokenService.createTokenByEmailType(tokenByEmailTypeRequest)
       assertThat(token).isNotNull
       verify(userService).getUser("USER")
+    }
+  }
+
+  @Nested
+  inner class CreateResetTokenForUserWithSevenDayExpiry {
+    val userId: UUID = UUID.randomUUID()
+
+    @Test
+    fun `Create token success`() {
+      val user = createSampleUser(username = "user")
+      whenever(userService.getUserById(userId)).thenReturn(user)
+
+      val token = tokenService.createResetTokenForUserWithSevenDayExpiry(userId)
+
+      assertNotNull(token)
+    }
+
+    @Test
+    fun `Create token user not found`() {
+      whenever(userService.getUserById(userId)).then { throw UserNotFoundException(userId) }
+
+      assertThatThrownBy {
+        tokenService.createResetTokenForUserWithSevenDayExpiry(userId)
+      }.isInstanceOf(UserNotFoundException::class.java)
     }
   }
 }

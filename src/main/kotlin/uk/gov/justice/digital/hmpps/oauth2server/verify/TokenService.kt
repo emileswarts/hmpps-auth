@@ -18,6 +18,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.resource.api.TokenByEmailTypeRe
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserService
 import java.time.LocalDateTime
 import java.util.Optional
+import java.util.UUID
 import javax.persistence.EntityNotFoundException
 
 @Service
@@ -114,6 +115,13 @@ class TokenService(
       if (tokenByEmailTypeRequest.emailType == PRIMARY)
         VERIFIED else TokenType.SECONDARY
     ).token
+
+  @Transactional
+  fun createResetTokenForUserWithSevenDayExpiry(userId: UUID): String {
+    val userToken = userService.getUserById(userId).createToken(TokenType.RESET)
+    userToken.tokenExpiry = LocalDateTime.now().plusDays(7)
+    return userToken.token
+  }
 
   private fun removeToken(userTokenOptional: Optional<UserToken>) {
     if (userTokenOptional.isPresent) userTokenRepository.delete(userTokenOptional.get())

@@ -38,6 +38,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.nomis
 import uk.gov.justice.digital.hmpps.oauth2server.security.AuthSource.none
 import uk.gov.justice.digital.hmpps.oauth2server.verify.VerifyEmailService
 import java.util.Optional
+import java.util.UUID
 
 class UserServiceTest {
   private val nomisUserService: NomisUserService = mock()
@@ -277,6 +278,28 @@ class UserServiceTest {
     fun `getUser not found`() {
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.empty())
       assertThatThrownBy { userService.getUser("bob") }.isInstanceOf(UsernameNotFoundException::class.java)
+    }
+  }
+
+  @Nested
+  inner class GetUserById {
+    val userId: UUID = UUID.randomUUID()
+
+    @Test
+    fun `getUserById found`() {
+      val user = createUser()
+      whenever(userRepository.findById(userId)).thenReturn(user)
+
+      val found = userService.getUserById(userId)
+
+      assertThat(found).isSameAs(user.orElseThrow())
+      verify(userRepository).findById(userId)
+    }
+
+    @Test
+    fun `getUserById not found`() {
+      whenever(userRepository.findById(userId)).thenReturn(Optional.empty())
+      assertThatThrownBy { userService.getUserById(userId) }.isInstanceOf(UserNotFoundException::class.java)
     }
   }
 
