@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleExist
 import uk.gov.justice.digital.hmpps.oauth2server.maintain.RolesService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.oauth2server.resource.AuthorizationRequestMissingException
+import uk.gov.justice.digital.hmpps.oauth2server.resource.api.ServiceNotFoundException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.oauth2server.security.UserNotFoundException
@@ -147,6 +148,14 @@ class AuthExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.NOT_FOUND)
       .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "role"))
+  }
+
+  @ExceptionHandler(ServiceNotFoundException::class)
+  fun handleServiceNotFoundException(e: ServiceNotFoundException): ResponseEntity<ErrorDetail> {
+    log.debug("Service not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.NOT_FOUND)
+      .body(ErrorDetail(HttpStatus.NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "serviceCode"))
   }
 
   @ExceptionHandler(RoleExistsException::class)

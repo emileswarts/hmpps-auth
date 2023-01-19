@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.oauth2server.resource.api
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.oauth2server.resource.IntegrationTest
@@ -70,5 +71,46 @@ class AuthServicesIntTest : IntegrationTest() {
     webTestClient.get().uri("/api/services/me")
       .exchange()
       .expectStatus().isUnauthorized
+  }
+
+  @Nested
+  inner class ServiceByCode {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/api/services/book-a-secure-move-ui")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.get().uri("/api/services/book-a-secure-move-ui")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_PRISON")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Responds with not found when service does not exist`() {
+      webTestClient.get().uri("/api/services/service-not-found")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Responds with service details when exists`() {
+      webTestClient.get().uri("/api/services/book-a-secure-move-ui")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("code").isEqualTo("book-a-secure-move-ui")
+        .jsonPath("name").isEqualTo("Book a secure move")
+        .jsonPath("description").isEqualTo("Book a secure move")
+        .jsonPath("contact").isEqualTo("bookasecuremove@digital.justice.gov.uk")
+        .jsonPath("url").isEqualTo("https://bookasecuremove.service.justice.gov.uk")
+    }
   }
 }

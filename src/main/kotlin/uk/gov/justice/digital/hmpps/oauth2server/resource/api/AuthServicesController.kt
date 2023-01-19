@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.oauth2server.auth.model.Service
 import uk.gov.justice.digital.hmpps.oauth2server.service.AuthServicesService
@@ -24,6 +26,16 @@ class AuthServicesController(private val authServicesService: AuthServicesServic
     authentication: Authentication
   ): List<AuthService> =
     authServicesService.listEnabled(authentication.authorities).map { AuthService(it) }
+
+  @GetMapping("/api/services/{serviceCode}")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(summary = "Get service details by service code.")
+  fun serviceByCode(@PathVariable serviceCode: String): AuthService {
+    val service = authServicesService.findService(serviceCode)
+    service?.let {
+      return AuthService(it)
+    } ?: throw ServiceNotFoundException("Service with code $serviceCode does not exist")
+  }
 }
 
 @Schema(description = "Digital Services")
@@ -57,3 +69,5 @@ data class AuthService(
 ) {
   constructor(s: Service) : this(s.code, s.name, s.description, s.email, s.url)
 }
+
+class ServiceNotFoundException(val error: String) : Exception(error)
